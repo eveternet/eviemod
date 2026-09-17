@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.eviemod'
-version = '2.1.0+26.1.2'
+version = '2.1.1+26.1.2'
 
 repositories {
     flatDir { dirs 'libs'; content { includeGroup 'local.eviemod' } }
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     minecraft 'com.mojang:minecraft:26.1.2'
-    implementation 'net.fabricmc:fabric-loader:0.19.3'
+    implementation 'net.fabricmc:fabric-loader:0.19.5'
     implementation 'net.fabricmc.fabric-api:fabric-api:0.155.2+26.1.2'
     include implementation('maven.modrinth:yacl:3.9.2+26.1-fabric')
     include implementation('local.eviemod:dandelion:1.0.0-alpha.21+26.1')

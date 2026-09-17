@@ -10,14 +10,16 @@ MoulConfig supplies a scrolling category sidebar, search and collapsible groups.
 
 `SettingsCategories` holds a list of category factories. Add a factory there (large features can own separate classes), give categories/groups/options stable `eviemod:` identifiers, and bind options to a draft in `ModSettings.Values`. Use descriptive labels and search tags for terminology users may search. Keep groups focused on a feature. Persist defaults and validation in `ModSettings`, separate from rendering.
 
-`EviemodSettings` creates the screen, adapts the validated atomic JSON store, and handles save errors. Ordinary settings save when the screen closes. All entry points use that shell: the eviemod command, Mod Menu and the paintbrush shortcut. The latter starts with a search filter, which users can clear.
+`EviemodSettings` creates the settings screen, adapts the validated atomic JSON store, and handles save errors. Ordinary settings save when the settings screen closes. The Paint Brush category uses Dandelion's standard `ButtonOption` to open a separate editor, as explicitly requested by the user. `/paintbrush` opens that editor directly.
 
-## Rich Paint Brush editor
+## Paint Brush editor
 
-`PaintBrushController` mounts the existing model/dye/name editor as a custom MoulConfig option. It translates rendering coordinates and mouse/keyboard events and lets the shell handle Escape unless an autocomplete list consumes it. The item picker returns to the same shell. One editor instance owns drafts for the lifetime of the settings screen, including category changes and picker visits. Apply and Reset retain their existing per-tab persistence behavior. Closing the shell asks before discarding unapplied item edits.
+`PaintBrushScreen` retains native Minecraft widget input, model/dye/name editing and the inventory picker. The editor returns to its originating settings screen on Done; opening the picker and switching tabs preserve drafts. Apply and Reset retain their existing per-tab persistence behavior. Closing asks before discarding unapplied edits.
+
+`EditorTheme` isolates use of MoulConfig's public panel renderer so the editor and picker match the settings surfaces. Native widgets and the existing autocomplete/selection logic remain in use. There is no custom MoulConfig option or input-coordinate bridge for the editor.
 
 ## Dependency boundaries
 
-The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. This adapter uses two implementation-level boundaries: `ConfigManagerImpl` (required by this Dandelion version's MoulConfig save wiring) and custom MoulConfig option rendering/input. Recheck those when upgrading; the custom editor currently targets MoulConfig only. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
+The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
 
-`./gradlew build` checks parsing, identity, persistence and editor helpers. `./gradlew runClient -PuiSmokeTest -PuiCapture` exercises the actual backend's input routing and captures the settings/editor screens. The fixture uses fixed coordinates for the development GUI size and is excluded from release artifacts.
+`./gradlew build` checks parsing, identity, persistence and editor helpers. `./gradlew runClient -PuiSmokeTest -PuiCapture` exercises editor input, picker return and closing back to settings, and captures the settings/editor screens. The fixture maps editor coordinates through the same viewport transform and is excluded from release artifacts.

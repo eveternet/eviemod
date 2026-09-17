@@ -32,15 +32,13 @@ public final class EviemodSettings {
         if (STORE.error() != null) return new AlertScreen(() -> Minecraft.getInstance().setScreen(parent),
             Component.literal("Settings could not be loaded"), Component.literal(STORE.error()));
         var manager = new SettingsManager();
-        var paint = new PaintBrushScreen(fixtures);
         var screen = (MoulConfigScreenComponent) DandelionConfigScreen.create(manager, (defaults, draft, builder) ->
             builder.title(Component.literal("eviemod")).search(search)
-                .categories(SettingsCategories.create(draft, paint)))
+                .categories(SettingsCategories.create(draft, fixtures)))
             .generateScreen(parent, ConfigType.MOUL_CONFIG);
-        paint.attach(screen);
-        screen.getGuiContext().setCloseRequestHandler(() -> paint.requestClose(() -> {
+        screen.getGuiContext().setCloseRequestHandler(() -> {
             if (manager.save()) Minecraft.getInstance().setScreen(parent);
-        }));
+        });
         return screen;
     }
 

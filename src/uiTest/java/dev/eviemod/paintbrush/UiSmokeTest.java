@@ -30,7 +30,7 @@ public final class UiSmokeTest implements ClientModInitializer {
             if (opened && Boolean.getBoolean("eviemod.capture")) {
                 captureTicks++;
                 if (captureTicks == 30 || captureTicks == 80 || captureTicks == 140 || captureTicks == 185 || captureTicks == 200) {
-                    String name = captureTicks == 30 ? "rarity-square.png" : captureTicks == 80 ? "settings.png" : captureTicks == 140 ? "paintbrush-embedded.png" : captureTicks == 185 ? "paintbrush-restored.png" : "paintbrush-close.png";
+                    String name = captureTicks == 30 ? "rarity-square.png" : captureTicks == 80 ? "settings.png" : captureTicks == 140 ? "paintbrush-editor.png" : captureTicks == 185 ? "paintbrush-restored.png" : "paintbrush-close.png";
                     net.minecraft.client.Screenshot.grab(client.gameDirectory, name, client.getMainRenderTarget(), 1,
                         message -> org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info(message.getString()));
                 }
@@ -38,22 +38,26 @@ public final class UiSmokeTest implements ClientModInitializer {
                 if (captureTicks == 100) {
                     openEditor(client);
                 }
-                if (captureTicks == 108) { click(client, 230, 115); type(client, "minecraft:diamond"); }
+                if (captureTicks == 108) { editorClick(client, 30, 115); type(client, "minecraft:diamond"); }
                 if (captureTicks == 110) { key(client, 264); key(client, 258); }
-                if (captureTicks == 115) click(client, 347, 99);
-                if (captureTicks == 120) { click(client, 230, 115); type(client, "Fixture name"); }
-                if (captureTicks == 148) { click(client, 345, 55); key(client, 269); for (int i=0; i<20; i++) key(client, 259); }
-                if (captureTicks == 155) click(client, 80, 82);
-                if (captureTicks == 172) click(client, 80, 97);
-                if (captureTicks == 178) click(client, 203, 83);
-                if (captureTicks == 180) {
-                    if (client.screen instanceof net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent)
-                        throw new AssertionError("Choose item must open the picker");
+                if (captureTicks == 115) editorClick(client, 350, 82);
+                if (captureTicks == 120) { editorClick(client, 30, 115); type(client, "Fixture name"); }
+                if (captureTicks == 148) editorClick(client, 50, 82);
+                if (captureTicks == 155) editorClick(client, 350, 82);
+                if (captureTicks == 172) editorClick(client, 40, 50);
+                if (captureTicks == 178) {
+                    if (client.screen instanceof PaintBrushScreen) throw new AssertionError("Choose item must open the picker");
                     client.screen.onClose();
                 }
                 if (captureTicks == 192) client.screen.onClose();
                 if (captureTicks == 205) {
                     if (!(client.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen)) throw new AssertionError("Unapplied Paint Brush drafts must prompt before closing");
+                    var discard = client.screen.children().stream()
+                        .filter(child -> child instanceof net.minecraft.client.gui.components.Button button && button.getMessage().getString().equals("Discard edits"))
+                        .map(child -> (net.minecraft.client.gui.components.Button) child).findFirst().orElseThrow();
+                    click(client, discard.getX() + 3, discard.getY() + 3);
+                    if (!(client.screen instanceof net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent))
+                        throw new AssertionError("Editor must return to its settings parent");
                     client.stop();
                 }
             }
@@ -67,11 +71,17 @@ public final class UiSmokeTest implements ClientModInitializer {
         });
     }
     private static void openEditor(net.minecraft.client.Minecraft client) {
-        client.setScreen(EviemodSettings.screen(null, "paint brush", List.of(
+        client.setScreen(new PaintBrushScreen(EviemodSettings.screen(null), List.of(
                     item(Items.BOW, "Precise Juju Shortbow", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d"),
                     item(Items.LEATHER_CHESTPLATE, "Crimson Chestplate", "eb11aa00-052d-48fa-bf56-09c2e1a4a12e"),
                     item(Items.DIAMOND_SWORD, "Aspect of the Dragons", "eb11aa00-052d-48fa-bf56-09c2e1a4a12f"),
                     item(Items.APPLE, "No UUID", null))));
+    }
+
+    private static void editorClick(net.minecraft.client.Minecraft client, int x, int y) {
+        var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
+        int px = (viewport.width() - 440) / 2, py = (viewport.height() - 260) / 2;
+        click(client, Math.round((px + x) * viewport.scale()), Math.round((py + y) * viewport.scale()));
     }
 
     private static void click(net.minecraft.client.Minecraft client, int x, int y) {

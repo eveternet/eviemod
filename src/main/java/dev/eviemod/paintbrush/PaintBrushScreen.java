@@ -14,8 +14,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 import dev.eviemod.paintbrush.mixin.EditBoxSelectionAccessor;
 
 public final class PaintBrushScreen extends CompactScreen {
-    private net.minecraft.client.gui.screens.Screen host;
-    private boolean embedded;
+    private final net.minecraft.client.gui.screens.Screen parent;
     private final Map<UUID, Draft> drafts = new HashMap<>();
     private final List<ItemStack> fixtures;
     private ItemStack selected = ItemStack.EMPTY;
@@ -31,21 +30,21 @@ public final class PaintBrushScreen extends CompactScreen {
     private int anchor, cursor;
     private boolean restoreNameFocus, offeredPicker;
 
-    public PaintBrushScreen() { this(null); }
-    PaintBrushScreen(List<ItemStack> fixtures) {
-        super(Component.literal("Paint Brush")); this.fixtures = fixtures;
+    public PaintBrushScreen() { this(null, null); }
+    PaintBrushScreen(List<ItemStack> fixtures) { this(null, fixtures); }
+    PaintBrushScreen(net.minecraft.client.gui.screens.Screen parent, List<ItemStack> fixtures) {
+        super(Component.literal("Paint Brush")); this.parent = parent; this.fixtures = fixtures;
         ItemStack held = minecraft.player != null ? minecraft.player.getMainHandItem()
             : fixtures != null && !fixtures.isEmpty() ? fixtures.getFirst() : ItemStack.EMPTY;
         if (SkyBlockUuid.read(held) != null) setItem(held);
     }
 
     @Override protected void init() {
-        if (embedded) { viewWidth = 440; viewHeight = 260; } else updateViewport();
+        updateViewport();
         clearWidgets(); styleButtons.clear(); nameBox = null; modelField = null; colorSelection = null; dyeTab = null;
         w = 440; h = 260; x = (viewWidth - w) / 2; y = (viewHeight - h) / 2;
-        if (embedded) y = -28;
         left = x + 16; contentWidth = w - 32;
-        if (!embedded) button("Done", x + w - 62, y + 8, 50, this::onClose);
+        button("Done", x + w - 62, y + 8, 50, this::onClose);
         button("Choose item", left, y + 42, 98, () -> minecraft.setScreen(new InventoryPicker()));
         if (draft == null) return;
         String[] tabs = {"Model", "Dye", "Name"};
@@ -105,7 +104,7 @@ public final class PaintBrushScreen extends CompactScreen {
         return addRenderableWidget(box);
     }
     @Override public void tick() {
-        if (!embedded && draft == null && !offeredPicker) {
+        if (draft == null && !offeredPicker) {
             offeredPicker = true; minecraft.setScreen(new InventoryPicker()); return;
         }
         if (restoreNameFocus && nameBox != null) {
@@ -132,7 +131,7 @@ public final class PaintBrushScreen extends CompactScreen {
     private void select(ItemStack stack) {
         UUID id = SkyBlockUuid.read(stack); if (id == null) return;
         setItem(stack);
-        error = ""; if (embedded) rebuildWidgets(); minecraft.setScreen(embedded ? host : this);
+        error = ""; minecraft.setScreen(this);
     }
     private void setItem(ItemStack stack) {
         selected = stack.copy();
@@ -191,10 +190,12 @@ public final class PaintBrushScreen extends CompactScreen {
     }
     @Override protected void renderContents(GuiGraphicsExtractor g, int mx, int my, float delta) {
         updateSelection();
-        if (!embedded) g.fill(0, 0, viewWidth, viewHeight, 0xb810121a);
-        g.fill(x, embedded ? 0 : y, x + w, y + h, embedded ? 0xff202020 : 0xff20232e);
-        if (!embedded) g.fill(x, y, x + w, y + 32, 0xff303448);
-        if (!embedded) g.text(font, "Paint Brush", left, y + 12, 0xffffb9da);
+        g.fill(0, 0, viewWidth, viewHeight, 0x99000000);
+        EditorTheme.panel(g, x, y, w, h);
+        EditorTheme.panel(g, x + 5, y + 5, w - 10, 28);
+        g.text(font, "Paint Brush", x + (w - font.width("Paint Brush")) / 2, y + 15, 0xffcccccc);
+        EditorTheme.panel(g, x + 5, y + 37, w - 10, h - 42);
+        EditorTheme.inset(g, left - 5, y + 101, contentWidth + 10, 105);
         if (draft == null) g.text(font, "Choose an item to customize", left, y + 112, 0xffcccccc);
         if (draft != null) {
             var preview = selected.copy(); preview.remove(DataComponents.CUSTOM_DATA);
@@ -217,23 +218,16 @@ public final class PaintBrushScreen extends CompactScreen {
         if (error != null && !error.isEmpty()) g.text(font, font.plainSubstrByWidth(error, contentWidth), left, y + h - 12, 0xffff8585);
     }
     @Override public boolean isPauseScreen() { return false; }
-    boolean dismissSuggestions() { return modelField != null && modelField.isFocused() && modelField.keyPressed(new KeyEvent(256, 0, 0)); }
-    void attach(net.minecraft.client.gui.screens.Screen host) {
-        this.host = host; embedded = true; init(440, 260);
-    }
-    void renderEmbedded(GuiGraphicsExtractor graphics, int mx, int my) {
-        tick(); renderContents(graphics, mx, my, 0);
-    }
     boolean hasUnappliedEdits() { return drafts.values().stream().anyMatch(d -> d.dirty[0] || d.dirty[1] || d.dirty[2]); }
     void requestClose(Runnable close) {
         if (hasUnappliedEdits()) {
             minecraft.setScreen(new ConfirmScreen(discard -> {
-                if (discard) close.run(); else minecraft.setScreen(embedded ? host : this);
+                if (discard) close.run(); else minecraft.setScreen(this);
             }, Component.literal("Discard unapplied edits?"), Component.literal("Applied changes are already saved."),
                 Component.literal("Discard edits"), Component.literal("Keep editing")));
         } else close.run();
     }
-    @Override public void onClose() { requestClose(() -> minecraft.setScreen(embedded ? host : null)); }
+    @Override public void onClose() { requestClose(() -> minecraft.setScreen(parent)); }
     private static final class Draft {
         String model, dye, start = "", end = "";
         NameDocument name;
@@ -271,7 +265,7 @@ public final class PaintBrushScreen extends CompactScreen {
             addRenderableWidget(new EditorButton("Back", px + 196, py + 7, 50, this::onClose, () -> false));
         }
         @Override protected void renderContents(GuiGraphicsExtractor g, int mx, int my, float delta) {
-            g.fill(0, 0, viewWidth, viewHeight, 0xb810121a); g.fill(px, py, px + 260, py + 204, 0xff20232e);
+            g.fill(0, 0, viewWidth, viewHeight, 0x99000000); EditorTheme.panel(g, px, py, 260, 204);
             g.text(font, "Choose item", px + 13, py + 12, 0xff55ffff);
             renderWidgets(g, mx, my, delta);
             for (var slot : slots) {
@@ -283,7 +277,7 @@ public final class PaintBrushScreen extends CompactScreen {
                 }
             }
         }
-        @Override public void onClose() { minecraft.setScreen(embedded ? host : PaintBrushScreen.this); }
+        @Override public void onClose() { minecraft.setScreen(PaintBrushScreen.this); }
         @Override public boolean isPauseScreen() { return false; }
         private record Slot(ItemStack stack, int x, int y, boolean enabled) {}
     }

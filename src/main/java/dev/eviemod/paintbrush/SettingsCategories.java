@@ -9,15 +9,15 @@ import net.minecraft.resources.Identifier;
 /** Each feature owns a category factory. New features need no changes to the screen/input shell. */
 final class SettingsCategories {
     @FunctionalInterface interface CategoryFactory {
-        ConfigCategory create(ModSettings.Values settings, PaintBrushScreen paint);
+        ConfigCategory create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures);
     }
     private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::paintBrush);
-    static List<ConfigCategory> create(ModSettings.Values settings, PaintBrushScreen paint) {
-        return CATEGORIES.stream().map(factory -> factory.create(settings, paint)).toList();
+    static List<ConfigCategory> create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures) {
+        return CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList();
     }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("eviemod", path); }
     private static Component text(String value) { return Component.literal(value); }
-    private static ConfigCategory appearance(ModSettings.Values draft, PaintBrushScreen paint) {
+    private static ConfigCategory appearance(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("appearance")).name(text("Appearance"))
             .description(text("Inventory and interface appearance"))
             .group(OptionGroup.createBuilder().id(id("rarity")).name(text("Item rarity backgrounds"))
@@ -38,13 +38,14 @@ final class SettingsCategories {
                     .controller(IntegerController.createBuilder().range(0, 100).slider(5).build()).build())
                 .build()).build();
     }
-    private static ConfigCategory paintBrush(ModSettings.Values draft, PaintBrushScreen paint) {
+    private static ConfigCategory paintBrush(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("paintbrush")).name(text("Paint Brush"))
             .description(text("Customize an item's model, dye and name"))
-            .option(Option.<String>createBuilder().id(id("paintbrush/editor")).name(text("Paint Brush item editor"))
-                .description(text("Choose an item, then edit its model, dye or name."))
+            .option(ButtonOption.createBuilder().id(id("paintbrush/editor")).name(text("Paint Brush editor"))
+                .description(text("Customize an item's model, dye and name."))
                 .tags(text("model"), text("dye"), text("color"), text("name"), text("rename"), text("paintbrush"))
-                .binding("", () -> "", value -> {})
-                .controller(new PaintBrushController(paint)).build()).build();
+                .prompt(text("Open editor"))
+                .action(parent -> net.minecraft.client.Minecraft.getInstance().setScreen(new PaintBrushScreen(parent, fixtures)))
+                .build()).build();
     }
 }

@@ -98,7 +98,7 @@ public final class PaintBrushClient implements ClientModInitializer {
                 equipmentColors.observe(slot, client.player.getItemBySlot(slot));
             if (openEditor) {
                 openEditor = false;
-                if (client.player != null) client.setScreen(EviemodSettings.screen(null, "paint brush", null));
+                if (client.player != null) client.setScreen(new PaintBrushScreen());
             }
         });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) -> {

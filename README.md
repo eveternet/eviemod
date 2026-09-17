@@ -1,14 +1,14 @@
 # eviemod
 
-Client-only Fabric mod for **Minecraft 26.1.2**, Java 25, Fabric Loader 0.19.3+, and Fabric API 0.155.2+26.1.2 or a compatible newer release for 26.1.2.
+Client-only Fabric mod for **Minecraft 26.1.2**, Java 25, Fabric Loader 0.19.5+, and Fabric API 0.155.2+26.1.2 or a compatible newer release for 26.1.2.
 
-Install `build/libs/eviemod-2.1.0+26.1.2.jar` and Fabric API in your instance's `mods` directory. Remove the old Skyshitter JAR when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
+Install `build/libs/eviemod-2.1.1+26.1.2.jar` and Fabric API in your instance's `mods` directory. Remove the old Skyshitter JAR when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
 
 On first launch, old `skyshitter-paintbrush.json`, `skyshitter-colors.json`, and `skyshitter-names.json` files are copied to their `eviemod-*` equivalents. Original files are preserved, and existing eviemod files are never overwritten.
 
 ## Settings and rarity backgrounds
 
-Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. Paint Brush is embedded directly in its own category; `/paintbrush` opens the same screen filtered to that category. Clear the search to browse all categories.
+Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. The Paint Brush category has an **Open editor** button. `/paintbrush` opens that same standalone editor directly. Its panels use MoulConfig’s renderer, with matching dark surfaces and cyan selection accents.
 
 Rarity backgrounds default to square with 45% opacity. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
 
@@ -22,7 +22,7 @@ Limits: an item must first be observed with rarity data. A same-type, same-ID, U
 
 ## Use the editor
 
-Run `/paintbrush` to open its category with the held item selected when it has a valid SkyBlock UUID. Otherwise, use **Choose item** to select one. **Choose item** opens an inventory-shaped picker with the main inventory, hotbar, and equipped items. Opening it takes a fresh inventory snapshot. Empty slots and items without a SkyBlock UUID are disabled. Use **Choose item** to pick another item.
+Run `/paintbrush` to open the editor with the held item selected when it has a valid SkyBlock UUID. Otherwise, the item picker opens automatically. **Done** returns to the screen that opened the editor. **Choose item** opens an inventory-shaped picker with the main inventory, hotbar, and equipped items. Opening it takes a fresh inventory snapshot. Empty slots and items without a SkyBlock UUID are disabled. Use **Choose item** to pick another item.
 
 - **Model:** type an Identifier to see inline completions from active resource packs. Up/Down navigates all matches; Tab or Enter accepts; Escape dismisses the suggestions. Click a suggestion to choose it. Unqualified paths such as `diamond` complete across namespaces. There is no separate model browser.
 - **Dye:** search the 66 bundled Hypixel dye presets, select a swatch, or enter an RGB hex color. Click the field or press Down to browse; Up/Down navigates and Tab/Enter selects. Animated presets have live swatches and previews. The tab is disabled for undyeable items and replacement models without dye tinting (such as vanilla netherite armor).
@@ -102,7 +102,7 @@ With Java 25 selected:
 ./gradlew build
 ```
 
-Output: `build/libs/eviemod-2.1.0+26.1.2.jar` (the sources JAR is not the installable mod).
+Output: `build/libs/eviemod-2.1.1+26.1.2.jar` (the sources JAR is not the installable mod).
 
 Automated tests cover UUID extraction, missing and malformed UUIDs, distinct UUIDs, unchanged stack components, changed stack data, persistence, clearing, and malformed config preservation. Color tests also cover all four leather armor pieces, opaque black, hex validation, non-leather exclusions, persistence, and unchanged dye components. Name tests cover persistence, clearing, validation, fallback, styling, Unicode gradient endpoints and interpolation, selection ranges in either direction, edits preserving formatting, styled-space persistence, legacy migration, autocomplete matching, suggestion click routing and acceptance, dropdown bounds and focus, and unchanged stack components.
 
@@ -125,3 +125,9 @@ The build passed all 50 tests. Tests cover rarity parsing, long UUID/lore gaps, 
 The build passes all 55 tests. The development client renders the MoulConfig shell and embedded Paint Brush editor. Its automated interaction fixture exercises model completion, name input, category switching with preserved drafts, and the unapplied-edit close confirmation. Screenshots are saved under `run/screenshots`. These checks use local fixture items, not a live Hypixel session.
 
 Earlier references to YACL as Skyblocker's main configuration UI were incomplete: the supplied version uses Dandelion, which supports both YACL and MoulConfig. eviemod now selects MoulConfig explicitly.
+
+## Editor correction in 2.1.1
+
+Paint Brush opens as a separate compact editor again, both from its command and the standard Dandelion **Open editor** button. The embedded custom-option adapter has been removed. The editor and item picker reuse MoulConfig's panel renderer; selected tabs use cyan text and an underline. Existing model/dye/name editing, explicit Apply/Reset, drafts and discard confirmation remain.
+
+The UI fixture checks model completion, name entry, tab switching, picker return, and closing back to settings. Local fixtures do not establish live SkyBlock compatibility.

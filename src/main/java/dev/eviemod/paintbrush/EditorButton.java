@@ -17,11 +17,15 @@ final class EditorButton extends AbstractWidget {
     }
     @Override protected void extractWidgetRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         boolean on = selected.getAsBoolean();
-        int background = !active ? 0xff29292e : on ? 0xff36595b : isHoveredOrFocused() ? 0xff41414b : 0xff303038;
-        g.fill(getX(), getY(), getRight(), getBottom(), background);
-        if (on) g.fill(getX(), getBottom() - 2, getRight(), getBottom(), 0xff55ffff);
+        EditorTheme.panel(g, getX(), getY(), getWidth(), getHeight());
+        if (active && isHoveredOrFocused()) g.fill(getX() + 1, getY() + 1, getRight() - 1, getBottom() - 1, 0xff36363e);
         var font = Minecraft.getInstance().font;
-        g.text(font, getMessage(), getX() + (getWidth() - font.width(getMessage())) / 2, getY() + 6, active ? -1 : 0xff6d7280);
+        g.text(font, getMessage(), getX() + (getWidth() - font.width(getMessage())) / 2, getY() + 6, !active ? 0xff6d7280 : on ? 0xff55ffff : 0xffcccccc);
+        if (on) {
+            int labelWidth = font.width(getMessage());
+            int labelX = getX() + (getWidth() - labelWidth) / 2;
+            g.fill(labelX, getY() + 16, labelX + labelWidth, getY() + 17, 0xff55ffff);
+        }
     }
     @Override public void onClick(MouseButtonEvent event, boolean doubleClick) { action.run(); }
     @Override public boolean keyPressed(KeyEvent event) {
