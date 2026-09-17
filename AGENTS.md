@@ -2,6 +2,12 @@
 
 These instructions apply throughout eviemod.
 
+## Anti-slop: intentional features, off by default
+
+- We are anti-slop. Keep changes purposeful and focused on the requested behavior. Avoid feature creep, redundant controls, decorative clutter, filler copy, and speculative abstractions.
+- Every new feature must default to off and require the player to explicitly enable it in the shared configuration UI. This applies to fresh installs, newly added settings in existing configurations, and configuration resets; missing settings must resolve to off.
+- Updates and migrations must never silently enable a new feature. Preserve the player's explicit choices for existing features.
+
 ## Commit after every build
 
 - After every build, commit any uncommitted changes made for the current task. Include the build outcome in the commit message; clearly label failed builds as work in progress.
