@@ -48,7 +48,12 @@ public final class ColorOverrides {
     }
 
     public int resolve(ItemStack stack, int original) {
-        if (overrides.isEmpty() || !isDyeable(stack)) return original;
+        return resolve(stack, original, false);
+    }
+
+    // Called only by dye rendering: a selected replacement model supplies its own dye tint.
+    public int resolve(ItemStack stack, int original, boolean hasModelOverride) {
+        if (overrides.isEmpty() || (!hasModelOverride && !isDyeable(stack))) return original;
         Integer custom = get(SkyBlockUuid.read(stack));
         return custom == null ? original : 0xff000000 | custom;
     }

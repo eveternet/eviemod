@@ -30,6 +30,22 @@ class ColorOverridesTest {
         return stack;
     }
 
+    @Test void replacementModelCanDyeGoldWithoutChangingTheRealItem() throws Exception {
+        var store = new ColorOverrides(directory.resolve("colors.json"));
+        var stack = new ItemStack(Items.GOLDEN_CHESTPLATE);
+        stack.set(DataComponents.CUSTOM_DATA, armor().get(DataComponents.CUSTOM_DATA));
+        var before = stack.copy();
+        store.set(KEY, 0xff88cc);
+        assertEquals(42, store.resolve(stack, 42));
+        assertEquals(0xffff88cc, store.resolve(stack, 42, true));
+        assertTrue(ItemStack.isSameItemSameComponents(before, stack));
+        store.set(KEY, null);
+        assertEquals(42, store.resolve(stack, 42, true));
+        store.set(KEY, 0xff88cc);
+        stack.remove(DataComponents.CUSTOM_DATA);
+        assertEquals(42, store.resolve(stack, 42, true));
+    }
+
     @Test void validatesExactRgbAndAllowsBlack() {
         assertEquals(0, ColorOverrides.parseHex("#000000"));
         assertEquals(0xffffff, ColorOverrides.parseHex("FFFFFF"));

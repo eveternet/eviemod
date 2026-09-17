@@ -139,17 +139,11 @@ public final class PaintBrushScreen extends CompactScreen {
         if (tab == 1 && !canDye()) tab = 0;
     }
     private boolean canDye() {
-        if (draft == null || !ColorOverrides.isDyeable(selected)) return false;
-        if (draft.model.isBlank()) return true;
+        if (draft == null) return false;
+        if (draft.model.isBlank()) return ColorOverrides.isDyeable(selected);
         Identifier id = Identifier.tryParse(draft.model);
         if (id == null) return false;
-        return dyeModels.computeIfAbsent(id, model -> {
-            var resource = minecraft.getResourceManager().getResource(Identifier.fromNamespaceAndPath(model.getNamespace(), "items/" + model.getPath() + ".json"));
-            if (resource.isEmpty()) return false;
-            try (var reader = resource.get().openAsReader()) {
-                return ItemAppearance.hasDyeTint(com.google.gson.JsonParser.parseReader(reader));
-            } catch (Exception e) { return false; }
-        });
+        return dyeModels.computeIfAbsent(id, ItemAppearance::hasDyeTint);
     }
     private void apply() {
         try {

@@ -46,7 +46,7 @@ public final class PaintBrushClient implements ClientModInitializer {
     }
 
     public static int resolveColor(ItemStack stack, int original) {
-        int resolved = colors == null ? original : colors.resolve(stack, original);
+        int resolved = colors == null ? original : colors.resolve(stack, original, overrides != null && overrides.get(SkyBlockUuid.read(stack)) != null);
         var client = net.minecraft.client.Minecraft.getInstance();
         updateEquipmentContext(client);
         if (colors != null && client.player != null && ColorOverrides.isLeatherArmor(stack)) {
@@ -166,7 +166,9 @@ public final class PaintBrushClient implements ClientModInitializer {
     private static int color(FabricClientCommandSource source, String action, String value) {
 
         ItemStack stack = source.getPlayer().getMainHandItem();
-        if (!ColorOverrides.isDyeable(stack)) return error(source, "Hold a dyeable item.");
+        var model = overrides.get(SkyBlockUuid.read(stack));
+        if (!(model == null ? ColorOverrides.isDyeable(stack) : ItemAppearance.hasDyeTint(model)))
+            return error(source, "Hold a dyeable item.");
         var uuid = SkyBlockUuid.read(stack);
         if (uuid == null) return error(source, "The held armor has no valid SkyBlock UUID.");
         if (action.equals("info")) {

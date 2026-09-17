@@ -43,3 +43,11 @@ Player/world changes clear all rarity memory. Changed/empty local slots clear th
 A player/world change clears session rarity memory. Setting `rememberRarity` to false in `config/eviemod.json` and reloading disables continuity. If using Skyblocker too, disable one mod’s rarity backgrounds to avoid drawing both.
 
 Source reference: EquipmentColorContinuity, WornArmorOwnership, EquipmentLayerRendererMixin, RarityMemory.
+
+## Paintbrush equipment replacement
+
+Selecting a registered armor item's default model also selects its equipment asset for worn rendering when the source and replacement equipment slots match. For example, `minecraft:leather_chestplate` on a golden chestplate uses leather equipment layers. Unknown/custom model IDs without a corresponding item, non-equipment models, and mismatched slots retain the original worn asset. This adapter reads the registered EQUIPPABLE component; it never changes a live stack.
+
+Dye availability follows the selected model's dye tint instead of requiring the original item to be dyeable. The dye render callback accepts saved colors on replaced models, including gold-to-leather. Commands use the active resource pack's item definition for the same check. Clearing the model restores the original equipment appearance. These changes require an explicitly selected per-item model; no defaults or settings are enabled.
+
+Regression fixtures cover all four gold-to-leather slots, invalid/mismatched replacements, dye resolution/reset, missing UUIDs, and component immutability. Model replacement still requires a valid UUID; the existing missing-UUID continuity remains limited to native leather armor. Live SkyBlock validation is separate from these local checks.
