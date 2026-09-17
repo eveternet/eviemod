@@ -5,7 +5,7 @@ import net.minecraft.resources.Identifier;
 
 public final class ItemAppearance {
     private ItemAppearance() {}
-    public static boolean supportsModel(net.minecraft.world.item.ItemStack stack) {
+    public static boolean supportsCustomTexture(net.minecraft.world.item.ItemStack stack) {
         var equipped = stack.get(net.minecraft.core.component.DataComponents.EQUIPPABLE);
         return !stack.isEmpty() && !HelmetSkins.supports(stack) && (equipped == null || !equipped.slot().isArmor());
     }

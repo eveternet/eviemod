@@ -46,7 +46,7 @@ public final class PaintBrushClient implements ClientModInitializer {
     }
 
     public static int resolveColor(ItemStack stack, int original) {
-        int resolved = colors == null ? original : colors.resolve(stack, original, ItemAppearance.supportsModel(stack) && overrides != null && overrides.get(SkyBlockUuid.read(stack)) != null);
+        int resolved = colors == null ? original : colors.resolve(stack, original, overrides != null && overrides.get(SkyBlockUuid.read(stack)) != null);
         var client = net.minecraft.client.Minecraft.getInstance();
         updateEquipmentContext(client);
         if (colors != null && client.player != null && ColorOverrides.isLeatherArmor(stack)) {
@@ -75,9 +75,8 @@ public final class PaintBrushClient implements ClientModInitializer {
     public static Identifier resolve(ItemStack stack, Identifier original) {
         var skin = HelmetSkins.resolve(stack);
         if (skin != null) return Identifier.withDefaultNamespace("player_head");
-        if (!ItemAppearance.supportsModel(stack)) return original;
         Identifier resolved = overrides == null ? original : overrides.resolve(stack, original);
-        if (ImportedTextures.isImported(resolved) && (ImportedTextures.isHelmet(resolved) || !TextureImportClient.available(resolved))) return original;
+        if (ImportedTextures.isImported(resolved) && (!ItemAppearance.supportsCustomTexture(stack) || ImportedTextures.isHelmet(resolved) || !TextureImportClient.available(resolved))) return original;
         return resolved;
     }
 
@@ -194,8 +193,8 @@ public final class PaintBrushClient implements ClientModInitializer {
 
     private static int edit(FabricClientCommandSource source, String value) {
 
-        if (value != null && !ItemAppearance.supportsModel(source.getPlayer().getMainHandItem()))
-            return error(source, "Model changes are currently available for held items only.");
+        if (value != null && ImportedTextures.isImported(Identifier.tryParse(value)) && !ItemAppearance.supportsCustomTexture(source.getPlayer().getMainHandItem()))
+            return error(source, "Custom texture imports are available for held items only.");
         if (!configReady) return error(source, "Config could not be loaded. Fix eviemod-paintbrush.json and use /paintbrush reload before saving.");
         var uuid = SkyBlockUuid.read(source.getPlayer().getMainHandItem());
         if (uuid == null) return error(source, "The held item has no valid SkyBlock UUID.");

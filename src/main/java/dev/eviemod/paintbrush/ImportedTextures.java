@@ -28,23 +28,40 @@ final class ImportedTextures {
     private final Path root;
     ImportedTextures(Path resourcePacks) { root = resourcePacks.resolve(PACK_FOLDER); }
 
-    Identifier importFile(Path file, Preset preset) throws IOException {
+    record Prepared(byte[] png, Preset preset, boolean likelyAnimated) {}
+    static Prepared prepare(Path file, Preset preset) throws IOException {
         if (!Files.isRegularFile(file) || Files.size(file) > MAX_BYTES) throw new IOException("Choose a PNG file under 4 MB.");
-        try (var stream = Files.newInputStream(file)) {
-            Path sidecar = file.resolveSibling(file.getFileName() + ".mcmeta");
-            String metadata = null;
-            if (Files.exists(sidecar)) {
-                if (!Files.isRegularFile(sidecar) || Files.size(sidecar) > 65536) throw new IOException("Animation metadata must be under 64 KB.");
-                metadata = Files.readString(sidecar);
+        byte[] png;
+        try (var stream = Files.newInputStream(file)) { png = validatedPng(stream.readNBytes(MAX_BYTES + 1), preset); }
+        var image = ImageIO.read(new ByteArrayInputStream(png));
+        int small = Math.min(image.getWidth(), image.getHeight()), large = Math.max(image.getWidth(), image.getHeight());
+        return new Prepared(png, preset, preset != Preset.HELMET && large > small && large % small == 0);
+    }
+    Identifier importFile(Path file, Preset preset) throws IOException { return importFile(file, preset, null); }
+    Identifier importFile(Path file, Preset preset, Path metadata) throws IOException { return importPrepared(prepare(file, preset), metadata); }
+    Identifier importPrepared(Prepared input, Path metadata) throws IOException {
+        String json = null;
+        if (metadata != null) {
+            if (!Files.isRegularFile(metadata)) throw new IOException("Choose an animation .mcmeta file.");
+            try (var stream = Files.newInputStream(metadata)) {
+                byte[] bytes = stream.readNBytes(65537);
+                if (bytes.length > 65536) throw new IOException("Animation metadata must be under 64 KB.");
+                json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
             }
-            return importPng(stream.readNBytes(MAX_BYTES + 1), preset, metadata);
         }
+        return importPng(input.png(), input.preset(), json);
+    }
+    Identifier importSkin(byte[] bytes, HelmetSkinCatalog.Skin skin) throws IOException {
+        return importPng(bytes, Preset.HELMET, null, skin.modelId());
     }
 
     synchronized Identifier importPng(byte[] bytes, Preset preset) throws IOException {
         return importPng(bytes, preset, null);
     }
     synchronized Identifier importPng(byte[] bytes, Preset preset, String metadata) throws IOException {
+        return importPng(bytes, preset, metadata, null);
+    }
+    private synchronized Identifier importPng(byte[] bytes, Preset preset, String metadata, Identifier catalogId) throws IOException {
         byte[] png = validatedPng(bytes, preset);
         var dimensions = ImageIO.read(new ByteArrayInputStream(png));
         if (metadata != null && preset == Preset.HELMET) throw new IOException("Helmet skins need a single-frame skin PNG.");
@@ -56,7 +73,7 @@ final class ImportedTextures {
             hash = HexFormat.of().formatHex(digest.digest());
         }
         catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
-        var id = Identifier.fromNamespaceAndPath(NAMESPACE, preset.name().toLowerCase(java.util.Locale.ROOT) + "/" + hash);
+        var id = catalogId != null ? catalogId : Identifier.fromNamespaceAndPath(NAMESPACE, preset.name().toLowerCase(java.util.Locale.ROOT) + "/" + hash);
         Path assets = root.resolve("assets").resolve(NAMESPACE);
         // Each file is atomic; the item definition is published last, after all dependencies exist.
         write(assets.resolve(texture(id).getPath()), png);

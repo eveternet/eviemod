@@ -78,17 +78,17 @@ class ImportedTexturesTest {
         assertFalse(ImportedTextures.isHelmet(Identifier.parse("other:helmet/" + "a".repeat(64))));
         assertFalse(ImportedTextures.isHelmet(Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/invalid")));
     }
-    @Test void animationSidecarSurvivesImportAndChangesIdentity() throws Exception {
+    @Test void explicitAnimationFileSurvivesImportAndChangesIdentity() throws Exception {
         var source = directory.resolve("hyperion.png"); Files.write(source, png(16, 304));
         var sidecar = directory.resolve("hyperion.png.mcmeta");
         Files.writeString(sidecar, "{\"animation\":{\"frametime\":2,\"interpolate\":true}}");
         var imports = new ImportedTextures(directory);
-        var animated = imports.importFile(source, ImportedTextures.Preset.SWORD);
+        var animated = imports.importFile(source, ImportedTextures.Preset.SWORD, sidecar);
         var copied = directory.resolve(ImportedTextures.PACK_FOLDER).resolve("assets/" + ImportedTextures.NAMESPACE)
             .resolve(ImportedTextures.texture(animated).getPath() + ".mcmeta");
         var metadata = JsonParser.parseString(Files.readString(copied)).getAsJsonObject().getAsJsonObject("animation");
         assertEquals(2, metadata.get("frametime").getAsInt()); assertTrue(metadata.get("interpolate").getAsBoolean());
-        Files.delete(sidecar);
+        // Adjacent metadata must never be read without an explicit selection.
         assertNotEquals(animated, imports.importFile(source, ImportedTextures.Preset.SWORD));
         assertEquals(animated, imports.importPng(png(16, 304), ImportedTextures.Preset.SWORD,
             "{\"animation\":{\"interpolate\":true,\"frametime\":2}}"));
@@ -103,16 +103,41 @@ class ImportedTexturesTest {
         assertFalse(Files.exists(directory.resolve(ImportedTextures.PACK_FOLDER)));
         assertNotNull(TextureAnimation.validate("{\"animation\":{\"frames\":[0,{\"index\":18,\"time\":3}]}}", 16, 304));
     }
-    @Test void armorModelsAreSuspendedAndSkinPreviewUsesDetachedStack() {
+    @Test void customTexturesExcludeArmorAndSkinPreviewUsesDetachedStack() {
         for (var item : new net.minecraft.world.item.Item[] {Items.GOLDEN_HELMET, Items.LEATHER_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.IRON_BOOTS, Items.PLAYER_HEAD})
-            assertFalse(ItemAppearance.supportsModel(item.getDefaultInstance()));
-        assertTrue(ItemAppearance.supportsModel(Items.DIAMOND_SWORD.getDefaultInstance()));
-        assertTrue(ItemAppearance.supportsModel(Items.BOW.getDefaultInstance()));
+            assertFalse(ItemAppearance.supportsCustomTexture(item.getDefaultInstance()));
+        assertTrue(ItemAppearance.supportsCustomTexture(Items.DIAMOND_SWORD.getDefaultInstance()));
+        assertTrue(ItemAppearance.supportsCustomTexture(Items.BOW.getDefaultInstance()));
         var original = Items.GOLDEN_HELMET.getDefaultInstance(); var before = original.copy();
         var copy = HelmetSkins.preview(original, Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/" + "a".repeat(64)));
         assertEquals(Identifier.withDefaultNamespace("player_head"), copy.get(DataComponents.ITEM_MODEL));
         assertNotNull(copy.get(DataComponents.PROFILE));
         assertTrue(net.minecraft.world.item.ItemStack.isSameItemSameComponents(before, original));
+    }
+    @Test void imageRatioPromptsOnlyForPossibleStripsAndAcceptsSeparateMetadata() throws Exception {
+        var source = directory.resolve("strip.png"); Files.write(source, png(16, 304));
+        assertTrue(ImportedTextures.prepare(source, ImportedTextures.Preset.SWORD).likelyAnimated());
+        var metadata = directory.resolve("separately chosen.mcmeta"); Files.writeString(metadata, "{\"animation\":{\"frametime\":2}}");
+        assertNotNull(new ImportedTextures(directory).importFile(source, ImportedTextures.Preset.SWORD, metadata));
+        Files.write(source, png(16, 16));
+        assertFalse(ImportedTextures.prepare(source, ImportedTextures.Preset.SWORD).likelyAnimated());
+        Files.write(source, png(17, 30));
+        assertFalse(ImportedTextures.prepare(source, ImportedTextures.Preset.SWORD).likelyAnimated());
+    }
+    @Test void catalogVariantsAndLegacyLabelsResolveWithoutDownloading() {
+        var knight = HelmetSkinCatalog.find("NECRON_DIAMOND_KNIGHT");
+        assertEquals(15, knight.variants().size());
+        var red = knight.variant("Rose"); assertNotNull(red);
+        var choice = HelmetSkinCatalog.choice(red.modelId());
+        assertEquals(knight, choice.skin()); assertEquals(red, choice.variant());
+        var warden = HelmetSkinCatalog.find("True Warden Skin");
+        var legacy = Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/" + warden.legacyHash());
+        assertEquals(warden, HelmetSkinCatalog.choice(legacy).skin());
+        for (String name : HelmetSkinCatalog.names()) {
+            var skin = HelmetSkinCatalog.find(name);
+            assertEquals(skin.variants().size(), skin.variants().stream().map(HelmetSkinCatalog.Skin::name).distinct().count());
+            for (var variant : skin.variants()) assertEquals(variant, HelmetSkinCatalog.choice(variant.modelId()).variant());
+        }
     }
     @Test void bundledCatalogContainsUniqueNamedSkinsAndSafeTextureHashes() {
         var names = HelmetSkinCatalog.names(); assertTrue(names.size() > 100);

@@ -4,597 +4,4231 @@
     {
       "id": "YOG_ABLAZE",
       "name": "Ablaze Skin",
-      "texture": "ac23b0bfa4e0393d6a598b3990c916507bbbf477d7ee20dca0c9b7625165b4f2"
+      "texture": "ac23b0bfa4e0393d6a598b3990c916507bbbf477d7ee20dca0c9b7625165b4f2",
+      "legacyHash": "ac23b0bfa4e0393d6a598b3990c916507bbbf477d7ee20dca0c9b7625165b4f2"
     },
     {
       "id": "SHADOW_ASSASSIN_ADMIRAL",
       "name": "Admiral Skin",
-      "texture": "d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e"
+      "texture": "d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e",
+      "legacyHash": "d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e"
     },
     {
       "id": "WITHER_AWAKENED",
       "name": "Awakened Wither Helmet Skin",
-      "texture": "20724a1373c479e676527b679a37bac6466a04633724c5c5def9b15cdc018218"
+      "texture": "20724a1373c479e676527b679a37bac6466a04633724c5c5def9b15cdc018218",
+      "variants": [
+        {
+          "id": "WITHER_AWAKENED_NECRON",
+          "name": "Necron",
+          "texture": "e454010ec59aa12305bfecc3c32a8da895a353522084c0fd019afa9f77e20232"
+        },
+        {
+          "id": "WITHER_AWAKENED_STORM",
+          "name": "Storm",
+          "texture": "e7c78eb5a6c5f7763b3bc476de6ef4cf7e4f5a3c4408c3046695675a292e8f95"
+        },
+        {
+          "id": "WITHER_AWAKENED_MAXOR",
+          "name": "Maxor",
+          "texture": "9b19cc23421882e73279c5df2fa1f68f113fe8f90bcefa7dafe7ff2332ddee9b"
+        },
+        {
+          "id": "WITHER_AWAKENED_GOLDOR",
+          "name": "Goldor",
+          "texture": "7e2b0bc4d127f5882ed046b46f0e9028454e3394abe155def6789769a8a84aeb"
+        },
+        {
+          "id": "WITHER_AWAKENED_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "53f735daaa4a486c3296fe6518dc46aebddea1629933264ad1672ccd4e53cc05"
+        },
+        {
+          "id": "WITHER_AWAKENED_PURPLE",
+          "name": "Purple",
+          "texture": "ad2670b82d35cc599c6a067081e403b658ab0672bba5170ffd55dca866662ca7"
+        },
+        {
+          "id": "WITHER_AWAKENED_PORTAL",
+          "name": "Portal",
+          "texture": "dcbd74e0be326eb1d2fb0c32c60fcfc828c2fce3f8d57a35a526dd8ff543d4a6"
+        },
+        {
+          "id": "WITHER_AWAKENED_AZURE",
+          "name": "Azure",
+          "texture": "c2b2d18c58abf9efd09dbf448a3c1c929cb8b1943d8590d9e0c050e3b85826d2"
+        },
+        {
+          "id": "WITHER_AWAKENED_TEAL",
+          "name": "Teal",
+          "texture": "f539c364961998812b97a5942e5b326175c28d97d6a1093bc178ef38a1626004"
+        },
+        {
+          "id": "WITHER_AWAKENED_AURORA",
+          "name": "Aurora",
+          "texture": "5a51c4708e4bdbe1fb4b55d59b9167961717c38e5608219048791a4f5e0cd6a5"
+        },
+        {
+          "id": "WITHER_AWAKENED_BLUE",
+          "name": "Blue",
+          "texture": "85752b0416481eaea7c89a58ae75ce68e99686b5ee89a8b74f64c38f14287f53"
+        },
+        {
+          "id": "WITHER_AWAKENED_PASTEL",
+          "name": "Pastel",
+          "texture": "6ac4db7c3508ac0edae8e3bfb30a9276fccf309651b3ae7ffec870e662535ec3"
+        },
+        {
+          "id": "WITHER_AWAKENED_OASIS",
+          "name": "Oasis",
+          "texture": "e5a92e120fd9ab25ed2ffb48331c25e81c86040362539f6e485693097c35a535"
+        },
+        {
+          "id": "WITHER_AWAKENED_SNOWFLAKE",
+          "name": "Snowflake",
+          "texture": "26d7f896801d91fbaf70e436a0169f8c57209bdd63619abe62255f7a20f2a24d"
+        },
+        {
+          "id": "WITHER_AWAKENED_SUNSET",
+          "name": "Sunset",
+          "texture": "d3370c8168e76779d1b21dd5152a894e5e1fd18a6ec0c97a352a58ca1f1207a0"
+        },
+        {
+          "id": "WITHER_AWAKENED_PINK",
+          "name": "Pink",
+          "texture": "a2b49d83762a544dfba75e2b6d00b073b29436badaecba6998b6e8c58820c691"
+        },
+        {
+          "id": "WITHER_AWAKENED_ROSE",
+          "name": "Rose",
+          "texture": "fcb5fab97679f46974774d6ef119fdb653e6bf1bb34b97dcbff8aafbbb04d161"
+        },
+        {
+          "id": "WITHER_AWAKENED_RED",
+          "name": "Red",
+          "texture": "4eea0fe92639fc9c840cf4fc138c25bf457c6d45cf708908e5e954948de5a6d8"
+        },
+        {
+          "id": "WITHER_AWAKENED_ORANGE",
+          "name": "Orange",
+          "texture": "66638d0ea3956e3af1fc09ab8f7bd82816ee2a901e38149f40c0fc88eccba1bc"
+        },
+        {
+          "id": "WITHER_AWAKENED_GOLD",
+          "name": "Gold",
+          "texture": "5f2286cf39565d5ad7aa8e47155891c9c50e91c3d5e133ff0cb1433af0ce6629"
+        },
+        {
+          "id": "WITHER_AWAKENED_LIME",
+          "name": "Lime",
+          "texture": "3b3723b8a65ab202a4e6175636be9bbf039939462a71522cad02e777f251270c"
+        },
+        {
+          "id": "WITHER_AWAKENED_GREEN",
+          "name": "Green",
+          "texture": "217f6387215b73008fa5eb285fcbca5cb8a92b3503069f8f10f8ae91ca00f96b"
+        }
+      ],
+      "legacyHash": "20724a1373c479e676527b679a37bac6466a04633724c5c5def9b15cdc018218"
     },
     {
       "id": "WATER_HYDRA_BABY",
       "name": "Baby Hydra Skin",
-      "texture": "55b656be66be552c36e47fefd209738321dfbe210d033811e1e44ac29937c814"
+      "texture": "55b656be66be552c36e47fefd209738321dfbe210d033811e1e44ac29937c814",
+      "legacyHash": "55b656be66be552c36e47fefd209738321dfbe210d033811e1e44ac29937c814"
     },
     {
       "id": "GOBLIN_HELMET_BABY",
       "name": "Baby Skin (Goblin Helmet)",
-      "texture": "7bc069645a0fa512d9cd724048fb418e03e042397870116c3e44a3a76d9f759"
+      "texture": "7bc069645a0fa512d9cd724048fb418e03e042397870116c3e44a3a76d9f759",
+      "legacyHash": "07bc069645a0fa512d9cd724048fb418e03e042397870116c3e44a3a76d9f759"
     },
     {
       "id": "HOLY_BABY",
       "name": "Baby Skin (Holy Dragon Helmet)",
-      "texture": "1266946f84b27796a1c7b1b6068efb77481b8ad8ba4fc1eef35cc975e06afb42"
+      "texture": "1266946f84b27796a1c7b1b6068efb77481b8ad8ba4fc1eef35cc975e06afb42",
+      "legacyHash": "1266946f84b27796a1c7b1b6068efb77481b8ad8ba4fc1eef35cc975e06afb42"
     },
     {
       "id": "OLD_BABY",
       "name": "Baby Skin (Old Dragon Helmet)",
-      "texture": "2eaf836b7183554269647827289c67a3855e8d0b345719328188defdbd05a64b"
+      "texture": "2eaf836b7183554269647827289c67a3855e8d0b345719328188defdbd05a64b",
+      "legacyHash": "2eaf836b7183554269647827289c67a3855e8d0b345719328188defdbd05a64b"
     },
     {
       "id": "PROTECTOR_BABY",
       "name": "Baby Skin (Protector Dragon Helmet)",
-      "texture": "979c9144496d21f3334b32437deeb63379766399d0a92bc06712ba592bc237e6"
+      "texture": "979c9144496d21f3334b32437deeb63379766399d0a92bc06712ba592bc237e6",
+      "legacyHash": "979c9144496d21f3334b32437deeb63379766399d0a92bc06712ba592bc237e6"
     },
     {
       "id": "STRONG_BABY",
       "name": "Baby Skin (Strong Dragon Helmet)",
-      "texture": "aec10b0dceb5bb34af2cb953733f01f20bb3aafd5f21fe0eadf1cc4ce7f4dab4"
+      "texture": "aec10b0dceb5bb34af2cb953733f01f20bb3aafd5f21fe0eadf1cc4ce7f4dab4",
+      "legacyHash": "aec10b0dceb5bb34af2cb953733f01f20bb3aafd5f21fe0eadf1cc4ce7f4dab4"
     },
     {
       "id": "SUPERIOR_BABY",
       "name": "Baby Skin (Superior Dragon Helmet)",
-      "texture": "52a770459fa6d65e22aa95679d93a2870aafea70f9f1c6a0f78eb641e92890"
+      "texture": "52a770459fa6d65e22aa95679d93a2870aafea70f9f1c6a0f78eb641e92890",
+      "legacyHash": "0052a770459fa6d65e22aa95679d93a2870aafea70f9f1c6a0f78eb641e92890"
     },
     {
       "id": "UNSTABLE_BABY",
       "name": "Baby Skin (Unstable Dragon Helmet)",
-      "texture": "42a023636a7f0300a74cc50d3e4dbb81a7bc1485f0daf6e9a7c0f4d8a2e3a18f"
+      "texture": "42a023636a7f0300a74cc50d3e4dbb81a7bc1485f0daf6e9a7c0f4d8a2e3a18f",
+      "legacyHash": "42a023636a7f0300a74cc50d3e4dbb81a7bc1485f0daf6e9a7c0f4d8a2e3a18f"
     },
     {
       "id": "WISE_BABY",
       "name": "Baby Skin (Wise Dragon Helmet)",
-      "texture": "94c6834c8bf0b81f92cf0da4bd99ad764154d5368a38e03c85adda10e518890a"
+      "texture": "94c6834c8bf0b81f92cf0da4bd99ad764154d5368a38e03c85adda10e518890a",
+      "legacyHash": "94c6834c8bf0b81f92cf0da4bd99ad764154d5368a38e03c85adda10e518890a"
     },
     {
       "id": "YOUNG_BABY",
       "name": "Baby Skin (Young Dragon Helmet)",
-      "texture": "43503dcaae6a6cde027316a3ce6e203b64327b7de72441865cfd3cdb45d5ef44"
+      "texture": "43503dcaae6a6cde027316a3ce6e203b64327b7de72441865cfd3cdb45d5ef44",
+      "legacyHash": "43503dcaae6a6cde027316a3ce6e203b64327b7de72441865cfd3cdb45d5ef44"
     },
     {
       "id": "BIOHAZARD_SPACE_BLACK_ICE",
       "name": "Black Ice Space Skin",
-      "texture": "4779324d60c125c4714929d706b1f2dd57ebefa7d6a0a0e6da07f50c88e8610"
+      "texture": "4779324d60c125c4714929d706b1f2dd57ebefa7d6a0a0e6da07f50c88e8610",
+      "legacyHash": "04779324d60c125c4714929d706b1f2dd57ebefa7d6a0a0e6da07f50c88e8610"
     },
     {
       "id": "TARANTULA_BLACK_WIDOW",
       "name": "Black Widow Skin",
-      "texture": "b2b6732eaa9788458468f5976943986464974af35feafb4fcad05a7a308c2a67"
+      "texture": "b2b6732eaa9788458468f5976943986464974af35feafb4fcad05a7a308c2a67",
+      "legacyHash": "b2b6732eaa9788458468f5976943986464974af35feafb4fcad05a7a308c2a67"
     },
     {
       "id": "BLAZING_CRIMSON",
       "name": "Blazing Crimson Helmet Skin",
-      "texture": "a029882e71a945db3d9f07cf1261f73f8b73788dc6694536909a9ebcb25aab1e"
+      "texture": "a029882e71a945db3d9f07cf1261f73f8b73788dc6694536909a9ebcb25aab1e",
+      "variants": [
+        {
+          "id": "BLAZING_CRIMSON_RED",
+          "name": "Red",
+          "texture": "561c75de414378ecce5031b6dd1a89295713d10748e707c2b76de501e5c815e8"
+        },
+        {
+          "id": "BLAZING_CRIMSON_ROSE",
+          "name": "Rose",
+          "texture": "f82e27e9c36c788706273ccb883b79b0f64a685cf8f495cea1a0989291216ea9"
+        },
+        {
+          "id": "BLAZING_CRIMSON_BLAZING",
+          "name": "Blazing",
+          "texture": "a168f13b17cc0caaabe6d4a13bc368ee837e19dd532f0263381f99f0f1f77285"
+        },
+        {
+          "id": "BLAZING_CRIMSON_GOLD",
+          "name": "Gold",
+          "texture": "5d589ea0245842a8314cce8c2406c396b59fd7a01d0c55c03cab802bcf844154"
+        },
+        {
+          "id": "BLAZING_CRIMSON_LIME",
+          "name": "Lime",
+          "texture": "abdfba3b34afb4853898312c4008eb29b71a0cd1fcfafa9500c935ee4893ba50"
+        },
+        {
+          "id": "BLAZING_CRIMSON_GREEN",
+          "name": "Green",
+          "texture": "fdd2e75d804275f3c048ff9bea872db039c8a1527e1dffabcdee3a1a1cffcdbb"
+        },
+        {
+          "id": "BLAZING_CRIMSON_TEAL",
+          "name": "Teal",
+          "texture": "add1dcb2d9f60ed3d38f45c524ffb36ab2bfdec4da755cf2c90496afd1705888"
+        },
+        {
+          "id": "BLAZING_CRIMSON_AZURE",
+          "name": "Azure",
+          "texture": "cf8ad988b223c951151550e4c924ca3137585100a680f9d279d31520bdcd3700"
+        },
+        {
+          "id": "BLAZING_CRIMSON_BLUE",
+          "name": "Blue",
+          "texture": "5ea2a92a031512383a682f96142ab81b13fa9a6c6e596f6e42aa1652c89e7194"
+        },
+        {
+          "id": "BLAZING_CRIMSON_AURORA",
+          "name": "Aurora",
+          "texture": "fca7648c18c75725fcb863d6edae7edf13e6c4636b9aa393328827557b6b1d04"
+        },
+        {
+          "id": "BLAZING_CRIMSON_PASTEL",
+          "name": "Pastel",
+          "texture": "d253f997f68df49b519494db81abf6b1f7f6faebc9d1ed28ee1429c4ec7127b8"
+        },
+        {
+          "id": "BLAZING_CRIMSON_OASIS",
+          "name": "Oasis",
+          "texture": "77fdcee3595da91d0c44d4408a2c1af25c848ebc7534346e771cdef81391a4a5"
+        },
+        {
+          "id": "BLAZING_CRIMSON_SNOWFLAKE",
+          "name": "Snowflake",
+          "texture": "e886734859c7798492a132e431243db2705e8ad165f5f831c22d4d029f256fc5"
+        },
+        {
+          "id": "BLAZING_CRIMSON_SUNSET",
+          "name": "Sunset",
+          "texture": "797ad46fc8feb691ed79769a22b0efb80e5c429dd3a502d9042b0e4e0aafd466"
+        },
+        {
+          "id": "BLAZING_CRIMSON_PINK",
+          "name": "Pink",
+          "texture": "de9eb63d7145ab1efdfda3c10b6a4da66fc7e5e8dd59023428858987caa22670"
+        },
+        {
+          "id": "BLAZING_CRIMSON_PORTAL",
+          "name": "Portal",
+          "texture": "6c6799c5e19f7cfb56df675f84317a676c6efc2cbd7a3317bb0a681dc1037fda"
+        },
+        {
+          "id": "BLAZING_CRIMSON_PURPLE",
+          "name": "Purple",
+          "texture": "16e00b02bb93385ff3ea86be3e0c7fd9d7ef7c654509d442ae14873327a452e0"
+        },
+        {
+          "id": "BLAZING_CRIMSON_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "669e720bd99f459f0ef4fd8c6809860a5fa37f76068ca3e1cca7502f76c5852c"
+        },
+        {
+          "id": "BLAZING_CRIMSON_BLACK",
+          "name": "Black",
+          "texture": "a0138d492e3377036a1f20b2345b77b52ea34b686d2cfc5f2ff057a491accc89"
+        }
+      ],
+      "legacyHash": "a029882e71a945db3d9f07cf1261f73f8b73788dc6694536909a9ebcb25aab1e"
     },
     {
       "id": "FERMENTO_BLOOM",
       "name": "Bloom Skin",
-      "texture": "6c09ab35d232fe57e0c6218241a7b2fc31e02171d9253402bbcbf4e2a1f36a40"
+      "texture": "6c09ab35d232fe57e0c6218241a7b2fc31e02171d9253402bbcbf4e2a1f36a40",
+      "legacyHash": "6c09ab35d232fe57e0c6218241a7b2fc31e02171d9253402bbcbf4e2a1f36a40"
     },
     {
       "id": "REAPER_BLUE_ONI_MASK",
       "name": "Blue Oni Reaper Mask Skin",
-      "texture": "899e239f27f35761b5726dc77b6b5a3db377d25f7e4ef846daaec76e35cba373"
+      "texture": "899e239f27f35761b5726dc77b6b5a3db377d25f7e4ef846daaec76e35cba373",
+      "legacyHash": "899e239f27f35761b5726dc77b6b5a3db377d25f7e4ef846daaec76e35cba373"
     },
     {
       "id": "CADUCEUS_MENDING_CROWN",
       "name": "Caduceus Mender Skin",
-      "texture": "d2ee5c06d71793c0605ed71017296c3059101942f45336677ef3ecd4aefec078"
+      "texture": "d2ee5c06d71793c0605ed71017296c3059101942f45336677ef3ecd4aefec078",
+      "legacyHash": "d2ee5c06d71793c0605ed71017296c3059101942f45336677ef3ecd4aefec078"
     },
     {
       "id": "CAMPFIRE_FLUX",
       "name": "Campfire Power Orb Skin",
-      "texture": "f4c08c53a18f26a21ca87138b97f58ccb58bd71ac712d68686312c724b52e271"
+      "texture": "f4c08c53a18f26a21ca87138b97f58ccb58bd71ac712d68686312c724b52e271",
+      "variants": [
+        {
+          "id": "CAMPFIRE_FLUX_SOUL",
+          "name": "Soul",
+          "texture": "8b07f487a8b83998c8a5e5d7a391f46ad7950f3fd8bc1ff0fe5d5c6bfdb5d1b3"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_WARPED",
+          "name": "Warped",
+          "texture": "1f54772c1af477424f4751730e3fa081df2099da3e8f8896d53f036090ee5568"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_DARK_SOUL",
+          "name": "Dark Soul",
+          "texture": "d73999b826d3ef338c216917f46d33c280b703922fca6686b53eeb326f01f8ed"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_SCULK",
+          "name": "Sculk",
+          "texture": "3c8ee67bd115ea72d3216a5f7f5a6015c92d755ab4f4dee4a877e6b625bac397"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_VOID",
+          "name": "Void",
+          "texture": "247e3842ea37bd078152f75146ab58021952891ffe88a91ff4d6d8f4eb19a7c2"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_PORTAL",
+          "name": "Portal",
+          "texture": "5ea9ab2c4907551fbfca313f3628447de7b7bef228c0451832835c38cac62bc9"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_TOXIC",
+          "name": "Toxic",
+          "texture": "9598972265b2e3edaba621b1c231720ebe6ca0938c4251b3518c1b0b2aaf1652"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_LIME",
+          "name": "Lime",
+          "texture": "f7b09341a0ae28b2fad956a1eb4189604ee1c84879bc6faef0ffcf074b4f87db"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_GILDED",
+          "name": "Gilded",
+          "texture": "75178f10026ebc64482325fbfd6dd99610569474596b5877a27abd6e1a5d1b67"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_OAK",
+          "name": "Oak",
+          "texture": "e39f003e15edda1b326f6101f0466e23d933c6874dfd3e2fe8f5cef90f212b94"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_BRICK",
+          "name": "Brick",
+          "texture": "725acb0944240d59927277246f3754654aa042ec42d8f8214f224cc48f1bab21"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_SPRUCE",
+          "name": "Spruce",
+          "texture": "54fc8975bf79a8a950723f52d17bfdbd76ed74c3ce2e11ff8d6a71c4b87c9c98"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_CHERRY",
+          "name": "Cherry",
+          "texture": "fcbb6abdf161976f3511fbcf31dfa6fbad05909e3c46af1b79a32aff7b8941bd"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_CRIMSON",
+          "name": "Crimson",
+          "texture": "2db5c76f210ed4e98930ce40bcd36b7777ce5b7ed9796f9daba54e8b609e1270"
+        },
+        {
+          "id": "CAMPFIRE_FLUX_OBSIDIAN",
+          "name": "Obsidian",
+          "texture": "1fb61caee7dbf0e505788c8c1b18a5b17fa64770c9899696bef273aa1e2133ad"
+        }
+      ],
+      "legacyHash": "f4c08c53a18f26a21ca87138b97f58ccb58bd71ac712d68686312c724b52e271"
     },
     {
       "id": "GOLDOR_CELESTIAL",
       "name": "Celestial Goldor's Helmet Skin",
-      "texture": "8e406f4b1311ecc998b4d7775579d8cc51846fa66f2e4b7637f5593dd8bcdc1e"
+      "texture": "8e406f4b1311ecc998b4d7775579d8cc51846fa66f2e4b7637f5593dd8bcdc1e",
+      "legacyHash": "8e406f4b1311ecc998b4d7775579d8cc51846fa66f2e4b7637f5593dd8bcdc1e"
     },
     {
       "id": "MAXOR_CELESTIAL",
       "name": "Celestial Maxor's Helmet Skin",
-      "texture": "238bff3640cc3ac4db012c50179d2cabba518e5e4522eb3cdc37fe2daf94e49f"
+      "texture": "238bff3640cc3ac4db012c50179d2cabba518e5e4522eb3cdc37fe2daf94e49f",
+      "legacyHash": "238bff3640cc3ac4db012c50179d2cabba518e5e4522eb3cdc37fe2daf94e49f"
     },
     {
       "id": "NECRON_CELESTIAL",
       "name": "Celestial Necron's Helmet Skin",
-      "texture": "ee8cb45614e83c1bdfc23f45364f6533a446a13b812d83038669ebc10305e3b5"
+      "texture": "ee8cb45614e83c1bdfc23f45364f6533a446a13b812d83038669ebc10305e3b5",
+      "legacyHash": "ee8cb45614e83c1bdfc23f45364f6533a446a13b812d83038669ebc10305e3b5"
     },
     {
       "id": "STORM_CELESTIAL",
       "name": "Celestial Storm's Helmet Skin",
-      "texture": "1447cad8e79e1ecab885ff89c07ee6d9fe8a2ba8d2ce649403c950810d837556"
+      "texture": "1447cad8e79e1ecab885ff89c07ee6d9fe8a2ba8d2ce649403c950810d837556",
+      "legacyHash": "1447cad8e79e1ecab885ff89c07ee6d9fe8a2ba8d2ce649403c950810d837556"
     },
     {
       "id": "WITHER_GOGGLES_CELESTIAL",
       "name": "Celestial Wither Goggles Skin",
-      "texture": "dc1e2d4bd39ea253dda6a36f6bc352f69ef169facc2b767798c1816aaf70f498"
+      "texture": "dc1e2d4bd39ea253dda6a36f6bc352f69ef169facc2b767798c1816aaf70f498",
+      "legacyHash": "dc1e2d4bd39ea253dda6a36f6bc352f69ef169facc2b767798c1816aaf70f498"
     },
     {
       "id": "CHAOS_TERROR",
       "name": "Chaos Terror Helmet Skin",
-      "texture": "19b74ff302f1aa327435c9f6708a36dbc375bb23b7539d068ae1c409fc3e27f"
+      "texture": "19b74ff302f1aa327435c9f6708a36dbc375bb23b7539d068ae1c409fc3e27f",
+      "legacyHash": "019b74ff302f1aa327435c9f6708a36dbc375bb23b7539d068ae1c409fc3e27f"
     },
     {
       "id": "CORRUPT_WITHER_GOGGLES",
       "name": "Corrupt Wither Goggles Helmet Skin",
-      "texture": "f9c0e9be800a69107ba0e56d1264df0eb92dff0d21814f6767b26a378086b503"
+      "texture": "f9c0e9be800a69107ba0e56d1264df0eb92dff0d21814f6767b26a378086b503",
+      "variants": [
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_WARDEN_TEAL",
+          "name": "Warden Teal",
+          "texture": "2f078bd7be20b113690084c659ed6c373188ec8351019446fed3c006eac4d101"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_SUNSET",
+          "name": "Sunset",
+          "texture": "a0338a4bd39de52b3988b07a126c272959cbb8f5dcf3198a96eab3b8ad7bc703"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_SNOWY",
+          "name": "Snowy",
+          "texture": "d75d56905cfc87a2434498cbe1d6b7329f2ce4da1d9c5cfb5e95441403b76ab"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_ROSE_RED",
+          "name": "Rose Red",
+          "texture": "53809dde78d283c310ee96b2159a2aaabf2bc8d44ef87e40616447512bfca94e"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_PASTEL",
+          "name": "Pastel",
+          "texture": "ede967fa0e31f317bd6dc6d4fd601207575ae254e0c8f79a6d66e689cb16a305"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_PURPLE_PORTAL",
+          "name": "Purple Portal",
+          "texture": "d68e9b3840f9fb88a19b76ba3b467a8c90e7e6aab64b2344ca562b19db66a1f3"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_OASIS",
+          "name": "Oasis",
+          "texture": "714bdfc78f11fb7fec49d3246beb23690e31743d1c993e46379128ecbeb1d816"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_ORANGE",
+          "name": "Orange",
+          "texture": "67dd047e254c7c290aecb91b4cd873b27e45405a530413c6fde888876deb02c4"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_GREEN",
+          "name": "Green",
+          "texture": "19d4666b774c24ef9aa6104d6bbe9c706db223150e772cfd8d7dba6a09caf153"
+        },
+        {
+          "id": "CORRUPT_WITHER_GOGGLES_BLACK",
+          "name": "Black",
+          "texture": "3bb4b710a5952ee7b9bc809d826c9147384d182149083597ab117f2c893745af"
+        }
+      ],
+      "legacyHash": "f9c0e9be800a69107ba0e56d1264df0eb92dff0d21814f6767b26a378086b503"
     },
     {
       "id": "SHADOW_ASSASSIN_CRIMSON",
       "name": "Crimson Skin",
-      "texture": "49c7622826a78f9131cb18656b9bdc33f3b0ca59fb73c88e4ea374dd0e0372d3"
+      "texture": "49c7622826a78f9131cb18656b9bdc33f3b0ca59fb73c88e4ea374dd0e0372d3",
+      "legacyHash": "49c7622826a78f9131cb18656b9bdc33f3b0ca59fb73c88e4ea374dd0e0372d3"
     },
     {
       "id": "WITHER_GOGGLES_CYBERPUNK",
       "name": "Cyberpunk Wither Goggles Skin",
-      "texture": "84046578650f0b44e6dc570555d61163be03201b717bd9f758244f83d941ffd2"
+      "texture": "84046578650f0b44e6dc570555d61163be03201b717bd9f758244f83d941ffd2",
+      "legacyHash": "84046578650f0b44e6dc570555d61163be03201b717bd9f758244f83d941ffd2"
     },
     {
       "id": "ANGLER_DEEP_SEA",
       "name": "Deep Sea Skin",
-      "texture": "afb849463dcb35acf1d88287606a13a17efe6697ee4c88fda072591beda60d2a"
+      "texture": "afb849463dcb35acf1d88287606a13a17efe6697ee4c88fda072591beda60d2a",
+      "legacyHash": "afb849463dcb35acf1d88287606a13a17efe6697ee4c88fda072591beda60d2a"
     },
     {
       "id": "GOBLIN_HELMET_DIAMOND",
       "name": "Diamond Skin",
-      "texture": "bd48d7e23b19bd13311aa951c3b7209d5d5bfef9b8605c4ae3851976b233479e"
+      "texture": "bd48d7e23b19bd13311aa951c3b7209d5d5bfef9b8605c4ae3851976b233479e",
+      "legacyHash": "bd48d7e23b19bd13311aa951c3b7209d5d5bfef9b8605c4ae3851976b233479e"
     },
     {
       "id": "WATER_HYDRA_DRAGON",
       "name": "Dragon Hydra Skin",
-      "texture": "e4cbba3345850a6981afd89a0748a48845b861ae5bce42b109e9baef78c1133b"
+      "texture": "e4cbba3345850a6981afd89a0748a48845b861ae5bce42b109e9baef78c1133b",
+      "legacyHash": "e4cbba3345850a6981afd89a0748a48845b861ae5bce42b109e9baef78c1133b"
     },
     {
       "id": "DUMPSTER_DIVER",
       "name": "Dumpster Diver Helmet Skin",
-      "texture": "c390f2a38400a44bf6c131938e32c17de5d2ddeef6bbec1a17dc1e156867f33a"
+      "texture": "c390f2a38400a44bf6c131938e32c17de5d2ddeef6bbec1a17dc1e156867f33a",
+      "legacyHash": "c390f2a38400a44bf6c131938e32c17de5d2ddeef6bbec1a17dc1e156867f33a"
     },
     {
       "id": "FINAL_DESTINATION_ENDER_KNIGHT",
       "name": "Ender Knight Skin",
-      "texture": "f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0"
+      "texture": "f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0",
+      "legacyHash": "f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0"
     },
     {
       "id": "FIREWORKS_SHADOW_ASSASSIN",
       "name": "Fireworks Shadow Assassin Skin",
-      "texture": "fc0c1c5b9d0f65da2f7a5a3eda892480e2f9d283c69e0b656fba5518a14d38c2"
+      "texture": "fc0c1c5b9d0f65da2f7a5a3eda892480e2f9d283c69e0b656fba5518a14d38c2",
+      "legacyHash": "fc0c1c5b9d0f65da2f7a5a3eda892480e2f9d283c69e0b656fba5518a14d38c2"
     },
     {
       "id": "HELIANTHUS_FLORAL",
       "name": "Floral Helianthus Helmet Skin",
-      "texture": "f53448fc2bb6971664ea96a23199d0097be49df7fe3f5b7a4062ccc8d2a5e419"
+      "texture": "f53448fc2bb6971664ea96a23199d0097be49df7fe3f5b7a4062ccc8d2a5e419",
+      "variants": [
+        {
+          "id": "HELIANTHUS_FLORAL_KING_TEAL",
+          "name": "King Teal",
+          "texture": "1554ff23c722ebaa23cf29e61082ed83267bcb5d05098b2aaa41675dbac49760"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_AZURE",
+          "name": "Azure",
+          "texture": "768051693de2650764708b6a9eec1245bca73e5062c8103f1fad072f589480ad"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_BLUE",
+          "name": "Blue",
+          "texture": "8e5a4d04473065f5e914e7999fc6d6c0770bba6cbfb71dec85e9decaf0eb2bcd"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_PASTEL",
+          "name": "Pastel",
+          "texture": "d0e75276b9e5596e9919c7a9ed1776f904b2f85449125bfbf34d1c72586a8622"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_OASIS",
+          "name": "Oasis",
+          "texture": "a7c7ef76f5c6cf4088ba8aab61b565cd19016e1f8f7566a0d9111b64b83ef998"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_SUNFLOWER",
+          "name": "Sunflower",
+          "texture": "f53448fc2bb6971664ea96a23199d0097be49df7fe3f5b7a4062ccc8d2a5e419"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_SNOWFLAKE",
+          "name": "Snowflake",
+          "texture": "9508d42e586b1958ad3eb12c0edc65a77c03a0f4dfd667b3b7d689d2ea954bc4"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_PURPLE",
+          "name": "Purple",
+          "texture": "f7e2ecc2708320c01e8059ba1d304512ddefccf39e77c990b26d88db34f9412c"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_PORTAL",
+          "name": "Portal",
+          "texture": "e68e3273b2fb34ca34402cde0e0add67993319af7f088d0649e2a8dd0f45ce36"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_DUSK",
+          "name": "Dusk",
+          "texture": "34ac0e729dbf20e9942e661f1ca0541e259bbad0cf0985a805c8cb54759860e5"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_AURORA",
+          "name": "Aurora",
+          "texture": "593d9f8f78174e1244bf01031391be190970bb77bbe3e2ee74291ea11fd1171"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_FOREST",
+          "name": "Forest",
+          "texture": "5bbaa9df11223ae86e31c5311dff0157523c43b5f091e6ab437d5100d7823d73"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_LIME",
+          "name": "Lime",
+          "texture": "c85ab17cd3295f083475b518d5e30d98c3f35a633e32b8d964d950e89b119c4e"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_GOLD",
+          "name": "Gold",
+          "texture": "c73b1fd00f7179efd237d3a2f7a5703174e2b92cb8003f696504216de0f0e19b"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "8cb4dd2057cf328706eccc2d869fbc361c97a0a87acab08de7b45b449c9ea4e9"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_BLACK",
+          "name": "Black",
+          "texture": "67d8bb6f2b943c5159d520c01e103cd63b99a58b90deeece07481a327f7d427b"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_SUNSET",
+          "name": "Sunset",
+          "texture": "cbba92ba9baf7e7eed6d3098a1078f6137bea76a93267c82efb06b09acd4d786"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_ORANGE",
+          "name": "Orange",
+          "texture": "a37b52be2e0cf4e982d52229fe343c13f96646f8e94ef2eded9fb585d2c9bec7"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_RED",
+          "name": "Red",
+          "texture": "c8d0ca53778efa8b8bb135c78ff2c74b08d499076e641391a19668dc9ed72efc"
+        },
+        {
+          "id": "HELIANTHUS_FLORAL_PINK",
+          "name": "Pink",
+          "texture": "1d9a8501731bcd25dd3c8c329a932001f6866b811d589859852ca06bd10133fd"
+        }
+      ],
+      "legacyHash": "f53448fc2bb6971664ea96a23199d0097be49df7fe3f5b7a4062ccc8d2a5e419"
     },
     {
       "id": "SHARK_SCALE_HOODIE_FOX",
       "name": "Fox Hoodie Skin",
-      "texture": "a7dd90c5b68579d5b5f024d60317756005d4ee5809643d80f8e6b32bf088055b"
+      "texture": "a7dd90c5b68579d5b5f024d60317756005d4ee5809643d80f8e6b32bf088055b",
+      "legacyHash": "a7dd90c5b68579d5b5f024d60317756005d4ee5809643d80f8e6b32bf088055b"
     },
     {
       "id": "FROZEN_BLAZE_FROST_KNIGHT",
       "name": "Frost Knight Skin",
-      "texture": "46c419999da5ff4167f7d90c929e01e3c822832e1bee01069325d3991ec61fb3"
+      "texture": "46c419999da5ff4167f7d90c929e01e3c822832e1bee01069325d3991ec61fb3",
+      "legacyHash": "46c419999da5ff4167f7d90c929e01e3c822832e1bee01069325d3991ec61fb3"
     },
     {
       "id": "DIVER_FROZEN",
       "name": "Frozen Diver Skin",
-      "texture": "a3098bf9df4a68f30af1cec4e721f1a0e1d2d7bbfdd5b1791570724550f7ae9e"
+      "texture": "a3098bf9df4a68f30af1cec4e721f1a0e1d2d7bbfdd5b1791570724550f7ae9e",
+      "legacyHash": "a3098bf9df4a68f30af1cec4e721f1a0e1d2d7bbfdd5b1791570724550f7ae9e"
     },
     {
       "id": "GARDEN_WARRIOR_FERMENTO",
       "name": "Garden Warrior Fermento Helmet Skin",
-      "texture": "5b4a3754e82cbbaa1dae0d207e90fcbad67d02d72baae35003b6dfd075518ecb"
+      "texture": "5b4a3754e82cbbaa1dae0d207e90fcbad67d02d72baae35003b6dfd075518ecb",
+      "legacyHash": "5b4a3754e82cbbaa1dae0d207e90fcbad67d02d72baae35003b6dfd075518ecb"
     },
     {
       "id": "GEMSTONE_DIVAN",
       "name": "Gemstone Divan Helmet Skin",
-      "texture": "3917458bb844a8b330710207f333519cb231997c6a772998fdf8eeda9b32aa7"
+      "texture": "3917458bb844a8b330710207f333519cb231997c6a772998fdf8eeda9b32aa7",
+      "variants": [
+        {
+          "id": "GEMSTONE_DIVAN_SAPPHIRE",
+          "name": "Sapphire",
+          "texture": "d7c32088ceb3b7fbc585ddfa2392dd5b662e902a989b8120b98d110d264a87f"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_JASPER",
+          "name": "Jasper",
+          "texture": "846546f0adc4b860b7f76cedaf231e9e80db73aaebc11e5b82d14814b599977e"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_RUBY",
+          "name": "Ruby",
+          "texture": "192430e89a35f6d3ce1ee08bfddcf9236c38a52eb9d54443e0f88c1be69afe6d"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_AMBER",
+          "name": "Amber",
+          "texture": "6680492380a640c1371b6b2670f91b3dd468aed2da402886d8e1ff8dba513e1c"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_TOPAZ",
+          "name": "Topaz",
+          "texture": "afb6bc308957ce181732bb201e41358ca4b790d4ccd44119caab0c6c1bf81293"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_JADE",
+          "name": "Jade",
+          "texture": "ca43cffedf161c24b422eb2d0b27d17d38405d923b0f88eccf095eb412990f81"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_OPAL",
+          "name": "Opal",
+          "texture": "1ea1819d8e20c42e39f095098470306300fa25263b9d9e7d003959ed790f97f6"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_CITRINE",
+          "name": "Citrine",
+          "texture": "5a2d8d5b65c46c402a1ce3b185ffc6c64c96db099653e2698240f5a7f0832f8c"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_PERIDOT",
+          "name": "Peridot",
+          "texture": "621b81ac5fb0219f8ad3c32e9d316b33887cd43c336e468ede65da2b38f654f5"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_AQUAMARINE",
+          "name": "Aquamarine",
+          "texture": "edbde77d017c4c0b3b00b4362471af7eecaff5200c3816da568925e865903b9c"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_ONYX",
+          "name": "Onyx",
+          "texture": "356e319b94c317e994ba5d8ff3fcb0cdc4f096836853916c7609d76577c8f41f"
+        },
+        {
+          "id": "GEMSTONE_DIVAN_AMETHYST",
+          "name": "Amethyst",
+          "texture": "1f71c93cc682ffff2f0551109fac64a01588889530f19824d23ab2ebd12c1841"
+        }
+      ],
+      "legacyHash": "03917458bb844a8b330710207f333519cb231997c6a772998fdf8eeda9b32aa7"
     },
     {
       "id": "GOBLIN_HELMET_GENIE",
       "name": "Genie Skin",
-      "texture": "60414fa9c0a42f3aad83b1dce7e5706c4a34413d8cbb1d49ccd2b4ba1089bef1"
+      "texture": "60414fa9c0a42f3aad83b1dce7e5706c4a34413d8cbb1d49ccd2b4ba1089bef1",
+      "legacyHash": "60414fa9c0a42f3aad83b1dce7e5706c4a34413d8cbb1d49ccd2b4ba1089bef1"
     },
     {
       "id": "GLACIAL_DIVAN",
       "name": "Glacial Divan Helmet Skin",
-      "texture": "673dadedfd0675dc741c4da98518d861f3883c5e3cc2eb640257d06720e449d5"
+      "texture": "673dadedfd0675dc741c4da98518d861f3883c5e3cc2eb640257d06720e449d5",
+      "variants": [
+        {
+          "id": "GLACIAL_DIVAN_ROSE",
+          "name": "Rose",
+          "texture": "673dadedfd0675dc741c4da98518d861f3883c5e3cc2eb640257d06720e449d5"
+        },
+        {
+          "id": "GLACIAL_DIVAN_RED",
+          "name": "Red",
+          "texture": "e69b45afa79cb8130464df7907fde30d5cba0fa718df64f4950d0d359c949fc4"
+        },
+        {
+          "id": "GLACIAL_DIVAN_ORANGE",
+          "name": "Orange",
+          "texture": "a498abd2b0aa52912eeef34231e7e62fa96c2b2715330c6e5a5647687ba3cd58"
+        },
+        {
+          "id": "GLACIAL_DIVAN_GOLD",
+          "name": "Gold",
+          "texture": "2e3f8b861ba99708c64621b206889d51b62e6268ae970d4108a496823e10b943"
+        },
+        {
+          "id": "GLACIAL_DIVAN_YELLOW",
+          "name": "Yellow",
+          "texture": "b9f20a4922c01f4faaa925bea55d2b204d48f2b9774752531b53f9850d8ec47f"
+        },
+        {
+          "id": "GLACIAL_DIVAN_LIME",
+          "name": "Lime",
+          "texture": "96755f2e5c494a6dc14ef96d9b00a3841cf0344f5c9032868a2f81f57bcb3e87"
+        },
+        {
+          "id": "GLACIAL_DIVAN_GREEN",
+          "name": "Green",
+          "texture": "62fd60e70dcbe1f56af53614189aeba9b9a9585dd351d41a48448990d02df58"
+        },
+        {
+          "id": "GLACIAL_DIVAN_PURPLE",
+          "name": "Purple",
+          "texture": "d9ba78309b2fc165fa39d8d5dbe8bfb597f03521f6b5db3970d671d10f00e156"
+        },
+        {
+          "id": "GLACIAL_DIVAN_PORTAL",
+          "name": "Portal",
+          "texture": "eb55bdcf09fd6acaeeba208e2818653b21b9240ce984b4451cf3d8f13d19de6b"
+        },
+        {
+          "id": "GLACIAL_DIVAN_AURORA",
+          "name": "Aurora",
+          "texture": "e81a7e0614be241f6fb7fe573e4743bf27e8f226610c6fb4cd50de042ac23d7f"
+        },
+        {
+          "id": "GLACIAL_DIVAN_AZURE",
+          "name": "Azure",
+          "texture": "99f00a624064a6ef16de136fdc3f4b879a788363028983c0b2dfa95f3d936431"
+        },
+        {
+          "id": "GLACIAL_DIVAN_BLUE",
+          "name": "Blue",
+          "texture": "c558ee82e96e7127fbd3b5d6c06613e1257230eede1d2ef7b0c785c22dff0eaf"
+        },
+        {
+          "id": "GLACIAL_DIVAN_OASIS",
+          "name": "Oasis",
+          "texture": "c540009ae8ebeb273ab91ade02f5b2c2f8bf900b5d643477cbeb9d22f10253cd"
+        },
+        {
+          "id": "GLACIAL_DIVAN_SNOWFLAKE",
+          "name": "Snowflake",
+          "texture": "f16b324c445c3cba0b6c3e3c27d5d87b2b90c453c67ae82b6e07106290680a68"
+        },
+        {
+          "id": "GLACIAL_DIVAN_SUNSET",
+          "name": "Sunset",
+          "texture": "47e6b19aaf5156ef5abf3229007d26a70a2cb4400609d6c1ed731158cc64e72d"
+        },
+        {
+          "id": "GLACIAL_DIVAN_PASTEL",
+          "name": "Pastel",
+          "texture": "5adac3c6edd493914c1ec7d3c0a26349a5d5485ffe6b83a6e94f4e34d70b5be3"
+        },
+        {
+          "id": "GLACIAL_DIVAN_PINK",
+          "name": "Pink",
+          "texture": "ea25adbced511429ed5b7e238d6cdc90e81f7e7a4622a07e0b872c8d46831601"
+        },
+        {
+          "id": "GLACIAL_DIVAN_TEAL",
+          "name": "Teal",
+          "texture": "438473d026e8d4806823e5af51e4fba9c7335b096f0951d6ddf42d46377baff4"
+        },
+        {
+          "id": "GLACIAL_DIVAN_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "567ba07e496fb09082806a6aa556e8b2474769af53e6991eef7459708c8311de"
+        },
+        {
+          "id": "GLACIAL_DIVAN_BLACK",
+          "name": "Black",
+          "texture": "48369e28fa83ffc545d111c9f996526652410346fe0a8b73872314626f00da87"
+        }
+      ],
+      "legacyHash": "673dadedfd0675dc741c4da98518d861f3883c5e3cc2eb640257d06720e449d5"
     },
     {
       "id": "GOBLIN_HELMET_GOLDEN",
       "name": "Golden Skin",
-      "texture": "d16c0c551f586893e9397c8886bf090ad54857da0a0bbca1b194e9a229933c2d"
+      "texture": "d16c0c551f586893e9397c8886bf090ad54857da0a0bbca1b194e9a229933c2d",
+      "legacyHash": "d16c0c551f586893e9397c8886bf090ad54857da0a0bbca1b194e9a229933c2d"
     },
     {
       "id": "GREAT_SHARK_MAGMA_LORD",
       "name": "Great Shark Magma Lord Skin",
-      "texture": "5fe4b98c1ceeb067f2e84d24115e5216b5d725c616d66a22aaab377c2a7b2615"
+      "texture": "5fe4b98c1ceeb067f2e84d24115e5216b5d725c616d66a22aaab377c2a7b2615",
+      "variants": [
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_BROWN",
+          "name": "Brown",
+          "texture": "aec0dd38da00bb6c5eb1b3f9358632fe8e523453dd73b43bf927a1579558339"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_GREAT_WHITE",
+          "name": "Great White",
+          "texture": "ab59837b1fa22df73a5746307ccc314b24071fef989a7f7ff3d6ac15d92aba7f"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_GOLD",
+          "name": "Gold",
+          "texture": "800bf7ef7e654cd2a5e30f50834111092f64ab24e4d9da563756c683dc8ad18e"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_LIME",
+          "name": "Lime",
+          "texture": "b080c383cd941353e9de0b6984915b1e3a31dc7645953e2aa57d86133b339ab1"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_DIAMOND",
+          "name": "Diamond",
+          "texture": "67a47e0072729c0d8d0ab39b22dbd5c56d8f48cc591419a446bea48f9aded2ae"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_ROSE",
+          "name": "Rose",
+          "texture": "a5baf787af16115347bea11532418691871f6acaf94f20a98db579d540d548a9"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_RED",
+          "name": "Red",
+          "texture": "f49287ac0a4b79bd0d39201917148c852391e3f7055072a433151177f7addba3"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_PURPLE",
+          "name": "Purple",
+          "texture": "7f4c24d5eaf29376e8b3919a24df974e12921425fb8398e056c08c019d57b8b2"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_PORTAL",
+          "name": "Portal",
+          "texture": "8c8636108595aac202c8d0da4ee8f42776c50792e03159121bc6a684c9561873"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_LAVA",
+          "name": "Lava",
+          "texture": "9f2987dd0ece08471a5f94f689b1d0d5d2d940ac80d8b0aa965ac9a510f842e2"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_BLACK",
+          "name": "Black",
+          "texture": "cb9f4039eda8d3ccf10f80e9179d8e194b2a06a2a4fdce7c2d6cd9b73debf1dc"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_PASTEL",
+          "name": "Pastel",
+          "texture": "bea30aabff1ca76f69258c4d2fa61b553d726549c6cfab7cccb2d8cf8c104505"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_WARDING",
+          "name": "Warding",
+          "texture": "716e5b186326a4d57d4e9b743296e53194f6e8e27c3160d5f489e94cd309457f"
+        },
+        {
+          "id": "GREAT_SHARK_MAGMA_LORD_TOXIC",
+          "name": "Toxic",
+          "texture": "e1e9a90e37412e8d219c0453261bd521488799ec8626b62b9c05d9aa946487c5"
+        }
+      ],
+      "legacyHash": "5fe4b98c1ceeb067f2e84d24115e5216b5d725c616d66a22aaab377c2a7b2615"
     },
     {
       "id": "FERMENTO_ULTIMATE",
       "name": "Harvester Helmet Skin",
-      "texture": "6cc7a104895951c15ec2f5ed0091e45f3467e78249b3369c269a3c570d3d3af7"
+      "texture": "6cc7a104895951c15ec2f5ed0091e45f3467e78249b3369c269a3c570d3d3af7",
+      "variants": [
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS",
+          "name": "Cactus",
+          "texture": "71f125469c6746901a8389d835fd0ee9db1e73b467500959403c064816ed3fc1"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_BLACK",
+          "name": "Cactus Black",
+          "texture": "463a6e012938d8ff156f64a7f24398c034852af060eda6d7b28fd165bbba169b"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_BLUE",
+          "name": "Cactus Blue",
+          "texture": "7f964697afab1ad45fd2ff7ead18eb1a95296c94a93e673a85b081425317094d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_GREEN",
+          "name": "Cactus Green",
+          "texture": "2f8e0d0474cf52a177a34245b71734a66661748e748ba9e3a0dca6e5f9bd646f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_ORANGE",
+          "name": "Cactus Orange",
+          "texture": "5548e814384cc7b023118b352a91c12c4361da24c70a9b059985f0a6a3f1122f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_PURPLE",
+          "name": "Cactus Purple",
+          "texture": "694a426cbee652c2727b6df57e7d7a7a352cdefa9b2de17721d37066c3523519"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_RED",
+          "name": "Cactus Red",
+          "texture": "6cc7a104895951c15ec2f5ed0091e45f3467e78249b3369c269a3c570d3d3af7"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_WHITE",
+          "name": "Cactus White",
+          "texture": "c5b262a589d953288f6a0f8df1e537c4e0d718e7b23307bcc3c0993a5d8e2f78"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CACTUS_YELLOW",
+          "name": "Cactus Yellow",
+          "texture": "e4b8f8a05cdf9dae60e91108015a7edbc33b423a8735b63ccfb6871cee6a662c"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT",
+          "name": "Carrot",
+          "texture": "4a6f6e6559a626b17a7990e52f205ee5d5a24192cc58462c53223774198b6297"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_BLACK",
+          "name": "Carrot Black",
+          "texture": "2af757049313d1c2e6ead67c36f8f235905c55daa0366e07de28441559ed930d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_BLUE",
+          "name": "Carrot Blue",
+          "texture": "12d2b8ca6b01f123422dc73a9e24cbd69a199a56e0817a37070636836c3e5ff"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_GREEN",
+          "name": "Carrot Green",
+          "texture": "9ffbb9e094fc51ce941b41508bf792156fd13673b767605f5064cd85b22a30d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_ORANGE",
+          "name": "Carrot Orange",
+          "texture": "516d7c66919b2e01e8a0af0114d2496c617ab996abd48292df723271fde5c484"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_PURPLE",
+          "name": "Carrot Purple",
+          "texture": "457e241b083e85ba7aa38867d43bdedf1a75bd877f596382b95da55bb665687d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_RED",
+          "name": "Carrot Red",
+          "texture": "4da238b88822c36d84bbf3dc57010cf39e5967e4915f418fcfaa5a869df659e1"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_WHITE",
+          "name": "Carrot White",
+          "texture": "86d46e3a6f2bab7b847611bd11b9ac6dbe787180434d1fef4cd8c0ec6f13b8f8"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_CARROT_YELLOW",
+          "name": "Carrot Yellow",
+          "texture": "b4a4631d06740c1a60b11aa4b79b66949a18ca8a9b0e0bc05a2f59e0b918ed20"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS",
+          "name": "Cocoa Beans",
+          "texture": "6c835e8e17b228d3847c42391c44bc87782ac5216cde81b4297b609bd858ba88"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_BLACK",
+          "name": "Cocoa Beans Black",
+          "texture": "2c8d5a20be6a02b706ed38bcd9ecae74e0cc333ed48e8bf73eedcbc49544166b"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_BLUE",
+          "name": "Cocoa Beans Blue",
+          "texture": "cca6953c2dbd9f0d0c0cebb7c1697e8c4bf6f0aef0231b54101f158f4b2c8adf"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_GREEN",
+          "name": "Cocoa Beans Green",
+          "texture": "a4ff01cb5f28d287fa8e6c2aa5784dfc1d4561922bbd0ce02e85dd959f4be45b"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_ORANGE",
+          "name": "Cocoa Beans Orange",
+          "texture": "600d3af88bc1aa7821a7cf77ba47f0cfcee81df65e29adde636f1d587c0d8bc6"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_PURPLE",
+          "name": "Cocoa Beans Purple",
+          "texture": "12a3e6c0c2681644460f252b82499aeeeadb320cb06bf1cfbcb7b39c69c2113c"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_RED",
+          "name": "Cocoa Beans Red",
+          "texture": "d4ef27b25177d024d9cf0f667e35625d04b48889736275275fdf3c282fd37577"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_WHITE",
+          "name": "Cocoa Beans White",
+          "texture": "6928e41b75098443d5cf1fa2d6951ebee6230a469a637b0efc062b3319de8a41"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_COCOA_BEANS_YELLOW",
+          "name": "Cocoa Beans Yellow",
+          "texture": "30e3f0282545571849f00eb51176ce62d9fcc16cdedd89c358e1d64db11b6459"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE",
+          "name": "Melon Slice",
+          "texture": "be4df7c3f2f786658284f2280675d47070de1ba3e3cd9101db15b7888dd6f0bf"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_BLACK",
+          "name": "Melon Slice Black",
+          "texture": "fe9465a3ed64d065892ee453d4f7c3b03a434ba28fad94344891f46450ab644"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_BLUE",
+          "name": "Melon Slice Blue",
+          "texture": "79bcadb1a1d6c3d25ec11a04e1802f2f93fb3227b22df0b398906f4076d6bf88"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_GREEN",
+          "name": "Melon Slice Green",
+          "texture": "f64f34b219949882d96300f6d897ec9241b786ef8752bbf606e88470f6eacb16"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_ORANGE",
+          "name": "Melon Slice Orange",
+          "texture": "dd7070096102bd39707b43113f42b76e7aebbd44d93906074b683f6eddf91166"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_PURPLE",
+          "name": "Melon Slice Purple",
+          "texture": "583615402cbe76c09038d58fc9e4e07ccb52b284c7f340e5d80934fe2f4709b0"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_RED",
+          "name": "Melon Slice Red",
+          "texture": "1bec82d16b18b9be0deb6c82e372aa222b17105ef1c315432266b0a416078e2f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_WHITE",
+          "name": "Melon Slice White",
+          "texture": "968306552f43c730638ca093c0d3f67bd997378f8b078fb4a28d6f0acb433af0"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MELON_SLICE_YELLOW",
+          "name": "Melon Slice Yellow",
+          "texture": "23ea762adfbcce018c4598429092a659ba13bf5fec7fed43dd10f92d189851ce"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM",
+          "name": "Mushroom",
+          "texture": "dcc47ac5a2c01a741439f1aa74f308ba9da723f2cca650d5eec511a583713d52"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_BLACK",
+          "name": "Mushroom Black",
+          "texture": "54eefb1c160238dc7a5dd1cc5b104abe35d8b759c181d29d633dc270ba74b3ca"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_BLUE",
+          "name": "Mushroom Blue",
+          "texture": "6c8e181364ab39abb3e97f6a76e2101044a9a6764112f5f37b8389465699b661"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_GREEN",
+          "name": "Mushroom Green",
+          "texture": "7840cda665eb4e4b91d04d89517b2b38b39c2baca297539f0706d57f4e126387"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_ORANGE",
+          "name": "Mushroom Orange",
+          "texture": "3138109dd54cd9697612e1182fcbcebbce00d281a019686e050e115f218e9a74"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_PURPLE",
+          "name": "Mushroom Purple",
+          "texture": "cd8631717fe01c915a993cbdde7ce0b7f54032024f936c11f9ddbc902a76f91"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_RED",
+          "name": "Mushroom Red",
+          "texture": "5e124372b4ae8d405753b20c2b61704747cb78237967b86692dad7567b23e99d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_WHITE",
+          "name": "Mushroom White",
+          "texture": "48a35db8f21eb9aec55e57b7f1135ff97159c15fc4864c5e8b479d41d44a50f0"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_MUSHROOM_YELLOW",
+          "name": "Mushroom Yellow",
+          "texture": "f591773d88554c2dbd84b690a8450c3bdec439188827287d262df89d7e4c452c"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART",
+          "name": "Nether Wart",
+          "texture": "421b77f93cefc714147c70531031fabcb583f2a29eea74c2c9ca11661d66f167"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_BLACK",
+          "name": "Nether Wart Black",
+          "texture": "610960dec50f6a72017d9e77bc0c7ee0f140c08f893b4db24471a5bbe9c9a27d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_BLUE",
+          "name": "Nether Wart Blue",
+          "texture": "4fb9bb4f0f465bb677102752345196a98c3133668228e7cf8e537d655ea27b5e"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_GREEN",
+          "name": "Nether Wart Green",
+          "texture": "376ca59bde1e4a854de305a1617a640a66a211ae942cb5e07eedc842b1e437e5"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_ORANGE",
+          "name": "Nether Wart Orange",
+          "texture": "32fa8b1d3714bb6be30494122262230e3b91beccc1860b0d714ec09ad00a80dd"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_PURPLE",
+          "name": "Nether Wart Purple",
+          "texture": "71e5808c69f7d36d11b95ffa709a6e2cec4681f5290b2283fa56b72318277891"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_RED",
+          "name": "Nether Wart Red",
+          "texture": "188e32761ea220b82c4f0d923d5ebb2831d336dc1a6d016f4b83632f3a720e56"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_WHITE",
+          "name": "Nether Wart White",
+          "texture": "2f2c9c4f21ad79303bc23b7116cfa12822fdf0eb033b80e53e74f66cd1066e3f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_NETHER_WART_YELLOW",
+          "name": "Nether Wart Yellow",
+          "texture": "f9d72af07884e492c55f52bab8ab1a6f53550b61b7f97811d8aeba21ba346f0e"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO",
+          "name": "Potato",
+          "texture": "d6302726550444d993a00ef3bc1b6c7925fa73ebe2b6885f4796e74fda9b7a5d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_BLACK",
+          "name": "Potato Black",
+          "texture": "684249ec98a228bfc7fd6e611ffa706e00d72ad9bcd5c6731a2096032143b928"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_BLUE",
+          "name": "Potato Blue",
+          "texture": "2c2da2acdfe229d8621dbb8764d37ce91db0113e0d31955bd403d1f4754c712f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_GREEN",
+          "name": "Potato Green",
+          "texture": "71184c854dedfbda95eaa7267f0123599af467f275c0cdd40de2f882e6b3dbdb"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_ORANGE",
+          "name": "Potato Orange",
+          "texture": "8c3c4686350903f65624682e7afd5f70345443bb8017413dbbfed6e29d092215"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_PURPLE",
+          "name": "Potato Purple",
+          "texture": "e29d315274a5bba18b83adfba812564934f21ce9dd9bed28bba5630798f70c9"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_RED",
+          "name": "Potato Red",
+          "texture": "6d4fba6c39e1f8600c18edc66addeb7f61e102c92ba08752f1d1a842d91eec45"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_WHITE",
+          "name": "Potato White",
+          "texture": "9a99ba8c2542c49b2ee1dcf5dc73a730b7c182505f46b750b9dccee6165c29fd"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_POTATO_YELLOW",
+          "name": "Potato Yellow",
+          "texture": "d4a96ee6cf0783e0503abdb66f5302a7cfb0e9d57be87d28c4189f7db7529559"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN",
+          "name": "Pumpkin",
+          "texture": "2c282cb8ce11a3786459fd63592bdb83e0cf0a583948549004ff02a606e56e68"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_BLACK",
+          "name": "Pumpkin Black",
+          "texture": "5b360c5b8d888bb3bf29e85d33ba6b51d0a694097bd101a695a00bea88037170"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_BLUE",
+          "name": "Pumpkin Blue",
+          "texture": "37b236df482e418a6960364011c724380d730f46b2e8ed0f2c0a7b2435c4e723"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_GREEN",
+          "name": "Pumpkin Green",
+          "texture": "45a8b0923e77c720c4f6bd484d49cd1072b85d22ea5b7ec12ce270f1dc52b864"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_ORANGE",
+          "name": "Pumpkin Orange",
+          "texture": "8a14e4673e3a8c67e5de2c2e5995073565013b170cbe5687d319c6ac7cc315d7"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_PURPLE",
+          "name": "Pumpkin Purple",
+          "texture": "9d90d9b7ad1c07a2cf2d704186bf2010ca43dac973a5d4cfdbaf45d85075c56c"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_RED",
+          "name": "Pumpkin Red",
+          "texture": "9d3fcee147087ebdee009ce8b8e0a079bcd99b804c4acd428a44d70146995b85"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_WHITE",
+          "name": "Pumpkin White",
+          "texture": "58ae390de958b8e0485a9c6c354db51a6ca7504976cb892c1aabe71f4f05848a"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_PUMPKIN_YELLOW",
+          "name": "Pumpkin Yellow",
+          "texture": "5e751fac958877d70660ba8484c80e39ffdaa1824db848159cefc2576735938d"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE",
+          "name": "Sugar Cane",
+          "texture": "197a26243cb223dff3c03d8fcfb5e0f1f25e554ed0a8b69b0d7b9df316f6183f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_BLACK",
+          "name": "Sugar Cane Black",
+          "texture": "6ef0745ffabc99b63ccc764a1f979a0c5c9cb353d44c09c20bac4159b6ae673f"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_BLUE",
+          "name": "Sugar Cane Blue",
+          "texture": "98c3b18d5c2bd22022c9dbca0cc1c01a3789a578d852ccdac0cf368c4a396abd"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_GREEN",
+          "name": "Sugar Cane Green",
+          "texture": "bf2e6f87c50ad942367362d3a938785bce262ed2c8af16b8a1052245ae0f4261"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_ORANGE",
+          "name": "Sugar Cane Orange",
+          "texture": "e271f553b617e5f147ebc5978bccc08ea9eb09a1731586cf2c764c47c5d93edf"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_PURPLE",
+          "name": "Sugar Cane Purple",
+          "texture": "c4e828a94fc0fdc786861d88a3b024f695cd1fd96be0e3468e36cd53cf5f2fc5"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_RED",
+          "name": "Sugar Cane Red",
+          "texture": "44b8a414bc3acb51d8f60783e272e8adc6e02b9944818c667b54465e75c85ff"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_WHITE",
+          "name": "Sugar Cane White",
+          "texture": "dea416ccd9c049a8b724b02edc4afba5d32d2e632c2fe1365273761a644bf3f9"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_SUGAR_CANE_YELLOW",
+          "name": "Sugar Cane Yellow",
+          "texture": "dc912a3f325aa5ef1f9b792b52c9f8be695fe09b7d0218bc2a6b3a78ac50cdec"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT",
+          "name": "Wheat",
+          "texture": "d6787b80643e49cf5f9fafdbabda1d4f45ecb40c479fb49e17325ae46c1a79ae"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_BLACK",
+          "name": "Wheat Black",
+          "texture": "f45cfd57a4be4dd0c40cbf177058b7c4c9510f3dca52e158f8844b3d9cf1e0f3"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_BLUE",
+          "name": "Wheat Blue",
+          "texture": "53a1550164eeba2997856ab1664b48a2741aa6b261d5969302d53c77f535c504"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_GREEN",
+          "name": "Wheat Green",
+          "texture": "a2a90f8cd5a8622a9a4044542cd12be9dc87a59e5fab562096b22fa75a0a8a01"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_ORANGE",
+          "name": "Wheat Orange",
+          "texture": "8d05dd3d5055fd7a42874aea11b8dd65ce302b737fced53a9d1a81348bed8ea3"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_PURPLE",
+          "name": "Wheat Purple",
+          "texture": "649a213257170eed0ed5897a35976e21e3f7c8e780f50e7c46c9d74f87250d14"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_RED",
+          "name": "Wheat Red",
+          "texture": "2e084cca40b9085cb6692cc148a90c7839c1fe35e840701e5956cd46067579f5"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_WHITE",
+          "name": "Wheat White",
+          "texture": "733babc3c3c59e6eaa01cc0feb5191c4913f28861d83df995cea221275fa28f0"
+        },
+        {
+          "id": "FERMENTO_ULTIMATE_WHEAT_YELLOW",
+          "name": "Wheat Yellow",
+          "texture": "d42d1b1f11267e0963a05ecfc161bd0295ed34837a7be1ba43c0e12a001df170"
+        }
+      ],
+      "legacyHash": "6cc7a104895951c15ec2f5ed0091e45f3467e78249b3369c269a3c570d3d3af7"
     },
     {
       "id": "BIOHAZARD_CONTROL",
       "name": "Hazard Control Skin",
-      "texture": "a3e847bf1bac7044cdb36d0e7301027063fc99d750166aa12fc3f151acaac295"
+      "texture": "a3e847bf1bac7044cdb36d0e7301027063fc99d750166aa12fc3f151acaac295",
+      "variants": [
+        {
+          "id": "BIOHAZARD_CONTROL_YELLOW",
+          "name": "Yellow",
+          "texture": "a3e847bf1bac7044cdb36d0e7301027063fc99d750166aa12fc3f151acaac295"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_ORANGE",
+          "name": "Orange",
+          "texture": "dfbaea3f97e8f689fccbeb84d055fb63cdb1d2eb5758d8b9e4e85e58e5642caa"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_RED",
+          "name": "Red",
+          "texture": "a202761ee16ebefae705648c6081f514f6e227293af5690946043b83d4f08b7"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_CRIMSON",
+          "name": "Crimson",
+          "texture": "c73e1e6eedc475678cea0b6dfe8489d334ac9393f57ccada27c8a26744b0e9d"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_PURPLE",
+          "name": "Purple",
+          "texture": "4b3c77ee15a906ee69a16195f36b277a1ad83b0a9571e31a2a4ebd6896df6745"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_PORTAL",
+          "name": "Portal",
+          "texture": "254fb68755332025408030e372d22f4f39d5062143320dd69b7b1da6074fb0bf"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_PINK",
+          "name": "Pink",
+          "texture": "73bbf95c586fb47410cdf9208c7cac2edf8550f1059e3c47504e8f57e851e878"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_SUNSET",
+          "name": "Sunset",
+          "texture": "96ae3e4e341dce01c79b272b9c3f547214d6f4a0f1fede12e3ae87ddae072bfd"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_SNOW",
+          "name": "Snow",
+          "texture": "b015ed532ce00fe9ad79a5934b1355808cc5a688b9814f5a4971be8bdbecdded"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_PASTEL",
+          "name": "Pastel",
+          "texture": "bcb4fdb96678ceaab2499f97680929f26a4e449d990f664a9fe77791f6a0c502"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_DUSK",
+          "name": "Dusk",
+          "texture": "6fd4539943a36400987332567854e9b02c006b85cd095985a3bfbb06c73161f4"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_AZURE",
+          "name": "Azure",
+          "texture": "c83572b51d28a601bdc375127f8a31abfb07dd1b50202e5f4da918f7fec4d5ec"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_BEACH",
+          "name": "Beach",
+          "texture": "1407ec6850927bc5df929acd296bde996eb3fef96fa6228197c824514a908b63"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_SPIRIT",
+          "name": "Spirit",
+          "texture": "bce49fb5d34ba6688d809319b3a5952359fb4d307f75d44c3caec36f2ff1bf6b"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_OASIS",
+          "name": "Oasis",
+          "texture": "e5467e71514d52ec66ea7bf58754692dd90e8481b9a5dc2167b459e2d76e7b4b"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_SLIME",
+          "name": "Slime",
+          "texture": "e3f3797cde4709c3690bc943b6010d52ba6e671b7ded229d03ec208c042bf433"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_TOXIC",
+          "name": "Toxic",
+          "texture": "f9a4ec5163b5f8b5e8913d4c9f6e43e89e3cb9dd01f899078a6d2c8463839a58"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_GREEN",
+          "name": "Green",
+          "texture": "7a3da8f227a261576f56b8de703f421b4dc483395c1ecf76bfd735d9ec37cb0"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_TEAL",
+          "name": "Teal",
+          "texture": "e3503e3044ec8ed9e41c0fa6612651b8c18222091a394fba5bab9bc893cb8574"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "be9fbf0cc743958f4c6b25bd2fc71fc2020fe3cbdc6b0d8c05d56775237da022"
+        },
+        {
+          "id": "BIOHAZARD_CONTROL_CHARCOAL",
+          "name": "Charcoal",
+          "texture": "ad424917637a64efd44d03ed22b453b663535a663658b63efad060029dd586a"
+        }
+      ],
+      "legacyHash": "a3e847bf1bac7044cdb36d0e7301027063fc99d750166aa12fc3f151acaac295"
     },
     {
       "id": "BAT_PERSON_HERO",
       "name": "Hero Skin",
-      "texture": "b2a579e72d4ae0d42b48ada87d4cb323c548e6954a32451a3872c1b2ee1cdaa"
+      "texture": "b2a579e72d4ae0d42b48ada87d4cb323c548e6954a32451a3872c1b2ee1cdaa",
+      "legacyHash": "0b2a579e72d4ae0d42b48ada87d4cb323c548e6954a32451a3872c1b2ee1cdaa"
     },
     {
       "id": "HOLY_DRAGON_DRAKE",
       "name": "Holy Drake Skin",
-      "texture": "105d89acc6bdd0a954a13cb210c4df9ad8f881763084d92e6777ddaa71f302d1"
+      "texture": "105d89acc6bdd0a954a13cb210c4df9ad8f881763084d92e6777ddaa71f302d1",
+      "legacyHash": "105d89acc6bdd0a954a13cb210c4df9ad8f881763084d92e6777ddaa71f302d1"
     },
     {
       "id": "WATER_HYDRA_HEAD_ICE_HYDRA",
       "name": "Ice Hydra Skin",
-      "texture": "73be7ad9ad6933b36bfb368e22e70b096f3455cbd807afb80f8c78d2c5a0b278"
+      "texture": "73be7ad9ad6933b36bfb368e22e70b096f3455cbd807afb80f8c78d2c5a0b278",
+      "legacyHash": "73be7ad9ad6933b36bfb368e22e70b096f3455cbd807afb80f8c78d2c5a0b278"
     },
     {
       "id": "FROZEN_BLAZE_ICEBERG",
       "name": "Iceberg Skin",
-      "texture": "445b140208ea0b23655f01e9ae7ea0fc7d83a3c0a44c03be2a2a29d292d4ec20"
+      "texture": "445b140208ea0b23655f01e9ae7ea0fc7d83a3c0a44c03be2a2a29d292d4ec20",
+      "legacyHash": "445b140208ea0b23655f01e9ae7ea0fc7d83a3c0a44c03be2a2a29d292d4ec20"
     },
     {
       "id": "FROZEN_BLAZE_ICICLE",
       "name": "Icicle Skin",
-      "texture": "e13c25640705136cf776784910c63a0f160f5af6a38ccacfbb3071f247b82004"
+      "texture": "e13c25640705136cf776784910c63a0f160f5af6a38ccacfbb3071f247b82004",
+      "legacyHash": "e13c25640705136cf776784910c63a0f160f5af6a38ccacfbb3071f247b82004"
     },
     {
       "id": "BONZO_MASK_JESTER",
       "name": "Jester Bonzo's Mask Skin",
-      "texture": "1d93b180a1c707825bb901c6dcd8d16e761b37994527f7f75e3f32feafea9484"
+      "texture": "1d93b180a1c707825bb901c6dcd8d16e761b37994527f7f75e3f32feafea9484",
+      "legacyHash": "1d93b180a1c707825bb901c6dcd8d16e761b37994527f7f75e3f32feafea9484"
     },
     {
       "id": "KITSUNE_TIKI_MASK",
       "name": "Kitsune Tiki Mask Skin",
-      "texture": "e37ea13409e20427e83b29b7772e8d314b62c7ea20fa408b09976014732dbcb8"
+      "texture": "e37ea13409e20427e83b29b7772e8d314b62c7ea20fa408b09976014732dbcb8",
+      "legacyHash": "e37ea13409e20427e83b29b7772e8d314b62c7ea20fa408b09976014732dbcb8"
     },
     {
       "id": "NECRON_DIAMOND_KNIGHT",
       "name": "Knight Skin (Diamond Necron Head)",
-      "texture": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941"
+      "texture": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941",
+      "variants": [
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_BLACK",
+          "name": "Black",
+          "texture": "5a0e29cb59c8f3f3db07e91f1dc293935774dbe347935608fc96198178d17ac1"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "28f93bac43b6ef8dd4de86ce4cc40a3c6a4f7088264937817faab6a0390b4470"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_BLUE",
+          "name": "Blue",
+          "texture": "e1935ca4c0f7a017fa74fecafaa4f30714fc4a86904d0eb02d4e969d30bde0ad"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_TEAL",
+          "name": "Teal",
+          "texture": "73699f70230f620c22c7e8188e73a0b1b13b6cbbc925615475ae02880087cc40"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_DIAMOND",
+          "name": "Diamond",
+          "texture": "92839979608372b36a2ed0e7686ea93da7e3d21feb2a78639e2dc50bbf668652"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_GREEN",
+          "name": "Green",
+          "texture": "28118c7933f7729c0b93e875f5740ab4bcec6791268217c99da5bb117862418d"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_SNOW",
+          "name": "Snow",
+          "texture": "55991f7517f64ebe651674ebf47acfed1bd5f4a45592ffb4f1ca6b9081f2a623"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_PORTAL",
+          "name": "Portal",
+          "texture": "5162f6458702f340136a72e77db148eff35c137d7a3f30c5ab27d23cd329b3d3"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_PURPLE",
+          "name": "Purple",
+          "texture": "e23533673b5ebefbe5bfe5354fd0207af594edc6038c155cfbfeee32fc827e7"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_AURORA",
+          "name": "Aurora",
+          "texture": "fba54fc49e10e6fd62851da049151fc8f91fd78a9ab3c5e5ce5c6886b2bffdf7"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_PASTEL",
+          "name": "Pastel",
+          "texture": "3c0c6664b4b53d7ae821f44af4af1f80d45c0df185b2634a5d8b1d3a5ba71d40"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_SUNSET",
+          "name": "Sunset",
+          "texture": "e062d0840dc859587b41f83c2aa7b316558c9f4ce4522131879d7755049920cb"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_ROSE",
+          "name": "Rose",
+          "texture": "3157f5d0d6b0235a765dbb59a534ab9621962c68878f8b62dc8b26a98dfd5894"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_MAROON",
+          "name": "Maroon",
+          "texture": "e2615d0fea0c75dbde5c196ffc2c32874c11410b73d229e5567b48e29cc8de96"
+        },
+        {
+          "id": "NECRON_DIAMOND_KNIGHT_ORANGE",
+          "name": "Orange",
+          "texture": "c3806d4ef8cc7c72ddfe5dbd9a2f6b0de4861c61ce902aa0c318a9b669ac54d5"
+        }
+      ],
+      "legacyHash": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941"
     },
     {
       "id": "MERCENARY_KNIGHT",
       "name": "Knight Skin (Mercenary Helmet)",
-      "texture": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d"
+      "texture": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d",
+      "legacyHash": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d"
     },
     {
       "id": "FERMENTO_LEAF",
       "name": "Leaf Skin",
-      "texture": "2bfc4d48d7c53a6e8fe314ec3282271a5bde11215500bd901fb205e27df7be3b"
+      "texture": "2bfc4d48d7c53a6e8fe314ec3282271a5bde11215500bd901fb205e27df7be3b",
+      "legacyHash": "2bfc4d48d7c53a6e8fe314ec3282271a5bde11215500bd901fb205e27df7be3b"
     },
     {
       "id": "LUNAR_RABBIT_HAT",
       "name": "Lunar Rabbit Hat Skin",
-      "texture": "550ce17991dcf18ce223cdf2103025a18b9d1750db2ad0924d6186b18dacb288"
+      "texture": "550ce17991dcf18ce223cdf2103025a18b9d1750db2ad0924d6186b18dacb288",
+      "legacyHash": "550ce17991dcf18ce223cdf2103025a18b9d1750db2ad0924d6186b18dacb288"
     },
     {
       "id": "SHADOW_ASSASSIN_MAUVE",
       "name": "Mauve Skin",
-      "texture": "ebd50bb833ccc84e70a2469f6e47d5d51ac60aae5b9f651ee7ae383fea4a40ed"
+      "texture": "ebd50bb833ccc84e70a2469f6e47d5d51ac60aae5b9f651ee7ae383fea4a40ed",
+      "legacyHash": "ebd50bb833ccc84e70a2469f6e47d5d51ac60aae5b9f651ee7ae383fea4a40ed"
     },
     {
       "id": "METEOR_MAGMA_LORD",
       "name": "Meteor Magma Lord Helmet Skin",
-      "texture": "63e59250c968e508539bf2e8492f56a2f664efb309f495a07dc3a54c8b6a249e"
+      "texture": "63e59250c968e508539bf2e8492f56a2f664efb309f495a07dc3a54c8b6a249e",
+      "legacyHash": "63e59250c968e508539bf2e8492f56a2f664efb309f495a07dc3a54c8b6a249e"
     },
     {
       "id": "NUTCRACKER_KNIGHT",
       "name": "Nutcracker Knight Skin",
-      "texture": "7455ecb0279b373623c9a60f5c4ca0528ddc08cc166eca98bf741e70910495ae"
+      "texture": "7455ecb0279b373623c9a60f5c4ca0528ddc08cc166eca98bf741e70910495ae",
+      "legacyHash": "7455ecb0279b373623c9a60f5c4ca0528ddc08cc166eca98bf741e70910495ae"
     },
     {
       "id": "OLD_DRAGON_DRAKE",
       "name": "Old Drake Skin",
-      "texture": "3aad6ba02684d975d3e3686705261fea560f18d44183140afbaf3579e0ac8287"
+      "texture": "3aad6ba02684d975d3e3686705261fea560f18d44183140afbaf3579e0ac8287",
+      "legacyHash": "3aad6ba02684d975d3e3686705261fea560f18d44183140afbaf3579e0ac8287"
     },
     {
       "id": "REAPER_ONI_MASK",
       "name": "Oni Reaper Mask Skin",
-      "texture": "e6ff8158f218f7683262443db5ad438d19d9bbc5d45d6c45ce543c8a473aadff"
+      "texture": "e6ff8158f218f7683262443db5ad438d19d9bbc5d45d6c45ce543c8a473aadff",
+      "legacyHash": "e6ff8158f218f7683262443db5ad438d19d9bbc5d45d6c45ce543c8a473aadff"
     },
     {
       "id": "PALADIN_MINERAL",
       "name": "Paladin Mineral Helmet Skin",
-      "texture": "6900715bf3e4744abe0d531e610c8b7c72d100dc17cce1b0b61f9067f8f963e1"
+      "texture": "6900715bf3e4744abe0d531e610c8b7c72d100dc17cce1b0b61f9067f8f963e1",
+      "legacyHash": "6900715bf3e4744abe0d531e610c8b7c72d100dc17cce1b0b61f9067f8f963e1"
     },
     {
       "id": "PERFECT_PALADIN",
       "name": "Paladin Perfect Helmet Skin",
-      "texture": "a312968fb8fded612b256b353599ec2abbfb5d65e87e231bdb8be2bd040dc950"
+      "texture": "a312968fb8fded612b256b353599ec2abbfb5d65e87e231bdb8be2bd040dc950",
+      "variants": [
+        {
+          "id": "PERFECT_PALADIN_AZURE",
+          "name": "Azure",
+          "texture": "fb6fbae112bd38262e4b5b0e96cc352f580a53638d8c17f0093a0ccfdb4547ef"
+        },
+        {
+          "id": "PERFECT_PALADIN_BLUE",
+          "name": "Blue",
+          "texture": "326725aee674998ce7467cb51bcef8d744ee99be1ab41d6b38a7c9d99bcca76d"
+        },
+        {
+          "id": "PERFECT_PALADIN_AURORA",
+          "name": "Aurora",
+          "texture": "9dbb85478ba769c111264ae1a747d7e99d9dabd3c59e37ab91870afdd983edf1"
+        },
+        {
+          "id": "PERFECT_PALADIN_PASTEL",
+          "name": "Pastel",
+          "texture": "381a8871f9daca3fef16b635ca254316c0889a08393f2ad1e9a997d5cea4b7cf"
+        },
+        {
+          "id": "PERFECT_PALADIN_DIAMOND",
+          "name": "Diamond",
+          "texture": "5ce644a2b1bab634b64ac068bb484dd1ff0a31ad7f481bd845286bdb885830bd"
+        },
+        {
+          "id": "PERFECT_PALADIN_OASIS",
+          "name": "Oasis",
+          "texture": "de5b7033aef19103d84e2dfe5a7f8da8321a359939d5b58e84426c752c19e503"
+        },
+        {
+          "id": "PERFECT_PALADIN_PURPLE",
+          "name": "Purple",
+          "texture": "f1f1ab728d44cded657f0bda849a36902fefc1dd1af3421854ec319228df564e"
+        },
+        {
+          "id": "PERFECT_PALADIN_PORTAL",
+          "name": "Portal",
+          "texture": "4586124e4f56adea56c24eda5976edec748f4155612119f9949bb56d9ae8236d"
+        },
+        {
+          "id": "PERFECT_PALADIN_DUSK",
+          "name": "Dusk",
+          "texture": "b75161b554538bd6167f9ec9ea3ac74d701ba82131a89e056e03b556831e2e1f"
+        },
+        {
+          "id": "PERFECT_PALADIN_PINK",
+          "name": "Pink",
+          "texture": "72d7697d6f58ce0b71119433cf91de83c6e106d5a9a0ce015f5f25dbbdfc1e77"
+        },
+        {
+          "id": "PERFECT_PALADIN_SUNSET",
+          "name": "Sunset",
+          "texture": "7538b46bd08277b1d67616d899f1d73a5fe7a71d1c0cd961e9b77aa7666a2a30"
+        },
+        {
+          "id": "PERFECT_PALADIN_LIME",
+          "name": "Lime",
+          "texture": "b64016da7dc7f00251b45a432f9d67dd52ca9c137f262b6b5318badc6ada5bd9"
+        },
+        {
+          "id": "PERFECT_PALADIN_FOREST",
+          "name": "Forest",
+          "texture": "523a4d47fc00b934908c7bdb901bc31acd41c0222a45c82880deba8510a1c2c3"
+        },
+        {
+          "id": "PERFECT_PALADIN_RED",
+          "name": "Red",
+          "texture": "2cc0f6cf3aad4583538bbaaae70e233e212ff489ce155cf5260e0e8393d26d85"
+        },
+        {
+          "id": "PERFECT_PALADIN_ORANGE",
+          "name": "Orange",
+          "texture": "a2801e76defe4910280ee0736afcb0b14aec23abf7a5c2461dfda1df1819854"
+        },
+        {
+          "id": "PERFECT_PALADIN_GOLD",
+          "name": "Gold",
+          "texture": "eae74480587e02ce3d44cc48c37d8134f0c46c0eb409ce6848a840cb371e9a27"
+        },
+        {
+          "id": "PERFECT_PALADIN_SNOW",
+          "name": "Snow",
+          "texture": "74fcd4c10638ca918075a12f31400a1e25d8c44edc1f3b7476553288709c62f5"
+        },
+        {
+          "id": "PERFECT_PALADIN_BLACK",
+          "name": "Black",
+          "texture": "f5d4ae41742c765bb7ada867ed504c783422c4af9b545a5dded066992c203dbd"
+        },
+        {
+          "id": "PERFECT_PALADIN_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "9b649171d9a85de3ebb8bc280fae2579389afd55388b62a4dfeb3ef7f2afafdc"
+        }
+      ],
+      "legacyHash": "a312968fb8fded612b256b353599ec2abbfb5d65e87e231bdb8be2bd040dc950"
     },
     {
       "id": "SORROW_PALADIN",
       "name": "Paladin Skin",
-      "texture": "53c03b60f809a69a3d845f686a758e6576083b06626efcd89565b06e02fc8520"
+      "texture": "53c03b60f809a69a3d845f686a758e6576083b06626efcd89565b06e02fc8520",
+      "legacyHash": "53c03b60f809a69a3d845f686a758e6576083b06626efcd89565b06e02fc8520"
     },
     {
       "id": "PANDA_SPIRIT",
       "name": "Panda Spirit Skin",
-      "texture": "9649fad8b25b7ddaa1b99b7ee86573ea5a948df4453bfde7d1fe016516ee3e34"
+      "texture": "9649fad8b25b7ddaa1b99b7ee86573ea5a948df4453bfde7d1fe016516ee3e34",
+      "variants": [
+        {
+          "id": "PANDA_SPIRIT_DAY",
+          "name": "Day",
+          "texture": "9649fad8b25b7ddaa1b99b7ee86573ea5a948df4453bfde7d1fe016516ee3e34"
+        },
+        {
+          "id": "PANDA_SPIRIT_NIGHT",
+          "name": "Night",
+          "texture": "ce1ca0874b653ecbc0d5268518f12838b0a24e3c2ed916b1d25b965647f4834c"
+        }
+      ],
+      "legacyHash": "9649fad8b25b7ddaa1b99b7ee86573ea5a948df4453bfde7d1fe016516ee3e34"
     },
     {
       "id": "PASTEL_SUPERIOR_DRAGON",
       "name": "Pastel Superior Dragon Skin",
-      "texture": "f19ec2f6f43aeca3a112027ce25bbadec0c7d691bf97b6f0e44fad049ddcf7d"
+      "texture": "f19ec2f6f43aeca3a112027ce25bbadec0c7d691bf97b6f0e44fad049ddcf7d",
+      "legacyHash": "0f19ec2f6f43aeca3a112027ce25bbadec0c7d691bf97b6f0e44fad049ddcf7d"
     },
     {
       "id": "SHARK_SCALE_HOODIE_PENGUIN",
       "name": "Penguin Hoodie Skin",
-      "texture": "81b25293befcf336ec9fea082479b7071d3c8a7ab29f94c33d7727712ac729fd"
+      "texture": "81b25293befcf336ec9fea082479b7071d3c8a7ab29f94c33d7727712ac729fd",
+      "legacyHash": "81b25293befcf336ec9fea082479b7071d3c8a7ab29f94c33d7727712ac729fd"
     },
     {
       "id": "PROTECTOR_DRAGON_DRAKE",
       "name": "Protector Drake Skin",
-      "texture": "f9d8d582bd1a94313e5d0000bc3a60b7a96ff65834ce90af9048824192bf4882"
+      "texture": "f9d8d582bd1a94313e5d0000bc3a60b7a96ff65834ce90af9048824192bf4882",
+      "legacyHash": "f9d8d582bd1a94313e5d0000bc3a60b7a96ff65834ce90af9048824192bf4882"
     },
     {
       "id": "DIVER_PUFFER",
       "name": "Puffer Fish Skin",
-      "texture": "5c6f54fc06fc388e048d489c049586eaae760101591e3064d0506894482b6b55"
+      "texture": "5c6f54fc06fc388e048d489c049586eaae760101591e3064d0506894482b6b55",
+      "legacyHash": "5c6f54fc06fc388e048d489c049586eaae760101591e3064d0506894482b6b55"
     },
     {
       "id": "BIOHAZARD_PUMPKIN_SPICE",
       "name": "Pumpkin Spice Skin",
-      "texture": "18827cfc8c504d00ad676fe7a5ebf70ac4826e6db90a00eb282e5738a6cd558e"
+      "texture": "18827cfc8c504d00ad676fe7a5ebf70ac4826e6db90a00eb282e5738a6cd558e",
+      "legacyHash": "18827cfc8c504d00ad676fe7a5ebf70ac4826e6db90a00eb282e5738a6cd558e"
     },
     {
       "id": "MASTIFF_PUPPY",
       "name": "Puppy Skin",
-      "texture": "f22f67e5fe5badb3a0c231860d2b68682ced4afe92f8d1adf822ce9cd4b0a740"
+      "texture": "f22f67e5fe5badb3a0c231860d2b68682ced4afe92f8d1adf822ce9cd4b0a740",
+      "legacyHash": "f22f67e5fe5badb3a0c231860d2b68682ced4afe92f8d1adf822ce9cd4b0a740"
     },
     {
       "id": "RABBIT_JERRY_ONESIE",
       "name": "Rabbit Onesie Jerry Skin",
-      "texture": "6a0385f8ecd04c0c82edd1c716ac10addc6c66fbbbaf0c8178f193ee905c0828"
+      "texture": "6a0385f8ecd04c0c82edd1c716ac10addc6c66fbbbaf0c8178f193ee905c0828",
+      "legacyHash": "6a0385f8ecd04c0c82edd1c716ac10addc6c66fbbbaf0c8178f193ee905c0828"
     },
     {
       "id": "MAGMA_LORD_RAGNAROK",
       "name": "Ragnarok's Bane Magma Lord Skin",
-      "texture": "c552f85426e7c97dd8333ab2f44b1634b315a1dd3f51f931b0e7bfed517e60a4"
+      "texture": "c552f85426e7c97dd8333ab2f44b1634b315a1dd3f51f931b0e7bfed517e60a4",
+      "variants": [
+        {
+          "id": "MAGMA_LORD_RAGNAROK_VOID",
+          "name": "Void",
+          "texture": "c552f85426e7c97dd8333ab2f44b1634b315a1dd3f51f931b0e7bfed517e60a4"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "f09455518d176335533fdeb5c0cc202ed62e77923504dbb43fd145fadcbeab32"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_TEAL",
+          "name": "Teal",
+          "texture": "532aee245e847d9d319216ef8f7b877b575d13840615e0569c3fd5e699519ee2"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_AZURE",
+          "name": "Azure",
+          "texture": "cae79906d23195667956bb2b2abbb7aa5aa0b5b3912dc321a94b9b8ef1f6098"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_GREEN",
+          "name": "Green",
+          "texture": "ba7b29fe75b6a88dfa61c58a5a6b1dabb20cd72e38c8f8b7c0a78bb0ee461c4"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_AURORA",
+          "name": "Aurora",
+          "texture": "675d41d4b1128492c173952b82c26147c971b4782730876e3af4aa09331d6e2d"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_INDIGO",
+          "name": "Indigo",
+          "texture": "9b68df02d0ebcfa2b4a7745a49ec00efd42f7a70ef73fb7efb610544cf0c108f"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_PORTAL",
+          "name": "Portal",
+          "texture": "32b40af8a9e59a3128f3e08711ed2470e9e8e3a24337ce9056a3e3e036c51cb8"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_PASTEL",
+          "name": "Pastel",
+          "texture": "dc027ee6abbda2dff654d2cf2bd32b78d9137b5464896eb03b77de60f25fcbd5"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_SUNSET",
+          "name": "Sunset",
+          "texture": "1e707115b1e98c0d007b70474edbda104756e87fc0bd95391f773832638ba89c"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_FLAME",
+          "name": "Flame",
+          "texture": "1343885d8ff3742597ce680a93084c273e60a9dc8821857545998cac867f75c8"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_INFERNO",
+          "name": "Inferno",
+          "texture": "8c15ec53f162e0daddc7445fd22362a78093623ff3cdcf6fc10859a9c47db40a"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_CRIMSON",
+          "name": "Crimson",
+          "texture": "2666a8e8b5d41a01f1cdbd18c56c50f5fb9f7c0bffc32afb8e14b601c57b65bf"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_BLOOD",
+          "name": "Blood",
+          "texture": "60323295a94e10d854457de0910762e34bfb7b526277a215b280dfc909cbe2c9"
+        },
+        {
+          "id": "MAGMA_LORD_RAGNAROK_SNOW",
+          "name": "Snow",
+          "texture": "fb757d0d9ea24e1dd8b48bdf625045f17287b6efc958acc8c436b1492164b6c"
+        }
+      ],
+      "legacyHash": "c552f85426e7c97dd8333ab2f44b1634b315a1dd3f51f931b0e7bfed517e60a4"
     },
     {
       "id": "REAPER_RED_ONI_MASK",
       "name": "Red Oni Reaper Mask Skin",
-      "texture": "266e570a648e19db58f5e0e7a7667f599b1871f286b36572c4b7737491c9b060"
+      "texture": "266e570a648e19db58f5e0e7a7667f599b1871f286b36572c4b7737491c9b060",
+      "legacyHash": "266e570a648e19db58f5e0e7a7667f599b1871f286b36572c4b7737491c9b060"
     },
     {
       "id": "BIOHAZARD_SPACE_RED",
       "name": "Red Space Skin",
-      "texture": "3a4dedffa98dc3ba3afb5ba25c4d537b1745ef4d51ae90f4aa7646c9b6c9adda"
+      "texture": "3a4dedffa98dc3ba3afb5ba25c4d537b1745ef4d51ae90f4aa7646c9b6c9adda",
+      "legacyHash": "3a4dedffa98dc3ba3afb5ba25c4d537b1745ef4d51ae90f4aa7646c9b6c9adda"
     },
     {
       "id": "TARANTULA_REDBACK",
       "name": "Redback Skin",
-      "texture": "972e9200bb4b2cc35b974acc7c9078fc588504ed88c56c9cbbf2016cc032f6f5"
+      "texture": "972e9200bb4b2cc35b974acc7c9078fc588504ed88c56c9cbbf2016cc032f6f5",
+      "legacyHash": "972e9200bb4b2cc35b974acc7c9078fc588504ed88c56c9cbbf2016cc032f6f5"
     },
     {
       "id": "PERFECT_FORGE",
       "name": "Reinforced Skin",
-      "texture": "855b72f529f9bd33a6ec1df16f17f054dece6b553c21d286ad4e93fc658147d3"
+      "texture": "855b72f529f9bd33a6ec1df16f17f054dece6b553c21d286ad4e93fc658147d3",
+      "legacyHash": "855b72f529f9bd33a6ec1df16f17f054dece6b553c21d286ad4e93fc658147d3"
     },
     {
       "id": "GLOSSY_MINERAL_HELMET_ROYAL",
       "name": "Royal Skin",
-      "texture": "74bc9d6c3b23fc7f88842fdf05bc2cddb9934efc396d043d2f95301523015018"
+      "texture": "74bc9d6c3b23fc7f88842fdf05bc2cddb9934efc396d043d2f95301523015018",
+      "legacyHash": "74bc9d6c3b23fc7f88842fdf05bc2cddb9934efc396d043d2f95301523015018"
     },
     {
       "id": "BERSERKER_SANDSTORM_CAT",
       "name": "Sandstorm Cat Skin",
-      "texture": "620d52f4b9510c96d6e962e5a302a993f16a427453a723700f9138032f0c3d13"
+      "texture": "620d52f4b9510c96d6e962e5a302a993f16a427453a723700f9138032f0c3d13",
+      "legacyHash": "620d52f4b9510c96d6e962e5a302a993f16a427453a723700f9138032f0c3d13"
     },
     {
       "id": "SHARK_SCALE_HOODIE_SEAL",
       "name": "Seal Hoodie Skin",
-      "texture": "156ec8e1dffcbb36daa6ffb9ae133615ac8e8c18044eea420b6ebb8907249153"
+      "texture": "156ec8e1dffcbb36daa6ffb9ae133615ac8e8c18044eea420b6ebb8907249153",
+      "legacyHash": "156ec8e1dffcbb36daa6ffb9ae133615ac8e8c18044eea420b6ebb8907249153"
     },
     {
       "id": "SENTINEL_WARDEN",
       "name": "Sentinel Warden Skin",
-      "texture": "e9c588a8b62affd74643e0d6641bda3a0784a304c579c067fa495e2c43ec9462"
+      "texture": "e9c588a8b62affd74643e0d6641bda3a0784a304c579c067fa495e2c43ec9462",
+      "variants": [
+        {
+          "id": "SENTINEL_WARDEN_RED",
+          "name": "Red",
+          "texture": "3b1d3ec2c3bf8c868f11b7a3bbc1adecc420c64db6d56d2fd6df3ea95e826c0c"
+        },
+        {
+          "id": "SENTINEL_WARDEN_MAROON",
+          "name": "Maroon",
+          "texture": "60d6ec510b9eede7dc37eec40528a0e4b9f2078f9086da69d1a1b780fd8a0b87"
+        },
+        {
+          "id": "SENTINEL_WARDEN_PURPLE",
+          "name": "Purple",
+          "texture": "8e80dbab71d26c3be45d6d09f659d1e1b7e598d1018f855ba4768644c271b761"
+        },
+        {
+          "id": "SENTINEL_WARDEN_GREEN",
+          "name": "Green",
+          "texture": "74148fa147a72d2898414929c077966e4fb35434cab550aa104c39e4167fb1b"
+        },
+        {
+          "id": "SENTINEL_WARDEN_PINK",
+          "name": "Pink",
+          "texture": "98cb51067a926b925f4404159b6c8640648ff0ed12ed238031fa409272f2040d"
+        },
+        {
+          "id": "SENTINEL_WARDEN_ORANGE",
+          "name": "Orange",
+          "texture": "cda02e9708ca4ec3954af923d7246bed65968e7274c068b162b590079709c79b"
+        },
+        {
+          "id": "SENTINEL_WARDEN_TEAL",
+          "name": "Teal",
+          "texture": "b78ed528830eed64a77b7a323d068cfd55013050288939af43a155fa463a4c9f"
+        },
+        {
+          "id": "SENTINEL_WARDEN_BLACK",
+          "name": "Black",
+          "texture": "ecd257735e665216c9d479f0f7ae2e8d5fbf79845c245969d558859aa51204e9"
+        }
+      ],
+      "legacyHash": "e9c588a8b62affd74643e0d6641bda3a0784a304c579c067fa495e2c43ec9462"
     },
     {
       "id": "HOLY_SHIMMER",
       "name": "Shimmer Skin (Holy Dragon Helmet)",
-      "texture": "c96696eb13cced8f5c521892d90fe8e2b129469520ade8d1d9f87225e7179761"
+      "texture": "c96696eb13cced8f5c521892d90fe8e2b129469520ade8d1d9f87225e7179761",
+      "legacyHash": "c96696eb13cced8f5c521892d90fe8e2b129469520ade8d1d9f87225e7179761"
     },
     {
       "id": "OLD_SHIMMER",
       "name": "Shimmer Skin (Old Dragon Helmet)",
-      "texture": "78bf606f5ace4e3cfb81a14742992ff5a868d1f0f9d14b4bec9393859e0e0a00"
+      "texture": "78bf606f5ace4e3cfb81a14742992ff5a868d1f0f9d14b4bec9393859e0e0a00",
+      "legacyHash": "78bf606f5ace4e3cfb81a14742992ff5a868d1f0f9d14b4bec9393859e0e0a00"
     },
     {
       "id": "PROTECTOR_SHIMMER",
       "name": "Shimmer Skin (Protector Dragon Helmet)",
-      "texture": "72cd120841228d2812ca07433a3ec4640de81fa1f4bb9b42269c741403196fdb"
+      "texture": "72cd120841228d2812ca07433a3ec4640de81fa1f4bb9b42269c741403196fdb",
+      "legacyHash": "72cd120841228d2812ca07433a3ec4640de81fa1f4bb9b42269c741403196fdb"
     },
     {
       "id": "STRONG_SHIMMER",
       "name": "Shimmer Skin (Strong Dragon Helmet)",
-      "texture": "ad3241f4419f06d17d88b21cc8e412f4ef11d7cfadd882e269da5a490e08f0e4"
+      "texture": "ad3241f4419f06d17d88b21cc8e412f4ef11d7cfadd882e269da5a490e08f0e4",
+      "legacyHash": "ad3241f4419f06d17d88b21cc8e412f4ef11d7cfadd882e269da5a490e08f0e4"
     },
     {
       "id": "SUPERIOR_SHIMMER",
       "name": "Shimmer Skin (Superior Dragon Helmet)",
-      "texture": "cb3deae44a93acf001ae6bef1e1f4d56e4b7eca4ba14699d071023a24eed2c2e"
+      "texture": "cb3deae44a93acf001ae6bef1e1f4d56e4b7eca4ba14699d071023a24eed2c2e",
+      "legacyHash": "cb3deae44a93acf001ae6bef1e1f4d56e4b7eca4ba14699d071023a24eed2c2e"
     },
     {
       "id": "UNSTABLE_SHIMMER",
       "name": "Shimmer Skin (Unstable Dragon Helmet)",
-      "texture": "17397c1603be4bcf52eae0d2ad66e1663aad724a8f069ba87aa41aa8d2b48820"
+      "texture": "17397c1603be4bcf52eae0d2ad66e1663aad724a8f069ba87aa41aa8d2b48820",
+      "legacyHash": "17397c1603be4bcf52eae0d2ad66e1663aad724a8f069ba87aa41aa8d2b48820"
     },
     {
       "id": "WISE_SHIMMER",
       "name": "Shimmer Skin (Wise Dragon Helmet)",
-      "texture": "25d7c5909f742e2e85ba7f2c7449f9e12a5c42c5a1132974df7f4ef204d6ca1e"
+      "texture": "25d7c5909f742e2e85ba7f2c7449f9e12a5c42c5a1132974df7f4ef204d6ca1e",
+      "legacyHash": "25d7c5909f742e2e85ba7f2c7449f9e12a5c42c5a1132974df7f4ef204d6ca1e"
     },
     {
       "id": "YOUNG_SHIMMER",
       "name": "Shimmer Skin (Young Dragon Helmet)",
-      "texture": "e1ad5d83e55890290f52e4ad06e4351a2e87998d1cb3e76cc952a076deb7882b"
+      "texture": "e1ad5d83e55890290f52e4ad06e4351a2e87998d1cb3e76cc952a076deb7882b",
+      "legacyHash": "e1ad5d83e55890290f52e4ad06e4351a2e87998d1cb3e76cc952a076deb7882b"
     },
     {
       "id": "SHADOW_ASSASSIN_SLY_FOX",
       "name": "Sly Fox Skin",
-      "texture": "cfc75423a2a5773319792c96d9359d42067efa1c7093010131c4056948abf490"
+      "texture": "cfc75423a2a5773319792c96d9359d42067efa1c7093010131c4056948abf490",
+      "legacyHash": "cfc75423a2a5773319792c96d9359d42067efa1c7093010131c4056948abf490"
     },
     {
       "id": "REKINDLED_EMBER_BURNING",
       "name": "Smoldering Ember Skin",
-      "texture": "d2309ca29da534d4c0d5b0ea46471ae9be32b49e44e7d1d78dbdfed48df73e7c"
+      "texture": "d2309ca29da534d4c0d5b0ea46471ae9be32b49e44e7d1d78dbdfed48df73e7c",
+      "legacyHash": "d2309ca29da534d4c0d5b0ea46471ae9be32b49e44e7d1d78dbdfed48df73e7c"
     },
     {
       "id": "BIOHAZARD_SPACE_SNOWFLAKE",
       "name": "Snowflake Space Skin",
-      "texture": "b1c813e9cfc81a0e76e6127db76402ccc518a6d8d00147e155b29be2b0e8470e"
+      "texture": "b1c813e9cfc81a0e76e6127db76402ccc518a6d8d00147e155b29be2b0e8470e",
+      "legacyHash": "b1c813e9cfc81a0e76e6127db76402ccc518a6d8d00147e155b29be2b0e8470e"
     },
     {
       "id": "SNOW_SNOWGLOBE",
       "name": "Snowglobe Skin",
-      "texture": "13229f8525726684fb0227dad7621f05f0b8b5d58a8693fd0ea0688349f1d53c"
+      "texture": "13229f8525726684fb0227dad7621f05f0b8b5d58a8693fd0ea0688349f1d53c",
+      "legacyHash": "13229f8525726684fb0227dad7621f05f0b8b5d58a8693fd0ea0688349f1d53c"
     },
     {
       "id": "SORROW_SAMURAI",
       "name": "Sorrowful Samurai Skin",
-      "texture": "b939aa2daf532d5fdb305a3df62aa3f49466e84d74785cd94ef30cf847a52145"
+      "texture": "b939aa2daf532d5fdb305a3df62aa3f49466e84d74785cd94ef30cf847a52145",
+      "variants": [
+        {
+          "id": "SORROW_SAMURAI_BLACK",
+          "name": "Black",
+          "texture": "b7bf9a67a1191136a75c3307ee5002b2e0f19b13cc826792ab67e4d88f256e0f"
+        },
+        {
+          "id": "SORROW_SAMURAI_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "d6f241d49c101f314c56e7448d89c5a368d048dbb8c16d0fd9a87305e28fdfa8"
+        },
+        {
+          "id": "SORROW_SAMURAI_TEAL",
+          "name": "Teal",
+          "texture": "b46a10dfdc81fc2328f56b332e34f203e0c8768349fa42114e546f0ce9bd9563"
+        },
+        {
+          "id": "SORROW_SAMURAI_AZURE",
+          "name": "Azure",
+          "texture": "40374f725ee4f4c757ba84d424262fd296f392215453e5cc90faf302ecf08ef1"
+        },
+        {
+          "id": "SORROW_SAMURAI_AURORA",
+          "name": "Aurora",
+          "texture": "7be251c73bd959f80e3447e0a0a262bed0f5fd7c95082dbfb44a1f8eb8d6df94"
+        },
+        {
+          "id": "SORROW_SAMURAI_OASIS",
+          "name": "Oasis",
+          "texture": "3836912ddc49519f3e0afac4a7b4e13bbce94af614753e5f740339bb0487138f"
+        },
+        {
+          "id": "SORROW_SAMURAI_PASTEL",
+          "name": "Pastel",
+          "texture": "ed75b5400a2dc5d64a2516fa7ab772a4b79f544845f7f9cad65c140c9677fcf5"
+        },
+        {
+          "id": "SORROW_SAMURAI_GREEN",
+          "name": "Green",
+          "texture": "d8498d6394dedcddafbdccf732464438c2f603c1d0673910aa8b8c10b4b0c302"
+        },
+        {
+          "id": "SORROW_SAMURAI_LIME",
+          "name": "Lime",
+          "texture": "a1cae87186357cc987c3fc33d9ead690b57f47870183010b74653da2d1753971"
+        },
+        {
+          "id": "SORROW_SAMURAI_GOLD",
+          "name": "Gold",
+          "texture": "a99c97c36adc3738cf6497284f9892274b8640a8409661000f2e836087ff88c1"
+        },
+        {
+          "id": "SORROW_SAMURAI_SNOW",
+          "name": "Snow",
+          "texture": "559a6a5abe0744a90dd8adad5e8a42fc0cd1a2d722436c92dd3365863a345fd8"
+        },
+        {
+          "id": "SORROW_SAMURAI_BLAZING",
+          "name": "Blazing",
+          "texture": "5533663a05b22c669575a7f8cbd2b6ef7e4da5a5d553d24e368c883022ddd060"
+        },
+        {
+          "id": "SORROW_SAMURAI_RED",
+          "name": "Red",
+          "texture": "8c61b7af272e9d99b05bee1c2746597482fa3e3716e45bf8cd624a25298ab4b3"
+        },
+        {
+          "id": "SORROW_SAMURAI_ROSE",
+          "name": "Rose",
+          "texture": "d9b4a2fc2167b6414150923ce0ef6dc6350b0e1fd8c21f9612ae494d3654aa93"
+        },
+        {
+          "id": "SORROW_SAMURAI_PINK",
+          "name": "Pink",
+          "texture": "1d8d09579359a56369eb82c78861a0afb8835c4af1f300c20bba6a268533ac8e"
+        },
+        {
+          "id": "SORROW_SAMURAI_SUNSET",
+          "name": "Sunset",
+          "texture": "ba5af10aa9a79ccb6cf8f770cac5d2fcf9ea228262e2d6d444930a4a821c3667"
+        },
+        {
+          "id": "SORROW_SAMURAI_PORTAL",
+          "name": "Portal",
+          "texture": "790b83c184e25ae3d97088414bbb605779902b126a226223c0cb1206f104de00"
+        },
+        {
+          "id": "SORROW_SAMURAI_PURPLE",
+          "name": "Purple",
+          "texture": "a2773c3745fc37f28c92410763792e3e2499717501f49e078e1903f70f2a7f60"
+        }
+      ],
+      "legacyHash": "b939aa2daf532d5fdb305a3df62aa3f49466e84d74785cd94ef30cf847a52145"
     },
     {
       "id": "HELIX_SPARKLING",
       "name": "Sparkling Helix Skin",
-      "texture": "dd292511658d876db4b3b07b715584101c29f5a07b151a2e3734dafb43be1a25"
+      "texture": "dd292511658d876db4b3b07b715584101c29f5a07b151a2e3734dafb43be1a25",
+      "legacyHash": "dd292511658d876db4b3b07b715584101c29f5a07b151a2e3734dafb43be1a25"
     },
     {
       "id": "WARDEN_SPARTAN",
       "name": "Spartan Warden Helmet Skin",
-      "texture": "a256936e7d379fb49bdf134db79d770dd5b4b55d9519f24b3a46c524f366445b"
+      "texture": "a256936e7d379fb49bdf134db79d770dd5b4b55d9519f24b3a46c524f366445b",
+      "variants": [
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_ONYX",
+          "name": "Default Onyx",
+          "texture": "a256936e7d379fb49bdf134db79d770dd5b4b55d9519f24b3a46c524f366445b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_STEEL",
+          "name": "Default Steel",
+          "texture": "d57dfbb50b2cc7cce4e5292d5ddc3b4fdaff48904432a8fc2ccccc30de30f76d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_SILVER",
+          "name": "Default Silver",
+          "texture": "f7ff3083fda2f4d15b676d122dcf66ed08fc523020b96465e8f5b3b13677607"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_GOLD",
+          "name": "Default Gold",
+          "texture": "ac21d3e944a0c1983a3af02f9023a1a17bbf1cdba9b8cd10a96fad14f70d8c73"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_ROSE_GOLD",
+          "name": "Default Rose Gold",
+          "texture": "feaa0802b6d68968923601aa4aa778dec7fb588ec27ff5af8566ed12eb96c215"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_COPPER",
+          "name": "Default Copper",
+          "texture": "2f4949e2ebdefd5d9be048f4516a53e0ccedc786cab38d6829fc0c9572f44d6b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_DARK_BRONZE",
+          "name": "Default Dark Bronze",
+          "texture": "36c1fb6a3fe604dba185ae1c367650610a400eb22abf24091d40218435e980d9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_RUBY",
+          "name": "Default Ruby",
+          "texture": "e30ccd4a944cd11633bd5eb0be3d284216ed3821a1b6288ecbafbf58049c6493"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_GARNET",
+          "name": "Default Garnet",
+          "texture": "7223b4e888bb2c0a4304e2e9933fe4f9c6fa5c6ce71c6dd837b65402f8471f0d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_AMETHYST",
+          "name": "Default Amethyst",
+          "texture": "bf6bec5d840f9be98adadbc59b7b4e3c0845bdb5e6cc01b78836d435e2291cff"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_OBSIDIAN",
+          "name": "Default Obsidian",
+          "texture": "9cd9c32d0e7b55fb644e76e5f0b2ed727792ca78925bc8c47c9c0b23844a87bd"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_LAPIS",
+          "name": "Default Lapis",
+          "texture": "3471b97701b3134038a509d16ae8005e4aa9df25cf38efb25288f832d197d739"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_AQUAMARINE",
+          "name": "Default Aquamarine",
+          "texture": "33bf9a064d8ed1e070b6afecc38d24aa0946df8691203ee5548e8b0fdd83d6b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_DIAMOND",
+          "name": "Default Diamond",
+          "texture": "bc1927f7ca35a408e6a24f42e09426ceb5fd7e1ebcf0a2f9f0b22208a44990df"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_JADE",
+          "name": "Default Jade",
+          "texture": "d278c5e0f48dea3c60d9429abb9db79c9ab66a5475fc700ff167b41b0ef19030"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DEFAULT_EMERALD",
+          "name": "Default Emerald",
+          "texture": "48f800cab82646bc537ecd70a9a5ee9665ccb6361df489642789ea453920f132"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_ONYX",
+          "name": "Snow Onyx",
+          "texture": "c474638d1a40c63f4a3dc54f48a48bdeb4ac49e3527565e646e7e2ad399dca24"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_STEEL",
+          "name": "Snow Steel",
+          "texture": "8116b1cdcc79b738ee70157b57f7b6b4c5e22ca988b970866a48224f01888e9b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_SILVER",
+          "name": "Snow Silver",
+          "texture": "8e5d371bf7db48aa16393062f8f5d738c876c7f9f216e60e0fd2678a11c2240d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_GOLD",
+          "name": "Snow Gold",
+          "texture": "69c534e64947e5ff25a206027e362466085763776603bdc8f1700227937e1453"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_ROSE_GOLD",
+          "name": "Snow Rose Gold",
+          "texture": "64352b219d3998f8771f8426fc828dbcdd4ac713a8ec0b7b5b14895607973010"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_COPPER",
+          "name": "Snow Copper",
+          "texture": "6e61424ca9ce508d3f9bea6d354201ea48a6555d3f278d1382e131458381e1fd"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_DARK_BRONZE",
+          "name": "Snow Dark Bronze",
+          "texture": "37a6fdb7a84aaac3a9acb8779bacba7d034a40097f70ff813901506bfbafdce1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_RUBY",
+          "name": "Snow Ruby",
+          "texture": "86ad7c1a3e1a4cfa4273f19f6f54c860c4dae24f5fcb854d355457120ac5fae4"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_GARNET",
+          "name": "Snow Garnet",
+          "texture": "5b94b5d0fa806c0289ddea36b3fd2fc13611fccedc984d2f11a583f9cb4daac6"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_AMETHYST",
+          "name": "Snow Amethyst",
+          "texture": "7f3c9db9081092c6472998f57fc05cd6e27a26837680996a396acdc66f880d14"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_OBSIDIAN",
+          "name": "Snow Obsidian",
+          "texture": "537f3d997a965e00696730f22f17418634378afda0d1138e72844a7c844a243b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_LAPIS",
+          "name": "Snow Lapis",
+          "texture": "abeb19fad5fe5f78834c7438560687b3af288fd42258b1b6944c530bddb491fd"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_AQUAMARINE",
+          "name": "Snow Aquamarine",
+          "texture": "ffe5f8429e5774788345f6fa01cd3180f6cc74ec92f66edeca6722625151bc57"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_DIAMOND",
+          "name": "Snow Diamond",
+          "texture": "fcefaae95fc53ec1ebd77b5ceb0ebaaba510fd74a78db5395695f4990acaaebc"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_JADE",
+          "name": "Snow Jade",
+          "texture": "9aef5e500d911b9284b97cf98c5d58ed7e7f8bdc4bfcded61a47c58eee94bdd2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SNOW_EMERALD",
+          "name": "Snow Emerald",
+          "texture": "dd472cec2296e6ea2305b4055151a828740cc3bb48c836ca2b25db8b3ce0910b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_ONYX",
+          "name": "Oasis Onyx",
+          "texture": "3960d10353b5767f75c3957fe5818d36e3697b15c662f576fe0d3d4bb472955"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_STEEL",
+          "name": "Oasis Steel",
+          "texture": "c69d9fc64c95d92c7ea2d55cd7c8cbb35f652c944cdd4cd1fe0b081012722eba"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_SILVER",
+          "name": "Oasis Silver",
+          "texture": "3ddde3d33cb7898eef0a778dd9d1d0ed052d74f361376473d7df7b44660fe94"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_GOLD",
+          "name": "Oasis Gold",
+          "texture": "2e08ebd8503c03436cda549a8b3325bcffcc429c05ce51ef909943862db6876e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_ROSE_GOLD",
+          "name": "Oasis Rose Gold",
+          "texture": "812b73ba616873970ef7e59302f8b176cbe9e56495a798e6ce11637a6d2cefb8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_COPPER",
+          "name": "Oasis Copper",
+          "texture": "bda0ddba8de1cf553eac2a9f20e2141a17043fd5e6d1275b6917c2d254abbce0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_DARK_BRONZE",
+          "name": "Oasis Dark Bronze",
+          "texture": "4b2b47842929ad74700f1cae7e770ad9d7696e3c3f603d1a448698a22f86d96"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_RUBY",
+          "name": "Oasis Ruby",
+          "texture": "e2d761d01d08ab7f57757324e0d41dc071ac0747650f1e96c5f304e268523e10"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_GARNET",
+          "name": "Oasis Garnet",
+          "texture": "b45d51682589098ba92188f0101afd446e6d723c2f879c0dc8474fcf833a2e59"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_AMETHYST",
+          "name": "Oasis Amethyst",
+          "texture": "f7a233450f9e3e783b05f3265b58ded8156ca39c0d3544e92c466561ca6508e3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_OBSIDIAN",
+          "name": "Oasis Obsidian",
+          "texture": "2c9e9fa9db17bf8cf367d4effcc27686263e0c36425199aec8a6a54151a1be92"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_LAPIS",
+          "name": "Oasis Lapis",
+          "texture": "c5995b827cce87f7a7be3ad65b67663ec9fc757ad3b279328dab749eb5ccb46a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_AQUAMARINE",
+          "name": "Oasis Aquamarine",
+          "texture": "bb5901f4da886fc3a6df6c50f18eee3aa78f823e9346434fc5bdca0a0cf88352"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_DIAMOND",
+          "name": "Oasis Diamond",
+          "texture": "f360714a6a7c813cb44ef100f02eaf14047143f2857ef962c2b34f202e407d54"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_JADE",
+          "name": "Oasis Jade",
+          "texture": "eefe81e36a3ba673993b74a434e7d4321af7bdfd9d371943462d85594efb2e35"
+        },
+        {
+          "id": "WARDEN_SPARTAN_OASIS_EMERALD",
+          "name": "Oasis Emerald",
+          "texture": "b3f14acce8ad0f9153bf15d61d8686c94697104e4e3555c5f3208ef651569c84"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_ONYX",
+          "name": "Beach Onyx",
+          "texture": "6f4ea055ee1cd02abed9a5f560320bd7de5ed2db61985bf09f8c642d35973505"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_STEEL",
+          "name": "Beach Steel",
+          "texture": "2531e748770fd8516d074acf7b5775386e4834321054876463bcfee7f57c83bf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_SILVER",
+          "name": "Beach Silver",
+          "texture": "46b3ee903fff668497d855d4eb51728719cd0c9803f91ea97154c3a1e9b3d244"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_GOLD",
+          "name": "Beach Gold",
+          "texture": "720257152c23092c24882b520c527b7f7e49c3e253fdfdddec87c022dee62a95"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_ROSE_GOLD",
+          "name": "Beach Rose Gold",
+          "texture": "211fc33e0880b26ffef0a4955e6429d04848c1c06efc83e4a1e9112d66d1e86e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_COPPER",
+          "name": "Beach Copper",
+          "texture": "61e2f4a078edd968655347d64a5d22f24efc07f37affed506191ac403aac873"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_DARK_BRONZE",
+          "name": "Beach Dark Bronze",
+          "texture": "f2850e601736d5adb0305ae573ea52f5f0f9a1b383177c0055fd5a261861303c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_RUBY",
+          "name": "Beach Ruby",
+          "texture": "b2f24fb28c2b40046550a6d709a84eed0badffa1063af929a9efbbe61a74de82"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_GARNET",
+          "name": "Beach Garnet",
+          "texture": "238c2e31bb6cbae1d740f1ab40c5610be957fd7eb2dc42eb9b8ea417c9adfeee"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_AMETHYST",
+          "name": "Beach Amethyst",
+          "texture": "d7f5584f22a0d0b5db5812715502b27952e4a3e36c9acff7b9e2d113de2dfbbf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_OBSIDIAN",
+          "name": "Beach Obsidian",
+          "texture": "25e7b19cacb45644c122d802c69373d644e77a5d4e9d448bbe48aff67796b226"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_LAPIS",
+          "name": "Beach Lapis",
+          "texture": "fb2e337629bb8ca2d6b521c6da943f6240186cab90d547d6cf1bb0bdb44cbdb3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_AQUAMARINE",
+          "name": "Beach Aquamarine",
+          "texture": "2f7a50859143f40e95ba86a1bd84ac8b467746735928da120149652316707a4c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_DIAMOND",
+          "name": "Beach Diamond",
+          "texture": "73074603774a4645ea064809407695435d6503ab0c52230ad9972fe3457cfc07"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_JADE",
+          "name": "Beach Jade",
+          "texture": "826e5522f13965e58216965c581009767c87317d20f69ed314d1bf052861f0b0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BEACH_EMERALD",
+          "name": "Beach Emerald",
+          "texture": "f4853b628a0f2abf7fac2a45e5b7c35662fbdcc513467b000ff3b84d3d536cb9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_ONYX",
+          "name": "Pastel Onyx",
+          "texture": "a4f13d16cdc2c95ff6d32e8adb71894c14bd3993ee6aa346e9176e3c1715fcee"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_STEEL",
+          "name": "Pastel Steel",
+          "texture": "5a02f61b9a8a7e55f16eeb5922679bc63c71598164500314b8bf4456d39cf362"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_SILVER",
+          "name": "Pastel Silver",
+          "texture": "3a00265ce8e4d0023a9cf14b1fbfe71d818aff6a7a0353ca207a2b48d7f6e600"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_GOLD",
+          "name": "Pastel Gold",
+          "texture": "d40e82d277dbb15fc7e7597e4f960eb421cdf5b1ca5a954d30f743f3e98703b1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_ROSE_GOLD",
+          "name": "Pastel Rose Gold",
+          "texture": "8547d5533c0a03ab0736e9a04942075c9f4d0c785bef52b1722eec0b9bc65347"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_COPPER",
+          "name": "Pastel Copper",
+          "texture": "3d55eb302577039dfeeb485526887409c5dc3583c6415bcd0bcfb5755183eb2b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_DARK_BRONZE",
+          "name": "Pastel Dark Bronze",
+          "texture": "645701fd5c43ea18971b17a6f6828f96e79575778d9df586188bc862a9c6cc37"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_RUBY",
+          "name": "Pastel Ruby",
+          "texture": "98990f0dd34c65df2f067b257b41002609400fce1f66b244210d57ea3d932d11"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_GARNET",
+          "name": "Pastel Garnet",
+          "texture": "385095932773fa190e4245deed86d2fe6ba56800e37ba8c8e47712328b642848"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_AMETHYST",
+          "name": "Pastel Amethyst",
+          "texture": "c84dd0cacb2d5ff0fd7bf752bbcf37395bbf6a512394c6f3fa49ad3778902053"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_OBSIDIAN",
+          "name": "Pastel Obsidian",
+          "texture": "31780dff0ef5e40146219bc5ec2e1096fae4b3b025f37aeccdf0417b97e758d6"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_LAPIS",
+          "name": "Pastel Lapis",
+          "texture": "aa68821147f7970fcc5a9f6a4b4d0911cd5737494777cbf6e42c9b612600f83"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_AQUAMARINE",
+          "name": "Pastel Aquamarine",
+          "texture": "e679599a149a36b56ded8034066162b03145090eb5a9286794891a60c082229"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_DIAMOND",
+          "name": "Pastel Diamond",
+          "texture": "5730a2897b291b918bfdeb4c993365e411211a4fb8b2528822a67946406a1f41"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_JADE",
+          "name": "Pastel Jade",
+          "texture": "f29e35dc30b90a6c0bfe17f7bc6fba610a11d8e48c511ee9f182a6ea77f667b3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PASTEL_EMERALD",
+          "name": "Pastel Emerald",
+          "texture": "60ae4c9b0685678dad4cf43e92523da55bff62aad65d265abdd24e11daf48cf1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_ONYX",
+          "name": "Blue Onyx",
+          "texture": "eca9e6d82eac1955c91a34cdd9369f895788266517dd5008efab428fb0890dcf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_STEEL",
+          "name": "Blue Steel",
+          "texture": "76b25e6ceeaf3d999db704ebd89bed51919d6936a9210220728feca2d5b80f59"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_SILVER",
+          "name": "Blue Silver",
+          "texture": "5fe92b55f391e1b354ac445536febf014065d1428530c70006c959e057b5d435"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_GOLD",
+          "name": "Blue Gold",
+          "texture": "f9cd466f100a205a4c4af3ea100e86970be1837c548190bcfc51020df57918c1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_ROSE_GOLD",
+          "name": "Blue Rose Gold",
+          "texture": "85e145cdd7a1f11b75c1e0a9ced73d82623e67dc2a795dc8bec1ff75161d1f28"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_COPPER",
+          "name": "Blue Copper",
+          "texture": "7249360671787c7bd49787580b917caf6cb3e16c833381df81aea50ca1aeb894"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_DARK_BRONZE",
+          "name": "Blue Dark Bronze",
+          "texture": "1e1f9e8db68cfefad56123058e6cdf46b5bcf1348831f71aaf9f4b5c4870b466"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_RUBY",
+          "name": "Blue Ruby",
+          "texture": "7d79b360325d3f6e64466eb18126877b532af7c4c7e7e5d48d691d78006362e3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_GARNET",
+          "name": "Blue Garnet",
+          "texture": "3d225cf0aa303c05b21df5804ab6e8aa1054a1bf8b0f41b09b9ae9338cbaa9e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_AMETHYST",
+          "name": "Blue Amethyst",
+          "texture": "20f279f39ff6f6a9848b5648bd06e78f886a418ddbed2abd85755adf4fff99a0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_OBSIDIAN",
+          "name": "Blue Obsidian",
+          "texture": "e299f15f16c41a05c99fa6393155b128a1d8acaee4d49e7955fdee3a6fcff9e0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_LAPIS",
+          "name": "Blue Lapis",
+          "texture": "adf6709d4472fa59868f17b55a57f7b0e1a83a43060fda041bc705596dc2bd3b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_AQUAMARINE",
+          "name": "Blue Aquamarine",
+          "texture": "991c7eca19ddc458928196fa4cd2cf28e3deafe50622725f873ded87d053e617"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_DIAMOND",
+          "name": "Blue Diamond",
+          "texture": "5e827deac75761e8a91ef271237e8ab8efb2285cfa71c970160bc58bfea74852"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_JADE",
+          "name": "Blue Jade",
+          "texture": "9e15cbc54f04468d4c63ddfeb59a0a3a5f447bc3395e76586cb6427965e09a09"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLUE_EMERALD",
+          "name": "Blue Emerald",
+          "texture": "681a2205bece2c75fde2f87729f592ef8422686923a57d288f0acaff7f696892"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_ONYX",
+          "name": "Aurora Onyx",
+          "texture": "b96c1bcd0070bd2e9104846f51745afe28e8cfcbd9cb0034e8f45c2d6d8c41fd"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_STEEL",
+          "name": "Aurora Steel",
+          "texture": "5110fcb66cdd098b9b5280311f3038aeaff7f87d2b8d8cbc0a86746da5ee0394"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_SILVER",
+          "name": "Aurora Silver",
+          "texture": "2d8814184fcee674eca951350ed006ac84310c76430011dab869e0f296e0ec7a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_GOLD",
+          "name": "Aurora Gold",
+          "texture": "6be340967db50d53e701150793a2b42db9a5737a7f15fac0e4a860ec689bf1ed"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_ROSE_GOLD",
+          "name": "Aurora Rose Gold",
+          "texture": "97b222eb461d5c444a183fa787441fc9b54651b1d28c149593529281c330b109"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_COPPER",
+          "name": "Aurora Copper",
+          "texture": "768c9d75bb49ea37a8288188aa61fc8c44fa1e42d3806558795f245770e040f5"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_DARK_BRONZE",
+          "name": "Aurora Dark Bronze",
+          "texture": "5abc522210de64de57074577be6732d49669fa1c00919ac0931d0bd89236a848"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_RUBY",
+          "name": "Aurora Ruby",
+          "texture": "6c258174ce4e07bd00a4ff764e8044b955ddbe9e6923f27478b5b46292396dd0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_GARNET",
+          "name": "Aurora Garnet",
+          "texture": "5d2cb2fd8db89ddb7ea77a42f3be9b75d1c1c23bac27fd81b78d8a69dac22861"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_AMETHYST",
+          "name": "Aurora Amethyst",
+          "texture": "221bad926e3f1e3cfeaf2cfd90f7325b911d80a4d7c229f4e0a5a8e23931ee4d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_OBSIDIAN",
+          "name": "Aurora Obsidian",
+          "texture": "ea80f52df4379abba17a8507042307095175422d7e19c829b65c4328a5dc872d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_LAPIS",
+          "name": "Aurora Lapis",
+          "texture": "6e0f315b03c3cde55d1e855343c6f661d33169cbebce0adeb0c00d0e1db807bf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_AQUAMARINE",
+          "name": "Aurora Aquamarine",
+          "texture": "db8f67f2eea74b7f6db28bf0bff04a7f8b628601905845e603b65ab0f6544615"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_DIAMOND",
+          "name": "Aurora Diamond",
+          "texture": "2cca558cd949f1c5cf8762a7f82fe3f7d0dec99df02568a69d762c4578536f8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_JADE",
+          "name": "Aurora Jade",
+          "texture": "e20d6d7dc6470f7288777df03f6ba600bc2dea853a738ebdac66fcf5761d3f40"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AURORA_EMERALD",
+          "name": "Aurora Emerald",
+          "texture": "7fe2b3d5f5796c2211344db9fa1d28220d5e73d65f64ada92f4125215c8f1ad0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_ONYX",
+          "name": "Azure Onyx",
+          "texture": "4bd5acd17d49ca9f5a85dd634f087ce96a3f7699850a45c1b23c3450591361d0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_STEEL",
+          "name": "Azure Steel",
+          "texture": "b8053661b21e456d72198829205c8203fb5724ae6629ac31c75819afe18585f0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_SILVER",
+          "name": "Azure Silver",
+          "texture": "4ac08387d0fb7cd9b122061f96f1805b1e51fcfd9c6e98f08ff31c0596202a77"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_GOLD",
+          "name": "Azure Gold",
+          "texture": "c10af41b33d20dc61f8fae65111eb2e264bbb7e54c67549791aeb48b201f481e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_ROSE_GOLD",
+          "name": "Azure Rose Gold",
+          "texture": "f2e1dfc9da7d20ba0dc8a435143f503e55137941d0d9fb5dc7b711476cb87ea9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_COPPER",
+          "name": "Azure Copper",
+          "texture": "d22b0184172e132878ab5575b0d1053fe13668f2162cecf8b94c606953f201ac"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_DARK_BRONZE",
+          "name": "Azure Dark Bronze",
+          "texture": "db165deb44803dc90dd4984d4a70e4eae15bd05f11a2d59c397b9d0968e8e822"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_RUBY",
+          "name": "Azure Ruby",
+          "texture": "61a7279162ea4fdf0bee83cd4f91d8dd5ee6203dbc112e0fc878dc9a9daf511f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_GARNET",
+          "name": "Azure Garnet",
+          "texture": "e84c27b510cc0aadd47ea3d470ecd3b53554f8f23c7e9c7dfd740b16159ee405"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_AMETHYST",
+          "name": "Azure Amethyst",
+          "texture": "6c1491dc5bbe6fe18ab1bffb0b28528430e978d8f7ded500ec8e8b07b35c37fe"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_OBSIDIAN",
+          "name": "Azure Obsidian",
+          "texture": "66d2a4ac7834b830ddafae365331df58a5712f7f607560d8a90ff67eda3705a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_LAPIS",
+          "name": "Azure Lapis",
+          "texture": "f7402ad16bf2ecc6043df3e8f7d1f565c28650ef1ed1040175e183c31a8e247b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_AQUAMARINE",
+          "name": "Azure Aquamarine",
+          "texture": "3d235a6fcf5b6175984957ab348ddc62013907dd3ca314d6845ca380e61458f2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_DIAMOND",
+          "name": "Azure Diamond",
+          "texture": "19ae347b2783d2c47509c1d73df8a1213e87971260153ca432fb792a87f5ff82"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_JADE",
+          "name": "Azure Jade",
+          "texture": "1c46992a2e2c1e1928275a417a57c346e081a9f4cf75a8eaea8ee0856b3ba3c9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_AZURE_EMERALD",
+          "name": "Azure Emerald",
+          "texture": "44152036b6a0efe6b467fd0a5d2a645c7071d8995c8acba7a65f59525f613f25"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_ONYX",
+          "name": "Teal Onyx",
+          "texture": "2aa99412901d8a4b34d5172141e955b36cc4318fc84e6092155d04ace5c4ef76"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_STEEL",
+          "name": "Teal Steel",
+          "texture": "1befc6bb5df68c6ae71ebba369511d0c1f509816ca0428bba6ef92298b9630c7"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_SILVER",
+          "name": "Teal Silver",
+          "texture": "33cd89ec2e066bd338e3eeb195f3c9f3c048da89adc676172db6a008845af694"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_GOLD",
+          "name": "Teal Gold",
+          "texture": "c42b33d65acadab4fe5ba10c3c6c68ca3eca102a373b9f1b3dad2367a3857775"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_ROSE_GOLD",
+          "name": "Teal Rose Gold",
+          "texture": "a5d2314da044943ac67037d75534a839f5cb8920f9ed6fb6bc0671f6f9adbfee"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_COPPER",
+          "name": "Teal Copper",
+          "texture": "bde349ecbd6140ff138d484f4e29b768534ab52621d21f723bf6ccd8fd354d40"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_DARK_BRONZE",
+          "name": "Teal Dark Bronze",
+          "texture": "158d6467eadade76ecd7fbe8534bcc3138ca100791936d699ac8264d59507478"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_RUBY",
+          "name": "Teal Ruby",
+          "texture": "523b60c77614f15cedd0ab6d4edfbd6154df28d27c45c2e01c9ac2b533e7192"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_GARNET",
+          "name": "Teal Garnet",
+          "texture": "7eea13d15d97b144fb3437db68b8ce8d0f9f1bdd626c6a6232cc04cdb9b6ef2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_AMETHYST",
+          "name": "Teal Amethyst",
+          "texture": "94dee3256e116863c7a27c8cb6c917089b41b958f3e7a71404a150e47f21a5f4"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_OBSIDIAN",
+          "name": "Teal Obsidian",
+          "texture": "76fb0ee7719a35bba0d206a1f55ba2e972bc1f350a19c8d0beb214554a85387a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_LAPIS",
+          "name": "Teal Lapis",
+          "texture": "bf14dfdb054e619dcf9348cc1b281f209fe2bf2c587ce6784676f01399e39fc5"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_AQUAMARINE",
+          "name": "Teal Aquamarine",
+          "texture": "a4d03fcad077938d34ef6f9fb22a80abaee8512e451532f100a17b484fc49d05"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_DIAMOND",
+          "name": "Teal Diamond",
+          "texture": "ebe6897a79602aa95f887f704de99de4f8e50eb1b5ed86522e90aaa8cb694194"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_JADE",
+          "name": "Teal Jade",
+          "texture": "2ca68f46a2e0b4edb311f7f3204489bff42aed45320d5dcf00d114104fe9ca5a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_TEAL_EMERALD",
+          "name": "Teal Emerald",
+          "texture": "fea3d7b158daa9f516a91155a013158d9650dcb2d9f2c645819af82ff4040144"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_ONYX",
+          "name": "Black Ice Onyx",
+          "texture": "f457328410a018c09083c8890966f867fd62e8059da9f4058a229f098650fec3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_STEEL",
+          "name": "Black Ice Steel",
+          "texture": "9aaff12ed4eaa8bd35393a101dcd7d22d35e5490381163396cfd85f35be4d51b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_SILVER",
+          "name": "Black Ice Silver",
+          "texture": "810278dec38ce40f5246c317f84ebe3fa6dddbd5f8d676ad6f07d898c21119c1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_GOLD",
+          "name": "Black Ice Gold",
+          "texture": "a68facc6f1a5005500e5d799e18d3d6226f1b018c6b0874c9870c835828ac3c0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_ROSE_GOLD",
+          "name": "Black Ice Rose Gold",
+          "texture": "e57befb30f4c4c455e33b013670a530e4c8636b70e1011f2f0760e9a75195342"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_COPPER",
+          "name": "Black Ice Copper",
+          "texture": "60ea32c6a42fda678cce163f70e49a1d039d3815c22a12b90784e711da7aae96"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_DARK_BRONZE",
+          "name": "Black Ice Dark Bronze",
+          "texture": "5b3e17f0e13dceebeeedf49b9d72da9d5bd8f7566ed3afd649adf89daebf34ab"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_RUBY",
+          "name": "Black Ice Ruby",
+          "texture": "4f163e2eca15a7722230d3ce21efe6977107ba6e9a785a3add96b80987fe6d2f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_GARNET",
+          "name": "Black Ice Garnet",
+          "texture": "bd83627cce16188d9ec887a11ae3044968ea32d6a6b54d248d03d847c3835e9a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_AMETHYST",
+          "name": "Black Ice Amethyst",
+          "texture": "3465c38197850e969b0ce97783cfebfaf5ce506aec966705e4f83fd9f648c509"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_OBSIDIAN",
+          "name": "Black Ice Obsidian",
+          "texture": "fc11fae937410bc821a931b04effcbfd621fef350c957338a1e6cebf3a6033f2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_LAPIS",
+          "name": "Black Ice Lapis",
+          "texture": "5a5ed77216310941ec4ae38001e3a1d8fa6092af419a26288b3f2d4d57f254c7"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_AQUAMARINE",
+          "name": "Black Ice Aquamarine",
+          "texture": "eda9593c7809c528685d748b74e9047645866d29e2aa59dd2ca15c4b9bff4de"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_DIAMOND",
+          "name": "Black Ice Diamond",
+          "texture": "a5902f10a1e7b49266679eaf34734a0207c321af76426ebc4b52bf3f6b265807"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_JADE",
+          "name": "Black Ice Jade",
+          "texture": "39398a04bc530e53579387711c6bd26a407cf8735e6d1c5ddc386d63aac2e568"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ICE_EMERALD",
+          "name": "Black Ice Emerald",
+          "texture": "9cfd31b7199a68ab668f55bec2aef48fb10e4f8ca43f6c5abd1d8bc95f89f43"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ONYX",
+          "name": "Black Onyx",
+          "texture": "dc443426c8d3f5a86fbd915321ac2217170279ff7ffa8ccb90b370ae6d76f395"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_STEEL",
+          "name": "Black Steel",
+          "texture": "4d86cf60470cd364e228b1f613f31e4dbccc5e7e38de18712c215da153ae5f1d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_SILVER",
+          "name": "Black Silver",
+          "texture": "96200267d73a9a0c014cef5b9815d424eff93c31d00adba32b534bf382e5f189"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_GOLD",
+          "name": "Black Gold",
+          "texture": "a52455dbb111875e942077f4b409b011fc3c0a7658616c6ab856729bcd2b0f0c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_ROSE_GOLD",
+          "name": "Black Rose Gold",
+          "texture": "c65f7175e25aa8eb685308bf2148e484ba764f5199092306b6e2c32b437b6f81"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_COPPER",
+          "name": "Black Copper",
+          "texture": "8d65f40db35c091491f1078ce9794705c89e830869f897c01e3111610f34416"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_DARK_BRONZE",
+          "name": "Black Dark Bronze",
+          "texture": "ccc9a94f99fbfb4e2e52d4df26c052f21f50e6c9b164e27433e61d45d4928661"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_RUBY",
+          "name": "Black Ruby",
+          "texture": "499a261a2241386b30b160289c3500852d31a6cede9671340b48fe816b3eb4f3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_GARNET",
+          "name": "Black Garnet",
+          "texture": "1dffa9083fd462d9b8ad381495104cc610f025d91dd92f5c539864e5a8f4f860"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_AMETHYST",
+          "name": "Black Amethyst",
+          "texture": "2d398c6be00060a37c431313bb00155680196015f9a8c839d59f65b936eefae0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_OBSIDIAN",
+          "name": "Black Obsidian",
+          "texture": "353bd0df0a43d42c4e3f0224082a95c47784da3cd7a9b6f3076e552bcec4e6a1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_LAPIS",
+          "name": "Black Lapis",
+          "texture": "9809001f6b133fb4bfed341f740ac6711168b1e84113771a416225a5ff30fee4"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_AQUAMARINE",
+          "name": "Black Aquamarine",
+          "texture": "e7ff959330ad601abdd85c84b74896ee8b7c2623681a28582565404def570644"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_DIAMOND",
+          "name": "Black Diamond",
+          "texture": "24be781366468418b1584361dca34ff124d56fbcb8d9a7757616063ac3008fa1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_JADE",
+          "name": "Black Jade",
+          "texture": "be569ce4fd6ac854ea2ab84218aa908519f8ada64fd0eb785af1460c59175969"
+        },
+        {
+          "id": "WARDEN_SPARTAN_BLACK_EMERALD",
+          "name": "Black Emerald",
+          "texture": "a1fa82a86b5e1cd0f8a5e7042b006e264448e1a26d4ec002e2bd004f12269cc0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_ONYX",
+          "name": "Purple Onyx",
+          "texture": "f3e68ed231a70c5358e2c2564ea946aae811cb4ae825ada98b6bcc8d1be86dae"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_STEEL",
+          "name": "Purple Steel",
+          "texture": "65132a1dab68e7486e643c59476eb621ea984ccca507b2a6d4fc10c2b9d47361"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_SILVER",
+          "name": "Purple Silver",
+          "texture": "7f4f89c87ca45abdc8df9eacf6110280a51dff06134d8aeec780f17f802ef05e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_GOLD",
+          "name": "Purple Gold",
+          "texture": "94f7014601997d2b09e8e9b78001307ec2cf4599a645d0a2cb8ea0588a8a3c74"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_ROSE_GOLD",
+          "name": "Purple Rose Gold",
+          "texture": "b47e760791b1a0e53437de3aa5f745f7a252b8603b43f5ea79423a31c2a8b6fc"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_COPPER",
+          "name": "Purple Copper",
+          "texture": "63580023cf4dfa91cab9227d005bd008d07c1b959dd03d0872e661e896766508"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_DARK_BRONZE",
+          "name": "Purple Dark Bronze",
+          "texture": "7ac69c5cdc23180ea94d81e87710e0f06f99f4bc0bae88cb96be35fedee1acae"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_RUBY",
+          "name": "Purple Ruby",
+          "texture": "9792e1cdc3de922a1a2f94f84ce7e0b937e91c421302403f24ae7c049ac2ab5a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_GARNET",
+          "name": "Purple Garnet",
+          "texture": "6ec5ffee6cbdda9a89f85e85826b4f658b5b972b17482bfb7593e412b10d051f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_AMETHYST",
+          "name": "Purple Amethyst",
+          "texture": "680663f89eddb5be5988fbf370402c0b42cf0132e4d7dbfe295bc9187a49441e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_OBSIDIAN",
+          "name": "Purple Obsidian",
+          "texture": "9c8be6b306bf220b789dece8058c70c9937ba2f5bd4954793f98548ee499ad34"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_LAPIS",
+          "name": "Purple Lapis",
+          "texture": "a6f5134f5044e5c4fcb2994f5ed60f4994d8c4ca5f8c6fb64f070606e02e55b0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_AQUAMARINE",
+          "name": "Purple Aquamarine",
+          "texture": "c768ac24522e91afb63f2e419e029c1fd30ce07466c1aa75cbfdb43a5a66e9f1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_DIAMOND",
+          "name": "Purple Diamond",
+          "texture": "12d12ac17d80b4925a3b7ab0c3eee64944deaa5e075d0e3411825b603ddb5b5"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_JADE",
+          "name": "Purple Jade",
+          "texture": "1ae5cae5da276d9974b6fa014cbdbd3e67cb202762bd7c6db923fb5aa9413e5b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PURPLE_EMERALD",
+          "name": "Purple Emerald",
+          "texture": "fd6723073849f283a49dc5574119eb322f555975d80dc5449ec5b29cf250018a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_ONYX",
+          "name": "Dusk Onyx",
+          "texture": "712ffcc36ddb4146308fb80fa75858a2907c3b1ee5f6e5fe58c5fe709ccbe045"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_STEEL",
+          "name": "Dusk Steel",
+          "texture": "d41c46762086022dc3003d51e7a2fbb22f4effe097f5232bcd375e953a01f091"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_SILVER",
+          "name": "Dusk Silver",
+          "texture": "bbdf439ddd28a3237c5096f83e97ac2cdc03fa457bedbdab1775359cf8ad81a2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_GOLD",
+          "name": "Dusk Gold",
+          "texture": "497157e4470dfb512d47fc83a512ff89f0d7230aab305e74674d6bcaad1c51b1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_ROSE_GOLD",
+          "name": "Dusk Rose Gold",
+          "texture": "b17cf5a225619320d37428dbb0a6f2b2b9238c7a3d4176cc947e0496010b460f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_COPPER",
+          "name": "Dusk Copper",
+          "texture": "613bed79f84706e0fb1a0afc2f85fcfee5ead1eebe9cbd67c2f2c36d0014d37b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_DARK_BRONZE",
+          "name": "Dusk Dark Bronze",
+          "texture": "88d0e8ede119307d1b863ff5c1fca56c0ebc2c35547df8254ce957164c45626a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_RUBY",
+          "name": "Dusk Ruby",
+          "texture": "16bc36f48d75c171599e446e932d5372b015ec99587fed8f6b5302190fc78895"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_GARNET",
+          "name": "Dusk Garnet",
+          "texture": "a483af18e5ccf84a86829d84a1ca1e87ced18beba819e03e5dcb7a5375813935"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_AMETHYST",
+          "name": "Dusk Amethyst",
+          "texture": "be4fe1950d6df5a07b40941873a14082c8f6b9d0b23201d0d7cf4bfff6042f2d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_OBSIDIAN",
+          "name": "Dusk Obsidian",
+          "texture": "1e4174394439c8a0ec7f847f241c58ac4397fc4a1f35dfb8a3cca77139a51f27"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_LAPIS",
+          "name": "Dusk Lapis",
+          "texture": "c18256b2e0ece65d56676f3ef9cbf49dccdc4fe108d6f068296c1b8cc4e28f98"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_AQUAMARINE",
+          "name": "Dusk Aquamarine",
+          "texture": "2199d2683a6f326734d611082b05625cf881fa4b6dff705dbe7a86475f6dedd3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_DIAMOND",
+          "name": "Dusk Diamond",
+          "texture": "38679ee47f1fb4ecb2ebef0fabdeea5e29b9d1b0f52f2b6cdf080bf0a04b080b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_JADE",
+          "name": "Dusk Jade",
+          "texture": "16a08bb9a334b8eb413de06af9d8bac183317ef4a32d2012e3f65f475ac6cff8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_DUSK_EMERALD",
+          "name": "Dusk Emerald",
+          "texture": "527cc9f4dd37dfac6cc558db21a868166b9bed5b85e3bb69cb54768c2f8257cc"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_ONYX",
+          "name": "Pink Onyx",
+          "texture": "f1a99fb6fd6686cc624a8b706b8d5a3186b9eee8c1b509114a1b205e279cabd3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_STEEL",
+          "name": "Pink Steel",
+          "texture": "bbdfeb33366b8f7ca9bca3925db60bb9b089a8f82d06922836b38527681c49de"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_SILVER",
+          "name": "Pink Silver",
+          "texture": "2493b8d11c8b2fb64075e1d27259ef7dc7f9b1f695f6a731dff74f532ca3c059"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_GOLD",
+          "name": "Pink Gold",
+          "texture": "82c14854d7114bbc99bd4558db4322dd11a3759597552d16c64fc907da009e2c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_ROSE_GOLD",
+          "name": "Pink Rose Gold",
+          "texture": "88a3fb847cac2a2cfd85a5dec328e0dd1ca5d7ff9415502c6f2b4bc2ec3a1c49"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_COPPER",
+          "name": "Pink Copper",
+          "texture": "f35e419fe5ce853e3796bbcad423070fd7b8d4b8d038ac4b316b159fbb2db050"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_DARK_BRONZE",
+          "name": "Pink Dark Bronze",
+          "texture": "ed68c9e29f83fc36909b44ccd852792fcfd49d13246b075e493e2fa0f14dc2f0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_RUBY",
+          "name": "Pink Ruby",
+          "texture": "160913e7da71bcc6a5ca0217aa2e31bed249e12cd06db9a7dffa3a0d9c2323e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_GARNET",
+          "name": "Pink Garnet",
+          "texture": "5f7140932e1aa1ef277687921faf88c6fb25d744a6030103b34f9bd58e0d0be4"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_AMETHYST",
+          "name": "Pink Amethyst",
+          "texture": "68b3a638126bc59c74cfd4e979f81e20abb760b2096f7a7260f65eeb7b69d38d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_OBSIDIAN",
+          "name": "Pink Obsidian",
+          "texture": "219cd89f356d5979b12799180c8c21e8f2dcd26c3915c44af06131f1dcaab7ae"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_LAPIS",
+          "name": "Pink Lapis",
+          "texture": "8284b539e09c8d6bbb3bc23c35301b15974001b1b04295bd9216dea4c79a7c8e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_AQUAMARINE",
+          "name": "Pink Aquamarine",
+          "texture": "a8985026b7d61d47a2ab497ee75f39e98d6e1817bc34b747ad79427e2343ebff"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_DIAMOND",
+          "name": "Pink Diamond",
+          "texture": "d5ea639019f218cefac7555752e0befa0fab1b9b3129a17e6a73a62c4979859"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_JADE",
+          "name": "Pink Jade",
+          "texture": "ab3ca2e9949d5dbd4eeb1be2408d590061cd8332b1e3cff6cd085a647f84742b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_PINK_EMERALD",
+          "name": "Pink Emerald",
+          "texture": "21ab142843d91f9b1d73b2bbb6ec0535077af1c64296ef02df7b3055043565da"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_ONYX",
+          "name": "Red Onyx",
+          "texture": "9e849e9dc47e0e5be0b54a5db274831ea195ce5f9c42d06cc9bf4e44b70f1f22"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_STEEL",
+          "name": "Red Steel",
+          "texture": "595512474b25756a05ef9017698712227cb8e8d4ecd1cff7b6e07210d4e74edf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_SILVER",
+          "name": "Red Silver",
+          "texture": "968c1b9472445231507ab91f8c5330b11a690c498b65e5c2bf286cd71fbda68b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_GOLD",
+          "name": "Red Gold",
+          "texture": "60084c1a566c7d4cecda19e5757e03344a0c61e9206c0c337e0b527d66f82008"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_ROSE_GOLD",
+          "name": "Red Rose Gold",
+          "texture": "1bfa6d5a6ebf54242c263d2889b8119f7395e9525e07b94849373c929de8e62c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_COPPER",
+          "name": "Red Copper",
+          "texture": "e257bbcc6b3867797a3474da41da68cda2726d6bfe226b25b0366f4e2879d2c8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_DARK_BRONZE",
+          "name": "Red Dark Bronze",
+          "texture": "951334de58857fc7e316c71f35c90e1fba45dda61897a3f07eef8713d2bc8134"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_RUBY",
+          "name": "Red Ruby",
+          "texture": "723ee5b385738974140f8841448642986543172044a65e307c71f4da5e3dacff"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_GARNET",
+          "name": "Red Garnet",
+          "texture": "d83e949069efd2300aff4d2c30921f9171cbac189677119d12f808ec183978e5"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_AMETHYST",
+          "name": "Red Amethyst",
+          "texture": "4751528c19730545753744e3eb559d275e720184ada7cdc3e9a6131efc63a950"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_OBSIDIAN",
+          "name": "Red Obsidian",
+          "texture": "ecc31b40cbad471e177ab1ee2b77ec7cee0cf1bbec80934c9a7fee59104dbb4d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_LAPIS",
+          "name": "Red Lapis",
+          "texture": "17ec8baff6ece55064be41923b5754a4b323942fcc00e64f6bb5f9febe28ee00"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_AQUAMARINE",
+          "name": "Red Aquamarine",
+          "texture": "5a079a8e2d3d40980c10dbf8bd3602925a7f8325e8dc913e7c0d23a8d5530451"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_DIAMOND",
+          "name": "Red Diamond",
+          "texture": "3e3c7be6f23f72693bcefd341ef152e517c521a96819d9ab3213745cfb50b6cb"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_JADE",
+          "name": "Red Jade",
+          "texture": "68ff03d049dc4dc0f08820ef382d48a9a8a26e7274998d9f1b538faf98c4e0aa"
+        },
+        {
+          "id": "WARDEN_SPARTAN_RED_EMERALD",
+          "name": "Red Emerald",
+          "texture": "feba75622f6b11f41fab1a52bbd6512808d42cf1bfbdc31c6ef56229c30f5ea4"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_ONYX",
+          "name": "Orange Onyx",
+          "texture": "531e00cdbd14401fd284f1ae0891e271813571ed42f04f550e5d55d1e5ae9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_STEEL",
+          "name": "Orange Steel",
+          "texture": "c9fed121bc928197852b401facd81657e877bc56e146fadbd31a42c2c4074262"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_SILVER",
+          "name": "Orange Silver",
+          "texture": "c26903fab7b3376a03a5ceec7e3ba269fa4d9fb8b0dcbf8784838305bb272613"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_GOLD",
+          "name": "Orange Gold",
+          "texture": "e5198f3216f57e9dd1bf6b9a8bcbf14e8a7d118e58a21da06ae9e69318cb27ae"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_ROSE_GOLD",
+          "name": "Orange Rose Gold",
+          "texture": "105c16eb5e996e87b9b3da153d3d4e2b7c791ad368cc85a8fdef6c356fade3ca"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_COPPER",
+          "name": "Orange Copper",
+          "texture": "c70938a541ee4f82233f6aabd5734aedfcbec6346344104585e233c8eb1f3c58"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_DARK_BRONZE",
+          "name": "Orange Dark Bronze",
+          "texture": "e071d6d7d9a443a8c6a51a1c040c47836bc3ac1b0558e801eeb6ea105109ed15"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_RUBY",
+          "name": "Orange Ruby",
+          "texture": "813524c0c7b3af2daa01b3efb9abea2c100e0ba38bc80d541ab9670ee860e0b9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_GARNET",
+          "name": "Orange Garnet",
+          "texture": "b045a6fa8ddce60b5e3c7327ec0372de0da1ea568a96571cf49e005704e6df6"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_AMETHYST",
+          "name": "Orange Amethyst",
+          "texture": "52af4cd95716075e6e989df78ac153678d97a1daec799a690f9d6184cfa37b9e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_OBSIDIAN",
+          "name": "Orange Obsidian",
+          "texture": "3f6214419b25764562771feef0a24909ae363d17c451802c275e5ed7e5b28658"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_LAPIS",
+          "name": "Orange Lapis",
+          "texture": "707590653b56089b0cd89bef1f1d8ac3125b449409f9aa39e742107f682bc53c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_AQUAMARINE",
+          "name": "Orange Aquamarine",
+          "texture": "8337405902bf81fbf2f9d1f7d0192715c369dc512054a89c110630e1e0efca4d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_DIAMOND",
+          "name": "Orange Diamond",
+          "texture": "9c9c00f513fe0679486750857c23e0d613084bb51df5d02e1159263a1422ab2b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_JADE",
+          "name": "Orange Jade",
+          "texture": "7cd4b46225fa548af01dd0437661a9441a72fa1c3bedf0d8d461f137d6a1d45"
+        },
+        {
+          "id": "WARDEN_SPARTAN_ORANGE_EMERALD",
+          "name": "Orange Emerald",
+          "texture": "854a0cda624b8e20a472d5e1263685266b99ae6ad0b7f99942ab1f8d6cbd80eb"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_ONYX",
+          "name": "Sunset Onyx",
+          "texture": "29312324ab63fce897b88fa7125de57351e3b252eec375b40b6078bb112ff8bb"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_STEEL",
+          "name": "Sunset Steel",
+          "texture": "462dac7fdaab50812f834ae188faf5ca0cd9ef818473df627e42102d6554c258"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_SILVER",
+          "name": "Sunset Silver",
+          "texture": "298b808429b130b0d3777d6dc4499b23dc7880784e6a0c7d1cf5607b9e4d5cb3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_GOLD",
+          "name": "Sunset Gold",
+          "texture": "43e9b17a77d1c1bb5a4f348c3bcf9b207206e743539363dfbfd02ecf2f6d49c8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_ROSE_GOLD",
+          "name": "Sunset Rose Gold",
+          "texture": "2f98c254d2e268554768f2ccf06504d01c3306304a9405ddad83c9e7a8f2d20f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_COPPER",
+          "name": "Sunset Copper",
+          "texture": "e223284e45a8631a9276e37ad26e8fca0f2131c3ab14775affc5e63a263e6775"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_DARK_BRONZE",
+          "name": "Sunset Dark Bronze",
+          "texture": "a7f7b230c8233e17fefcecdf07afd3a263ae9f4dce71da11cc43de1bd8cc406b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_RUBY",
+          "name": "Sunset Ruby",
+          "texture": "c50da165c22f8330e74d7878e00e649930b9760b57f17f0bd535fefe81fee913"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_GARNET",
+          "name": "Sunset Garnet",
+          "texture": "beedaf35d155dda3155e7927ebd5ac3b76736534b86a47e9a4e15406ed77d7aa"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_AMETHYST",
+          "name": "Sunset Amethyst",
+          "texture": "ba21b2da792b6f0dc0fd42d4ad19b73965c488f6e82bdf3a439a983ea7bdbe28"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_OBSIDIAN",
+          "name": "Sunset Obsidian",
+          "texture": "8bd85483cffcf276b70aa0b5724adc2318e89395cdd0b9802d80dac6d6c6c7f8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_LAPIS",
+          "name": "Sunset Lapis",
+          "texture": "dc7ff6149113f7d2851fa590cadd6caaf5faf9765fd331c472d1ef42e8ef8871"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_AQUAMARINE",
+          "name": "Sunset Aquamarine",
+          "texture": "c1c36afb489b132e0408b51b697553c34fc26892f325295b80187de0365d52dc"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_DIAMOND",
+          "name": "Sunset Diamond",
+          "texture": "1bc492c7d93d3561c2a8061a89138419cc910a9b5ba57f5f73e419b585be95a9"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_JADE",
+          "name": "Sunset Jade",
+          "texture": "5d04a71f62dced29531f5316eb15c5c9b4054eb06108942d8e46d19ea8aebecb"
+        },
+        {
+          "id": "WARDEN_SPARTAN_SUNSET_EMERALD",
+          "name": "Sunset Emerald",
+          "texture": "4d9214737ba302dd0e0354f51e87132b6b25611da440c0909c23e2c5617a2d0d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_ONYX",
+          "name": "Yellow Onyx",
+          "texture": "9e030db6f494311eab0001d8c68410f0ab3e4ed6497e4ad6193150e5511f839e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_STEEL",
+          "name": "Yellow Steel",
+          "texture": "5acbc3cd26321e594467c73f5d5fc03dcdd20e5a39e93a1a24f7d69f5afdc8b1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_SILVER",
+          "name": "Yellow Silver",
+          "texture": "9e7bffe3d070d6e4a2ab092930657092ab651b9fc0c64265731ed038fce80e9b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_GOLD",
+          "name": "Yellow Gold",
+          "texture": "cdc870fb47a53bb374d7547fd5eadae5b07c69746ffac037ec911d4816d046be"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_ROSE_GOLD",
+          "name": "Yellow Rose Gold",
+          "texture": "433bff89c7cc7975159cf0d0919205e819c7694c557cb16add0a524063df8551"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_COPPER",
+          "name": "Yellow Copper",
+          "texture": "6d0ea807f1781bcc67c5f09bcdf94a1ce0ec925d265da2b4dcfa1d8dc5a13948"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_DARK_BRONZE",
+          "name": "Yellow Dark Bronze",
+          "texture": "f3c52629b63311b4819644b9facf683849b00b51805e350c926c2282651ca05d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_RUBY",
+          "name": "Yellow Ruby",
+          "texture": "c1f5224af39b8db3b160d92b12e0b08d87ddc4d8481a71533854499bc9c7ef81"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_GARNET",
+          "name": "Yellow Garnet",
+          "texture": "7e30c9b4e3c4eda03cf931d49236dcf1f4031551065b90a87c7f336c202ef9e2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_AMETHYST",
+          "name": "Yellow Amethyst",
+          "texture": "66d69e5f6ec914c008e1c6025b366f879629f884f9bf5c8fa3a0ec472717476f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_OBSIDIAN",
+          "name": "Yellow Obsidian",
+          "texture": "bd27bcc800a09c4cc2e783f8f29f10865aae9a09179ca94eb756d4921a32ed2c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_LAPIS",
+          "name": "Yellow Lapis",
+          "texture": "96149bd72066731f8af9953f1082ecde80ff9dde49b0d85d770e8f22889b6e2e"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_AQUAMARINE",
+          "name": "Yellow Aquamarine",
+          "texture": "4d9335d4afdfb16b594291cdc447db76b551aeebf90e471287ecc8ddfa4a5d8c"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_DIAMOND",
+          "name": "Yellow Diamond",
+          "texture": "ef6134b052de25c655ef2a8f0e8d1b3d4499b0cc4c97efaad039c04cd30785d8"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_JADE",
+          "name": "Yellow Jade",
+          "texture": "464dfca9a7afbf5e3a146e34c153033e702fe57a1197b7213d33a0442c7f6c99"
+        },
+        {
+          "id": "WARDEN_SPARTAN_YELLOW_EMERALD",
+          "name": "Yellow Emerald",
+          "texture": "7cd7f4d8503d656b79302a41daffbbddb6a7ded0d9c97afd4c38e81fd9e2fda"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_ONYX",
+          "name": "Lime Onyx",
+          "texture": "4e6df2a9810bf346bdfd8d2e7c4c983b45be6b5f36703f91868ff7ad2875c53f"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_STEEL",
+          "name": "Lime Steel",
+          "texture": "b45638c1522b08fb000a86631d30e9790de91a7c9960ec4a1bc98e6502a3a852"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_SILVER",
+          "name": "Lime Silver",
+          "texture": "822da0a36be9116cf3d6b56d270344b4e660fcf8734da5b4bbee72a15f7f9b2b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_GOLD",
+          "name": "Lime Gold",
+          "texture": "c6988013620069b3d6375a19aa4132cb9a8c7d99570926e43a025b34bad904cb"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_ROSE_GOLD",
+          "name": "Lime Rose Gold",
+          "texture": "4cae86a819f25f3cb10a63530dbbca70ac42866a86fddac8f0c7e732763f86e3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_COPPER",
+          "name": "Lime Copper",
+          "texture": "1b5aa49631826c4dc4d571c8fe430e1682afd74378056fa121b8427a88f7f0db"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_DARK_BRONZE",
+          "name": "Lime Dark Bronze",
+          "texture": "c26c57c9728fc34d4a6a3d65889e6bfb546a701b3aba899bdce968ca51d156c3"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_RUBY",
+          "name": "Lime Ruby",
+          "texture": "3bb802baa0eff35e2179df4532b8adb35ce4238215397ff9f64bb21c41ef25db"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_GARNET",
+          "name": "Lime Garnet",
+          "texture": "84849f50b8ccbf26cff16b36c787fbf6ea36b56b73c466844a4f66b451a53982"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_AMETHYST",
+          "name": "Lime Amethyst",
+          "texture": "c5de6296088812e0163f5cddb01c6e13dd7d4ff57457495fb9a536d5c87b1a4d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_OBSIDIAN",
+          "name": "Lime Obsidian",
+          "texture": "e55ec760e15c47b6c572f7c95e7e5b788e6de5047921f5bed6c8bdca6e72b434"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_LAPIS",
+          "name": "Lime Lapis",
+          "texture": "f8c57313b9b9122af240f68412430d9d338d05cae064ec29c99b71af7d142ecf"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_AQUAMARINE",
+          "name": "Lime Aquamarine",
+          "texture": "5df0266a8be6466b4ea0f4d4e8093474680688f93cbd7df217e0f7821f45f670"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_DIAMOND",
+          "name": "Lime Diamond",
+          "texture": "335420b8f56ea73d032f687bc0e107e70e33352b3fc0da81cf47db54fa9d690b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_JADE",
+          "name": "Lime Jade",
+          "texture": "31b10ac675266ea9ac9f0ae931732781b2cd92be61c551a593f3b8dcdc7866de"
+        },
+        {
+          "id": "WARDEN_SPARTAN_LIME_EMERALD",
+          "name": "Lime Emerald",
+          "texture": "5b35204f81fe251d1abaca0c29820e3ea7094c951a84928dae6259cce1717f60"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_ONYX",
+          "name": "Green Onyx",
+          "texture": "52ec58c046b311fbc3e4ef4190c05f056d887de98228eadbf937113fdaf0c737"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_STEEL",
+          "name": "Green Steel",
+          "texture": "fd80e27754766988057c9f81c252d84fdb3c091a9d212a309be08ae9c693be2a"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_SILVER",
+          "name": "Green Silver",
+          "texture": "466f8aee5ad4acb8abe2d4f658dbdf57aa1573ee6d3de1cff57b0436e3deb9c1"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_GOLD",
+          "name": "Green Gold",
+          "texture": "9af68246cae9815152f278c656fd4b6ef19dbb04ec2f2354f58549eb812dcf68"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_ROSE_GOLD",
+          "name": "Green Rose Gold",
+          "texture": "39cdec775ea111733b66520745cb6c5afdfc4a0ca932ab6d4ccfbe0dbfb653ea"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_COPPER",
+          "name": "Green Copper",
+          "texture": "c3de2990a62c8c6b98b9e85ef54de003463cf7eb997db8fcc3385479ffed62e0"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_DARK_BRONZE",
+          "name": "Green Dark Bronze",
+          "texture": "5646dc97856c30807e7e8a4758be2fa3628aa8927581ce1afe14647596cb9dd5"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_RUBY",
+          "name": "Green Ruby",
+          "texture": "dbdd7e1e8470cf41280263d6f1019a84b0c5f5322349b41272a366528c06b4f2"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_GARNET",
+          "name": "Green Garnet",
+          "texture": "71e92288e976a5d43f99671e5880d032e8389a0fc5ccf067cca62e4979069627"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_AMETHYST",
+          "name": "Green Amethyst",
+          "texture": "82e6e72b5b546a380777a771ea44dd0159ef1708840297561aa0200a5d2bd1de"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_OBSIDIAN",
+          "name": "Green Obsidian",
+          "texture": "2af0be00b7b50ac5236955046d6aecc139aad992337de5f44ec4e20355bcc1cc"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_LAPIS",
+          "name": "Green Lapis",
+          "texture": "46c6a4bff664686d023f7e279d733b4d022c6acba0048766d15f92fb7d6cb13d"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_AQUAMARINE",
+          "name": "Green Aquamarine",
+          "texture": "276f4b3ecd056541329518c6ab727b1f07a712d878a49455b04976a2b5d9296b"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_DIAMOND",
+          "name": "Green Diamond",
+          "texture": "9ae25312dd22901fc859809950fd5009f91376500d00678e0e6ee6ea43c32c00"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_JADE",
+          "name": "Green Jade",
+          "texture": "7c1845b600b638139604792d9cf46788f81cc8ec317caa04c729ac3e05935237"
+        },
+        {
+          "id": "WARDEN_SPARTAN_GREEN_EMERALD",
+          "name": "Green Emerald",
+          "texture": "c9cba44ffede1bc55c2eead7bc711a7cbf83d104fa220cfefee6b824b81ed502"
+        }
+      ],
+      "legacyHash": "a256936e7d379fb49bdf134db79d770dd5b4b55d9519f24b3a46c524f366445b"
     },
     {
       "id": "REAPER_SPECTRE",
       "name": "Spectre Skin",
-      "texture": "c9a95c9d7d94a947d2d83cfbc2cbaca66e679f556b120fc2ed8b7c7c7af78fe1"
+      "texture": "c9a95c9d7d94a947d2d83cfbc2cbaca66e679f556b120fc2ed8b7c7c7af78fe1",
+      "variants": [
+        {
+          "id": "REAPER_SPECTRE_BLACK",
+          "name": "Black",
+          "texture": "c9a95c9d7d94a947d2d83cfbc2cbaca66e679f556b120fc2ed8b7c7c7af78fe1"
+        },
+        {
+          "id": "REAPER_SPECTRE_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "e0561555d8c0c2ac363795d3b8b519bb66a8cd4d3e07b4e353b8721365d7afa"
+        },
+        {
+          "id": "REAPER_SPECTRE_AZURE",
+          "name": "Azure",
+          "texture": "4656caf393fbfc25286aa9cdb8f4205dcf4b1910579d8d8d8de8142eead855e2"
+        },
+        {
+          "id": "REAPER_SPECTRE_BLUE",
+          "name": "Blue",
+          "texture": "30a42dac41c1bc9207d5068a09405d8b7527957db7ac04dfb98e4069a87affff"
+        },
+        {
+          "id": "REAPER_SPECTRE_OASIS",
+          "name": "Oasis",
+          "texture": "93ef7b7b84e0e7fc2fdcb72f4e4b94650631acdaa19c0b332733335168ffcae2"
+        },
+        {
+          "id": "REAPER_SPECTRE_AURORA",
+          "name": "Aurora",
+          "texture": "f5c9188fd824647a5c9ed1fec29b5ae979b409486ce2673386607f634a5b6a25"
+        },
+        {
+          "id": "REAPER_SPECTRE_TEAL",
+          "name": "Teal",
+          "texture": "7bda48e3fd933ba45046dd3032502d057fb000b84d9b6c5dffdbe3f77313629e"
+        },
+        {
+          "id": "REAPER_SPECTRE_GREEN",
+          "name": "Green",
+          "texture": "dee2b58bb207466a96a5cc1114a1acddb696dc3e32e7975e7e33144effe63bf"
+        },
+        {
+          "id": "REAPER_SPECTRE_LIME",
+          "name": "Lime",
+          "texture": "f819b806a718fa6e4b02749c1c636fe59d33f38433bf3711b0800af8f3867e1c"
+        },
+        {
+          "id": "REAPER_SPECTRE_GOLD",
+          "name": "Gold",
+          "texture": "7099a3eb394c8ddf0afa15abe96649f687df4616c4989cc4785161bd3325b4a7"
+        },
+        {
+          "id": "REAPER_SPECTRE_ORANGE",
+          "name": "Orange",
+          "texture": "5e29efeb28c115a5661e720a4ffbda518c6944dd65e418a5f652b275e6a752d9"
+        },
+        {
+          "id": "REAPER_SPECTRE_RED",
+          "name": "Red",
+          "texture": "bad65289b38a2ec1f4cb6291344b3b463e57301088627a844e9e590b71754847"
+        },
+        {
+          "id": "REAPER_SPECTRE_ROSE",
+          "name": "Rose",
+          "texture": "9048310a2c04d5f7f4df197fe5cc63ef2f9c0503b4cd24b00004b2c885b2a750"
+        },
+        {
+          "id": "REAPER_SPECTRE_SUNSET",
+          "name": "Sunset",
+          "texture": "1b40096e2d7ef4d11099f364b810fd7f8602aa5db1e8d359aa4381e58360e087"
+        },
+        {
+          "id": "REAPER_SPECTRE_PORTAL",
+          "name": "Portal",
+          "texture": "aff73bbafd89d683d4bd6c9c1e41f37015310f0c7aaec49f2d5d2deb600d147"
+        },
+        {
+          "id": "REAPER_SPECTRE_PURPLE",
+          "name": "Purple",
+          "texture": "f83413de294e0cf4699ddc1b2dac4e1a838c0a892f25e36964c9448bead7d839"
+        },
+        {
+          "id": "REAPER_SPECTRE_PASTEL",
+          "name": "Pastel",
+          "texture": "a1da1fdaa0556c3acf37ecc7d08b0590dab2ccf6ebecc5a0b14c5e4ba1f11e0"
+        },
+        {
+          "id": "REAPER_SPECTRE_SNOW",
+          "name": "Snow",
+          "texture": "84befe67efb9da71d427914b246a6b8f3e8af20642248aa1ebd4d4ee20889475"
+        }
+      ],
+      "legacyHash": "c9a95c9d7d94a947d2d83cfbc2cbaca66e679f556b120fc2ed8b7c7c7af78fe1"
     },
     {
       "id": "REAPER_SPIRIT",
       "name": "Spirit Skin",
-      "texture": "724d2072918054a95a4f4bbc931bf3929d01cb012368bc4c78d0a3acc9cdbeea"
+      "texture": "724d2072918054a95a4f4bbc931bf3929d01cb012368bc4c78d0a3acc9cdbeea",
+      "legacyHash": "724d2072918054a95a4f4bbc931bf3929d01cb012368bc4c78d0a3acc9cdbeea"
     },
     {
       "id": "STARLIGHT_STARKNIGHT",
       "name": "Starknight Skin",
-      "texture": "bb2171f36b7a71f835ee18f031fa830017edb419e99a656be55807f576ad7c68"
+      "texture": "bb2171f36b7a71f835ee18f031fa830017edb419e99a656be55807f576ad7c68",
+      "legacyHash": "bb2171f36b7a71f835ee18f031fa830017edb419e99a656be55807f576ad7c68"
     },
     {
       "id": "STRONG_DRAGON_DRAKE",
       "name": "Strong Drake Skin",
-      "texture": "626e13659f0ac7f4f50adaf698d4b632ee0acbd014e17cacaf18e3b1081e786c"
+      "texture": "626e13659f0ac7f4f50adaf698d4b632ee0acbd014e17cacaf18e3b1081e786c",
+      "legacyHash": "626e13659f0ac7f4f50adaf698d4b632ee0acbd014e17cacaf18e3b1081e786c"
     },
     {
       "id": "SUPERIOR_DRAGON_DRAKE",
       "name": "Superior Drake Skin",
-      "texture": "ff234183b6964f0593a9b9c8e79807d8c65da210ba3fd06805d71ab895bf8152"
+      "texture": "ff234183b6964f0593a9b9c8e79807d8c65da210ba3fd06805d71ab895bf8152",
+      "legacyHash": "ff234183b6964f0593a9b9c8e79807d8c65da210ba3fd06805d71ab895bf8152"
     },
     {
       "id": "BIOHAZARD_SPACE_TEAL",
       "name": "Teal Space Skin",
-      "texture": "426e493964bcb91075989e270ea45fa4e2f38b8fc4faf8794e1659716d18955c"
+      "texture": "426e493964bcb91075989e270ea45fa4e2f38b8fc4faf8794e1659716d18955c",
+      "legacyHash": "426e493964bcb91075989e270ea45fa4e2f38b8fc4faf8794e1659716d18955c"
     },
     {
       "id": "THERMAL_THERMODYNAMIC",
       "name": "Thermal Thermodynamic Helmet Skin",
-      "texture": "a27c4d0ff326d477a052d7fb2f9969828103add67e98500e2b55f7ddb2bec4e4"
+      "texture": "a27c4d0ff326d477a052d7fb2f9969828103add67e98500e2b55f7ddb2bec4e4",
+      "variants": [
+        {
+          "id": "THERMAL_THERMODYNAMIC_SUNNY",
+          "name": "Sunny",
+          "texture": "a27c4d0ff326d477a052d7fb2f9969828103add67e98500e2b55f7ddb2bec4e4"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_ORANGE",
+          "name": "Orange",
+          "texture": "4caab25c4b732f6e614baaf9e3b2e42c66000b91714fcdb3adecae422a77a627"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_RED",
+          "name": "Red",
+          "texture": "5d6a3580e71100716316028542319e2787458d215c0983c7b1d3d659e1312986"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_PINK",
+          "name": "Pink",
+          "texture": "dcb64ae2a7ab48344ff35d65a4cd683a39cd3986165ee8268416069363bd3eb7"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_SUNSET",
+          "name": "Sunset",
+          "texture": "f3ffbb18b1d320c2702e81a644ff9e646c6f85d700f94ae1e7837e83c5101603"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_YELLOW",
+          "name": "Yellow",
+          "texture": "eeb43f00f6717ee1e210f42473c651ceadef5bc79e7e69a6e6ad0cd838b6f148"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_LIME",
+          "name": "Lime",
+          "texture": "44911f33339c931b44ae2a520ef5bb1fc31077a971653ff551f65905f6df05b1"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_TURQUOISE",
+          "name": "Turquoise",
+          "texture": "aeeda7d560ebc76a15123d5e8dea0441019e711ecd6ea593c8e6ee64a8e67917"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_BLACK",
+          "name": "Black",
+          "texture": "1fe48cf1b78c8a2b86628e3773293df4c568477a79698dae85d5659bfd1ab88b"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_BLACK_ICE",
+          "name": "Black Ice",
+          "texture": "f460d72b5a28b0ea08dd4a0caad127b822f51a3c1d2802153e40975563b25176"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_TEAL",
+          "name": "Teal",
+          "texture": "bfec9f2719468e9f502f9bfcf00c6a159bf48965b62421e94838ebfa24790f16"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_AZURE",
+          "name": "Azure",
+          "texture": "c9ceb73f0bdf72344034a3d2650b019cd20b9965f49f01669b18bcfc28a36866"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_BLUE",
+          "name": "Blue",
+          "texture": "95b9c768fe76e2ce03b297a322c8680a3dbdb0697ab9ffb98e02c4aef18fd35"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_BEACH",
+          "name": "Beach",
+          "texture": "110f39225f24832239f06c8951246f07475c701b44516fe11c7148ade6196244"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_OASIS",
+          "name": "Oasis",
+          "texture": "b79f17d93084a75456868a7975c1833d9ad388a184cfd93d6cc4b54d7479ea90"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_SNOW",
+          "name": "Snow",
+          "texture": "90a567d4b585744ff53d2fcb8ee8eeede0b34fd0cda7c8661dc55c2058a12ea7"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_DUSK",
+          "name": "Dusk",
+          "texture": "5390c09ce062781e5b61d4173844bd0bc74e2a66f75c75ca3b30a2af03af3f3f"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_AURORA",
+          "name": "Aurora",
+          "texture": "96b096968afd11aa76ef233ca111c75f4ac7b31012bdcb6b16d6f663b4aa615e"
+        },
+        {
+          "id": "THERMAL_THERMODYNAMIC_PURPLE",
+          "name": "Purple",
+          "texture": "1436412ee7519a62f0432bb19f63b77d18d5c96e5931acda8c744f3ea32682a8"
+        }
+      ],
+      "legacyHash": "a27c4d0ff326d477a052d7fb2f9969828103add67e98500e2b55f7ddb2bec4e4"
     },
     {
       "id": "GOBLIN_HELMET_THIEF",
       "name": "Thief Skin",
-      "texture": "29df8b7c806a2a02b0171f8ea28fc3eec0667bc9e8da22b9873827434f84b562"
+      "texture": "29df8b7c806a2a02b0171f8ea28fc3eec0667bc9e8da22b9873827434f84b562",
+      "legacyHash": "29df8b7c806a2a02b0171f8ea28fc3eec0667bc9e8da22b9873827434f84b562"
     },
     {
       "id": "THUNDER_BIKER_AQUA",
       "name": "Thunder Aqua Biker Skin",
-      "texture": "137d3c068fae54240ae976270d59d4bc9a2d06456f5d9a1ed6691c05940dedb8"
+      "texture": "137d3c068fae54240ae976270d59d4bc9a2d06456f5d9a1ed6691c05940dedb8",
+      "legacyHash": "137d3c068fae54240ae976270d59d4bc9a2d06456f5d9a1ed6691c05940dedb8"
     },
     {
       "id": "THUNDER_BIKER_AZURE",
       "name": "Thunder Azure Biker Skin",
-      "texture": "c272558d1e4dd95807158145753c138309b3d5ee12a6e5dd4cae84ce15b66353"
+      "texture": "c272558d1e4dd95807158145753c138309b3d5ee12a6e5dd4cae84ce15b66353",
+      "legacyHash": "c272558d1e4dd95807158145753c138309b3d5ee12a6e5dd4cae84ce15b66353"
     },
     {
       "id": "THUNDER_BIKER_BLACK",
       "name": "Thunder Black Biker Skin",
-      "texture": "f47012d332ef297cd771450f3d8b00875ea0d7713895efd230c9761796c6a1e2"
+      "texture": "f47012d332ef297cd771450f3d8b00875ea0d7713895efd230c9761796c6a1e2",
+      "legacyHash": "f47012d332ef297cd771450f3d8b00875ea0d7713895efd230c9761796c6a1e2"
     },
     {
       "id": "THUNDER_BIKER_PINK",
       "name": "Thunder Pink Biker Skin",
-      "texture": "ecff35c76b518c31e290c0862efaf128e9d590f2c6680691403539a7c033d93c"
+      "texture": "ecff35c76b518c31e290c0862efaf128e9d590f2c6680691403539a7c033d93c",
+      "legacyHash": "ecff35c76b518c31e290c0862efaf128e9d590f2c6680691403539a7c033d93c"
     },
     {
       "id": "THUNDER_STORM_KNIGHT",
       "name": "Thunder Storm Knight Skin",
-      "texture": "c4c72ce94586cb740b2ab51411af15235912b74ee675629bbf8c8ea69d451536"
+      "texture": "c4c72ce94586cb740b2ab51411af15235912b74ee675629bbf8c8ea69d451536",
+      "legacyHash": "c4c72ce94586cb740b2ab51411af15235912b74ee675629bbf8c8ea69d451536"
     },
     {
       "id": "THUNDER_BIKER_TEAL",
       "name": "Thunder Teal Biker Skin",
-      "texture": "6640bba00cbc1fae890507012ccb4a4ab7d2d0ec53929032b4329ed868ac4a18"
+      "texture": "6640bba00cbc1fae890507012ccb4a4ab7d2d0ec53929032b4329ed868ac4a18",
+      "legacyHash": "6640bba00cbc1fae890507012ccb4a4ab7d2d0ec53929032b4329ed868ac4a18"
     },
     {
       "id": "TRUE_WARDEN",
       "name": "True Warden Skin",
-      "texture": "1cafe848fd755d998a06a58321912244cf76eef1ce78a51228fdd1020ab73a68"
+      "texture": "1cafe848fd755d998a06a58321912244cf76eef1ce78a51228fdd1020ab73a68",
+      "legacyHash": "1cafe848fd755d998a06a58321912244cf76eef1ce78a51228fdd1020ab73a68"
     },
     {
       "id": "UNSTABLE_DRAGON_DRAKE",
       "name": "Unstable Drake Skin",
-      "texture": "9e4a8a071b6540ee8569cfd6a25c48090dcc076114391681aa5d1ce6c94ab27c"
+      "texture": "9e4a8a071b6540ee8569cfd6a25c48090dcc076114391681aa5d1ce6c94ab27c",
+      "legacyHash": "9e4a8a071b6540ee8569cfd6a25c48090dcc076114391681aa5d1ce6c94ab27c"
     },
     {
       "id": "WISE_DRAGON_DRAKE",
       "name": "Wise Drake Skin",
-      "texture": "468b1e281c03e57f4737757cda26f993bc407da7170473863429956dd135b95"
+      "texture": "468b1e281c03e57f4737757cda26f993bc407da7170473863429956dd135b95",
+      "legacyHash": "0468b1e281c03e57f4737757cda26f993bc407da7170473863429956dd135b95"
     },
     {
       "id": "WEREWOLF_WOLF_PACK",
       "name": "Wolf Pack Werewolf Skin",
-      "texture": "97cb30773039940c7376af2a260ee2316476ae23173d46a664600a1b30f5cb6f"
+      "texture": "97cb30773039940c7376af2a260ee2316476ae23173d46a664600a1b30f5cb6f",
+      "variants": [
+        {
+          "id": "WEREWOLF_WOLF_PACK_BLACK_WOLF",
+          "name": "Black Wolf",
+          "texture": "97cb30773039940c7376af2a260ee2316476ae23173d46a664600a1b30f5cb6f"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_BLACK_ICE_WOLF",
+          "name": "Black Ice Wolf",
+          "texture": "6b02b1d8ca1d7c1271359bfd1de2ec847a561ce3f796f4810b0183ff014245cc"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_TEAL",
+          "name": "Teal",
+          "texture": "1ac8b1755d254dfef9723a083839ce4ebe5a5eba2386612cef8e93f60b8f7db9"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_AZURE",
+          "name": "Azure",
+          "texture": "63d261b00d0242a41b4a8720a2c9bbd8537f8849d1d4e4a57d69cc6d521dbb50"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_OCEAN",
+          "name": "Ocean",
+          "texture": "270f15482113b270720fa0c74494d4b1cd07a8c2c58567598d8f0bda60ff7488"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_AURORA",
+          "name": "Aurora",
+          "texture": "412142ad9140cf05fb01e242032b908af3982c7a002d9542e85630a83a2bad74"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_OASIS",
+          "name": "Oasis",
+          "texture": "514e102bea20cd022e5d5a933077d671615e9979c97edf140a3d62c3d363b059"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_SNOWFLAKE",
+          "name": "Snowflake",
+          "texture": "c4d8936f35c17cc558fcd2b1b9cb51c604e07c41482a2f02c4e2bf5d27cb49cb"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_PASTEL",
+          "name": "Pastel",
+          "texture": "560617fceae5fe150f40d58118928dccaae46514bfbdd0430f3e8613d158701d"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_PORTAL",
+          "name": "Portal",
+          "texture": "e1b2ec2b3ac11542d634aaab160d2514897f7ad0a16d408cf06964d8d9fbf63b"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_PURPLE",
+          "name": "Purple",
+          "texture": "d8fe9a6e33127d7f37c308b3b09ce4624c0fcbbee030a48e6722fcf40767e736"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_SUNSET",
+          "name": "Sunset",
+          "texture": "42f881387f470e1c6a90e2108ce713659f2d68421e9a90951d0eed09ba010070"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_ROSE",
+          "name": "Rose",
+          "texture": "36d06b8f00d56ed6921bbc7a43500945a6b7837dd0a04a8bd103c6e3f3b7bb5c"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_RED",
+          "name": "Red",
+          "texture": "9b1eb9d177b2743a98b94376aa5b4d0c6909fd13cb278751b7c841438eaa50c8"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_ORANGE",
+          "name": "Orange",
+          "texture": "49c580420fa28e7f5b0b9cf6311404f8e84596a024fa2d8dca246eec4924bcfa"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_YELLOW",
+          "name": "Yellow",
+          "texture": "fbba90fe1082715d6f6f36c0326619c4def9884e433ee2b601ffa5076d2fe7c8"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_LIME",
+          "name": "Lime",
+          "texture": "87326add52a292f4a77f1771546a3a72a6ea4c7999649828f7b66e131a9545b"
+        },
+        {
+          "id": "WEREWOLF_WOLF_PACK_GREEN",
+          "name": "Green",
+          "texture": "f7bdb72dbd7ae11014b6cb7e58885319ad598d48072c68a25ec2289c5031d2a2"
+        }
+      ],
+      "legacyHash": "97cb30773039940c7376af2a260ee2316476ae23173d46a664600a1b30f5cb6f"
     },
     {
       "id": "DRAGON_WYVERN",
       "name": "Wyvern Dragon Helmet Skin",
-      "texture": "3d536f51069e991e870db812f116aa0ccca5f404cf6ce5dad32e923be101718"
+      "texture": "3d536f51069e991e870db812f116aa0ccca5f404cf6ce5dad32e923be101718",
+      "legacyHash": "03d536f51069e991e870db812f116aa0ccca5f404cf6ce5dad32e923be101718"
     },
     {
       "id": "BIOHAZARD_SPACE_YELLOW",
       "name": "Yellow Space Skin",
-      "texture": "1b86061108ce99a017b2bf962c3233214bc0c50f8de423c2232cec7a3e11e7cf"
+      "texture": "1b86061108ce99a017b2bf962c3233214bc0c50f8de423c2232cec7a3e11e7cf",
+      "legacyHash": "1b86061108ce99a017b2bf962c3233214bc0c50f8de423c2232cec7a3e11e7cf"
     },
     {
       "id": "YOUNG_DRAGON_DRAKE",
       "name": "Young Drake Skin",
-      "texture": "fdf709f82e96981665421d753208fb8e7f89d38c41ae5c60dc5b428ff0725f93"
+      "texture": "fdf709f82e96981665421d753208fb8e7f89d38c41ae5c60dc5b428ff0725f93",
+      "legacyHash": "fdf709f82e96981665421d753208fb8e7f89d38c41ae5c60dc5b428ff0725f93"
     }
   ]
 }

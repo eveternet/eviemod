@@ -11,24 +11,32 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 /** Desktop chooser and resource reload boundary; imported files never leave this computer. */
 final class TextureImportClient {
     private TextureImportClient() {}
-    static Path choosePng() {
+    static Path choosePng() { return chooseFile("Import Paint Brush PNG", "*.png", "PNG image"); }
+    static Path chooseMetadata() { return chooseFile("Choose animation metadata", "*.mcmeta", "Animation metadata"); }
+    private static Path chooseFile(String title, String pattern, String description) {
         try (var memory = MemoryStack.stackPush()) {
-            String chosen = TinyFileDialogs.tinyfd_openFileDialog("Import Paint Brush PNG", "",
-                memory.pointers(memory.UTF8("*.png")), "PNG image", false);
+            String chosen = TinyFileDialogs.tinyfd_openFileDialog(title, "",
+                memory.pointers(memory.UTF8(pattern)), description, false);
             return chosen == null ? null : Path.of(chosen);
         }
     }
-    static CompletableFuture<Identifier> importFile(Path path, ImportedTextures.Preset preset) {
+    static CompletableFuture<ImportedTextures.Prepared> prepare(Path path, ImportedTextures.Preset preset) {
+        return CompletableFuture.supplyAsync(() -> {
+            try { return ImportedTextures.prepare(path, preset); }
+            catch (Exception e) { throw new CompletionException(e); }
+        });
+    }
+    static CompletableFuture<Identifier> importPrepared(ImportedTextures.Prepared prepared, Path metadata) {
         var client = Minecraft.getInstance();
         return CompletableFuture.supplyAsync(() -> {
-            try { return new ImportedTextures(client.getResourcePackDirectory()).importFile(path, preset); }
+            try { return new ImportedTextures(client.getResourcePackDirectory()).importPrepared(prepared, metadata); }
             catch (Exception e) { throw new CompletionException(e); }
-        }).thenComposeAsync(id -> loadPack(id), client);
+        }).thenComposeAsync(TextureImportClient::loadPack, client);
     }
     static CompletableFuture<Identifier> importSkin(HelmetSkinCatalog.Skin skin) {
         var client = Minecraft.getInstance();
         return CompletableFuture.supplyAsync(() -> {
-            try { return new ImportedTextures(client.getResourcePackDirectory()).importPng(skin.download(), ImportedTextures.Preset.HELMET); }
+            try { return new ImportedTextures(client.getResourcePackDirectory()).importSkin(skin.download(), skin); }
             catch (Exception e) { throw new CompletionException(e); }
         }).thenComposeAsync(id -> loadPack(id), client);
     }

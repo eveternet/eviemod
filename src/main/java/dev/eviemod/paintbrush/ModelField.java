@@ -31,7 +31,9 @@ final class ModelField extends EditBox {
         setHint(Component.literal(hint));
         setResponder(value -> { change.accept(value); update(); });
     }
-    private void update() { matches = names ? models.stream().filter(s -> s.toLowerCase(java.util.Locale.ROOT).contains(getValue().toLowerCase(java.util.Locale.ROOT))).toList() : ModelCompletion.matches(models, getValue()); choice = 0; open = !matches.isEmpty(); }
+    private void update() { matches = getValue().isBlank() ? List.of() : names ? models.stream().filter(s -> java.util.Arrays.stream(getValue().toLowerCase(java.util.Locale.ROOT).trim().split("\\s+")).allMatch(s.toLowerCase(java.util.Locale.ROOT)::contains)).toList() : ModelCompletion.matches(models, getValue()); choice = 0; open = !matches.isEmpty(); }
+    void dismiss() { open = false; }
+    @Override public void setFocused(boolean focused) { super.setFocused(focused); if (!focused) dismiss(); }
     private void accept() { if (open && !matches.isEmpty()) { setValue(matches.get(choice)); moveCursorToEnd(false); open = false; } }
     private int suggestionAt(double x, double y) {
         if (!visible || !active || !open || !isFocused() || x < getX() || x >= getRight() || y < getBottom()) return -1;

@@ -27,8 +27,17 @@ class ModelFieldTest {
         // routing and acceptance still run through the real widget and container.
         field.setEditable(false);
         field.setFocused(true);
-        field.keyPressed(new KeyEvent(264, 0, 0));
+        field.setValue(models.getFirst().startsWith("minecraft:") ? "minecraft:" : "a:");
         return field;
+    }
+    @Test void emptyInputNeverOpensAndFocusLossOrEscapeDismisses() {
+        var field = field(List.of("minecraft:apple", "minecraft:bow"), new AtomicReference<>());
+        assertTrue(field.isMouseOver(25, 55));
+        field.keyPressed(new KeyEvent(256, 0, 0)); assertFalse(field.isMouseOver(25, 55));
+        field.keyPressed(new KeyEvent(264, 0, 0)); assertTrue(field.isMouseOver(25, 55));
+        field.setFocused(false); field.setFocused(true); assertFalse(field.isMouseOver(25, 55));
+        field.setValue(""); field.keyPressed(new KeyEvent(264, 0, 0)); assertFalse(field.isMouseOver(25, 55));
+        field.setValue("   "); assertFalse(field.isMouseOver(25, 55));
     }
     @Test void containerRoutesSuggestionClickAndUpdatesDraft() {
         var value = new AtomicReference<String>();
