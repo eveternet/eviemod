@@ -28,13 +28,15 @@ abstract class CompactScreen extends Screen {
     private MouseButtonEvent convert(MouseButtonEvent event) {
         return new MouseButtonEvent(viewport.input(event.x()), viewport.input(event.y()), event.buttonInfo());
     }
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) { var local = convert(event);
+    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        var local = convert(event);
         // Vanilla containers keep keyboard focus on blank-space clicks. Dismiss editor suggestions explicitly.
         for (var child : children()) if (child instanceof ModelField field && !field.isMouseOver(local.x(), local.y())) {
             field.dismiss(); field.setFocused(false);
             if (getFocused() == field) setFocused(null);
         }
-        return super.mouseClicked(local, doubleClick); }
+        return super.mouseClicked(local, doubleClick);
+    }
     @Override public boolean mouseReleased(MouseButtonEvent event) { return super.mouseReleased(convert(event)); }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         return super.mouseDragged(convert(event), viewport.input(dx), viewport.input(dy));

@@ -27,6 +27,7 @@ final class TextureSmokeTest {
     private Object modelBeforeSkin;
     private java.util.concurrent.CompletableFuture<Void> reload;
     private Identifier texture, skin, oldModel, oldSkin;
+    private String oldColor;
     private boolean oldTexturesEnabled, oldSkinsEnabled;
     private Path image, animated;
     private PaintBrushScreen editor;
@@ -43,7 +44,7 @@ final class TextureSmokeTest {
             net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
                 .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
                 .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
-            oldModel = PaintBrushClient.models().get(KEY); oldSkin = HelmetSkins.store().get(KEY);
+            oldColor = PaintBrushClient.colors().getValue(KEY); oldModel = PaintBrushClient.models().get(KEY); oldSkin = HelmetSkins.store().get(KEY);
             oldTexturesEnabled = EviemodSettings.STORE.values().customTextures;
             oldSkinsEnabled = EviemodSettings.STORE.values().helmetSkins;
             PaintBrushClient.models().set(KEY, null); HelmetSkins.store().set(KEY, null);
@@ -70,93 +71,116 @@ final class TextureSmokeTest {
         if (++ticks > 1200) throw new AssertionError("Timed out at texture fixture stage " + stage);
         if (client.getOverlay() != null || ticks < 15) return;
         switch (stage) {
-            case 1 -> { click(client, "Bow"); editor.onFilesDrop(List.of(animated, Path.of(animated + ".mcmeta"))); next(); }
+            case 1 -> {
+                var field = modelField(editor, "Item model");
+                clickAt(client, field.getX() + 4, field.getY() + 4);
+                check(!field.isMouseOver(field.getX() + 4, field.getBottom() + 4), "Empty field must not show suggestions");
+                field.setValue("minecraft:");
+                check(field.isMouseOver(field.getX() + 4, field.getBottom() + 4), "Typed query must show suggestions");
+                clickAt(client, field.getX() - 8, field.getY());
+                check(!field.isFocused() && !field.isMouseOver(field.getX() + 4, field.getBottom() + 4), "Outside click must dismiss suggestions");
+                field.setValue(""); click(client, "Bow"); editor.onFilesDrop(List.of(animated)); next();
+            }
             case 2 -> {
+                if (!hasButton(client, "Choose .mcmeta")) return;
+                check(PaintBrushClient.models().get(KEY) == null, "Adjacent metadata must not be imported automatically");
+                screenshot(client, "paintbrush-animation-prompt.png");
+                // A selected metadata file can have any name and live separately from the PNG.
+                var metadata = client.gameDirectory.toPath().resolve("chosen-animation.mcmeta");
+                Files.copy(Path.of(animated + ".mcmeta"), metadata, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                editor.onFilesDrop(List.of(metadata)); next();
+            }
+            case 3 -> {
                 texture = PaintBrushClient.models().get(KEY); if (texture == null) return;
-                check(texture.getPath().startsWith("bow/"), "Bow preset must be saved");
                 check(texture.equals(PaintBrushClient.resolve(held, held.get(DataComponents.ITEM_MODEL))), "Imported model must resolve");
-                check(!(client.getModelManager().getItemModel(texture) instanceof net.minecraft.client.renderer.item.MissingItemModel), "Model must bake");
                 var itemState = new net.minecraft.client.renderer.item.ItemStackRenderState();
                 client.getItemModelResolver().updateForTopItem(itemState, held, net.minecraft.world.item.ItemDisplayContext.GUI, null, null, 0);
                 var contents = itemState.pickParticleMaterial(net.minecraft.util.RandomSource.create()).sprite().contents();
-                check(contents.isAnimated(), "Imported sprite must animate");
-                check(contents.width() == 16 && contents.height() == 16, "Sprite must use one frame, not the whole strip");
-                check(contents.getUniqueFrames().size() == 19, "All 19 animation frames must load");
-                var sprite = contents.name();
-                check(sprite.equals(texture.withPath("item/" + texture.getPath())), "Imported sprite must be stitched, not missing: " + sprite);
+                check(contents.isAnimated() && contents.width() == 16 && contents.height() == 16 && contents.getUniqueFrames().size() == 19,
+                    "All 19 animation frames must load");
                 check(editor.children().stream().noneMatch(c -> c instanceof ModelField), "Custom model must hide generated ID");
-                check(editor.children().stream().noneMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals("Texture")), "Texture must be merged into Model");
                 screenshot(client, "paintbrush-texture.png"); next();
             }
-            case 3 -> {
-                modelBeforeSkin = client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone"));
-                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor);
-                check(editor.children().stream().anyMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals("Model") && !w.active), "Armor model tab must be disabled");
-                check(helmet.get(DataComponents.ITEM_MODEL).equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Stored armor model must be ignored");
-                editor.onFilesDrop(List.of(image)); next();
-            }
             case 4 -> {
-                skin = HelmetSkins.store().get(KEY); if (skin == null) return;
-                check(Identifier.withDefaultNamespace("player_head").equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Skin must use vanilla head model");
-                check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Skin import must not reload resource packs");
-                check(ItemStack.isSameItemSameComponents(before, helmet), "Import must not change actual item data");
-                Class.forName("net.minecraft.client.renderer.entity.LivingEntityRenderer");
-                Class.forName("net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer");
-                screenshot(client, "paintbrush-skin.png");
-                client.setScreen(new Preview(helmet)); next();
-            }
-            case 5 -> { screenshot(client, "paintbrush-worn-skin.png"); next(); }
-            case 6 -> {
-                client.setScreen(editor);
-                var input = editor.children().stream().filter(c -> c instanceof ModelField).map(c -> (ModelField) c).findFirst().orElseThrow();
-                input.setValue("True Warden Skin"); click(client, "Apply"); next();
-            }
-            case 7 -> {
-                var downloaded = HelmetSkins.store().get(KEY); if (downloaded.equals(skin)) return;
-                skin = downloaded;
-                check(TextureImportClient.available(skin), "Catalog skin must download and load");
-                var other = helmet.copy(); var otherData = other.get(DataComponents.CUSTOM_DATA).copyTag();
-                otherData.putString("uuid", UUID.randomUUID().toString()); other.set(DataComponents.CUSTOM_DATA, CustomData.of(otherData));
-                check(HelmetSkins.resolve(other) == null, "Skin must not leak to another UUID");
-                other.remove(DataComponents.CUSTOM_DATA); check(HelmetSkins.resolve(other) == null, "Unknown identity must not receive skin");
-                client.setScreen(new Preview(helmet)); next();
-            }
-            case 8 -> { screenshot(client, "paintbrush-catalog-skin.png"); next(); }
-            case 9 -> {
-                check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Catalog skin must not reload resource packs");
-                reload = client.reloadResourcePacks(); next();
-            }
-            case 10 -> {
-                if (!reload.isDone()) return;
-                reload.join();
-                check(client.getTextureManager().getTexture(ImportedTextures.texture(skin)) instanceof net.minecraft.client.renderer.texture.DynamicTexture,
-                    "Direct skin texture must survive a later resource reload");
-                check(skin.equals(HelmetSkins.resolve(helmet)), "Skin must still resolve after resource reload");
-                screenshot(client, "paintbrush-skin-after-reload.png");
+                var chest = Items.GOLDEN_CHESTPLATE.getDefaultInstance(); chest.set(DataComponents.CUSTOM_DATA, helmet.get(DataComponents.CUSTOM_DATA));
+                var original = chest.copy();
+                // A saved uploaded texture is ignored on armor, but built-in replacements work.
+                check(chest.get(DataComponents.ITEM_MODEL).equals(PaintBrushClient.resolve(chest, chest.get(DataComponents.ITEM_MODEL))), "Imported armor texture must be ignored");
+                PaintBrushClient.models().set(KEY, null);
+                editor = new PaintBrushScreen(List.of(chest)); client.setScreen(editor);
+                check(!hasButton(client, "Import PNG & apply"), "Armor must not offer uploads");
+                modelField(editor, "Item model").setValue("minecraft:leather_chestplate"); click(client, "Apply");
+                check(Identifier.withDefaultNamespace("leather_chestplate").equals(PaintBrushClient.resolve(chest, chest.get(DataComponents.ITEM_MODEL))), "Gold must resolve as leather");
+                check(ItemAppearance.equipmentAsset(chest, PaintBrushClient.models().get(KEY), chest.get(DataComponents.EQUIPPABLE).assetId().orElseThrow())
+                    .equals(Items.LEATHER_CHESTPLATE.getDefaultInstance().get(DataComponents.EQUIPPABLE).assetId().orElseThrow()), "Worn armor asset must be leather");
+                click(client, "Dye"); modelField(editor, "Dye preset or hex").setValue("#FF88CC"); click(client, "Apply");
+                check(PaintBrushClient.resolveColor(chest, -1) == 0xffff88cc, "Replacement leather must accept dye");
+                check(ItemStack.isSameItemSameComponents(original, chest), "Armor changes must be rendering-only");
+                Class.forName("net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer");
                 next();
             }
-            case 11 -> {
+            case 5 -> {
+                screenshot(client, "paintbrush-leather-dye.png");
+                PaintBrushClient.models().set(KEY, texture); PaintBrushClient.colors().setValue(KEY, oldColor);
+                modelBeforeSkin = client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone"));
+                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor); click(client, "Skin");
+                check(!hasButton(client, "Import skin PNG"), "Skin uploads must be removed");
+                editor.onFilesDrop(List.of(image)); check(HelmetSkins.store().get(KEY) == null, "Skin file drops must be ignored");
+                modelField(editor, "Helmet skin").setValue("Knight Skin (Diamond Necron Head)"); next();
+            }
+            case 6 -> {
+                modelField(editor, "Skin variant").setValue("Rose"); click(client, "Apply"); next();
+            }
+            case 7 -> {
+                skin = HelmetSkins.store().get(KEY); if (skin == null) return;
+                check(HelmetSkinCatalog.find("NECRON_DIAMOND_KNIGHT").variant("Rose").modelId().equals(skin), "Chosen colour variant must persist");
+                check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Skin must not reload resource packs");
+                check(ItemStack.isSameItemSameComponents(before, helmet), "Skin must not change actual item data");
+                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor); click(client, "Skin");
+                check(modelField(editor, "Helmet skin").getValue().equals("Knight Skin (Diamond Necron Head)"), "Saved skin name must appear");
+                check(modelField(editor, "Skin variant").getValue().equals("Rose"), "Saved variant must appear");
+                next();
+            }
+            case 8 -> { screenshot(client, "paintbrush-variant-selection.png"); client.setScreen(new Preview(helmet)); next(); }
+            case 9 -> { screenshot(client, "paintbrush-catalog-skin.png"); reload = client.reloadResourcePacks(); next(); }
+            case 10 -> {
+                if (!reload.isDone()) return; reload.join();
+                check(client.getTextureManager().getTexture(ImportedTextures.texture(skin)) instanceof net.minecraft.client.renderer.texture.DynamicTexture,
+                    "Skin texture must survive resource reload");
+                check(skin.equals(HelmetSkins.resolve(helmet)), "Skin must still resolve after resource reload");
+                var other = helmet.copy(); other.remove(DataComponents.CUSTOM_DATA);
+                check(HelmetSkins.resolve(other) == null, "Skin must not leak to unknown identity");
                 HelmetSkins.load(); PaintBrushClient.models().load();
-                check(skin.equals(HelmetSkins.resolve(helmet)), "Skin selection must reload");
                 client.setScreen(editor); click(client, "Reset");
-                check(HelmetSkins.store().get(KEY) == null, "Skin reset must clear only skin");
-                check(texture.equals(PaintBrushClient.models().get(KEY)), "Skin reset preserves texture");
+                check(HelmetSkins.store().get(KEY) == null, "Skin reset must clear skin");
+                check(texture.equals(PaintBrushClient.models().get(KEY)), "Skin reset preserves model");
                 editor = new PaintBrushScreen(List.of(held)); client.setScreen(editor); click(client, "Reset");
-                check(PaintBrushClient.models().get(KEY) == null, "Texture reset must clear model");
-                // An invalid image must not replace a previously applied choice.
+                check(PaintBrushClient.models().get(KEY) == null, "Model reset must clear texture");
                 PaintBrushClient.models().set(KEY, texture);
                 Files.writeString(animated, "invalid PNG"); editor.onFilesDrop(List.of(animated)); next();
             }
-            case 12 -> {
+            case 11 -> {
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Invalid import preserves previous choice");
-                check(ItemStack.isSameItemSameComponents(before, helmet), "Fixture changed source item");
-                PaintBrushClient.models().set(KEY, oldModel); HelmetSkins.store().set(KEY, oldSkin);
+                PaintBrushClient.models().set(KEY, oldModel); HelmetSkins.store().set(KEY, oldSkin); PaintBrushClient.colors().setValue(KEY, oldColor);
                 EviemodSettings.STORE.values().helmetSkins = oldSkinsEnabled; EviemodSettings.STORE.values().customTextures = oldTexturesEnabled;
                 Files.deleteIfExists(image); Files.deleteIfExists(animated); Files.deleteIfExists(Path.of(animated + ".mcmeta"));
-                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Animated texture import, merged UI, armor exclusion, reload-free skins, reset and invalid-file checks passed");
+                Files.deleteIfExists(client.gameDirectory.toPath().resolve("chosen-animation.mcmeta"));
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Explicit animation metadata, autocomplete dismissal, armor model/dye, catalog variants, persisted labels and reload checks passed");
                 client.stop(); next();
             }
         }
+    }
+    private static ModelField modelField(PaintBrushScreen screen, String label) {
+        return screen.children().stream().filter(c -> c instanceof ModelField f && f.getMessage().getString().equals(label))
+            .map(c -> (ModelField)c).findFirst().orElseThrow();
+    }
+    private static boolean hasButton(Minecraft client, String label) {
+        return client.screen.children().stream().anyMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals(label));
+    }
+    private static void clickAt(Minecraft client, int x, int y) {
+        var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
+        var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(0, 0));
+        client.screen.mouseClicked(event, false); client.screen.mouseReleased(event);
     }
     private void next() { stage++; ticks = 0; }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }

@@ -46,7 +46,7 @@ public final class UiSmokeTest implements ClientModInitializer {
                         .filter(child -> child instanceof net.minecraft.client.gui.components.AbstractWidget widget
                             && widget.getMessage().getString().equals("Dye"))
                         .map(child -> (net.minecraft.client.gui.components.AbstractWidget) child).findFirst().orElseThrow();
-                    if (!dye.active) throw new AssertionError("Held item with a leather model must enable Dye");
+                    if (!dye.active) throw new AssertionError("Gold armor with a leather model must enable Dye");
                     editorClick(client, 200, 82);
                     editorClick(client, 30, 115);
                     type(client, "#FF88CC");
@@ -86,7 +86,7 @@ public final class UiSmokeTest implements ClientModInitializer {
     }
     private static void openEditor(net.minecraft.client.Minecraft client) {
         client.setScreen(new PaintBrushScreen(EviemodSettings.screen(null), List.of(
-                    item(Items.DIAMOND_SWORD, "Held model fixture", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d"),
+                    item(Items.GOLDEN_CHESTPLATE, "Gold to leather fixture", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d"),
                     item(Items.LEATHER_CHESTPLATE, "Crimson Chestplate", "eb11aa00-052d-48fa-bf56-09c2e1a4a12e"),
                     item(Items.DIAMOND_SWORD, "Aspect of the Dragons", "eb11aa00-052d-48fa-bf56-09c2e1a4a12f"),
                     item(Items.APPLE, "No UUID", null))));
