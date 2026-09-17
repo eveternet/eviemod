@@ -78,6 +78,42 @@ class ImportedTexturesTest {
         assertFalse(ImportedTextures.isHelmet(Identifier.parse("other:helmet/" + "a".repeat(64))));
         assertFalse(ImportedTextures.isHelmet(Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/invalid")));
     }
+    @Test void animationSidecarSurvivesImportAndChangesIdentity() throws Exception {
+        var source = directory.resolve("hyperion.png"); Files.write(source, png(16, 304));
+        var sidecar = directory.resolve("hyperion.png.mcmeta");
+        Files.writeString(sidecar, "{\"animation\":{\"frametime\":2,\"interpolate\":true}}");
+        var imports = new ImportedTextures(directory);
+        var animated = imports.importFile(source, ImportedTextures.Preset.SWORD);
+        var copied = directory.resolve(ImportedTextures.PACK_FOLDER).resolve("assets/" + ImportedTextures.NAMESPACE)
+            .resolve(ImportedTextures.texture(animated).getPath() + ".mcmeta");
+        var metadata = JsonParser.parseString(Files.readString(copied)).getAsJsonObject().getAsJsonObject("animation");
+        assertEquals(2, metadata.get("frametime").getAsInt()); assertTrue(metadata.get("interpolate").getAsBoolean());
+        Files.delete(sidecar);
+        assertNotEquals(animated, imports.importFile(source, ImportedTextures.Preset.SWORD));
+        assertEquals(animated, imports.importPng(png(16, 304), ImportedTextures.Preset.SWORD,
+            "{\"animation\":{\"interpolate\":true,\"frametime\":2}}"));
+    }
+    @Test void invalidAnimationNeverPublishesAssets() throws Exception {
+        var imports = new ImportedTextures(directory);
+        for (String metadata : new String[] {"broken", "{}", "{\"animation\":[]}",
+                "{\"animation\":{\"frametime\":0}}", "{\"animation\":{\"width\":7}}",
+                "{\"animation\":{\"frames\":[19]}}", "{\"animation\":{\"frames\":[]}}",
+                "{\"animation\":{\"frames\":[{\"index\":0,\"time\":0}]}}"})
+            assertThrows(java.io.IOException.class, () -> imports.importPng(png(16, 304), ImportedTextures.Preset.SWORD, metadata), metadata);
+        assertFalse(Files.exists(directory.resolve(ImportedTextures.PACK_FOLDER)));
+        assertNotNull(TextureAnimation.validate("{\"animation\":{\"frames\":[0,{\"index\":18,\"time\":3}]}}", 16, 304));
+    }
+    @Test void armorModelsAreSuspendedAndSkinPreviewUsesDetachedStack() {
+        for (var item : new net.minecraft.world.item.Item[] {Items.GOLDEN_HELMET, Items.LEATHER_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.IRON_BOOTS, Items.PLAYER_HEAD})
+            assertFalse(ItemAppearance.supportsModel(item.getDefaultInstance()));
+        assertTrue(ItemAppearance.supportsModel(Items.DIAMOND_SWORD.getDefaultInstance()));
+        assertTrue(ItemAppearance.supportsModel(Items.BOW.getDefaultInstance()));
+        var original = Items.GOLDEN_HELMET.getDefaultInstance(); var before = original.copy();
+        var copy = HelmetSkins.preview(original, Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/" + "a".repeat(64)));
+        assertEquals(Identifier.withDefaultNamespace("player_head"), copy.get(DataComponents.ITEM_MODEL));
+        assertNotNull(copy.get(DataComponents.PROFILE));
+        assertTrue(net.minecraft.world.item.ItemStack.isSameItemSameComponents(before, original));
+    }
     @Test void bundledCatalogContainsUniqueNamedSkinsAndSafeTextureHashes() {
         var names = HelmetSkinCatalog.names(); assertTrue(names.size() > 100);
         assertEquals(names.size(), names.stream().distinct().count());

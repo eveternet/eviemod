@@ -33,6 +33,7 @@ final class TextureImportClient {
         }).thenComposeAsync(id -> loadPack(id), client);
     }
     static CompletableFuture<Identifier> loadPack(Identifier id) {
+        if (ImportedTextures.isHelmet(id)) return HelmetTextures.refresh(id);
         var client = Minecraft.getInstance();
         var packs = client.getResourcePackRepository();
         packs.reload();
@@ -50,6 +51,7 @@ final class TextureImportClient {
     }
     static boolean available(Identifier id) {
         if (id == null) return false;
+        if (ImportedTextures.isHelmet(id)) return HelmetTextures.available(id);
         var resources = Minecraft.getInstance().getResourceManager();
         return resources.getResource(id.withPath("items/" + id.getPath() + ".json")).isPresent()
             && resources.getResource(ImportedTextures.texture(id)).isPresent();

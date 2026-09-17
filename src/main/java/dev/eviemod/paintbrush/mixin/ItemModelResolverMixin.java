@@ -11,8 +11,13 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ItemModelResolver.class)
 public abstract class ItemModelResolverMixin {
-    // Only replace the renderer's lookup result. The real stack and its components
-    // remain untouched, including the stack passed to dynamic item model predicates.
+    // A selected helmet skin supplies a detached PROFILE copy to vanilla's player-head renderer.
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(method = "appendItemLayers", at = @At("HEAD"), argsOnly = true)
+    private ItemStack paintbrush$skinCopy(ItemStack stack) {
+        return dev.eviemod.paintbrush.HelmetSkins.renderCopy(stack);
+    }
+
+    // Other model overrides replace only the renderer's lookup result.
     @ModifyExpressionValue(
         method = {"appendItemLayers", "shouldPlaySwapAnimation", "swapAnimationScale"},
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;")

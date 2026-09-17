@@ -40,12 +40,12 @@ The model, dye, name, info and reload commands remain available as shortcuts. De
 
 `set` saves a model Identifier for that specific item's UUID. `clear` restores normal model selection immediately. The commands are registered only on the client.
 
-Helmet skins and PNG imports are off by default. Enable **Helmet skins** and/or **Custom textures** under `/eviemod` → **Paint Brush**, then open the editor.
+Helmet skins and custom models are applied per item; there are no extra enable toggles.
 
-- **Skin:** select a helmet or player head, search the bundled Hypixel helmet skins and press Apply, or import a 64 × 64 / 64 × 32 Minecraft skin PNG. This replaces its local item and worn-head appearance. Reset restores the previous model appearance.
-- **Texture:** choose Bow, Sword, or Handheld, then **Import PNG & apply**. A PNG up to 1024 × 1024 and 4 MB is copied locally, turned into a model, loaded, and applied to that item immediately. You can also drop one PNG into the Skin or Texture tab. Reset texture clears the imported model. Single-image bows retain bow positioning; the import does not create extra drawing frames or change item behavior.
+- **Skin:** select a helmet or player head, search the bundled Hypixel helmet skins and press Apply, or import a 64 × 64 / 64 × 32 Minecraft skin PNG. Its item and worn appearance update without reloading resource packs. Reset restores its original appearance.
+- **Model:** choose an existing model, or select Bow, Sword, or Handheld and **Import PNG & apply**. Keep an animation's matching `.png.mcmeta` beside its PNG; it is imported automatically. You can also drop both files together. Imports appear as “Uses a custom model”; Reset clears the model. Model changes and texture imports are currently disabled for armor pieces. Skin, name and native leather dye remain available.
 
-The generated pack is managed automatically in `resourcepacks/eviemod-paintbrush`. Keep that folder to retain imports after restarting; the original PNG can be moved or deleted. Disabling either feature preserves its choices. Skin choices are stored separately in `config/eviemod-helmet-skins.json`; imported item textures use the existing per-UUID model file. Helmet skins take precedence over item models while enabled. The bundled skin list is a snapshot, and animated skins use their catalog preview texture. See [skin and texture implementation notes](docs/paintbrush-imports.md).
+PNGs are limited to 1024 × 1024 and 4 MB. Held-item imports reload the generated resource pack once. Animated sprites support frame order, timing and interpolation; bow drawing stages are not generated. Keep `resourcepacks/eviemod-paintbrush` to retain imports after restarting; source files can be moved or deleted. Skin choices are stored in `config/eviemod-helmet-skins.json`; item models use the existing per-UUID model file. The bundled skin list is a snapshot, and animated Hypixel helmet skins use their catalog preview texture. See [skin and texture implementation notes](docs/paintbrush-imports.md).
 
 Mappings persist in `config/eviemod-paintbrush.json` in your Minecraft instance. You can also edit this file to configure a UUID directly, then run `/paintbrush reload`:
 

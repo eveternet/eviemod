@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 
-/** Per-UUID helmet choices, separate from model overrides so disabling skins restores the model. */
+/** Per-UUID helmet choices, separate from model overrides so resetting a skin restores the original appearance. */
 public final class HelmetSkins {
     private static ModelOverrides overrides;
     private static boolean ready;
@@ -34,9 +34,20 @@ public final class HelmetSkins {
         return stack.is(Items.PLAYER_HEAD) || (equipment != null && equipment.slot() == EquipmentSlot.HEAD);
     }
     public static Identifier resolve(ItemStack stack) {
-        if (!EviemodSettings.STORE.values().helmetSkins || overrides == null || !supports(stack)) return null;
+        if (overrides == null || !supports(stack)) return null;
         var id = overrides.get(SkyBlockUuid.read(stack));
         return ImportedTextures.isHelmet(id) && TextureImportClient.available(id) ? id : null;
+    }
+    public static ItemStack renderCopy(ItemStack original) {
+        var skin = resolve(original);
+        if (skin == null) return original;
+        return preview(original, skin);
+    }
+    static ItemStack preview(ItemStack original, Identifier skin) {
+        var copy = original.copy();
+        copy.set(DataComponents.ITEM_MODEL, Identifier.withDefaultNamespace("player_head"));
+        copy.set(DataComponents.PROFILE, profile(skin));
+        return copy;
     }
     static ResolvableProfile profile(Identifier skin) {
         return profiles.computeIfAbsent(skin, id -> {

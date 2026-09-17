@@ -23,10 +23,11 @@ import net.minecraft.world.item.component.CustomData;
 final class TextureSmokeTest {
     private static final UUID KEY = UUID.fromString("a7379831-f3ec-4262-a9b6-710000000001");
     private int stage, ticks;
-    private ItemStack helmet, before;
+    private ItemStack helmet, before, held;
+    private Object modelBeforeSkin;
     private Identifier texture, skin, oldModel, oldSkin;
     private boolean oldTexturesEnabled, oldSkinsEnabled;
-    private Path image;
+    private Path image, animated;
     private PaintBrushScreen editor;
 
     void start() {
@@ -45,7 +46,7 @@ final class TextureSmokeTest {
             oldTexturesEnabled = EviemodSettings.STORE.values().customTextures;
             oldSkinsEnabled = EviemodSettings.STORE.values().helmetSkins;
             PaintBrushClient.models().set(KEY, null); HelmetSkins.store().set(KEY, null);
-            EviemodSettings.STORE.values().customTextures = true; EviemodSettings.STORE.values().helmetSkins = true;
+            EviemodSettings.STORE.values().customTextures = false; EviemodSettings.STORE.values().helmetSkins = false;
             helmet = Items.GOLDEN_HELMET.getDefaultInstance();
             var data = new CompoundTag(); data.putString("uuid", KEY.toString()); data.putString("id", "TEXTURE_FIXTURE_HELMET");
             helmet.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
@@ -54,28 +55,45 @@ final class TextureSmokeTest {
             var png = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
             for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) png.setRGB(x, y, (x / 4 + y / 4) % 2 == 0 ? 0xff00ccbb : 0xff6633cc);
             ImageIO.write(png, "PNG", image.toFile());
-            editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor);
+            held = Items.DIAMOND_SWORD.getDefaultInstance(); held.set(DataComponents.CUSTOM_DATA, helmet.get(DataComponents.CUSTOM_DATA));
+            animated = client.gameDirectory.toPath().resolve("hyperion-fixture.png");
+            if (!Files.exists(animated)) {
+                var strip = new BufferedImage(16, 304, BufferedImage.TYPE_INT_ARGB);
+                for (int y = 0; y < 304; y++) for (int x = 0; x < 16; x++) strip.setRGB(x, y, y / 16 % 2 == 0 ? 0xff00ccbb : 0xff6633cc);
+                ImageIO.write(strip, "PNG", animated.toFile());
+                Files.writeString(Path.of(animated + ".mcmeta"), "{\"animation\":{\"frametime\":2,\"interpolate\":true}}");
+            }
+            editor = new PaintBrushScreen(List.of(held)); client.setScreen(editor);
             next(); return;
         }
         if (++ticks > 1200) throw new AssertionError("Timed out at texture fixture stage " + stage);
         if (client.getOverlay() != null || ticks < 15) return;
         switch (stage) {
-            case 1 -> { click(client, "Texture"); click(client, "Bow"); editor.onFilesDrop(List.of(image)); next(); }
+            case 1 -> { click(client, "Bow"); editor.onFilesDrop(List.of(animated, Path.of(animated + ".mcmeta"))); next(); }
             case 2 -> {
                 texture = PaintBrushClient.models().get(KEY); if (texture == null) return;
                 check(texture.getPath().startsWith("bow/"), "Bow preset must be saved");
-                check(texture.equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Imported model must resolve");
+                check(texture.equals(PaintBrushClient.resolve(held, held.get(DataComponents.ITEM_MODEL))), "Imported model must resolve");
                 check(!(client.getModelManager().getItemModel(texture) instanceof net.minecraft.client.renderer.item.MissingItemModel), "Model must bake");
                 var itemState = new net.minecraft.client.renderer.item.ItemStackRenderState();
-                client.getItemModelResolver().updateForTopItem(itemState, helmet, net.minecraft.world.item.ItemDisplayContext.GUI, null, null, 0);
+                client.getItemModelResolver().updateForTopItem(itemState, held, net.minecraft.world.item.ItemDisplayContext.GUI, null, null, 0);
                 var sprite = itemState.pickParticleMaterial(net.minecraft.util.RandomSource.create()).sprite().contents().name();
                 check(sprite.equals(texture.withPath("item/" + texture.getPath())), "Imported sprite must be stitched, not missing: " + sprite);
+                check(editor.children().stream().noneMatch(c -> c instanceof ModelField), "Custom model must hide generated ID");
+                check(editor.children().stream().noneMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals("Texture")), "Texture must be merged into Model");
                 screenshot(client, "paintbrush-texture.png"); next();
             }
-            case 3 -> { click(client, "Skin"); editor.onFilesDrop(List.of(image)); next(); }
+            case 3 -> {
+                modelBeforeSkin = client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone"));
+                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor);
+                check(editor.children().stream().anyMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals("Model") && !w.active), "Armor model tab must be disabled");
+                check(helmet.get(DataComponents.ITEM_MODEL).equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Stored armor model must be ignored");
+                editor.onFilesDrop(List.of(image)); next();
+            }
             case 4 -> {
                 skin = HelmetSkins.store().get(KEY); if (skin == null) return;
-                check(skin.equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Skin must take precedence");
+                check(Identifier.withDefaultNamespace("player_head").equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Skin must use vanilla head model");
+                check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Skin import must not reload resource packs");
                 check(ItemStack.isSameItemSameComponents(before, helmet), "Import must not change actual item data");
                 Class.forName("net.minecraft.client.renderer.entity.LivingEntityRenderer");
                 Class.forName("net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer");
@@ -100,30 +118,25 @@ final class TextureSmokeTest {
             }
             case 8 -> { screenshot(client, "paintbrush-catalog-skin.png"); next(); }
             case 9 -> {
-                EviemodSettings.STORE.values().helmetSkins = false;
-                check(HelmetSkins.resolve(helmet) == null, "Disabled skin must not resolve");
-                check(texture.equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Disabling skin restores model");
-                EviemodSettings.STORE.values().customTextures = false;
-                check(helmet.get(DataComponents.ITEM_MODEL).equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Disabling textures restores original");
-                EviemodSettings.STORE.values().helmetSkins = true; EviemodSettings.STORE.values().customTextures = true;
+                check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Catalog skin must not reload resource packs");
                 HelmetSkins.load(); PaintBrushClient.models().load();
                 check(skin.equals(HelmetSkins.resolve(helmet)), "Skin selection must reload");
                 client.setScreen(editor); click(client, "Reset");
                 check(HelmetSkins.store().get(KEY) == null, "Skin reset must clear only skin");
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Skin reset preserves texture");
-                click(client, "Texture"); click(client, "Reset texture");
+                editor = new PaintBrushScreen(List.of(held)); client.setScreen(editor); click(client, "Reset");
                 check(PaintBrushClient.models().get(KEY) == null, "Texture reset must clear model");
                 // An invalid image must not replace a previously applied choice.
                 PaintBrushClient.models().set(KEY, texture);
-                Files.writeString(image, "invalid PNG"); editor.onFilesDrop(List.of(image)); next();
+                Files.writeString(animated, "invalid PNG"); editor.onFilesDrop(List.of(animated)); next();
             }
             case 10 -> {
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Invalid import preserves previous choice");
                 check(ItemStack.isSameItemSameComponents(before, helmet), "Fixture changed source item");
                 PaintBrushClient.models().set(KEY, oldModel); HelmetSkins.store().set(KEY, oldSkin);
                 EviemodSettings.STORE.values().helmetSkins = oldSkinsEnabled; EviemodSettings.STORE.values().customTextures = oldTexturesEnabled;
-                Files.deleteIfExists(image);
-                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Texture import, skin render state, opt-out, reload, reset and invalid-file checks passed");
+                Files.deleteIfExists(image); Files.deleteIfExists(animated); Files.deleteIfExists(Path.of(animated + ".mcmeta"));
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Animated texture import, merged UI, armor exclusion, reload-free skins, reset and invalid-file checks passed");
                 client.stop(); next();
             }
         }

@@ -31,19 +31,36 @@ final class ImportedTextures {
     Identifier importFile(Path file, Preset preset) throws IOException {
         if (!Files.isRegularFile(file) || Files.size(file) > MAX_BYTES) throw new IOException("Choose a PNG file under 4 MB.");
         try (var stream = Files.newInputStream(file)) {
-            return importPng(stream.readNBytes(MAX_BYTES + 1), preset);
+            Path sidecar = file.resolveSibling(file.getFileName() + ".mcmeta");
+            String metadata = null;
+            if (Files.exists(sidecar)) {
+                if (!Files.isRegularFile(sidecar) || Files.size(sidecar) > 65536) throw new IOException("Animation metadata must be under 64 KB.");
+                metadata = Files.readString(sidecar);
+            }
+            return importPng(stream.readNBytes(MAX_BYTES + 1), preset, metadata);
         }
     }
 
     synchronized Identifier importPng(byte[] bytes, Preset preset) throws IOException {
+        return importPng(bytes, preset, null);
+    }
+    synchronized Identifier importPng(byte[] bytes, Preset preset, String metadata) throws IOException {
         byte[] png = validatedPng(bytes, preset);
+        var dimensions = ImageIO.read(new ByteArrayInputStream(png));
+        if (metadata != null && preset == Preset.HELMET) throw new IOException("Helmet skins need a single-frame skin PNG.");
+        String animation = TextureAnimation.validate(metadata, dimensions.getWidth(), dimensions.getHeight());
         String hash;
-        try { hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(png)); }
+        try {
+            var digest = MessageDigest.getInstance("SHA-256"); digest.update(png);
+            if (animation != null) { digest.update((byte) 0); digest.update(animation.getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
+            hash = HexFormat.of().formatHex(digest.digest());
+        }
         catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         var id = Identifier.fromNamespaceAndPath(NAMESPACE, preset.name().toLowerCase(java.util.Locale.ROOT) + "/" + hash);
         Path assets = root.resolve("assets").resolve(NAMESPACE);
         // Each file is atomic; the item definition is published last, after all dependencies exist.
         write(assets.resolve(texture(id).getPath()), png);
+        if (animation != null) write(assets.resolve(texture(id).getPath() + ".mcmeta"), animation.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         if (preset != Preset.HELMET) write(assets.resolve("models/item/" + id.getPath() + ".json"), modelJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         write(root.resolve("pack.mcmeta"), "{\"pack\":{\"description\":\"Paint Brush imported textures\",\"min_format\":84,\"max_format\":84}}\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         write(assets.resolve("items/" + id.getPath() + ".json"), itemJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
