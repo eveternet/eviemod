@@ -113,7 +113,7 @@ final class TextureSmokeTest {
                 check(Identifier.withDefaultNamespace("leather_chestplate").equals(PaintBrushClient.resolve(chest, chest.get(DataComponents.ITEM_MODEL))), "Gold must resolve as leather");
                 check(ItemAppearance.equipmentAsset(chest, PaintBrushClient.models().get(KEY), chest.get(DataComponents.EQUIPPABLE).assetId().orElseThrow())
                     .equals(Items.LEATHER_CHESTPLATE.getDefaultInstance().get(DataComponents.EQUIPPABLE).assetId().orElseThrow()), "Worn armor asset must be leather");
-                click(client, "Dye"); modelField(editor, "Dye preset or hex").setValue("#FF88CC"); click(client, "Apply");
+                editor.tick(); click(client, "Dye"); modelField(editor, "Dye preset or hex").setValue("#FF88CC"); click(client, "Apply");
                 check(PaintBrushClient.resolveColor(chest, -1) == 0xffff88cc, "Replacement leather must accept dye");
                 check(ItemStack.isSameItemSameComponents(original, chest), "Armor changes must be rendering-only");
                 Class.forName("net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer");
