@@ -13,6 +13,8 @@ final class ModSettings {
         int opacity = 45;
         Shape shape = Shape.SQUARE;
         boolean rememberRarity = true;
+        boolean helmetSkins = false;
+        boolean customTextures = false;
         Values copy() { return GSON.fromJson(GSON.toJson(this), Values.class); }
     }
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -28,7 +30,7 @@ final class ModSettings {
             var json = JsonParser.parseString(Files.readString(path));
             if (!json.isJsonObject()) throw new IllegalArgumentException("Expected a settings object");
             var object = json.getAsJsonObject();
-            for (String key : new String[]{"rarityBackgrounds", "rememberRarity"}) {
+            for (String key : new String[]{"rarityBackgrounds", "rememberRarity", "helmetSkins", "customTextures"}) {
                 if (object.has(key) && (!object.get(key).isJsonPrimitive() || !object.getAsJsonPrimitive(key).isBoolean()))
                     throw new IllegalArgumentException("Invalid " + key);
             }

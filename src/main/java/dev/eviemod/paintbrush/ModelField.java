@@ -12,6 +12,7 @@ final class ModelField extends EditBox {
     private final List<String> models;
     private final Font font;
     private final boolean dyes;
+    private final boolean names;
     private List<String> matches = List.of();
     private int choice;
     private boolean open;
@@ -19,13 +20,18 @@ final class ModelField extends EditBox {
         this(font, x, y, width, models, initial, change, false);
     }
     ModelField(Font font, int x, int y, int width, List<String> models, String initial, java.util.function.Consumer<String> change, boolean dyes) {
-        super(font, x, y, width, 20, Component.literal(dyes ? "Dye preset or hex" : "Item model"));
-        this.dyes = dyes;
+        this(font, x, y, width, models, initial, change, dyes, dyes,
+            dyes ? "Dye preset or hex" : "Item model", dyes ? "Search Hypixel dyes or enter #RRGGBB" : "minecraft:diamond_sword");
+    }
+    ModelField(Font font, int x, int y, int width, List<String> models, String initial,
+            java.util.function.Consumer<String> change, boolean dyes, boolean names, String label, String hint) {
+        super(font, x, y, width, 20, Component.literal(label));
+        this.dyes = dyes; this.names = names;
         this.font = font; this.models = models; setMaxLength(256); setValue(initial);
-        setHint(Component.literal(dyes ? "Search Hypixel dyes or enter #RRGGBB" : "minecraft:diamond_sword"));
+        setHint(Component.literal(hint));
         setResponder(value -> { change.accept(value); update(); });
     }
-    private void update() { matches = dyes ? models.stream().filter(s -> s.toLowerCase(java.util.Locale.ROOT).contains(getValue().toLowerCase(java.util.Locale.ROOT))).toList() : ModelCompletion.matches(models, getValue()); choice = 0; open = !matches.isEmpty(); }
+    private void update() { matches = names ? models.stream().filter(s -> s.toLowerCase(java.util.Locale.ROOT).contains(getValue().toLowerCase(java.util.Locale.ROOT))).toList() : ModelCompletion.matches(models, getValue()); choice = 0; open = !matches.isEmpty(); }
     private void accept() { if (open && !matches.isEmpty()) { setValue(matches.get(choice)); moveCursorToEnd(false); open = false; } }
     private int suggestionAt(double x, double y) {
         if (!visible || !active || !open || !isFocused() || x < getX() || x >= getRight() || y < getBottom()) return -1;

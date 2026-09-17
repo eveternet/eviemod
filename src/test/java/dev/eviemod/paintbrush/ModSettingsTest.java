@@ -8,6 +8,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ModSettingsTest {
     @TempDir Path directory;
+    @Test void skinsAndTexturesAreOptInAcrossFreshLegacyAndResetConfigurations() throws Exception {
+        var file = directory.resolve("eviemod.json"); var store = new ModSettings(file); store.load();
+        assertFalse(store.values().helmetSkins); assertFalse(store.values().customTextures);
+        Files.writeString(file, "{\"rarityBackgrounds\":false}"); store.load();
+        assertFalse(store.values().helmetSkins); assertFalse(store.values().customTextures);
+        var draft = store.values().copy(); draft.helmetSkins = true; draft.customTextures = true; store.save(draft);
+        store.load(); assertTrue(store.values().helmetSkins); assertTrue(store.values().customTextures);
+        store.save(new ModSettings.Values()); store.load();
+        assertFalse(store.values().helmetSkins); assertFalse(store.values().customTextures);
+    }
     @Test void persistsSettingsAndIsolatesDrafts() throws Exception {
         var file = directory.resolve("eviemod.json"); var store = new ModSettings(file); store.load();
         var draft = store.values().copy(); draft.opacity = 80; draft.shape = ModSettings.Shape.CIRCLE;
@@ -19,7 +29,7 @@ class ModSettingsTest {
     }
     @Test void malformedConfigCannotBeOverwrittenAndRecoversAfterReload() throws Exception {
         var file = directory.resolve("eviemod.json"); var store = new ModSettings(file);
-        for (String invalid : new String[]{"null", "[]", "{", "{\"opacity\":101}", "{\"shape\":\"BAD\"}", "{\"rarityBackgrounds\":\"yes\"}", "{\"opacity\":20.5}"}) {
+        for (String invalid : new String[]{"null", "[]", "{", "{\"opacity\":101}", "{\"shape\":\"BAD\"}", "{\"rarityBackgrounds\":\"yes\"}", "{\"opacity\":20.5}", "{\"helmetSkins\":null}", "{\"customTextures\":\"true\"}"}) {
             Files.writeString(file, invalid);
             assertThrows(java.io.IOException.class, store::load);
             assertThrows(java.io.IOException.class, () -> store.save(new ModSettings.Values()));

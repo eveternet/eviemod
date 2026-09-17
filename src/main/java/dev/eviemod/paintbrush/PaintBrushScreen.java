@@ -28,7 +28,9 @@ public final class PaintBrushScreen extends CompactScreen {
     private EditorButton colorSelection, dyeTab;
     private final Map<Identifier, Boolean> dyeModels = new HashMap<>();
     private int anchor, cursor;
-    private boolean restoreNameFocus, offeredPicker;
+    private boolean restoreNameFocus, offeredPicker, importing;
+    private String status = "";
+    private ImportedTextures.Preset texturePreset = ImportedTextures.Preset.HANDHELD;
 
     public PaintBrushScreen() { this(null, null); }
     PaintBrushScreen(List<ItemStack> fixtures) { this(null, fixtures); }
@@ -47,12 +49,17 @@ public final class PaintBrushScreen extends CompactScreen {
         button("Done", x + w - 62, y + 8, 50, this::onClose);
         button("Choose item", left, y + 42, 98, () -> minecraft.setScreen(new InventoryPicker()));
         if (draft == null) return;
-        String[] tabs = {"Model", "Dye", "Name"};
-        for (int i = 0; i < 3; i++) {
-            final int t = i;
-            var b = addRenderableWidget(new EditorButton(tabs[i], left + i * (contentWidth / 3), y + 74, contentWidth / 3 - 2,
-                () -> { tab = t; error = ""; rebuildWidgets(); }, () -> tab == t));
-            if (i == 1) { dyeTab = b; b.active = canDye(); }
+        String[] tabs = {"Model", "Dye", "Name", "Skin", "Texture"};
+        var visibleTabs = new ArrayList<>(List.of(0, 1, 2));
+        if (EviemodSettings.STORE.values().helmetSkins) visibleTabs.add(3);
+        if (EviemodSettings.STORE.values().customTextures) visibleTabs.add(4);
+        if (!visibleTabs.contains(tab)) tab = 0;
+        for (int i = 0; i < visibleTabs.size(); i++) {
+            final int t = visibleTabs.get(i);
+            var b = addRenderableWidget(new EditorButton(tabs[t], left + i * (contentWidth / visibleTabs.size()), y + 74,
+                contentWidth / visibleTabs.size() - 2, () -> { tab = t; error = ""; rebuildWidgets(); }, () -> tab == t));
+            if (t == 1) { dyeTab = b; b.active = canDye(); }
+            if (t == 3) b.active = HelmetSkins.supports(selected);
         }
         int body = y + 108;
         if (tab == 0) {
@@ -68,7 +75,7 @@ public final class PaintBrushScreen extends CompactScreen {
                     () -> { draft.dye = ColorOverrides.format(rgb); draft.dirty[1] = true; rebuildWidgets(); });
                 b.setMessage(Component.literal("■").withColor(rgb));
             }
-        } else {
+        } else if (tab == 2) {
             nameBox = field("Custom name", left, body, contentWidth, draft.name.text(), 256, value -> {
                 draft.name.edit(value); draft.dirty[2] = true; error = "";
             });
@@ -92,8 +99,26 @@ public final class PaintBrushScreen extends CompactScreen {
             });
             anchor = 0; cursor = 0; updateSelection();
         }
-        button("Apply", left, y + h - 37, contentWidth / 2 - 3, this::apply);
-        button("Reset", left + contentWidth / 2 + 3, y + h - 37, contentWidth / 2 - 3, this::reset);
+        if (tab == 3) {
+            modelField = addRenderableWidget(new ModelField(font, left, body, contentWidth, HelmetSkinCatalog.names(), draft.skinName,
+                value -> { draft.skinName = value; draft.dirty[3] = true; error = ""; }, false, true,
+                "Helmet skin", "Search Hypixel helmet skins"));
+            button("Import skin PNG", left, body + 28, contentWidth, () -> importPng(true));
+        } else if (tab == 4) {
+            var presets = new ImportedTextures.Preset[] {ImportedTextures.Preset.BOW, ImportedTextures.Preset.SWORD, ImportedTextures.Preset.HANDHELD};
+            for (int i = 0; i < presets.length; i++) {
+                var preset = presets[i];
+                addRenderableWidget(new EditorButton(preset.label, left + i * (contentWidth / 3), body, contentWidth / 3 - 2,
+                    () -> { texturePreset = preset; rebuildWidgets(); }, () -> texturePreset == preset));
+            }
+            button("Import PNG & apply", left, body + 28, contentWidth, () -> importPng(false));
+        }
+        if (tab == 4) button("Reset texture", left, y + h - 37, contentWidth, this::reset);
+        else {
+            button("Apply", left, y + h - 37, contentWidth / 2 - 3, this::apply);
+            button("Reset", left + contentWidth / 2 + 3, y + h - 37, contentWidth / 2 - 3, this::reset);
+        }
+        if (importing) children().forEach(child -> { if (child instanceof net.minecraft.client.gui.components.AbstractWidget widget) widget.active = false; });
     }
     private EditorButton button(String label, int bx, int by, int bw, Runnable action) {
         return addRenderableWidget(new EditorButton(label, bx, by, bw, action, () -> false));
@@ -110,7 +135,7 @@ public final class PaintBrushScreen extends CompactScreen {
         if (restoreNameFocus && nameBox != null) {
             restoreNameFocus = false; setFocused(nameBox); nameBox.setFocused(true);
         }
-        if (dyeTab != null) dyeTab.active = canDye();
+        if (dyeTab != null) dyeTab.active = !importing && canDye();
         updateSelection();
     }
     private void updateSelection() {
@@ -136,22 +161,35 @@ public final class PaintBrushScreen extends CompactScreen {
     private void setItem(ItemStack stack) {
         selected = stack.copy();
         draft = drafts.computeIfAbsent(SkyBlockUuid.read(stack), uuid -> new Draft(stack));
-        if (tab == 1 && !canDye()) tab = 0;
+        if ((tab == 1 && !canDye()) || (tab == 3 && !HelmetSkins.supports(stack))) tab = 0;
     }
     private boolean canDye() {
-        if (draft == null) return false;
+        if (draft == null || (EviemodSettings.STORE.values().helmetSkins && draft.skin != null && HelmetSkins.supports(selected))) return false;
         if (draft.model.isBlank()) return ColorOverrides.isDyeable(selected);
         Identifier id = Identifier.tryParse(draft.model);
         if (id == null) return false;
         return dyeModels.computeIfAbsent(id, ItemAppearance::hasDyeTint);
     }
     private void apply() {
+        if (importing) return;
+        if (tab == 3) {
+            try {
+                HelmetSkins.requireReady();
+                if (draft.skinName.isBlank()) { reset(); return; }
+                var skin = HelmetSkinCatalog.find(draft.skinName);
+                if (skin == null) throw new IllegalArgumentException("Choose a helmet skin from the list or import a skin PNG.");
+                startImport(TextureImportClient.importSkin(skin), true, skin.name());
+            } catch (Exception e) { error = e.getMessage(); }
+            return;
+        }
+        if (tab == 4) return;
         try {
-            
             PaintBrushClient.requireReady(tab); UUID uuid = SkyBlockUuid.read(selected);
             if (tab == 0) {
                 Identifier id = draft.model.isBlank() ? null : Identifier.tryParse(draft.model);
-                if (!draft.model.isBlank() && (id == null || !availableModels().contains(id.toString())))
+                if (!draft.model.isBlank() && (id == null || !(availableModels().contains(id.toString())
+                    || (EviemodSettings.STORE.values().customTextures && ImportedTextures.isImported(id)
+                        && !ImportedTextures.isHelmet(id) && TextureImportClient.available(id)))))
                     throw new IllegalArgumentException("Choose a model supplied by an active resource pack.");
                 PaintBrushClient.models().set(uuid, id);
             } else if (tab == 1) {
@@ -162,14 +200,77 @@ public final class PaintBrushScreen extends CompactScreen {
         } catch (Exception e) { error = e.getMessage(); }
     }
     private void reset() {
+        if (importing) return;
         try {
-            
-            PaintBrushClient.requireReady(tab); UUID uuid = SkyBlockUuid.read(selected);
+            UUID uuid = SkyBlockUuid.read(selected);
+            if (tab == 3) {
+                HelmetSkins.requireReady(); HelmetSkins.store().set(uuid, null);
+                draft.skin = null; draft.skinName = ""; draft.dirty[3] = false;
+                error = ""; rebuildWidgets(); return;
+            }
+            if (tab == 4) {
+                PaintBrushClient.requireReady(0);
+                if (ImportedTextures.isImported(PaintBrushClient.models().get(uuid))) {
+                    PaintBrushClient.models().set(uuid, null); draft.model = ""; draft.dirty[0] = false;
+                }
+                error = ""; rebuildWidgets(); return;
+            }
+            PaintBrushClient.requireReady(tab);
             if (tab == 0) { PaintBrushClient.models().set(uuid, null); draft.model = ""; }
             else if (tab == 1) { PaintBrushClient.colors().set(uuid, null); draft.dye = ""; }
             else { PaintBrushClient.names().setStyle(uuid, null); draft.name = new NameDocument(null); draft.start = ""; draft.end = ""; }
             draft.dirty[tab] = false; error = ""; rebuildWidgets();
         } catch (Exception e) { error = e.getMessage(); }
+    }
+    private void importPng(boolean helmet) {
+        if (importing) return;
+        try {
+            if (helmet) HelmetSkins.requireReady(); else PaintBrushClient.requireReady(0);
+            var path = TextureImportClient.choosePng();
+            if (path == null) return;
+            importPng(path, helmet);
+        } catch (Exception e) { error = e.getMessage(); }
+    }
+    private void importPng(java.nio.file.Path path, boolean helmet) {
+        if (importing) return;
+        try {
+            if (helmet) {
+                if (!EviemodSettings.STORE.values().helmetSkins || !HelmetSkins.supports(selected)) return;
+                HelmetSkins.requireReady();
+            } else {
+                if (!EviemodSettings.STORE.values().customTextures) return;
+                PaintBrushClient.requireReady(0);
+            }
+            startImport(TextureImportClient.importFile(path, helmet ? ImportedTextures.Preset.HELMET : texturePreset), helmet, "");
+        } catch (Exception e) { error = e.getMessage(); }
+    }
+    @Override public void onFilesDrop(List<java.nio.file.Path> files) {
+        if (draft == null || importing || (tab != 3 && tab != 4)) return;
+        if (files.size() != 1) { error = "Import one PNG at a time."; return; }
+        importPng(files.getFirst(), tab == 3);
+    }
+    private void startImport(java.util.concurrent.CompletableFuture<Identifier> operation, boolean helmet, String skinName) {
+        UUID uuid = SkyBlockUuid.read(selected);
+        Draft target = draft;
+        importing = true; error = ""; status = "Loading texture…"; rebuildWidgets();
+        operation.whenCompleteAsync((id, failure) -> {
+            importing = false; status = "";
+            try {
+                if (failure != null) throw new java.util.concurrent.CompletionException(failure);
+                if (helmet) {
+                    HelmetSkins.requireReady(); HelmetSkins.store().set(uuid, id);
+                    target.skin = id; target.skinName = skinName; target.dirty[3] = false;
+                } else {
+                    PaintBrushClient.requireReady(0); PaintBrushClient.models().set(uuid, id);
+                    target.model = id.toString(); target.dirty[0] = false;
+                }
+                models = null; dyeModels.clear();
+            } catch (Exception e) {
+                Throwable cause = e; while (cause.getCause() != null) cause = cause.getCause();
+                error = cause.getMessage() == null ? "The texture could not be imported." : cause.getMessage();
+            }
+            if (minecraft.screen == this) rebuildWidgets();
+        }, minecraft);
     }
     private static Integer optionalColor(String value) {
         if (value.isBlank()) return null;
@@ -179,7 +280,8 @@ public final class PaintBrushScreen extends CompactScreen {
     }
     private List<String> availableModels() {
         if (models == null) models = minecraft.getResourceManager().listResources("items", id -> id.getPath().endsWith(".json"))
-            .keySet().stream().map(id -> id.getNamespace() + ":" + id.getPath().substring(6, id.getPath().length() - 5)).sorted().toList();
+            .keySet().stream().filter(id -> !id.getNamespace().equals(ImportedTextures.NAMESPACE))
+            .map(id -> id.getNamespace() + ":" + id.getPath().substring(6, id.getPath().length() - 5)).sorted().toList();
         return models;
     }
     @Override protected void renderContents(GuiGraphicsExtractor g, int mx, int my, float delta) {
@@ -195,6 +297,10 @@ public final class PaintBrushScreen extends CompactScreen {
             var preview = selected.copy(); preview.remove(DataComponents.CUSTOM_DATA);
             try {
                 var id = ItemAppearance.previewModel(selected.get(DataComponents.ITEM_MODEL), draft.model);
+                if (ImportedTextures.isImported(id) && (!EviemodSettings.STORE.values().customTextures || !TextureImportClient.available(id)))
+                    id = selected.get(DataComponents.ITEM_MODEL);
+                if (EviemodSettings.STORE.values().helmetSkins && draft.skin != null && HelmetSkins.supports(selected)
+                    && TextureImportClient.available(draft.skin)) id = draft.skin;
                 if (id != null) preview.set(DataComponents.ITEM_MODEL, id);
                 var dyeValue = DyePresets.normalize(draft.dye);
                 Integer rgb = dyeValue == null ? null : DyePresets.colorAt(dyeValue, System.currentTimeMillis()); if (rgb != null && canDye()) preview.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
@@ -206,13 +312,16 @@ public final class PaintBrushScreen extends CompactScreen {
             g.text(font, preview.getHoverName(), left + 134, y + 48, -1); g.disableScissor();
             if (tab == 1) g.text(font, "Type to search · ↑/↓ browse · Tab selects", left, y + 184, 0xffaaaebd);
             if (tab == 2) g.text(font, "Selection color / gradient", left, y + 160, 0xffaaaebd);
+            if (tab == 3) g.text(font, "Skin PNG: 64 × 64 or 64 × 32", left, y + 184, 0xffaaaebd);
+            if (tab == 4) g.text(font, "PNG · up to 1024 × 1024 · imported locally", left, y + 184, 0xffaaaebd);
         }
         renderWidgets(g, mx, my, delta);
         if (modelField != null) modelField.drawSuggestions(g);
+        if (!status.isEmpty()) g.text(font, status, left, y + h - 12, 0xffaaaebd);
         if (error != null && !error.isEmpty()) g.text(font, font.plainSubstrByWidth(error, contentWidth), left, y + h - 12, 0xffff8585);
     }
     @Override public boolean isPauseScreen() { return false; }
-    boolean hasUnappliedEdits() { return drafts.values().stream().anyMatch(d -> d.dirty[0] || d.dirty[1] || d.dirty[2]); }
+    boolean hasUnappliedEdits() { return drafts.values().stream().anyMatch(d -> d.dirty[0] || d.dirty[1] || d.dirty[2] || d.dirty[3]); }
     void requestClose(Runnable close) {
         if (hasUnappliedEdits()) {
             minecraft.setScreen(new ConfirmScreen(discard -> {
@@ -221,15 +330,18 @@ public final class PaintBrushScreen extends CompactScreen {
                 Component.literal("Discard edits"), Component.literal("Keep editing")));
         } else close.run();
     }
-    @Override public void onClose() { requestClose(() -> minecraft.setScreen(parent)); }
+    @Override public void onClose() { if (importing) return; requestClose(() -> minecraft.setScreen(parent)); }
     private static final class Draft {
         String model, dye, start = "", end = "";
         NameDocument name;
-        final boolean[] dirty = new boolean[3];
+        Identifier skin;
+        String skinName = "";
+        final boolean[] dirty = new boolean[4];
         Draft(ItemStack stack) {
             var id = SkyBlockUuid.read(stack); var m = PaintBrushClient.models().get(id); model = m == null ? "" : m.toString();
             var c = PaintBrushClient.colors().getValue(id); dye = c == null ? "" : DyePresets.display(c);
             name = new NameDocument(PaintBrushClient.names().getStyle(id));
+            skin = HelmetSkins.store() == null ? null : HelmetSkins.store().get(id);
         }
     }
     private final class InventoryPicker extends CompactScreen {

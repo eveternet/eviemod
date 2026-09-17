@@ -1,0 +1,600 @@
+{
+  "source": "bf411c6e466e8fe36f117e8338349d17fd97c180",
+  "skins": [
+    {
+      "id": "YOG_ABLAZE",
+      "name": "Ablaze Skin",
+      "texture": "ac23b0bfa4e0393d6a598b3990c916507bbbf477d7ee20dca0c9b7625165b4f2"
+    },
+    {
+      "id": "SHADOW_ASSASSIN_ADMIRAL",
+      "name": "Admiral Skin",
+      "texture": "d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e"
+    },
+    {
+      "id": "WITHER_AWAKENED",
+      "name": "Awakened Wither Helmet Skin",
+      "texture": "20724a1373c479e676527b679a37bac6466a04633724c5c5def9b15cdc018218"
+    },
+    {
+      "id": "WATER_HYDRA_BABY",
+      "name": "Baby Hydra Skin",
+      "texture": "55b656be66be552c36e47fefd209738321dfbe210d033811e1e44ac29937c814"
+    },
+    {
+      "id": "GOBLIN_HELMET_BABY",
+      "name": "Baby Skin",
+      "texture": "7bc069645a0fa512d9cd724048fb418e03e042397870116c3e44a3a76d9f759"
+    },
+    {
+      "id": "HOLY_BABY",
+      "name": "Baby Skin",
+      "texture": "1266946f84b27796a1c7b1b6068efb77481b8ad8ba4fc1eef35cc975e06afb42"
+    },
+    {
+      "id": "OLD_BABY",
+      "name": "Baby Skin",
+      "texture": "2eaf836b7183554269647827289c67a3855e8d0b345719328188defdbd05a64b"
+    },
+    {
+      "id": "PROTECTOR_BABY",
+      "name": "Baby Skin",
+      "texture": "979c9144496d21f3334b32437deeb63379766399d0a92bc06712ba592bc237e6"
+    },
+    {
+      "id": "STRONG_BABY",
+      "name": "Baby Skin",
+      "texture": "aec10b0dceb5bb34af2cb953733f01f20bb3aafd5f21fe0eadf1cc4ce7f4dab4"
+    },
+    {
+      "id": "SUPERIOR_BABY",
+      "name": "Baby Skin",
+      "texture": "52a770459fa6d65e22aa95679d93a2870aafea70f9f1c6a0f78eb641e92890"
+    },
+    {
+      "id": "UNSTABLE_BABY",
+      "name": "Baby Skin",
+      "texture": "42a023636a7f0300a74cc50d3e4dbb81a7bc1485f0daf6e9a7c0f4d8a2e3a18f"
+    },
+    {
+      "id": "WISE_BABY",
+      "name": "Baby Skin",
+      "texture": "94c6834c8bf0b81f92cf0da4bd99ad764154d5368a38e03c85adda10e518890a"
+    },
+    {
+      "id": "YOUNG_BABY",
+      "name": "Baby Skin",
+      "texture": "43503dcaae6a6cde027316a3ce6e203b64327b7de72441865cfd3cdb45d5ef44"
+    },
+    {
+      "id": "BIOHAZARD_SPACE_BLACK_ICE",
+      "name": "Black Ice Space Skin",
+      "texture": "4779324d60c125c4714929d706b1f2dd57ebefa7d6a0a0e6da07f50c88e8610"
+    },
+    {
+      "id": "TARANTULA_BLACK_WIDOW",
+      "name": "Black Widow Skin",
+      "texture": "b2b6732eaa9788458468f5976943986464974af35feafb4fcad05a7a308c2a67"
+    },
+    {
+      "id": "BLAZING_CRIMSON",
+      "name": "Blazing Crimson Helmet Skin",
+      "texture": "a029882e71a945db3d9f07cf1261f73f8b73788dc6694536909a9ebcb25aab1e"
+    },
+    {
+      "id": "FERMENTO_BLOOM",
+      "name": "Bloom Skin",
+      "texture": "6c09ab35d232fe57e0c6218241a7b2fc31e02171d9253402bbcbf4e2a1f36a40"
+    },
+    {
+      "id": "REAPER_BLUE_ONI_MASK",
+      "name": "Blue Oni Reaper Mask Skin",
+      "texture": "899e239f27f35761b5726dc77b6b5a3db377d25f7e4ef846daaec76e35cba373"
+    },
+    {
+      "id": "CADUCEUS_MENDING_CROWN",
+      "name": "Caduceus Mender Skin",
+      "texture": "d2ee5c06d71793c0605ed71017296c3059101942f45336677ef3ecd4aefec078"
+    },
+    {
+      "id": "CAMPFIRE_FLUX",
+      "name": "Campfire Power Orb Skin",
+      "texture": "f4c08c53a18f26a21ca87138b97f58ccb58bd71ac712d68686312c724b52e271"
+    },
+    {
+      "id": "GOLDOR_CELESTIAL",
+      "name": "Celestial Goldor's Helmet Skin",
+      "texture": "8e406f4b1311ecc998b4d7775579d8cc51846fa66f2e4b7637f5593dd8bcdc1e"
+    },
+    {
+      "id": "MAXOR_CELESTIAL",
+      "name": "Celestial Maxor's Helmet Skin",
+      "texture": "238bff3640cc3ac4db012c50179d2cabba518e5e4522eb3cdc37fe2daf94e49f"
+    },
+    {
+      "id": "NECRON_CELESTIAL",
+      "name": "Celestial Necron's Helmet Skin",
+      "texture": "ee8cb45614e83c1bdfc23f45364f6533a446a13b812d83038669ebc10305e3b5"
+    },
+    {
+      "id": "STORM_CELESTIAL",
+      "name": "Celestial Storm's Helmet Skin",
+      "texture": "1447cad8e79e1ecab885ff89c07ee6d9fe8a2ba8d2ce649403c950810d837556"
+    },
+    {
+      "id": "WITHER_GOGGLES_CELESTIAL",
+      "name": "Celestial Wither Goggles Skin",
+      "texture": "dc1e2d4bd39ea253dda6a36f6bc352f69ef169facc2b767798c1816aaf70f498"
+    },
+    {
+      "id": "CHAOS_TERROR",
+      "name": "Chaos Terror Helmet Skin",
+      "texture": "19b74ff302f1aa327435c9f6708a36dbc375bb23b7539d068ae1c409fc3e27f"
+    },
+    {
+      "id": "CORRUPT_WITHER_GOGGLES",
+      "name": "Corrupt Wither Goggles Helmet Skin",
+      "texture": "f9c0e9be800a69107ba0e56d1264df0eb92dff0d21814f6767b26a378086b503"
+    },
+    {
+      "id": "SHADOW_ASSASSIN_CRIMSON",
+      "name": "Crimson Skin",
+      "texture": "49c7622826a78f9131cb18656b9bdc33f3b0ca59fb73c88e4ea374dd0e0372d3"
+    },
+    {
+      "id": "WITHER_GOGGLES_CYBERPUNK",
+      "name": "Cyberpunk Wither Goggles Skin",
+      "texture": "84046578650f0b44e6dc570555d61163be03201b717bd9f758244f83d941ffd2"
+    },
+    {
+      "id": "ANGLER_DEEP_SEA",
+      "name": "Deep Sea Skin",
+      "texture": "afb849463dcb35acf1d88287606a13a17efe6697ee4c88fda072591beda60d2a"
+    },
+    {
+      "id": "GOBLIN_HELMET_DIAMOND",
+      "name": "Diamond Skin",
+      "texture": "bd48d7e23b19bd13311aa951c3b7209d5d5bfef9b8605c4ae3851976b233479e"
+    },
+    {
+      "id": "WATER_HYDRA_DRAGON",
+      "name": "Dragon Hydra Skin",
+      "texture": "e4cbba3345850a6981afd89a0748a48845b861ae5bce42b109e9baef78c1133b"
+    },
+    {
+      "id": "DUMPSTER_DIVER",
+      "name": "Dumpster Diver Helmet Skin",
+      "texture": "c390f2a38400a44bf6c131938e32c17de5d2ddeef6bbec1a17dc1e156867f33a"
+    },
+    {
+      "id": "FINAL_DESTINATION_ENDER_KNIGHT",
+      "name": "Ender Knight Skin",
+      "texture": "f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0"
+    },
+    {
+      "id": "FIREWORKS_SHADOW_ASSASSIN",
+      "name": "Fireworks Shadow Assassin Skin",
+      "texture": "fc0c1c5b9d0f65da2f7a5a3eda892480e2f9d283c69e0b656fba5518a14d38c2"
+    },
+    {
+      "id": "HELIANTHUS_FLORAL",
+      "name": "Floral Helianthus Helmet Skin",
+      "texture": "f53448fc2bb6971664ea96a23199d0097be49df7fe3f5b7a4062ccc8d2a5e419"
+    },
+    {
+      "id": "SHARK_SCALE_HOODIE_FOX",
+      "name": "Fox Hoodie Skin",
+      "texture": "a7dd90c5b68579d5b5f024d60317756005d4ee5809643d80f8e6b32bf088055b"
+    },
+    {
+      "id": "FROZEN_BLAZE_FROST_KNIGHT",
+      "name": "Frost Knight Skin",
+      "texture": "46c419999da5ff4167f7d90c929e01e3c822832e1bee01069325d3991ec61fb3"
+    },
+    {
+      "id": "DIVER_FROZEN",
+      "name": "Frozen Diver Skin",
+      "texture": "a3098bf9df4a68f30af1cec4e721f1a0e1d2d7bbfdd5b1791570724550f7ae9e"
+    },
+    {
+      "id": "GARDEN_WARRIOR_FERMENTO",
+      "name": "Garden Warrior Fermento Helmet Skin",
+      "texture": "5b4a3754e82cbbaa1dae0d207e90fcbad67d02d72baae35003b6dfd075518ecb"
+    },
+    {
+      "id": "GEMSTONE_DIVAN",
+      "name": "Gemstone Divan Helmet Skin",
+      "texture": "3917458bb844a8b330710207f333519cb231997c6a772998fdf8eeda9b32aa7"
+    },
+    {
+      "id": "GOBLIN_HELMET_GENIE",
+      "name": "Genie Skin",
+      "texture": "60414fa9c0a42f3aad83b1dce7e5706c4a34413d8cbb1d49ccd2b4ba1089bef1"
+    },
+    {
+      "id": "GLACIAL_DIVAN",
+      "name": "Glacial Divan Helmet Skin",
+      "texture": "673dadedfd0675dc741c4da98518d861f3883c5e3cc2eb640257d06720e449d5"
+    },
+    {
+      "id": "GOBLIN_HELMET_GOLDEN",
+      "name": "Golden Skin",
+      "texture": "d16c0c551f586893e9397c8886bf090ad54857da0a0bbca1b194e9a229933c2d"
+    },
+    {
+      "id": "GREAT_SHARK_MAGMA_LORD",
+      "name": "Great Shark Magma Lord Skin",
+      "texture": "5fe4b98c1ceeb067f2e84d24115e5216b5d725c616d66a22aaab377c2a7b2615"
+    },
+    {
+      "id": "FERMENTO_ULTIMATE",
+      "name": "Harvester Helmet Skin",
+      "texture": "6cc7a104895951c15ec2f5ed0091e45f3467e78249b3369c269a3c570d3d3af7"
+    },
+    {
+      "id": "BIOHAZARD_CONTROL",
+      "name": "Hazard Control Skin",
+      "texture": "a3e847bf1bac7044cdb36d0e7301027063fc99d750166aa12fc3f151acaac295"
+    },
+    {
+      "id": "BAT_PERSON_HERO",
+      "name": "Hero Skin",
+      "texture": "b2a579e72d4ae0d42b48ada87d4cb323c548e6954a32451a3872c1b2ee1cdaa"
+    },
+    {
+      "id": "HOLY_DRAGON_DRAKE",
+      "name": "Holy Drake Skin",
+      "texture": "105d89acc6bdd0a954a13cb210c4df9ad8f881763084d92e6777ddaa71f302d1"
+    },
+    {
+      "id": "WATER_HYDRA_HEAD_ICE_HYDRA",
+      "name": "Ice Hydra Skin",
+      "texture": "73be7ad9ad6933b36bfb368e22e70b096f3455cbd807afb80f8c78d2c5a0b278"
+    },
+    {
+      "id": "FROZEN_BLAZE_ICEBERG",
+      "name": "Iceberg Skin",
+      "texture": "445b140208ea0b23655f01e9ae7ea0fc7d83a3c0a44c03be2a2a29d292d4ec20"
+    },
+    {
+      "id": "FROZEN_BLAZE_ICICLE",
+      "name": "Icicle Skin",
+      "texture": "e13c25640705136cf776784910c63a0f160f5af6a38ccacfbb3071f247b82004"
+    },
+    {
+      "id": "BONZO_MASK_JESTER",
+      "name": "Jester Bonzo's Mask Skin",
+      "texture": "1d93b180a1c707825bb901c6dcd8d16e761b37994527f7f75e3f32feafea9484"
+    },
+    {
+      "id": "KITSUNE_TIKI_MASK",
+      "name": "Kitsune Tiki Mask Skin",
+      "texture": "e37ea13409e20427e83b29b7772e8d314b62c7ea20fa408b09976014732dbcb8"
+    },
+    {
+      "id": "MERCENARY_KNIGHT",
+      "name": "Knight Skin",
+      "texture": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d"
+    },
+    {
+      "id": "NECRON_DIAMOND_KNIGHT",
+      "name": "Knight Skin",
+      "texture": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941"
+    },
+    {
+      "id": "FERMENTO_LEAF",
+      "name": "Leaf Skin",
+      "texture": "2bfc4d48d7c53a6e8fe314ec3282271a5bde11215500bd901fb205e27df7be3b"
+    },
+    {
+      "id": "LUNAR_RABBIT_HAT",
+      "name": "Lunar Rabbit Hat Skin",
+      "texture": "550ce17991dcf18ce223cdf2103025a18b9d1750db2ad0924d6186b18dacb288"
+    },
+    {
+      "id": "SHADOW_ASSASSIN_MAUVE",
+      "name": "Mauve Skin",
+      "texture": "ebd50bb833ccc84e70a2469f6e47d5d51ac60aae5b9f651ee7ae383fea4a40ed"
+    },
+    {
+      "id": "METEOR_MAGMA_LORD",
+      "name": "Meteor Magma Lord Helmet Skin",
+      "texture": "63e59250c968e508539bf2e8492f56a2f664efb309f495a07dc3a54c8b6a249e"
+    },
+    {
+      "id": "NUTCRACKER_KNIGHT",
+      "name": "Nutcracker Knight Skin",
+      "texture": "7455ecb0279b373623c9a60f5c4ca0528ddc08cc166eca98bf741e70910495ae"
+    },
+    {
+      "id": "OLD_DRAGON_DRAKE",
+      "name": "Old Drake Skin",
+      "texture": "3aad6ba02684d975d3e3686705261fea560f18d44183140afbaf3579e0ac8287"
+    },
+    {
+      "id": "REAPER_ONI_MASK",
+      "name": "Oni Reaper Mask Skin",
+      "texture": "e6ff8158f218f7683262443db5ad438d19d9bbc5d45d6c45ce543c8a473aadff"
+    },
+    {
+      "id": "PALADIN_MINERAL",
+      "name": "Paladin Mineral Helmet Skin",
+      "texture": "6900715bf3e4744abe0d531e610c8b7c72d100dc17cce1b0b61f9067f8f963e1"
+    },
+    {
+      "id": "PERFECT_PALADIN",
+      "name": "Paladin Perfect Helmet Skin",
+      "texture": "a312968fb8fded612b256b353599ec2abbfb5d65e87e231bdb8be2bd040dc950"
+    },
+    {
+      "id": "SORROW_PALADIN",
+      "name": "Paladin Skin",
+      "texture": "53c03b60f809a69a3d845f686a758e6576083b06626efcd89565b06e02fc8520"
+    },
+    {
+      "id": "PANDA_SPIRIT",
+      "name": "Panda Spirit Skin",
+      "texture": "9649fad8b25b7ddaa1b99b7ee86573ea5a948df4453bfde7d1fe016516ee3e34"
+    },
+    {
+      "id": "PASTEL_SUPERIOR_DRAGON",
+      "name": "Pastel Superior Dragon Skin",
+      "texture": "f19ec2f6f43aeca3a112027ce25bbadec0c7d691bf97b6f0e44fad049ddcf7d"
+    },
+    {
+      "id": "SHARK_SCALE_HOODIE_PENGUIN",
+      "name": "Penguin Hoodie Skin",
+      "texture": "81b25293befcf336ec9fea082479b7071d3c8a7ab29f94c33d7727712ac729fd"
+    },
+    {
+      "id": "PROTECTOR_DRAGON_DRAKE",
+      "name": "Protector Drake Skin",
+      "texture": "f9d8d582bd1a94313e5d0000bc3a60b7a96ff65834ce90af9048824192bf4882"
+    },
+    {
+      "id": "DIVER_PUFFER",
+      "name": "Puffer Fish Skin",
+      "texture": "5c6f54fc06fc388e048d489c049586eaae760101591e3064d0506894482b6b55"
+    },
+    {
+      "id": "BIOHAZARD_PUMPKIN_SPICE",
+      "name": "Pumpkin Spice Skin",
+      "texture": "18827cfc8c504d00ad676fe7a5ebf70ac4826e6db90a00eb282e5738a6cd558e"
+    },
+    {
+      "id": "MASTIFF_PUPPY",
+      "name": "Puppy Skin",
+      "texture": "f22f67e5fe5badb3a0c231860d2b68682ced4afe92f8d1adf822ce9cd4b0a740"
+    },
+    {
+      "id": "RABBIT_JERRY_ONESIE",
+      "name": "Rabbit Onesie Jerry Skin",
+      "texture": "6a0385f8ecd04c0c82edd1c716ac10addc6c66fbbbaf0c8178f193ee905c0828"
+    },
+    {
+      "id": "MAGMA_LORD_RAGNAROK",
+      "name": "Ragnarok's Bane Magma Lord Skin",
+      "texture": "c552f85426e7c97dd8333ab2f44b1634b315a1dd3f51f931b0e7bfed517e60a4"
+    },
+    {
+      "id": "REAPER_RED_ONI_MASK",
+      "name": "Red Oni Reaper Mask Skin",
+      "texture": "266e570a648e19db58f5e0e7a7667f599b1871f286b36572c4b7737491c9b060"
+    },
+    {
+      "id": "BIOHAZARD_SPACE_RED",
+      "name": "Red Space Skin",
+      "texture": "3a4dedffa98dc3ba3afb5ba25c4d537b1745ef4d51ae90f4aa7646c9b6c9adda"
+    },
+    {
+      "id": "TARANTULA_REDBACK",
+      "name": "Redback Skin",
+      "texture": "972e9200bb4b2cc35b974acc7c9078fc588504ed88c56c9cbbf2016cc032f6f5"
+    },
+    {
+      "id": "PERFECT_FORGE",
+      "name": "Reinforced Skin",
+      "texture": "855b72f529f9bd33a6ec1df16f17f054dece6b553c21d286ad4e93fc658147d3"
+    },
+    {
+      "id": "GLOSSY_MINERAL_HELMET_ROYAL",
+      "name": "Royal Skin",
+      "texture": "74bc9d6c3b23fc7f88842fdf05bc2cddb9934efc396d043d2f95301523015018"
+    },
+    {
+      "id": "BERSERKER_SANDSTORM_CAT",
+      "name": "Sandstorm Cat Skin",
+      "texture": "620d52f4b9510c96d6e962e5a302a993f16a427453a723700f9138032f0c3d13"
+    },
+    {
+      "id": "SHARK_SCALE_HOODIE_SEAL",
+      "name": "Seal Hoodie Skin",
+      "texture": "156ec8e1dffcbb36daa6ffb9ae133615ac8e8c18044eea420b6ebb8907249153"
+    },
+    {
+      "id": "SENTINEL_WARDEN",
+      "name": "Sentinel Warden Skin",
+      "texture": "e9c588a8b62affd74643e0d6641bda3a0784a304c579c067fa495e2c43ec9462"
+    },
+    {
+      "id": "HOLY_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "c96696eb13cced8f5c521892d90fe8e2b129469520ade8d1d9f87225e7179761"
+    },
+    {
+      "id": "OLD_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "78bf606f5ace4e3cfb81a14742992ff5a868d1f0f9d14b4bec9393859e0e0a00"
+    },
+    {
+      "id": "PROTECTOR_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "72cd120841228d2812ca07433a3ec4640de81fa1f4bb9b42269c741403196fdb"
+    },
+    {
+      "id": "STRONG_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "ad3241f4419f06d17d88b21cc8e412f4ef11d7cfadd882e269da5a490e08f0e4"
+    },
+    {
+      "id": "SUPERIOR_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "cb3deae44a93acf001ae6bef1e1f4d56e4b7eca4ba14699d071023a24eed2c2e"
+    },
+    {
+      "id": "UNSTABLE_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "17397c1603be4bcf52eae0d2ad66e1663aad724a8f069ba87aa41aa8d2b48820"
+    },
+    {
+      "id": "WISE_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "25d7c5909f742e2e85ba7f2c7449f9e12a5c42c5a1132974df7f4ef204d6ca1e"
+    },
+    {
+      "id": "YOUNG_SHIMMER",
+      "name": "Shimmer Skin",
+      "texture": "e1ad5d83e55890290f52e4ad06e4351a2e87998d1cb3e76cc952a076deb7882b"
+    },
+    {
+      "id": "SHADOW_ASSASSIN_SLY_FOX",
+      "name": "Sly Fox Skin",
+      "texture": "cfc75423a2a5773319792c96d9359d42067efa1c7093010131c4056948abf490"
+    },
+    {
+      "id": "REKINDLED_EMBER_BURNING",
+      "name": "Smoldering Ember Skin",
+      "texture": "d2309ca29da534d4c0d5b0ea46471ae9be32b49e44e7d1d78dbdfed48df73e7c"
+    },
+    {
+      "id": "BIOHAZARD_SPACE_SNOWFLAKE",
+      "name": "Snowflake Space Skin",
+      "texture": "b1c813e9cfc81a0e76e6127db76402ccc518a6d8d00147e155b29be2b0e8470e"
+    },
+    {
+      "id": "SNOW_SNOWGLOBE",
+      "name": "Snowglobe Skin",
+      "texture": "13229f8525726684fb0227dad7621f05f0b8b5d58a8693fd0ea0688349f1d53c"
+    },
+    {
+      "id": "SORROW_SAMURAI",
+      "name": "Sorrowful Samurai Skin",
+      "texture": "b939aa2daf532d5fdb305a3df62aa3f49466e84d74785cd94ef30cf847a52145"
+    },
+    {
+      "id": "HELIX_SPARKLING",
+      "name": "Sparkling Helix Skin",
+      "texture": "dd292511658d876db4b3b07b715584101c29f5a07b151a2e3734dafb43be1a25"
+    },
+    {
+      "id": "WARDEN_SPARTAN",
+      "name": "Spartan Warden Helmet Skin",
+      "texture": "a256936e7d379fb49bdf134db79d770dd5b4b55d9519f24b3a46c524f366445b"
+    },
+    {
+      "id": "REAPER_SPECTRE",
+      "name": "Spectre Skin",
+      "texture": "c9a95c9d7d94a947d2d83cfbc2cbaca66e679f556b120fc2ed8b7c7c7af78fe1"
+    },
+    {
+      "id": "REAPER_SPIRIT",
+      "name": "Spirit Skin",
+      "texture": "724d2072918054a95a4f4bbc931bf3929d01cb012368bc4c78d0a3acc9cdbeea"
+    },
+    {
+      "id": "STARLIGHT_STARKNIGHT",
+      "name": "Starknight Skin",
+      "texture": "bb2171f36b7a71f835ee18f031fa830017edb419e99a656be55807f576ad7c68"
+    },
+    {
+      "id": "STRONG_DRAGON_DRAKE",
+      "name": "Strong Drake Skin",
+      "texture": "626e13659f0ac7f4f50adaf698d4b632ee0acbd014e17cacaf18e3b1081e786c"
+    },
+    {
+      "id": "SUPERIOR_DRAGON_DRAKE",
+      "name": "Superior Drake Skin",
+      "texture": "ff234183b6964f0593a9b9c8e79807d8c65da210ba3fd06805d71ab895bf8152"
+    },
+    {
+      "id": "BIOHAZARD_SPACE_TEAL",
+      "name": "Teal Space Skin",
+      "texture": "426e493964bcb91075989e270ea45fa4e2f38b8fc4faf8794e1659716d18955c"
+    },
+    {
+      "id": "THERMAL_THERMODYNAMIC",
+      "name": "Thermal Thermodynamic Helmet Skin",
+      "texture": "a27c4d0ff326d477a052d7fb2f9969828103add67e98500e2b55f7ddb2bec4e4"
+    },
+    {
+      "id": "GOBLIN_HELMET_THIEF",
+      "name": "Thief Skin",
+      "texture": "29df8b7c806a2a02b0171f8ea28fc3eec0667bc9e8da22b9873827434f84b562"
+    },
+    {
+      "id": "THUNDER_BIKER_AQUA",
+      "name": "Thunder Aqua Biker Skin",
+      "texture": "137d3c068fae54240ae976270d59d4bc9a2d06456f5d9a1ed6691c05940dedb8"
+    },
+    {
+      "id": "THUNDER_BIKER_AZURE",
+      "name": "Thunder Azure Biker Skin",
+      "texture": "c272558d1e4dd95807158145753c138309b3d5ee12a6e5dd4cae84ce15b66353"
+    },
+    {
+      "id": "THUNDER_BIKER_BLACK",
+      "name": "Thunder Black Biker Skin",
+      "texture": "f47012d332ef297cd771450f3d8b00875ea0d7713895efd230c9761796c6a1e2"
+    },
+    {
+      "id": "THUNDER_BIKER_PINK",
+      "name": "Thunder Pink Biker Skin",
+      "texture": "ecff35c76b518c31e290c0862efaf128e9d590f2c6680691403539a7c033d93c"
+    },
+    {
+      "id": "THUNDER_STORM_KNIGHT",
+      "name": "Thunder Storm Knight Skin",
+      "texture": "c4c72ce94586cb740b2ab51411af15235912b74ee675629bbf8c8ea69d451536"
+    },
+    {
+      "id": "THUNDER_BIKER_TEAL",
+      "name": "Thunder Teal Biker Skin",
+      "texture": "6640bba00cbc1fae890507012ccb4a4ab7d2d0ec53929032b4329ed868ac4a18"
+    },
+    {
+      "id": "TRUE_WARDEN",
+      "name": "True Warden Skin",
+      "texture": "1cafe848fd755d998a06a58321912244cf76eef1ce78a51228fdd1020ab73a68"
+    },
+    {
+      "id": "UNSTABLE_DRAGON_DRAKE",
+      "name": "Unstable Drake Skin",
+      "texture": "9e4a8a071b6540ee8569cfd6a25c48090dcc076114391681aa5d1ce6c94ab27c"
+    },
+    {
+      "id": "WISE_DRAGON_DRAKE",
+      "name": "Wise Drake Skin",
+      "texture": "468b1e281c03e57f4737757cda26f993bc407da7170473863429956dd135b95"
+    },
+    {
+      "id": "WEREWOLF_WOLF_PACK",
+      "name": "Wolf Pack Werewolf Skin",
+      "texture": "97cb30773039940c7376af2a260ee2316476ae23173d46a664600a1b30f5cb6f"
+    },
+    {
+      "id": "DRAGON_WYVERN",
+      "name": "Wyvern Dragon Helmet Skin",
+      "texture": "3d536f51069e991e870db812f116aa0ccca5f404cf6ce5dad32e923be101718"
+    },
+    {
+      "id": "BIOHAZARD_SPACE_YELLOW",
+      "name": "Yellow Space Skin",
+      "texture": "1b86061108ce99a017b2bf962c3233214bc0c50f8de423c2232cec7a3e11e7cf"
+    },
+    {
+      "id": "YOUNG_DRAGON_DRAKE",
+      "name": "Young Drake Skin",
+      "texture": "fdf709f82e96981665421d753208fb8e7f89d38c41ae5c60dc5b428ff0725f93"
+    }
+  ]
+}

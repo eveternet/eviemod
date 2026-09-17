@@ -73,13 +73,19 @@ public final class PaintBrushClient implements ClientModInitializer {
     }
 
     public static Identifier resolve(ItemStack stack, Identifier original) {
+        var skin = HelmetSkins.resolve(stack);
+        if (skin != null) return skin;
         Identifier resolved = overrides == null ? original : overrides.resolve(stack, original);
+        if (ImportedTextures.isImported(resolved) && (!EviemodSettings.STORE.values().customTextures
+                || ImportedTextures.isHelmet(resolved) || !TextureImportClient.available(resolved))) return original;
         return resolved;
     }
 
     @Override public void onInitializeClient() {
         EviemodSettings.load();
         SkyBlockSession.init();
+        try { HelmetSkins.load(); }
+        catch (IOException e) { LoggerFactory.getLogger("eviemod").error("Could not load helmet skins", e); }
         overrides = new ModelOverrides(ConfigMigration.path("eviemod-paintbrush.json"));
         try { overrides.load(); configReady = true; }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error("Could not load Paint Brush config", e); }
@@ -136,13 +142,15 @@ public final class PaintBrushClient implements ClientModInitializer {
                 .then(literal("reload").executes(ctx -> {
 
                     boolean success = true;
+                    try { HelmetSkins.load(); }
+                    catch (IOException e) { error(ctx.getSource(), e.getMessage()); success = false; }
                     try { overrides.load(); configReady = true; }
                     catch (IOException e) { configReady = false; error(ctx.getSource(), e.getMessage()); success = false; }
                     try { colors.load(); colorsReady = true; }
                     catch (IOException e) { colorsReady = false; error(ctx.getSource(), e.getMessage()); success = false; }
                     try { names.load(); namesReady = true; }
                     catch (IOException e) { namesReady = false; error(ctx.getSource(), e.getMessage()); success = false; }
-                    return success ? feedback(ctx.getSource(), "Paint Brush models, colors, and names reloaded.") : 0;
+                    return success ? feedback(ctx.getSource(), "Paint Brush models, colors, names and helmet skins reloaded.") : 0;
                 }))
         ));
     }

@@ -9,7 +9,9 @@
     "ItemNameMixin",
     "EditBoxSelectionAccessor",
     "ContainerBackgroundMixin",
-    "HotbarBackgroundMixin"
+    "HotbarBackgroundMixin",
+    "HelmetSkinRenderMixin",
+    "HelmetSkinArmorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

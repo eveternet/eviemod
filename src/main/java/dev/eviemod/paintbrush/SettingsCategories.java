@@ -40,12 +40,25 @@ final class SettingsCategories {
     }
     private static ConfigCategory paintBrush(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("paintbrush")).name(text("Paint Brush"))
-            .description(text("Customize an item's model, dye and name"))
+            .description(text("Customize item models, dyes, names, skins and textures"))
+            .option(Option.<Boolean>createBuilder().id(id("paintbrush/helmet_skins")).name(text("Helmet skins"))
+                .description(text("Choose a helmet skin or import a skin PNG in the Paint Brush editor."))
+                .binding(false, () -> draft.helmetSkins, value -> draft.helmetSkins = value)
+                .controller(BooleanController.createBuilder().build()).build())
+            .option(Option.<Boolean>createBuilder().id(id("paintbrush/custom_textures")).name(text("Custom textures"))
+                .description(text("Import PNG textures with bow, sword or handheld positioning."))
+                .binding(false, () -> draft.customTextures, value -> draft.customTextures = value)
+                .controller(BooleanController.createBuilder().build()).build())
             .option(ButtonOption.createBuilder().id(id("paintbrush/editor")).name(text("Paint Brush editor"))
                 .description(text("Customize an item's model, dye and name."))
                 .tags(text("model"), text("dye"), text("color"), text("name"), text("rename"), text("paintbrush"))
                 .prompt(text("Open editor"))
-                .action(parent -> net.minecraft.client.Minecraft.getInstance().setScreen(new PaintBrushScreen(parent, fixtures)))
+                .action(parent -> {
+                    var client = net.minecraft.client.Minecraft.getInstance();
+                    try { EviemodSettings.STORE.save(draft); client.setScreen(new PaintBrushScreen(parent, fixtures)); }
+                    catch (java.io.IOException e) { client.setScreen(new net.minecraft.client.gui.screens.AlertScreen(
+                        () -> client.setScreen(parent), text("Settings could not be saved"), text(e.getMessage()))); }
+                })
                 .build()).build();
     }
 }
