@@ -80,10 +80,10 @@ final class ImportedTextures {
 
     static boolean isImported(Identifier id) { return id != null && id.getNamespace().equals(NAMESPACE); }
     static boolean isHelmet(Identifier id) { return isImported(id) && id.getPath().matches("helmet/[0-9a-f]{64}"); }
-    static Identifier texture(Identifier id) { return id.withPath("textures/" + (isHelmet(id) ? "entity/" : "") + id.getPath() + ".png"); }
+    static Identifier texture(Identifier id) { return id.withPath("textures/" + (isHelmet(id) ? "entity/" : "item/") + id.getPath() + ".png"); }
     static String modelJson(Identifier id, Preset preset) {
         var root = new JsonObject(); root.addProperty("parent", preset.parent);
-        var textures = new JsonObject(); textures.addProperty("layer0", id.toString()); root.add("textures", textures);
+        var textures = new JsonObject(); textures.addProperty("layer0", id.withPath("item/" + id.getPath()).toString()); root.add("textures", textures);
         return new GsonBuilder().setPrettyPrinting().create().toJson(root);
     }
     static String itemJson(Identifier id, Preset preset) {

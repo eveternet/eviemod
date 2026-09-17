@@ -40,7 +40,7 @@ class ImportedTexturesTest {
             if (preset != ImportedTextures.Preset.HELMET) {
                 var model = JsonParser.parseString(Files.readString(assets.resolve("models/item/" + id.getPath() + ".json"))).getAsJsonObject();
                 assertEquals(preset.parent, model.get("parent").getAsString());
-                assertEquals(id.toString(), model.getAsJsonObject("textures").get("layer0").getAsString());
+                assertEquals(id.withPath("item/" + id.getPath()).toString(), model.getAsJsonObject("textures").get("layer0").getAsString());
             }
             assertEquals(id, imports.importPng(png(64, 64), preset));
         }
@@ -63,7 +63,7 @@ class ImportedTexturesTest {
         var source = directory.resolve("my texture.png"); Files.write(source, png(16, 16));
         var id = new ImportedTextures(directory).importFile(source, ImportedTextures.Preset.SWORD);
         Files.delete(source);
-        assertTrue(Files.isRegularFile(directory.resolve(ImportedTextures.PACK_FOLDER).resolve("assets/" + ImportedTextures.NAMESPACE + "/textures/" + id.getPath() + ".png")));
+        assertTrue(Files.isRegularFile(directory.resolve(ImportedTextures.PACK_FOLDER).resolve("assets/" + ImportedTextures.NAMESPACE + "/" + ImportedTextures.texture(id).getPath())));
     }
     @Test void helmetProfileUsesPackTextureAndDoesNotTouchTheOriginalStack() {
         var id = Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/" + "a".repeat(64));

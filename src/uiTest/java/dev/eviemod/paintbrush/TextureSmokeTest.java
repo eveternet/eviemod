@@ -66,6 +66,10 @@ final class TextureSmokeTest {
                 check(texture.getPath().startsWith("bow/"), "Bow preset must be saved");
                 check(texture.equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Imported model must resolve");
                 check(!(client.getModelManager().getItemModel(texture) instanceof net.minecraft.client.renderer.item.MissingItemModel), "Model must bake");
+                var itemState = new net.minecraft.client.renderer.item.ItemStackRenderState();
+                client.getItemModelResolver().updateForTopItem(itemState, helmet, net.minecraft.world.item.ItemDisplayContext.GUI, null, null, 0);
+                var sprite = itemState.pickParticleMaterial(net.minecraft.util.RandomSource.create()).sprite().contents().name();
+                check(sprite.equals(texture.withPath("item/" + texture.getPath())), "Imported sprite must be stitched, not missing: " + sprite);
                 screenshot(client, "paintbrush-texture.png"); next();
             }
             case 3 -> { click(client, "Skin"); editor.onFilesDrop(List.of(image)); next(); }
