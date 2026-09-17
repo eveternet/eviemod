@@ -25,6 +25,7 @@ final class TextureSmokeTest {
     private int stage, ticks;
     private ItemStack helmet, before, held;
     private Object modelBeforeSkin;
+    private java.util.concurrent.CompletableFuture<Void> reload;
     private Identifier texture, skin, oldModel, oldSkin;
     private boolean oldTexturesEnabled, oldSkinsEnabled;
     private Path image, animated;
@@ -77,7 +78,11 @@ final class TextureSmokeTest {
                 check(!(client.getModelManager().getItemModel(texture) instanceof net.minecraft.client.renderer.item.MissingItemModel), "Model must bake");
                 var itemState = new net.minecraft.client.renderer.item.ItemStackRenderState();
                 client.getItemModelResolver().updateForTopItem(itemState, held, net.minecraft.world.item.ItemDisplayContext.GUI, null, null, 0);
-                var sprite = itemState.pickParticleMaterial(net.minecraft.util.RandomSource.create()).sprite().contents().name();
+                var contents = itemState.pickParticleMaterial(net.minecraft.util.RandomSource.create()).sprite().contents();
+                check(contents.isAnimated(), "Imported sprite must animate");
+                check(contents.width() == 16 && contents.height() == 16, "Sprite must use one frame, not the whole strip");
+                check(contents.getUniqueFrames().size() == 19, "All 19 animation frames must load");
+                var sprite = contents.name();
                 check(sprite.equals(texture.withPath("item/" + texture.getPath())), "Imported sprite must be stitched, not missing: " + sprite);
                 check(editor.children().stream().noneMatch(c -> c instanceof ModelField), "Custom model must hide generated ID");
                 check(editor.children().stream().noneMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals("Texture")), "Texture must be merged into Model");
@@ -119,6 +124,18 @@ final class TextureSmokeTest {
             case 8 -> { screenshot(client, "paintbrush-catalog-skin.png"); next(); }
             case 9 -> {
                 check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Catalog skin must not reload resource packs");
+                reload = client.reloadResourcePacks(); next();
+            }
+            case 10 -> {
+                if (!reload.isDone()) return;
+                reload.join();
+                check(client.getTextureManager().getTexture(ImportedTextures.texture(skin)) instanceof net.minecraft.client.renderer.texture.DynamicTexture,
+                    "Direct skin texture must survive a later resource reload");
+                check(skin.equals(HelmetSkins.resolve(helmet)), "Skin must still resolve after resource reload");
+                screenshot(client, "paintbrush-skin-after-reload.png");
+                next();
+            }
+            case 11 -> {
                 HelmetSkins.load(); PaintBrushClient.models().load();
                 check(skin.equals(HelmetSkins.resolve(helmet)), "Skin selection must reload");
                 client.setScreen(editor); click(client, "Reset");
@@ -130,7 +147,7 @@ final class TextureSmokeTest {
                 PaintBrushClient.models().set(KEY, texture);
                 Files.writeString(animated, "invalid PNG"); editor.onFilesDrop(List.of(animated)); next();
             }
-            case 10 -> {
+            case 12 -> {
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Invalid import preserves previous choice");
                 check(ItemStack.isSameItemSameComponents(before, helmet), "Fixture changed source item");
                 PaintBrushClient.models().set(KEY, oldModel); HelmetSkins.store().set(KEY, oldSkin);

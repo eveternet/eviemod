@@ -93,7 +93,7 @@ Names persist in `config/eviemod-names.json` as UUID-to-styled-name mappings. Le
 
 ## Rendering and item safety
 
-The mixin replaces only the `ITEM_MODEL` lookup result inside `ItemModelResolver.appendItemLayers` and its hand-swap animation property lookups. GUI, hotbar, containers, held items, dropped items, item frames, and nested item rendering that use the normal resolver receive the override. Third-party renderers that bypass Minecraft's resolver are outside this hook. Worn armor uses a separate rendering system for models; the color feature hooks `DyedItemColor.getOrDefault`, which is used by both item tinting and equipment rendering.
+For held-item models, the mixin replaces the `ITEM_MODEL` lookup result inside `ItemModelResolver.appendItemLayers` and its hand-swap animation property lookups. GUI, hotbar, containers, held items, dropped items, item frames, and nested item rendering that use the normal resolver receive the override. Helmet skins pass a detached stack copy with the skin profile to the vanilla head renderer. Third-party renderers that bypass Minecraft's resolver are outside this hook. Worn armor uses a separate rendering system for models; the color feature hooks `DyedItemColor.getOrDefault`, which is used by both item tinting and equipment rendering.
 
 The UUID comes from `minecraft:custom_data.uuid`, with a nonempty SkyBlock `id` in the same component. Missing, blank, malformed, or unconfigured UUIDs preserve the original result. Separate items of the same SkyBlock type remain separate; copies with the same UUID share the customization. The supplied Juju sample matches this format.
 

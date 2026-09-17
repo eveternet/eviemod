@@ -26,7 +26,9 @@ final class HelmetTextures {
             }).thenApplyAsync(bytes -> {
                 try {
                     var pixels = NativeImage.read(bytes);
-                    var texture = new DynamicTexture(() -> "Paint Brush helmet skin", pixels);
+                    DynamicTexture texture;
+                    try { texture = new DynamicTexture(() -> "Paint Brush helmet skin", pixels); }
+                    catch (RuntimeException e) { pixels.close(); throw e; }
                     try { client.getTextureManager().register(ImportedTextures.texture(key), texture); }
                     catch (RuntimeException e) { texture.close(); throw e; }
                     return key;
