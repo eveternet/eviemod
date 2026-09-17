@@ -2,6 +2,12 @@
 
 These instructions apply throughout eviemod.
 
+## Commit after every build
+
+- After every build, commit any uncommitted changes made for the current task. Include the build outcome in the commit message; clearly label failed builds as work in progress.
+- Review the staged diff before committing. Keep unrelated changes, generated build output, local game data, and secrets out of the commit.
+- If there are no changes to commit, do not create an empty commit. Commit locally without asking for confirmation; push only when requested.
+
 ## Build on established UI
 
 - Prefer existing, maintained UI frameworks and their standard controls, navigation, search, layout, and accessibility behavior. Avoid novel UI solutions when an established pattern meets the need.
