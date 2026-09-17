@@ -23,47 +23,47 @@
     },
     {
       "id": "GOBLIN_HELMET_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Goblin Helmet)",
       "texture": "7bc069645a0fa512d9cd724048fb418e03e042397870116c3e44a3a76d9f759"
     },
     {
       "id": "HOLY_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Holy Dragon Helmet)",
       "texture": "1266946f84b27796a1c7b1b6068efb77481b8ad8ba4fc1eef35cc975e06afb42"
     },
     {
       "id": "OLD_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Old Dragon Helmet)",
       "texture": "2eaf836b7183554269647827289c67a3855e8d0b345719328188defdbd05a64b"
     },
     {
       "id": "PROTECTOR_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Protector Dragon Helmet)",
       "texture": "979c9144496d21f3334b32437deeb63379766399d0a92bc06712ba592bc237e6"
     },
     {
       "id": "STRONG_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Strong Dragon Helmet)",
       "texture": "aec10b0dceb5bb34af2cb953733f01f20bb3aafd5f21fe0eadf1cc4ce7f4dab4"
     },
     {
       "id": "SUPERIOR_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Superior Dragon Helmet)",
       "texture": "52a770459fa6d65e22aa95679d93a2870aafea70f9f1c6a0f78eb641e92890"
     },
     {
       "id": "UNSTABLE_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Unstable Dragon Helmet)",
       "texture": "42a023636a7f0300a74cc50d3e4dbb81a7bc1485f0daf6e9a7c0f4d8a2e3a18f"
     },
     {
       "id": "WISE_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Wise Dragon Helmet)",
       "texture": "94c6834c8bf0b81f92cf0da4bd99ad764154d5368a38e03c85adda10e518890a"
     },
     {
       "id": "YOUNG_BABY",
-      "name": "Baby Skin",
+      "name": "Baby Skin (Young Dragon Helmet)",
       "texture": "43503dcaae6a6cde027316a3ce6e203b64327b7de72441865cfd3cdb45d5ef44"
     },
     {
@@ -272,14 +272,14 @@
       "texture": "e37ea13409e20427e83b29b7772e8d314b62c7ea20fa408b09976014732dbcb8"
     },
     {
-      "id": "MERCENARY_KNIGHT",
-      "name": "Knight Skin",
-      "texture": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d"
+      "id": "NECRON_DIAMOND_KNIGHT",
+      "name": "Knight Skin (Diamond Necron Head)",
+      "texture": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941"
     },
     {
-      "id": "NECRON_DIAMOND_KNIGHT",
-      "name": "Knight Skin",
-      "texture": "5a7834d46e7739bfdc942b660492d590f6f1034437c6e6804eadcc2e83152941"
+      "id": "MERCENARY_KNIGHT",
+      "name": "Knight Skin (Mercenary Helmet)",
+      "texture": "fb029244042ee6941d010755e30ab5f4d095a30fa80ff58bba67e85ca5b8957d"
     },
     {
       "id": "FERMENTO_LEAF",
@@ -418,42 +418,42 @@
     },
     {
       "id": "HOLY_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Holy Dragon Helmet)",
       "texture": "c96696eb13cced8f5c521892d90fe8e2b129469520ade8d1d9f87225e7179761"
     },
     {
       "id": "OLD_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Old Dragon Helmet)",
       "texture": "78bf606f5ace4e3cfb81a14742992ff5a868d1f0f9d14b4bec9393859e0e0a00"
     },
     {
       "id": "PROTECTOR_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Protector Dragon Helmet)",
       "texture": "72cd120841228d2812ca07433a3ec4640de81fa1f4bb9b42269c741403196fdb"
     },
     {
       "id": "STRONG_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Strong Dragon Helmet)",
       "texture": "ad3241f4419f06d17d88b21cc8e412f4ef11d7cfadd882e269da5a490e08f0e4"
     },
     {
       "id": "SUPERIOR_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Superior Dragon Helmet)",
       "texture": "cb3deae44a93acf001ae6bef1e1f4d56e4b7eca4ba14699d071023a24eed2c2e"
     },
     {
       "id": "UNSTABLE_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Unstable Dragon Helmet)",
       "texture": "17397c1603be4bcf52eae0d2ad66e1663aad724a8f069ba87aa41aa8d2b48820"
     },
     {
       "id": "WISE_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Wise Dragon Helmet)",
       "texture": "25d7c5909f742e2e85ba7f2c7449f9e12a5c42c5a1132974df7f4ef204d6ca1e"
     },
     {
       "id": "YOUNG_SHIMMER",
-      "name": "Shimmer Skin",
+      "name": "Shimmer Skin (Young Dragon Helmet)",
       "texture": "e1ad5d83e55890290f52e4ad06e4351a2e87998d1cb3e76cc952a076deb7882b"
     },
     {

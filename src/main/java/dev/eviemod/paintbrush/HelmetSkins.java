@@ -40,13 +40,13 @@ public final class HelmetSkins {
     }
     static ResolvableProfile profile(Identifier skin) {
         return profiles.computeIfAbsent(skin, id -> {
-            var json = new JsonObject(); json.addProperty("texture", id.toString());
+            var json = new JsonObject(); json.addProperty("texture", id.withPath("entity/" + id.getPath()).toString());
             return ResolvableProfile.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
         });
     }
-    public static void applyWorn(net.minecraft.world.entity.LivingEntity entity,
+    public static void applyWorn(ItemStack helmet,
             net.minecraft.client.renderer.entity.state.LivingEntityRenderState state) {
-        var skin = resolve(entity.getItemBySlot(EquipmentSlot.HEAD));
+        var skin = resolve(helmet);
         if (skin == null) return;
         state.wornHeadType = net.minecraft.world.level.block.SkullBlock.Types.PLAYER;
         state.wornHeadProfile = profile(skin);

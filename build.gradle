@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.eviemod'
-version = '2.1.1+26.1.2'
+version = '2.2.0+26.1.2'
 
 repositories {
     flatDir { dirs 'libs'; content { includeGroup 'local.eviemod' } }
@@ -53,6 +53,7 @@ if (providers.gradleProperty('uiSmokeTest').isPresent()) {
     }
     tasks.named('runClient') {
         if (providers.gradleProperty('uiCapture').isPresent()) jvmArgs '-Deviemod.capture=true'
+        if (providers.gradleProperty('textureCapture').isPresent()) jvmArgs '-Deviemod.textureCapture=true'
         dependsOn tasks.named('uiTestClasses')
         classpath += sourceSets.uiTest.runtimeClasspath
     }

@@ -38,9 +38,13 @@ final class TextureImportClient {
         packs.reload();
         if (!packs.isAvailable(ImportedTextures.PACK_ID)) return CompletableFuture.failedFuture(new IllegalStateException("The imported texture pack could not be loaded."));
         packs.addPack(ImportedTextures.PACK_ID);
-        client.options.updateResourcePacks(packs);
+        // updateResourcePacks starts an unobservable reload; persist just our selection and await one reload below.
+        if (!client.options.resourcePacks.contains(ImportedTextures.PACK_ID)) {
+            client.options.resourcePacks.add(ImportedTextures.PACK_ID);
+            client.options.save();
+        }
         return client.reloadResourcePacks().thenApplyAsync(ignored -> {
-            if (!available(id)) throw new CompletionException(new IllegalStateException("The imported texture could not be loaded."));
+            if (!available(id) || client.getModelManager().getItemModel(id) instanceof net.minecraft.client.renderer.item.MissingItemModel) throw new CompletionException(new IllegalStateException("The imported texture could not be loaded."));
             return id;
         }, client);
     }

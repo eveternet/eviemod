@@ -43,7 +43,7 @@ final class ImportedTextures {
         var id = Identifier.fromNamespaceAndPath(NAMESPACE, preset.name().toLowerCase(java.util.Locale.ROOT) + "/" + hash);
         Path assets = root.resolve("assets").resolve(NAMESPACE);
         // Each file is atomic; the item definition is published last, after all dependencies exist.
-        write(assets.resolve("textures/" + id.getPath() + ".png"), png);
+        write(assets.resolve(texture(id).getPath()), png);
         if (preset != Preset.HELMET) write(assets.resolve("models/item/" + id.getPath() + ".json"), modelJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         write(root.resolve("pack.mcmeta"), "{\"pack\":{\"description\":\"Paint Brush imported textures\",\"min_format\":84,\"max_format\":84}}\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         write(assets.resolve("items/" + id.getPath() + ".json"), itemJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -80,7 +80,7 @@ final class ImportedTextures {
 
     static boolean isImported(Identifier id) { return id != null && id.getNamespace().equals(NAMESPACE); }
     static boolean isHelmet(Identifier id) { return isImported(id) && id.getPath().matches("helmet/[0-9a-f]{64}"); }
-    static Identifier texture(Identifier id) { return id.withPath("textures/" + id.getPath() + ".png"); }
+    static Identifier texture(Identifier id) { return id.withPath("textures/" + (isHelmet(id) ? "entity/" : "") + id.getPath() + ".png"); }
     static String modelJson(Identifier id, Preset preset) {
         var root = new JsonObject(); root.addProperty("parent", preset.parent);
         var textures = new JsonObject(); textures.addProperty("layer0", id.toString()); root.add("textures", textures);

@@ -36,7 +36,7 @@ class ImportedTexturesTest {
             Path assets = directory.resolve(ImportedTextures.PACK_FOLDER).resolve("assets/" + ImportedTextures.NAMESPACE);
             var json = JsonParser.parseString(Files.readString(assets.resolve("items/" + id.getPath() + ".json")));
             assertTrue(ClientItem.CODEC.parse(JsonOps.INSTANCE, json).isSuccess(), json.toString());
-            assertTrue(Files.isRegularFile(assets.resolve("textures/" + id.getPath() + ".png")));
+            assertTrue(Files.isRegularFile(assets.resolve(ImportedTextures.texture(id).getPath())));
             if (preset != ImportedTextures.Preset.HELMET) {
                 var model = JsonParser.parseString(Files.readString(assets.resolve("models/item/" + id.getPath() + ".json"))).getAsJsonObject();
                 assertEquals(preset.parent, model.get("parent").getAsString());

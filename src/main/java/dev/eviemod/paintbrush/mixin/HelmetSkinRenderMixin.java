@@ -14,6 +14,6 @@ public abstract class HelmetSkinRenderMixin {
     // Only change the detached render state. PROFILE and equipment on the entity stay untouched.
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V", at = @At("TAIL"))
     private void paintbrush$skin(LivingEntity entity, LivingEntityRenderState state, float partialTick, CallbackInfo ci) {
-        HelmetSkins.applyWorn(entity, state);
+        HelmetSkins.applyWorn(entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD), state);
     }
 }
