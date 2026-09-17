@@ -38,8 +38,21 @@ public final class UiSmokeTest implements ClientModInitializer {
                 if (captureTicks == 100) {
                     openEditor(client);
                 }
-                if (captureTicks == 108) { editorClick(client, 30, 115); type(client, "minecraft:diamond"); }
-                if (captureTicks == 110) { key(client, 264); key(client, 258); }
+                if (captureTicks == 108) { editorClick(client, 30, 115); type(client, "minecraft:leather_chestplate"); }
+                if (captureTicks == 110) key(client, 258);
+                if (captureTicks == 112) {
+                    var dye = client.screen.children().stream()
+                        .filter(child -> child instanceof net.minecraft.client.gui.components.AbstractWidget widget
+                            && widget.getMessage().getString().equals("Dye"))
+                        .map(child -> (net.minecraft.client.gui.components.AbstractWidget) child).findFirst().orElseThrow();
+                    if (!dye.active) throw new AssertionError("Gold armor with a leather model must enable Dye");
+                    editorClick(client, 200, 82);
+                    editorClick(client, 30, 115);
+                    type(client, "#FF88CC");
+                    // Force loading the equipment renderer to validate the armor mixin at runtime.
+                    try { Class.forName("net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer"); }
+                    catch (ClassNotFoundException e) { throw new AssertionError(e); }
+                }
                 if (captureTicks == 115) editorClick(client, 350, 82);
                 if (captureTicks == 120) { editorClick(client, 30, 115); type(client, "Fixture name"); }
                 if (captureTicks == 148) editorClick(client, 50, 82);
@@ -72,7 +85,7 @@ public final class UiSmokeTest implements ClientModInitializer {
     }
     private static void openEditor(net.minecraft.client.Minecraft client) {
         client.setScreen(new PaintBrushScreen(EviemodSettings.screen(null), List.of(
-                    item(Items.BOW, "Precise Juju Shortbow", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d"),
+                    item(Items.GOLDEN_CHESTPLATE, "Gold to leather fixture", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d"),
                     item(Items.LEATHER_CHESTPLATE, "Crimson Chestplate", "eb11aa00-052d-48fa-bf56-09c2e1a4a12e"),
                     item(Items.DIAMOND_SWORD, "Aspect of the Dragons", "eb11aa00-052d-48fa-bf56-09c2e1a4a12f"),
                     item(Items.APPLE, "No UUID", null))));
