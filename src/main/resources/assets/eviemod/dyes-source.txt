@@ -1,0 +1,5 @@
+Hypixel dye palette data
+Source: https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO/blob/4828ec7c4a05010e112df8b01f447ded0d487b8d/constants/dyes.json
+Retrieved: 2026-09-16
+Includes all 66 dye entries in the static/animated groups; excludes Fairy armor and vanilla dyes.
+Playback: one sampled frame per 100 ms, looped locally.

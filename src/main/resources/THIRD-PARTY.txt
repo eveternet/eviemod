@@ -1,0 +1,25 @@
+eviemod includes YetAnotherConfigLib (YACL) 3.9.2+26.1-fabric, unmodified.
+Author: isXander and contributors
+License: LGPL-3.0-or-later (library metadata and licenses are retained in the nested JAR)
+Source: https://github.com/isXander/YetAnotherConfigLib
+Distribution: https://modrinth.com/mod/yacl/version/h2FGeDHG
+
+YACL includes its own third-party libraries, whose metadata and licenses remain in its JAR.
+Skyblocker was inspected as a behavioral reference; no Skyblocker feature code or assets are bundled. Its nested Dandelion backport is redistributed separately as described below.
+
+HM API 1.0.3+26.1, unmodified, by AzureAaron and contributors.
+License: Apache-2.0 (retained in the nested library JAR)
+Source: https://github.com/AzureAaron/hm-api
+Distribution: https://maven.azureaaron.net/releases/net/azureaaron/hm-api/1.0.3+26.1/
+
+Dandelion 1.0.0-alpha.21+26.1, unmodified, by AzureAaron and contributors.
+Source: https://github.com/AzureAaron/Dandelion
+Distribution: nested library in the supplied Skyblocker 6.10.2+26.1.2 JAR.
+Includes shaded MoulConfig: https://github.com/NotEnoughUpdates/MoulConfig
+Original library and dependency license notices are retained inside the nested JAR.
+See libs/README.md in the source distribution for the exact dependency checksum.
+
+Fabric Language Kotlin 1.14.1+kotlin.2.4.20, unmodified.
+Source: https://github.com/FabricMC/fabric-language-kotlin
+Includes the Kotlin runtime and supporting libraries, with their original licenses
+and metadata retained in the nested JARs.

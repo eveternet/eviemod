@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "eviemod",
+  "version": "${version}",
+  "name": "eviemod",
+  "description": "Local Paint Brush customizations and resilient SkyBlock rarity backgrounds.",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.eviemod.paintbrush.PaintBrushClient"
+    ],
+    "modmenu": [
+      "dev.eviemod.paintbrush.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "eviemod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": ">=0.155.2+26.1.2",
+    "minecraft": "26.1.2",
+    "java": ">=25",
+    "yet_another_config_lib_v3": ">=3.9.2+26.1",
+    "hm-api": ">=1.0.3+26.1",
+    "dandelion": ">=1.0.0-alpha.21+26.1",
+    "fabric-language-kotlin": "*"
+  },
+  "breaks": {
+    "skyshitter": "*"
+  }
+}

@@ -1,0 +1,59 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17.20'
+}
+
+group = 'dev.eviemod'
+version = '2.1.0+26.1.2'
+
+repositories {
+    flatDir { dirs 'libs'; content { includeGroup 'local.eviemod' } }
+    mavenCentral()
+    maven { url = 'https://maven.azureaaron.net/releases' }
+    maven { url = 'https://api.modrinth.com/maven' }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:26.1.2'
+    implementation 'net.fabricmc:fabric-loader:0.19.3'
+    implementation 'net.fabricmc.fabric-api:fabric-api:0.155.2+26.1.2'
+    include implementation('maven.modrinth:yacl:3.9.2+26.1-fabric')
+    include implementation('local.eviemod:dandelion:1.0.0-alpha.21+26.1')
+    include implementation('net.fabricmc:fabric-language-kotlin:1.14.1+kotlin.2.4.20')
+    include implementation('net.azureaaron:hm-api:1.0.3+26.1')
+    compileOnly 'maven.modrinth:modmenu:18.0.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach { options.release = 25 }
+test { useJUnitPlatform() }
+processResources {
+    def modVersion = project.version
+    inputs.property 'version', modVersion
+    filesMatching('fabric.mod.json') { expand version: modVersion }
+}
+
+// Optional, separate fixture mod for exercising the UI without a server or account.
+if (providers.gradleProperty('uiSmokeTest').isPresent()) {
+    sourceSets {
+        uiTest {
+            compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+        }
+    }
+    loom {
+        mods {
+            eviemod { sourceSet sourceSets.main }
+            eviemod_ui_test { sourceSet sourceSets.uiTest }
+        }
+    }
+    tasks.named('runClient') {
+        if (providers.gradleProperty('uiCapture').isPresent()) jvmArgs '-Deviemod.capture=true'
+        dependsOn tasks.named('uiTestClasses')
+        classpath += sourceSets.uiTest.runtimeClasspath
+    }
+}

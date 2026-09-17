@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"eviemod_ui_test","version":"1.0.0","name":"Paint Brush UI fixtures","environment":"client","entrypoints":{"client":["dev.eviemod.paintbrush.UiSmokeTest"]}}

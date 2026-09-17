@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "dev.eviemod.paintbrush.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ItemModelResolverMixin",
+    "DyedItemColorMixin",
+    "EquipmentLayerRendererMixin",
+    "ItemNameMixin",
+    "EditBoxSelectionAccessor",
+    "ContainerBackgroundMixin",
+    "HotbarBackgroundMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
