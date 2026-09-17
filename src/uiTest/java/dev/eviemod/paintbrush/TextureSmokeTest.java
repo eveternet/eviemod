@@ -84,6 +84,22 @@ final class TextureSmokeTest {
             }
             case 5 -> { screenshot(client, "paintbrush-worn-skin.png"); next(); }
             case 6 -> {
+                client.setScreen(editor);
+                var input = editor.children().stream().filter(c -> c instanceof ModelField).map(c -> (ModelField) c).findFirst().orElseThrow();
+                input.setValue("True Warden Skin"); click(client, "Apply"); next();
+            }
+            case 7 -> {
+                var downloaded = HelmetSkins.store().get(KEY); if (downloaded.equals(skin)) return;
+                skin = downloaded;
+                check(TextureImportClient.available(skin), "Catalog skin must download and load");
+                var other = helmet.copy(); var otherData = other.get(DataComponents.CUSTOM_DATA).copyTag();
+                otherData.putString("uuid", UUID.randomUUID().toString()); other.set(DataComponents.CUSTOM_DATA, CustomData.of(otherData));
+                check(HelmetSkins.resolve(other) == null, "Skin must not leak to another UUID");
+                other.remove(DataComponents.CUSTOM_DATA); check(HelmetSkins.resolve(other) == null, "Unknown identity must not receive skin");
+                client.setScreen(new Preview(helmet)); next();
+            }
+            case 8 -> { screenshot(client, "paintbrush-catalog-skin.png"); next(); }
+            case 9 -> {
                 EviemodSettings.STORE.values().helmetSkins = false;
                 check(HelmetSkins.resolve(helmet) == null, "Disabled skin must not resolve");
                 check(texture.equals(PaintBrushClient.resolve(helmet, helmet.get(DataComponents.ITEM_MODEL))), "Disabling skin restores model");
@@ -101,7 +117,7 @@ final class TextureSmokeTest {
                 PaintBrushClient.models().set(KEY, texture);
                 Files.writeString(image, "invalid PNG"); editor.onFilesDrop(List.of(image)); next();
             }
-            case 7 -> {
+            case 10 -> {
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Invalid import preserves previous choice");
                 check(ItemStack.isSameItemSameComponents(before, helmet), "Fixture changed source item");
                 PaintBrushClient.models().set(KEY, oldModel); HelmetSkins.store().set(KEY, oldSkin);
