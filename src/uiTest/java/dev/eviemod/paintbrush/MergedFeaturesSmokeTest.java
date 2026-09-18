@@ -24,17 +24,23 @@ final class MergedFeaturesSmokeTest {
                     try { Class.forName(type); } catch (ClassNotFoundException e) { throw new AssertionError(e); }
                 }
                 client.setScreen(EviemodSettings.screen(parent));
-                check(editor().getAllCategories().size() == 7, "All shared/imported categories must exist");
+                check(editor().getAllCategories().values().stream().map(category -> category.getDisplayName().getText()).toList()
+                    .equals(java.util.List.of("Appearance", "Hypixel Pack", "Garden", "Chat Commands", "Command Hotkeys")), "Five feature categories in order");
+                check(editor().getAllOptions().stream().noneMatch(option -> optionId(option).equals("eviemod:soul_whip")
+                    || optionId(option).equals("eviemod:garden/finnegan") || optionId(option).equals("eviemod:garden/key/loadouts")), "No single-toggle Soul Whip group or pest controls");
+                check(java.util.Arrays.stream(client.options.keyMappings).noneMatch(key -> key.getName().equals("key.gardentools.loadouts")), "No native Loadouts binding");
+                try { Class.forName("dev.eviemod.features.garden.PestWorkflow"); throw new AssertionError("Pest workflow still present"); }
+                catch (ClassNotFoundException expected) {}
                 check(!FeatureSettings.isSoulWhipFixEnabled(), "Fixture Soul Whip disabled migration");
                 check(!FeatureSettings.isMaxTenHeartsEnabled(), "Fixture hearts disabled migration");
                 check(EviemodSettings.features().garden.teleportPlot == 19, "Fixture Garden migration");
             }
             ticks++;
             switch (ticks) {
-                case 10 -> { select("eviemod:skyblock_visuals"); expand("eviemod:soul_whip"); }
+                case 10 -> { select("eviemod:appearance"); expand("eviemod:skyblock_visuals"); }
                 case 25 -> capture(client, "merged-visuals.png");
                 case 30 -> {
-                    check(option("eviemod:soul_whip/enabled").set(true), "Soul Whip UI binding");
+                    toggleRow("eviemod:soul_whip/enabled");
                     check(option("eviemod:visuals/hearts").set(true), "Health UI binding");
                     client.screen.onClose();
                     check(FeatureSettings.isSoulWhipFixEnabled(), "Soul Whip runtime sees saved UI choice");
@@ -47,15 +53,16 @@ final class MergedFeaturesSmokeTest {
                     check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
                     captureKey("eviemod:garden/key/tptoplot", 80, false);
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands"); expand("eviemod:commands/warp");
+                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:chat_commands"); expand("eviemod:commands/ping");
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Plot persisted");
                     check(EviemodSettings.features().garden.mouseLock, "Mouse lock persisted");
                     check(EviemodSettings.features().garden.keys.get("tptoplot").equals("key.keyboard.p"), "Garden key persisted");
                 }
                 case 65 -> capture(client, "merged-party.png");
                 case 70 -> {
-                    check(option("eviemod:commands/warp/party").set(false), "Party channel UI binding");
-                    check(option("eviemod:commands/warp/guild").set(true), "Guild channel UI binding");
+                    toggleRow("eviemod:commands/ping/party");
+                    toggleRow("eviemod:commands/ping/guild");
+                    toggleRow("eviemod:commands/ping/coop");
                     client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); expand("eviemod:hotkeys/0");
                 }
                 case 85 -> capture(client, "merged-hotkeys.png");
@@ -76,8 +83,8 @@ final class MergedFeaturesSmokeTest {
                     EviemodSettings.load();
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Reload never reapplies legacy plot");
                     check(FeatureSettings.isSoulWhipFixEnabled(), "Reload never reapplies legacy Soul Whip choice");
-                    check(!FeatureSettings.isPartyCommandEnabled("warp", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.PARTY), "Party disabled state");
-                    check(FeatureSettings.isPartyCommandEnabled("warp", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.GUILD), "Guild enabled state");
+                    check(!FeatureSettings.isPartyCommandEnabled("ping", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.PARTY), "Party disabled state");
+                    check(FeatureSettings.isPartyCommandEnabled("ping", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.GUILD), "Guild enabled state");
                     org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("MERGED_FEATURES_SMOKE_PASS");
                     client.stop();
                 }
@@ -93,8 +100,24 @@ final class MergedFeaturesSmokeTest {
         editor.setSelectedCategory(editor.getAllCategories().values().stream().filter(value -> value.getIdentifier().equals(category)).findFirst().orElseThrow());
     }
     private static ProcessedOption option(String path) {
-        return editor().getAllOptions().stream().filter(option -> option.getDebugDeclarationLocation().equals(path)).findFirst()
-            .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(ProcessedOption::getDebugDeclarationLocation).toList()));
+        return editor().getAllOptions().stream().filter(option -> optionId(option).equals(path)).findFirst()
+            .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(MergedFeaturesSmokeTest::optionId).toList()));
+    }
+    private static String optionId(ProcessedOption option) {
+        // The pinned library's LabelOption intentionally has no identifier.
+        try { return option.getDebugDeclarationLocation(); }
+        catch (UnsupportedOperationException ignored) { return ""; }
+    }
+    private static void toggleRow(String path) {
+        var option = option(path);
+        boolean before = (Boolean)option.get();
+        var control = (net.azureaaron.dandelion.deps.moulconfig.gui.editors.ComponentEditor)option.getEditor();
+        check(control.getHeight() == 22, "Compact toggle height");
+        var screen = (MoulConfigScreenComponent)Minecraft.getInstance().screen;
+        var context = new GuiImmediateContext(screen.createContext().getRenderContext(), 0, 0, 300, 22, 32, 11, 32, 11, 32F, 11F);
+        check(control.getDelegate().mouseEvent(new MouseEvent.Click(0, true), context), "Toggle row receives mouse click");
+        control.getDelegate().mouseEvent(new MouseEvent.Click(0, false), context);
+        check((Boolean)option.get() != before, "Toggle row updates its binding");
     }
     private static void expand(String path) {
         ((net.azureaaron.dandelion.deps.moulconfig.gui.editors.GuiOptionEditorAccordion)option(path).getEditor()).setToggled(true);

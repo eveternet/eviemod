@@ -8,6 +8,9 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImportedFeatureMigrationTest {
+    private static boolean retiredPestValue(ImportedFeatures.Garden garden) {
+        return new com.google.gson.Gson().toJsonTree(garden).getAsJsonObject().get("forceFinnegan").getAsBoolean();
+    }
     @TempDir Path config;
     private Path target() { return config.resolve("eviemod/settings.json"); }
     private ModSettings store() throws IOException { var store = new ModSettings(target()); store.load(); return store; }
@@ -30,7 +33,7 @@ class ImportedFeatureMigrationTest {
         assertTrue(new ImportedFeatures.Channels().party);
         assertFalse(new ImportedFeatures.Channels().guild);
         assertFalse(store.values().features.garden.mouseLock);
-        assertFalse(store.values().features.garden.forceFinnegan);
+        assertFalse(retiredPestValue(store.values().features.garden));
         assertEquals(1, store.values().features.garden.teleportPlot);
         assertFalse(store.values().migrations.skyblock); assertFalse(store.values().migrations.garden); assertFalse(store.values().migrations.soulWhip);
         assertFalse(Files.exists(target()));
@@ -43,7 +46,7 @@ class ImportedFeatureMigrationTest {
         assertTrue(store.values().migrations.skyblock); assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip);
         var values = store.values().features;
         assertFalse(values.soulWhip.enabled); assertFalse(values.skyblock.noBarrierEffects); assertFalse(values.skyblock.maxTenHearts);
-        assertFalse(values.skyblock.commandHotkeysEnabled); assertFalse(values.garden.mouseLock); assertFalse(values.garden.forceFinnegan);
+        assertFalse(values.skyblock.commandHotkeysEnabled); assertFalse(values.garden.mouseLock); assertFalse(retiredPestValue(values.garden));
         assertEquals(24, values.garden.teleportPlot);
         assertEquals(3, values.skyblock.commandHotkeys.size()); assertEquals(0, values.skyblock.commandHotkeys.get(0).key);
         assertEquals("/warp garden", values.skyblock.commandHotkeys.get(0).command); assertEquals(-1, values.skyblock.commandHotkeys.get(1).key);
@@ -68,14 +71,14 @@ class ImportedFeatureMigrationTest {
     @Test void standaloneGardenIsSupportedAndNeverModified() throws Exception {
         Path old = config.resolve("garden-tools.json"); String original = "{\"mouseLock\":true,\"forceFinnegan\":true,\"teleportPlot\":100}";
         Files.writeString(old, original); var store = store(); ImportedFeatureMigration.run(store, config);
-        assertTrue(store.values().features.garden.mouseLock); assertTrue(store.values().features.garden.forceFinnegan);
+        assertTrue(store.values().features.garden.mouseLock); assertTrue(retiredPestValue(store.values().features.garden));
         assertEquals(24, store.values().features.garden.teleportPlot); assertTrue(store.values().migrations.garden);
         assertFalse(store.values().migrations.skyblock); assertEquals(original, Files.readString(old));
     }
     @Test void combinedGardenReplacesStandaloneIncludingMissingFieldDefaults() throws Exception {
         Files.writeString(config.resolve("garden-tools.json"), "{\"mouseLock\":true,\"forceFinnegan\":true,\"teleportPlot\":15}");
         legacy("{\"garden\":{\"teleportPlot\":2}}"); var store = store(); ImportedFeatureMigration.run(store, config);
-        assertFalse(store.values().features.garden.mouseLock); assertFalse(store.values().features.garden.forceFinnegan); assertEquals(2, store.values().features.garden.teleportPlot);
+        assertFalse(store.values().features.garden.mouseLock); assertFalse(retiredPestValue(store.values().features.garden)); assertEquals(2, store.values().features.garden.teleportPlot);
     }
     @Test void existingValuesWinIndividuallyIncludingFalseDefaultAndEmptyList() throws Exception {
         Files.createDirectories(target().getParent()); Files.writeString(target(), """
@@ -102,7 +105,7 @@ class ImportedFeatureMigrationTest {
         legacy("{\"soulWhipFix\":false,\"maxTenHearts\":\"false\",\"garden\":{\"forceFinnegan\":true}}");
         var store = store(); ImportedFeatureMigration.run(store, config);
         assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip); assertFalse(store.values().migrations.skyblock);
-        assertTrue(store.values().features.skyblock.maxTenHearts); assertTrue(store.values().features.garden.forceFinnegan);
+        assertTrue(store.values().features.skyblock.maxTenHearts); assertTrue(retiredPestValue(store.values().features.garden));
         legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config); assertFalse(store.values().features.skyblock.maxTenHearts);
     }
     @Test void malformedInputsDoNotChangeLastValidDestinationOrSources() throws Exception {
@@ -199,6 +202,17 @@ class ImportedFeatureMigrationTest {
         draft.features.skyblock.commandHotkeys.clear(); draft.choose("skyblock.commandHotkeys");
         store.save(draft); legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config);
         assertTrue(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
+    }
+
+    @Test void retiredPestValuesAreOpaqueAndSurviveUnrelatedSettingsSaves() throws Exception {
+        Files.createDirectories(target().getParent());
+        Files.writeString(target(), "{\"features\":{\"garden\":{\"forceFinnegan\":true,\"keys\":{\"loadouts\":\"key.keyboard.l\"}}},\"migrations\":{\"garden\":true}}");
+        var store = store(); var draft = store.values().copy(); draft.opacity = 60; store.save(draft); store.load();
+        var garden = store.present().getAsJsonObject("features").getAsJsonObject("garden");
+        assertTrue(garden.get("forceFinnegan").getAsBoolean());
+        assertEquals("key.keyboard.l", garden.getAsJsonObject("keys").get("loadouts").getAsString());
+        assertTrue(store.values().migrations.garden);
+        assertThrows(NoSuchFieldException.class, () -> ImportedFeatures.Garden.class.getField("forceFinnegan"));
     }
 
 }

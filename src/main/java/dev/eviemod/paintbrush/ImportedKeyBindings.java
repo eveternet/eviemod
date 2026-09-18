@@ -17,7 +17,6 @@ final class ImportedKeyBindings {
         keys.put("tptoplot", GardenKeyMappings.TELEPORT_TO_PLOT);
         keys.put("setspawn", GardenKeyMappings.SET_SPAWN);
         keys.put("warp_garden", GardenKeyMappings.WARP_GARDEN);
-        keys.put("loadouts", GardenKeyMappings.LOADOUTS);
         return keys;
     }
     static void tick() {

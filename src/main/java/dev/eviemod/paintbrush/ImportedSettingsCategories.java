@@ -19,26 +19,29 @@ final class ImportedSettingsCategories {
             .binding(initial, get, set).controller(BooleanController.createBuilder().build()).build();
     }
     static List<ConfigCategory> create(ModSettings.Values draft) {
-        return List.of(visuals(draft), garden(draft), commands(draft), hotkeys(draft));
+        return List.of(garden(draft), commands(draft), hotkeys(draft));
     }
-    private static ConfigCategory visuals(ModSettings.Values draft) {
+    private static Option<Boolean> compactToggle(String path, String name, String description, boolean initial, Supplier<Boolean> get, Consumer<Boolean> set) {
+        var option = Option.<Boolean>createBuilder().id(id(path)).name(text(name))
+            .binding(initial, get, set).controller(CompactToggleController.INSTANCE);
+        if (!description.isEmpty()) option.description(text(description));
+        return option.build();
+    }
+    static OptionGroup visuals(ModSettings.Values draft) {
         var values = draft.features;
-        return ConfigCategory.createBuilder().id(id("skyblock_visuals")).name(text("SkyBlock Visuals"))
-            .option(toggle("visuals/barrier", "No Barrier Effects", "Removes client-side barrier border effects in SkyBlock.", true,
+        return OptionGroup.createBuilder().id(id("skyblock_visuals")).name(text("SkyBlock Visuals"))
+            .option(compactToggle("visuals/barrier", "No Barrier Effects", "Removes client-side barrier border effects in SkyBlock.", true,
                 () -> values.skyblock.noBarrierEffects, value -> { values.skyblock.noBarrierEffects = value; draft.choose("skyblock.noBarrierEffects"); }))
-            .option(toggle("visuals/hearts", "Max 10 Hearts", "Scales SkyBlock health to 10 hearts outside The Rift.", true,
+            .option(compactToggle("visuals/hearts", "Max 10 Hearts", "Scales SkyBlock health to 10 hearts outside The Rift.", true,
                 () -> values.skyblock.maxTenHearts, value -> { values.skyblock.maxTenHearts = value; draft.choose("skyblock.maxTenHearts"); }))
-            .group(OptionGroup.createBuilder().id(id("soul_whip")).name(text("Soul Whip Fix")).collapsed(false)
-                .option(toggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", true,
-                    () -> values.soulWhip.enabled, value -> { values.soulWhip.enabled = value; draft.choose("soulWhip.enabled"); })).build()).build();
+            .option(compactToggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", true,
+                    () -> values.soulWhip.enabled, value -> { values.soulWhip.enabled = value; draft.choose("soulWhip.enabled"); })).build();
     }
     private static ConfigCategory garden(ModSettings.Values draft) {
         var values = draft.features.garden;
-        var category = ConfigCategory.createBuilder().id(id("garden")).name(text("Garden Tools"))
+        var category = ConfigCategory.createBuilder().id(id("garden")).name(text("Garden"))
             .option(toggle("garden/mouse_lock", "Mouse Lock", "Locks the camera while grounded in the Garden holding a farming tool.", false,
                 () -> values.mouseLock, value -> { values.mouseLock = value; draft.choose("garden.mouseLock"); }))
-            .option(toggle("garden/finnegan", "Force Finnegan", "Uses the shorter Finnegan pest cooldown: 75 seconds instead of 135.", false,
-                () -> values.forceFinnegan, value -> { values.forceFinnegan = value; draft.choose("garden.forceFinnegan"); }))
             .option(Option.<Integer>createBuilder().id(id("garden/plot")).name(text("Teleport Plot"))
                 .description(text("Plot used by the teleport key."))
                 .binding(1, () -> values.teleportPlot, value -> { values.teleportPlot = value; draft.choose("garden.teleportPlot"); })
@@ -54,14 +57,15 @@ final class ImportedSettingsCategories {
         return category.build();
     }
     private static ConfigCategory commands(ModSettings.Values draft) {
-        var category = ConfigCategory.createBuilder().id(id("party_commands")).name(text("Party Commands"));
+        var category = ConfigCategory.createBuilder().id(id("chat_commands")).name(text("Chat Commands"));
         for (var feature : PartyCommandController.FEATURES) {
             var channels = draft.features.skyblock.partyCommands.getOrDefault(feature.key(), new ImportedFeatures.Channels());
             var group = OptionGroup.createBuilder().id(id("commands/" + feature.key())).name(text(feature.name()))
-                .description(text(feature.description())).collapsed(false);
+                .description(text(feature.description())).collapsed(false)
+                .option(LabelOption.createBuilder().label(text(feature.description())).build());
             for (var channel : PartyCommandController.CommandChannel.values()) {
                 String path = "commands/" + feature.key() + "/" + channel.name().toLowerCase(Locale.ROOT);
-                group.option(toggle(path, channel.displayName, feature.description(), channel == PartyCommandController.CommandChannel.PARTY,
+                group.option(compactToggle(path, channel.displayName, "", channel == PartyCommandController.CommandChannel.PARTY,
                     () -> switch (channel) { case PARTY -> channels.party; case GUILD -> channels.guild; case COOP -> channels.coop; },
                     value -> { draft.features.skyblock.partyCommands.put(feature.key(), channels); draft.choose("skyblock.partyCommands." + feature.key() + "." + channel.name().toLowerCase(Locale.ROOT)); switch (channel) { case PARTY -> channels.party = value; case GUILD -> channels.guild = value; case COOP -> channels.coop = value; } }));
             }

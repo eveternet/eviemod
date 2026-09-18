@@ -16,7 +16,6 @@ public final class GardenToolsClient {
 
    public static void initialize() {
       GardenKeyMappings.initialize();
-      PestWorkflow.initialize();
       ClientCommandRegistrationCallback.EVENT
          .register(
             (ClientCommandRegistrationCallback)(dispatcher, registryAccess) -> dispatcher.register(
@@ -28,7 +27,6 @@ public final class GardenToolsClient {
          );
       ClientTickEvents.START_CLIENT_TICK.register((StartTick)client -> {
          GardenCommandKeys.tick(client);
-         PestWorkflow.tick(client);
       });
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> mouseLocked = shouldLockMouse(client));
    }

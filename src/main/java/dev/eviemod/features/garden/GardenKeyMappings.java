@@ -12,7 +12,6 @@ public final class GardenKeyMappings {
    public static final KeyMapping TELEPORT_TO_PLOT = register("tptoplot");
    public static final KeyMapping SET_SPAWN = register("setspawn");
    public static final KeyMapping WARP_GARDEN = register("warp_garden");
-   public static final KeyMapping LOADOUTS = register("loadouts");
 
    private GardenKeyMappings() {
    }

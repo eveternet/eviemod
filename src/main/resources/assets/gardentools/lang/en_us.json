@@ -2,6 +2,5 @@
   "key.category.gardentools.commands": "eviemod: Garden",
   "key.gardentools.tptoplot": "Run /tptoplot",
   "key.gardentools.setspawn": "Run /setspawn",
-  "key.gardentools.warp_garden": "Run /warp garden",
-  "key.gardentools.loadouts": "Pest workflow: open /loadouts"
+  "key.gardentools.warp_garden": "Run /warp garden"
 }

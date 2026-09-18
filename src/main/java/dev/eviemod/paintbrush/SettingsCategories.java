@@ -11,7 +11,7 @@ final class SettingsCategories {
     @FunctionalInterface interface CategoryFactory {
         ConfigCategory create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures);
     }
-    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::paintBrush, SettingsCategories::texturePackBypasser);
+    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::texturePackBypasser);
     static List<ConfigCategory> create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures) {
         var categories = new java.util.ArrayList<>(CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList());
         categories.addAll(ImportedSettingsCategories.create(settings));
@@ -38,7 +38,9 @@ final class SettingsCategories {
                     .description(text("Background opacity, from 0 to 100 percent."))
                     .binding(45, () -> draft.opacity, value -> draft.opacity = value)
                     .controller(IntegerController.createBuilder().range(0, 100).slider(5).build()).build())
-                .build()).build();
+                .build())
+            .group(paintBrush(draft, fixtures))
+            .group(ImportedSettingsCategories.visuals(draft)).build();
     }
     private static ConfigCategory texturePackBypasser(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("texture_pack_bypasser")).name(text("Hypixel Pack"))
@@ -59,8 +61,8 @@ final class SettingsCategories {
                     }
                 }).build()).build();
     }
-    private static ConfigCategory paintBrush(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
-        return ConfigCategory.createBuilder().id(id("paintbrush")).name(text("Paint Brush"))
+    private static OptionGroup paintBrush(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
+        return OptionGroup.createBuilder().id(id("paintbrush")).name(text("Paint Brush"))
             .description(text("Customize item models, dyes, names, skins and textures"))
             .option(ButtonOption.createBuilder().id(id("paintbrush/editor")).name(text("Paint Brush editor"))
                 .description(text("Customize an item's model, dye and name."))
