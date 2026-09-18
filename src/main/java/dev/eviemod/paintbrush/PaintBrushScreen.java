@@ -15,6 +15,7 @@ import dev.eviemod.paintbrush.mixin.EditBoxSelectionAccessor;
 
 public final class PaintBrushScreen extends CompactScreen {
     private static final int HORIZONTAL_INSET = 16;
+    private static final int EDITOR_SIDE_PADDING = 5;
     private final net.minecraft.client.gui.screens.Screen parent;
     private final Map<UUID, Draft> drafts = new HashMap<>();
     private final List<ItemStack> fixtures;
@@ -311,8 +312,11 @@ public final class PaintBrushScreen extends CompactScreen {
         updateSelection();
         g.fill(0, 0, viewWidth, viewHeight, 0x99000000);
         EditorTheme.panel(g, x, y, w, h);
-        g.text(font, "Paint Brush", x + (w - font.width("Paint Brush")) / 2, y + 15, 0xffcccccc);
-        EditorTheme.inset(g, left, y + 101, contentWidth, 105);
+        g.pose().pushMatrix();
+        g.pose().translate(x + (w - font.width("Paint Brush")) / 2f, y + 14);
+        g.text(font, "Paint Brush", 0, 0, 0xffcccccc);
+        g.pose().popMatrix();
+        EditorTheme.inset(g, left - EDITOR_SIDE_PADDING, y + 101, contentWidth + 2 * EDITOR_SIDE_PADDING, 105);
         if (draft == null) g.text(font, "Choose an item to customize", left, y + 112, 0xffcccccc);
         if (draft != null) {
             var preview = selected.copy(); preview.remove(DataComponents.CUSTOM_DATA);
