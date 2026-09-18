@@ -54,7 +54,9 @@ final class ImportedFeatureMigration {
             // The combined mod loads garden-tools.json, then replaces that entire object when garden exists.
             if (combined.has("garden")) result = object(combined.get("garden"), "garden").deepCopy();
             else if (Files.exists(garden)) result = read(garden);
-            else return null;
+            else if (!hasGardenKeys(directory)) return null;
+            // Native key choices are part of the Garden migration transaction, before its marker.
+            result.add("keys", gardenKeys(directory));
             if (result.has("teleportPlot")) {
                 integer(result.get("teleportPlot"), "teleportPlot");
                 result.addProperty("teleportPlot", Math.clamp(result.get("teleportPlot").getAsInt(), 1, 24));
@@ -64,6 +66,29 @@ final class ImportedFeatureMigration {
         var features = new JsonObject(); features.add(group, result); wrapper.add("features", features);
         validate(wrapper); // Validate source even when an existing destination value would win.
         return result;
+    }
+
+    private static final List<String> GARDEN_KEYS = List.of("tptoplot", "setspawn", "warp_garden", "loadouts");
+    private static boolean hasGardenKeys(Path directory) throws IOException {
+        Path options = directory.resolveSibling("options.txt");
+        if (!Files.exists(options)) return false;
+        return Files.readAllLines(options).stream().anyMatch(line -> GARDEN_KEYS.stream()
+            .anyMatch(key -> line.startsWith("key_key.gardentools." + key + ":")));
+    }
+    private static JsonObject gardenKeys(Path directory) throws IOException {
+        var keys = new JsonObject();
+        for (String key : GARDEN_KEYS) keys.addProperty(key, "key.keyboard.unknown");
+        Path options = directory.resolveSibling("options.txt");
+        if (Files.exists(options)) for (String line : Files.readAllLines(options)) for (String key : GARDEN_KEYS) {
+            String prefix = "key_key.gardentools." + key + ":";
+            if (line.startsWith(prefix)) {
+                String value = line.substring(prefix.length());
+                if (!value.matches("key\\.(keyboard|mouse)\\.[a-z0-9._-]+") && !value.matches("scancode\\.[0-9]+"))
+                    throw new IllegalArgumentException("Unsupported legacy Garden key binding: " + key);
+                keys.addProperty(key, value);
+            }
+        }
+        return keys;
     }
 
     static JsonObject read(Path path) throws IOException {

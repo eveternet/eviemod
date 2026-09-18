@@ -46,7 +46,7 @@ final class MergedFeaturesSmokeTest {
                 }
                 case 45 -> capture(client, "merged-garden.png");
                 case 50 -> {
-                    check(option("eviemod:garden/plot").set(7), "Plot UI binding");
+                    check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
                     ((net.minecraft.client.KeyMapping)option("eviemod:garden/key/tptoplot").get()).setKey(InputConstants.Type.KEYSYM.getOrCreate(80));
                     client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands");
