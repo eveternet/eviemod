@@ -16,6 +16,7 @@ public final class UiSmokeTest implements ClientModInitializer {
     private boolean opened;
     private int captureTicks;
     @Override public void onInitializeClient() {
+        if (Boolean.getBoolean("eviemod.packCapture")) { new PackBypassSmokeTest().start(); return; }
         if (Boolean.getBoolean("eviemod.textureCapture")) { new TextureSmokeTest().start(); return; }
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof TitleScreen) {

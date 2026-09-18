@@ -54,6 +54,7 @@ if (providers.gradleProperty('uiSmokeTest').isPresent()) {
     tasks.named('runClient') {
         if (providers.gradleProperty('uiCapture').isPresent()) jvmArgs '-Deviemod.capture=true'
         if (providers.gradleProperty('textureCapture').isPresent()) jvmArgs '-Deviemod.textureCapture=true'
+        if (providers.gradleProperty('packCapture').isPresent()) jvmArgs '-Deviemod.packCapture=true'
         dependsOn tasks.named('uiTestClasses')
         classpath += sourceSets.uiTest.runtimeClasspath
     }
