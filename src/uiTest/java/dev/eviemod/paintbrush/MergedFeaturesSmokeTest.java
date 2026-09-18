@@ -94,8 +94,8 @@ final class MergedFeaturesSmokeTest {
         editor.setSelectedCategory(editor.getAllCategories().values().stream().filter(value -> value.getIdentifier().equals(category)).findFirst().orElseThrow());
     }
     private static ProcessedOption option(String path) {
-        return editor().getAllOptions().stream().filter(option -> option.getPath().equals(path)).findFirst()
-            .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(ProcessedOption::getPath).toList()));
+        return editor().getAllOptions().stream().filter(option -> option.getDebugDeclarationLocation().equals(path)).findFirst()
+            .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(ProcessedOption::getDebugDeclarationLocation).toList()));
     }
     @SuppressWarnings("unchecked")
     private static void action(String path) { ((Consumer<Screen>)option(path).get()).accept(Minecraft.getInstance().screen); }
