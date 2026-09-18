@@ -2,15 +2,15 @@
 
 Client-only Fabric mod for **Minecraft 26.1.2**, Java 25, Fabric Loader 0.19.5+, and Fabric API 0.155.2+26.1.2 or a compatible newer release for 26.1.2.
 
-Install `build/libs/eviemod-2.1.1+26.1.2.jar` and Fabric API in your instance's `mods` directory. Remove the old Skyshitter JAR when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
+Install `build/libs/eviemod-4.0.0+26.1.2.jar` and Fabric API in your instance's `mods` directory. Replace the previous eviemod JAR and remove Kabeewie Unified (and any standalone Garden Tools, Soul Whip Fix, SkyBlock Visuals or Skyshitter JAR) when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
 
-On first launch, old `skyshitter-paintbrush.json`, `skyshitter-colors.json`, and `skyshitter-names.json` files are copied to their `eviemod-*` equivalents. Original files are preserved, and existing eviemod files are never overwritten.
+All active mod configuration lives in `config/eviemod/`. Existing root-level eviemod files (or older skyshitter per-item files) are copied once; originals are preserved and existing destination files win. Kabeewie settings migrate once per feature group without changing legacy files. See [integration and migration details](docs/kabeewie-integration.md).
 
 ## Settings and rarity backgrounds
 
 Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. The Paint Brush category has an **Open editor** button. `/paintbrush` opens that same standalone editor directly. Its panels use MoulConfig’s renderer, with matching dark surfaces and cyan selection accents.
 
-Rarity backgrounds default to square with 45% opacity. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
+Rarity backgrounds default to square with 45% opacity. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod/settings.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
 
 Background visibility follows the supplied Skyblocker 6.10.2+26.1.2 JAR's vanilla UI hooks: ordinary container/inventory slots and the nine main hotbar slots, only while Hypixel's location API reports the `SKYBLOCK` game type. There is no global GUI-item hook. Cursor-held items, floating/snapback renders, fake slots, offhand hotbar items, and arbitrary previews do not get backgrounds. The development fixture has the same local-development exception as Skyblocker.
 
@@ -45,9 +45,9 @@ Helmet skins and custom models are applied per item; there are no extra enable t
 - **Skin:** select a helmet or player head, search the bundled Hypixel helmet skins and press Apply, and choose a colour/variant when available. Custom skin uploads are not offered. Its item and worn appearance update without reloading resource packs. Reset restores its original appearance.
 - **Model:** choose an existing model, or select Bow, Sword, or Handheld and **Import PNG & apply**. A strip-shaped PNG prompts you to choose its `.mcmeta` file; nearby files are never read automatically. You can choose metadata from any folder, drop the PNG and metadata together, or explicitly use a static image. Imports appear as “Uses a custom model”; Reset clears the model. Uploaded textures are disabled for armor; standard model changes such as gold to leather remain available, including dyeing the leather appearance.
 
-PNGs are limited to 1024 × 1024 and 4 MB. Held-item imports reload the generated resource pack once. Animated sprites support frame order, timing and interpolation; bow drawing stages are not generated. Keep `resourcepacks/eviemod-paintbrush` to retain imports after restarting; source files can be moved or deleted. Skin choices are stored in `config/eviemod-helmet-skins.json`; item models use the existing per-UUID model file. Applied skin names and variants reappear when you reopen the editor. The bundled skin list is a snapshot, and animated helmet variants use a representative frame. See [skin and texture implementation notes](docs/paintbrush-imports.md).
+PNGs are limited to 1024 × 1024 and 4 MB. Held-item imports reload the generated resource pack once. Animated sprites support frame order, timing and interpolation; bow drawing stages are not generated. Keep `resourcepacks/eviemod-paintbrush` to retain imports after restarting; source files can be moved or deleted. Skin choices are stored in `config/eviemod/helmet-skins.json`; item models use the existing per-UUID model file. Applied skin names and variants reappear when you reopen the editor. The bundled skin list is a snapshot, and animated helmet variants use a representative frame. See [skin and texture implementation notes](docs/paintbrush-imports.md).
 
-Mappings persist in `config/eviemod-paintbrush.json` in your Minecraft instance. You can also edit this file to configure a UUID directly, then run `/paintbrush reload`:
+Mappings persist in `config/eviemod/paintbrush.json` in your Minecraft instance. You can also edit this file to configure a UUID directly, then run `/paintbrush reload`:
 
 ```json
 {
@@ -69,7 +69,7 @@ Hold a UUID-bearing dyeable item in your main hand:
 /paintbrush color clear
 ```
 
-Six hex digits with or without `#` are accepted, including black (`#000000`). Dye names (with or without “Dye”) and IDs such as `DYE_ROSE` are also accepted, case-insensitively; commands offer dye-name completions. Named presets persist as IDs in the same color file, alongside existing hex values. Animated presets loop through the bundled sampled colors at 100 ms per frame using a shared clock, so inventory and worn armor stay in phase. This is local playback, not synchronization with the server’s animation phase. Colors persist by UUID in `config/eviemod-colors.json`. `/paintbrush reload` reloads name, color, and model files. Replace the old eviemod JAR when upgrading; existing model mappings remain compatible.
+Six hex digits with or without `#` are accepted, including black (`#000000`). Dye names (with or without “Dye”) and IDs such as `DYE_ROSE` are also accepted, case-insensitively; commands offer dye-name completions. Named presets persist as IDs in the same color file, alongside existing hex values. Animated presets loop through the bundled sampled colors at 100 ms per frame using a shared clock, so inventory and worn armor stay in phase. This is local playback, not synchronization with the server’s animation phase. Colors persist by UUID in `config/eviemod/colors.json`. `/paintbrush reload` reloads name, color, and model files. Replace the old eviemod JAR when upgrading; existing model mappings remain compatible.
 
 The local color overrides the dye tint for normal item rendering and worn leather armor. The original `DYED_COLOR` component and tooltip remain unchanged. Models/resource packs must use Minecraft's dye tint for item colors to appear; fixed-color textures do not become tintable. Model and color overrides are independent, with separate clear commands. Items without a UUID and non-dyeable items keep their normal colors. Dyeable equipment includes leather armor, leather horse armor, wolf armor, and items in Minecraft’s dye-removal tag. The bundled catalog contains 42 static and 24 animated Hypixel dyes from the [NEU dye definitions](https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO/blob/4828ec7c4a05010e112df8b01f447ded0d487b8d/constants/dyes.json), retrieved September 16, 2026. Fairy armor palettes and vanilla crafting dyes are excluded. Future dyes require a catalog update; there are no runtime downloads.
 
@@ -89,7 +89,7 @@ Hold any SkyBlock item with a UUID and use:
 
 Enter the name directly, including spaces; quotation marks are unnecessary and are treated literally. Names contain 1–256 text characters, with no line breaks or legacy formatting codes. The command creates a plain name; use the editor for styling and gradients. Clearing restores the original display name.
 
-Names persist in `config/eviemod-names.json` as UUID-to-styled-name mappings. Legacy UUID-to-string name files load automatically; saving upgrades them to the styled format. `/paintbrush reload` reloads names, models, and colors independently. Existing model and color files remain compatible. Names affect the normal `ItemStack.getHoverName` display lookup, including tooltips and selected-item labels. Server-written chat, scoreboard text, and third-party displays that read raw components are outside this hook. `CUSTOM_NAME`, lore, stack serialization, and the server's item remain unchanged.
+Names persist in `config/eviemod/names.json` as UUID-to-styled-name mappings. Legacy UUID-to-string name files load automatically; saving upgrades them to the styled format. `/paintbrush reload` reloads names, models, and colors independently. Existing model and color files remain compatible. Names affect the normal `ItemStack.getHoverName` display lookup, including tooltips and selected-item labels. Server-written chat, scoreboard text, and third-party displays that read raw components are outside this hook. `CUSTOM_NAME`, lore, stack serialization, and the server's item remain unchanged.
 
 ## Rendering and item safety
 
@@ -109,7 +109,7 @@ With Java 25 selected:
 ./gradlew build
 ```
 
-Output: `build/libs/eviemod-2.1.1+26.1.2.jar` (the sources JAR is not the installable mod).
+Output: `build/libs/eviemod-4.0.0+26.1.2.jar` (the sources JAR is not the installable mod).
 
 Automated tests cover UUID extraction, missing and malformed UUIDs, distinct UUIDs, unchanged stack components, changed stack data, persistence, clearing, and malformed config preservation. Color tests also cover all four leather armor pieces, opaque black, hex validation, non-leather exclusions, persistence, and unchanged dye components. Name tests cover persistence, clearing, validation, fallback, styling, Unicode gradient endpoints and interpolation, selection ranges in either direction, edits preserving formatting, styled-space persistence, legacy migration, autocomplete matching, suggestion click routing and acceptance, dropdown bounds and focus, and unchanged stack components.
 
@@ -148,3 +148,11 @@ reloads. Automatic checks run at most daily; changed selected packs reload on th
 entry. **Check for updates** checks immediately and applies an available update.
 
 See [implementation and validation notes](docs/texture-pack-bypasser.md).
+
+## Imported Kabeewie features (4.0.0)
+
+The shared settings page now includes SkyBlock visuals, Soul Whip Fix, Garden Tools, party
+commands and custom command hotkeys from Kabeewie Unified 1.2.0. The supplied behavior,
+settings and defaults are retained. `/kabeewie` and `/gardentools` are aliases into this same
+page. Migration keeps existing eviemod choices and leaves the old configuration files as
+backups. See [migration rules and verification limits](docs/kabeewie-integration.md).

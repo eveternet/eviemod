@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import java.util.function.Consumer;
+
 
 /** Offline fixture: exercises the actual generated MoulConfig controls and transformed mixin targets. */
 final class MergedFeaturesSmokeTest {
@@ -48,7 +48,7 @@ final class MergedFeaturesSmokeTest {
                 case 50 -> {
                     check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
-                    ((net.minecraft.client.KeyMapping)option("eviemod:garden/key/tptoplot").get()).setKey(InputConstants.Type.KEYSYM.getOrCreate(80));
+                    captureKey("eviemod:garden/key/tptoplot", 80, false);
                     client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands");
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Plot persisted");
                     check(EviemodSettings.features().garden.mouseLock, "Mouse lock persisted");
@@ -63,7 +63,7 @@ final class MergedFeaturesSmokeTest {
                 case 85 -> capture(client, "merged-hotkeys.png");
                 case 90 -> {
                     check(option("eviemod:hotkeys/0/command").set("/warp garden"), "Command text UI binding");
-                    ((net.minecraft.client.KeyMapping)option("eviemod:hotkeys/0/key").get()).setKey(InputConstants.Type.MOUSE.getOrCreate(2));
+                    captureKey("eviemod:hotkeys/0/key", 2, true);
                     action("eviemod:hotkeys/add");
                     check(EviemodSettings.features().skyblock.commandHotkeys.size() == 2, "Add control persists and rebuilds");
                     check(EviemodSettings.features().skyblock.commandHotkeys.get(0).key == 2, "Mouse binding retained");
@@ -98,8 +98,22 @@ final class MergedFeaturesSmokeTest {
         return editor().getAllOptions().stream().filter(option -> option.getDebugDeclarationLocation().equals(path)).findFirst()
             .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(ProcessedOption::getDebugDeclarationLocation).toList()));
     }
-    @SuppressWarnings("unchecked")
-    private static void action(String path) { ((Consumer<Screen>)option(path).get()).accept(Minecraft.getInstance().screen); }
+    private static void action(String path) { ((Runnable)option(path).get()).run(); }
+    private static void captureKey(String path, int code, boolean mouse) {
+        var control = (net.azureaaron.dandelion.deps.moulconfig.gui.editors.ComponentEditor)option(path).getEditor();
+        GuiComponent key = control.getDelegate().foldRecursive((GuiComponent)null,
+            (component, found) -> component.getClass().getSimpleName().equals("KeyMappingComponent") ? component : found);
+        check(key != null, "Standard key capture control");
+        var screen = (MoulConfigScreenComponent)Minecraft.getInstance().screen;
+        var context = new GuiImmediateContext(screen.createContext().getRenderContext(), 0, 0, 0, 30, 0, 15, 0, 15, 0F, 15F);
+        check(key.mouseEvent(new MouseEvent.Click(0, true), context), "Enter key capture");
+        key.mouseEvent(new MouseEvent.Click(0, false), context);
+        if (mouse) check(key.mouseEvent(new MouseEvent.Click(code, true), context), "Capture mouse button");
+        else {
+            key.keyboardEvent(new KeyboardEvent.KeyPressed(code, 0, true), context);
+            check(key.keyboardEvent(new KeyboardEvent.KeyPressed(code, 0, false), context), "Capture keyboard key");
+        }
+    }
     private static void capture(Minecraft client, String name) {
         net.minecraft.client.Screenshot.grab(client.gameDirectory, name, client.getMainRenderTarget(), 1, message -> {});
     }

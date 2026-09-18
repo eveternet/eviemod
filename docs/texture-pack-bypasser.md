@@ -17,7 +17,7 @@ fallback or hardcoded pack version/URL. Download URLs must be HTTPS on
 New installations use the fixed filename `eviemod-hypixel.zip`. Existing installations retain
 their recorded `eviemod-hypixel-<UUID>.zip` path (a one-time UUID, not a hash or version),
 so their Minecraft selection ID and ordering remain intact. Updates replace the same path
-after temporary-file validation; hash and deployment version live only in configuration. `config/eviemod-hypixel-pack.json` stores that filename, deployment ID, format,
+after temporary-file validation; hash and deployment version live only in configuration. `config/eviemod/hypixel-pack.json` stores that filename, deployment ID, format,
 URL, hash, last attempted check and pending reload. The worker verifies SHA-1 on startup/checks;
 the packet adapter checks file identity, size and modification time without blocking on hashing.
 SHA-1 verifies the API's content identity, not independent authenticity (HTTPS supplies that).

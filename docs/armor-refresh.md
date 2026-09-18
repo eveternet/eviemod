@@ -40,7 +40,7 @@ Backgrounds appear in real container slots and the nine main hotbar slots while 
 
 Player/world changes clear all rarity memory. Changed/empty local slots clear their remembered identity. An item never observed with rarity is not guessed from its item ID. Same-type, same-ID swaps without UUIDs can retain the old rarity until full data returns.
 
-A player/world change clears session rarity memory. Setting `rememberRarity` to false in `config/eviemod.json` and reloading disables continuity. If using Skyblocker too, disable one mod’s rarity backgrounds to avoid drawing both.
+A player/world change clears session rarity memory. Setting `rememberRarity` to false in `config/eviemod/settings.json` and reloading disables continuity. If using Skyblocker too, disable one mod’s rarity backgrounds to avoid drawing both.
 
 Source reference: EquipmentColorContinuity, WornArmorOwnership, EquipmentLayerRendererMixin, RarityMemory.
 
