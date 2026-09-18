@@ -167,4 +167,38 @@ class ImportedFeatureMigrationTest {
             assertEquals("new", Files.readString(migrated)); assertEquals("old-" + name, Files.readString(old));
         }
     }
+    @Test void nativeGardenKeysAreInTheSameTransactionAndOptionsRemainUnchanged() throws Exception {
+        Path instanceConfig = config.resolve("instance/config"); Files.createDirectories(instanceConfig);
+        Path options = instanceConfig.resolveSibling("options.txt");
+        String original = "version:4790\nkey_key.gardentools.tptoplot:key.keyboard.o\nkey_key.gardentools.loadouts:key.mouse.middle\n";
+        Files.writeString(options, original);
+        var store = new ModSettings(instanceConfig.resolve("eviemod/settings.json")); store.load();
+        ImportedFeatureMigration.run(store, instanceConfig); store.load();
+        assertTrue(store.values().migrations.garden); assertFalse(store.values().migrations.skyblock);
+        assertEquals("key.keyboard.o", store.values().features.garden.keys.get("tptoplot"));
+        assertEquals("key.mouse.middle", store.values().features.garden.keys.get("loadouts"));
+        assertEquals("key.keyboard.unknown", store.values().features.garden.keys.get("setspawn"));
+        assertEquals(original, Files.readString(options));
+        Files.writeString(options, "key_key.gardentools.tptoplot:key.keyboard.x\n");
+        ImportedFeatureMigration.run(store, instanceConfig);
+        assertEquals("key.keyboard.o", store.values().features.garden.keys.get("tptoplot"));
+    }
+    @Test void malformedNativeGardenKeyDoesNotCompleteGardenOrChangeEitherFile() throws Exception {
+        Path instanceConfig = config.resolve("instance/config"); Files.createDirectories(instanceConfig.resolve("kabeewie"));
+        Files.writeString(instanceConfig.resolve("kabeewie/config.json"), "{\"garden\":{\"teleportPlot\":10},\"soulWhipFix\":false}");
+        Path options = instanceConfig.resolveSibling("options.txt"); Files.writeString(options, "key_key.gardentools.tptoplot:???\n");
+        var store = new ModSettings(instanceConfig.resolve("eviemod/settings.json")); store.load();
+        ImportedFeatureMigration.run(store, instanceConfig);
+        assertFalse(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip);
+        assertEquals(1, store.values().features.garden.teleportPlot);
+        assertEquals("key_key.gardentools.tptoplot:???\n", Files.readString(options));
+    }
+    @Test void explicitDefaultValuedUiChoiceWinsOverLaterLegacyValue() throws Exception {
+        var store = store(); var draft = store.values().copy();
+        draft.features.soulWhip.enabled = true; draft.choose("soulWhip.enabled");
+        draft.features.skyblock.commandHotkeys.clear(); draft.choose("skyblock.commandHotkeys");
+        store.save(draft); legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config);
+        assertTrue(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
+    }
+
 }

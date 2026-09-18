@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory;
 
 /** Keeps native Garden mappings compatible with options.txt while eviemod owns their saved values. */
 final class ImportedKeyBindings {
-    private static Map<String, String> applied;
+    private static Map<String, String> configuredSnapshot, appliedSnapshot;
+    private static long retryAfter;
     static Map<String, KeyMapping> garden() {
         var keys = new LinkedHashMap<String, KeyMapping>();
         keys.put("tptoplot", GardenKeyMappings.TELEPORT_TO_PLOT);
@@ -20,28 +21,32 @@ final class ImportedKeyBindings {
         return keys;
     }
     static void tick() {
-        if (EviemodSettings.STORE.error() != null) return;
+        if (EviemodSettings.STORE.error() != null || System.nanoTime() < retryAfter) return;
         var configured = EviemodSettings.features().garden.keys;
         var current = new LinkedHashMap<String, String>();
         garden().forEach((name, mapping) -> current.put(name, mapping.saveString()));
         try {
-            if (applied == null) {
+            if (configuredSnapshot == null) {
                 // Minecraft has loaded its native options by the first client tick.
                 var next = EviemodSettings.STORE.values().copy();
                 current.forEach(next.features.garden.keys::putIfAbsent);
                 if (!next.features.garden.keys.equals(configured)) EviemodSettings.STORE.save(next);
                 apply();
-            } else if (!applied.equals(configured)) apply();
-            else if (!current.equals(applied)) {
+            } else if (!configuredSnapshot.equals(configured)) apply();
+            else if (!current.equals(appliedSnapshot)) {
                 // Edits from Minecraft's Controls screen remain supported too.
                 var next = EviemodSettings.STORE.values().copy();
-                next.features.garden.keys.putAll(current);
+                current.forEach((name, value) -> {
+                    if (!value.equals(appliedSnapshot.get(name))) next.features.garden.keys.put(name, value);
+                });
                 EviemodSettings.STORE.save(next);
-                applied = Map.copyOf(next.features.garden.keys);
+                configuredSnapshot = Map.copyOf(next.features.garden.keys);
+                appliedSnapshot = Map.copyOf(current);
             }
         } catch (IOException | RuntimeException e) {
             LoggerFactory.getLogger("eviemod").warn("Could not save Garden key bindings", e);
             apply();
+            retryAfter = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
         }
     }
     private static void apply() {
@@ -53,6 +58,9 @@ final class ImportedKeyBindings {
             }
         });
         KeyMapping.resetMapping();
-        applied = Map.copyOf(keys);
+        configuredSnapshot = Map.copyOf(keys);
+        var current = new LinkedHashMap<String, String>();
+        garden().forEach((name, mapping) -> current.put(name, mapping.saveString()));
+        appliedSnapshot = Map.copyOf(current);
     }
 }

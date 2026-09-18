@@ -113,7 +113,8 @@ duplicate handlers/mixins from Kabeewie, Garden Tools, Soul Whip Fix or SkyBlock
 late-arriving groups after restart, disabled values, every supported setting, destination
 conflicts, once-only behavior, unchanged source bytes/timestamps, malformed source and
 destination data, partial older objects, both Garden source layouts, actual filesystem
-failure, injected data-save failure and injected marker-save failure.
+failure, injected data-save failure, injected marker-save failure, native Garden key migration,
+unchanged native options, and explicit choices equal to defaults.
 
 `MergedFeaturesSmokeTest` is an offline client fixture using the actual generated
 MoulConfig options and standard key-capture component. It loads all five imported mixin

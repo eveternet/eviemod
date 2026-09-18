@@ -24,6 +24,7 @@ final class ConfigMigration {
     }
     static Path migrate(Path directory, String name) throws IOException {
         Path target = target(directory, name);
+        if (Files.exists(target)) return target;
         Path previous = directory.resolve(name);
         Path legacy = Files.exists(previous) ? previous : directory.resolve(name.replace("eviemod-", "skyshitter-"));
         // Copy atomically, once. Both generations remain untouched as backups.

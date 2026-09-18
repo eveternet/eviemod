@@ -1,6 +1,5 @@
 package dev.eviemod.paintbrush;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.eviemod.features.skyblock.FeatureSettings;
 import net.azureaaron.dandelion.deps.moulconfig.gui.*;
 import net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent;
@@ -9,7 +8,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-
 
 /** Offline fixture: exercises the actual generated MoulConfig controls and transformed mixin targets. */
 final class MergedFeaturesSmokeTest {
@@ -33,7 +31,7 @@ final class MergedFeaturesSmokeTest {
             }
             ticks++;
             switch (ticks) {
-                case 10 -> select("eviemod:skyblock_visuals");
+                case 10 -> { select("eviemod:skyblock_visuals"); editor().goToOption(option("eviemod:soul_whip/enabled")); }
                 case 25 -> capture(client, "merged-visuals.png");
                 case 30 -> {
                     check(option("eviemod:soul_whip/enabled").set(true), "Soul Whip UI binding");
@@ -49,7 +47,7 @@ final class MergedFeaturesSmokeTest {
                     check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
                     captureKey("eviemod:garden/key/tptoplot", 80, false);
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands");
+                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands"); editor().goToOption(option("eviemod:commands/warp/party"));
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Plot persisted");
                     check(EviemodSettings.features().garden.mouseLock, "Mouse lock persisted");
                     check(EviemodSettings.features().garden.keys.get("tptoplot").equals("key.keyboard.p"), "Garden key persisted");
@@ -58,7 +56,7 @@ final class MergedFeaturesSmokeTest {
                 case 70 -> {
                     check(option("eviemod:commands/warp/party").set(false), "Party channel UI binding");
                     check(option("eviemod:commands/warp/guild").set(true), "Guild channel UI binding");
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys");
+                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); editor().goToOption(option("eviemod:hotkeys/0/key"));
                 }
                 case 85 -> capture(client, "merged-hotkeys.png");
                 case 90 -> {
