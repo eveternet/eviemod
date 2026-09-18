@@ -1,5 +1,12 @@
 # Kabeewie integration (eviemod 4.0.0, Minecraft 26.1.2)
 
+The audit below describes the original merge. In 4.0.1, the requested settings correction
+moves Paint Brush and SkyBlock Visuals under Appearance, renames Party Commands to Chat
+Commands, and removes the Garden pest workflow, its controls and native Loadouts binding.
+Soul Whip Fix is a single visual toggle. Migration logic and saved values are unchanged;
+retired pest values are retained only as inert compatibility data. See
+[the current settings notes](settings-ui.md#merged-settings-correction-401).
+
 ## Reference and behavior boundary
 
 The supplied `kabeewie-unified-1.2.0.jar` has SHA-256

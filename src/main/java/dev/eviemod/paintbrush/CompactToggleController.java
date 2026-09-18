@@ -2,7 +2,7 @@ package dev.eviemod.paintbrush;
 
 import java.util.List;
 import net.azureaaron.dandelion.api.Option;
-import net.azureaaron.dandelion.api.controllers.Controller;
+import net.azureaaron.dandelion.api.controllers.BooleanController;
 import net.azureaaron.dandelion.deps.moulconfig.gui.GuiComponent;
 import net.azureaaron.dandelion.deps.moulconfig.gui.HorizontalAlign;
 import net.azureaaron.dandelion.deps.moulconfig.gui.VerticalAlign;
@@ -14,9 +14,11 @@ import net.azureaaron.dandelion.impl.moulconfig.MoulConfigDefinition;
 
 /** Dandelion's BooleanController only exposes full cards in this backport.
  * Compose MoulConfig's standard row, text, hover and switch components instead. */
-final class CompactToggleController implements Controller<Boolean> {
+final class CompactToggleController implements BooleanController {
     static final CompactToggleController INSTANCE = new CompactToggleController();
     static final int HEIGHT = 22;
+    @Override public BooleanStyle style() { return BooleanStyle.ON_OFF; }
+    @Override public boolean coloured() { return true; }
     @Override public ComponentEditor controllerMoulConfig(Option<Boolean> option, ProcessedOption processed, MoulConfigDefinition config) {
         var binding = new GetSetter<Boolean>() {
             @Override public Boolean get() { return (Boolean)processed.get(); }

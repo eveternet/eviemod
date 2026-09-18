@@ -10,7 +10,7 @@ MoulConfig supplies a scrolling category sidebar, search and collapsible groups.
 
 `SettingsCategories` holds a list of category factories. Add a factory there (large features can own separate classes), give categories/groups/options stable `eviemod:` identifiers, and bind options to a draft in `ModSettings.Values`. Use descriptive labels and search tags for terminology users may search. Keep groups focused on a feature. Persist defaults and validation in `ModSettings`, separate from rendering.
 
-`EviemodSettings` creates the settings screen, adapts the validated atomic JSON store, and handles save errors. Ordinary settings save when the settings screen closes. The Paint Brush category uses Dandelion's standard `ButtonOption` to open a separate editor, as explicitly requested by the user. `/paintbrush` opens that editor directly.
+`EviemodSettings` creates the settings screen, adapts the validated atomic JSON store, and handles save errors. Ordinary settings save when the settings screen closes. The Paint Brush group under Appearance uses Dandelion's standard `ButtonOption` to open a separate editor, as explicitly requested by the user. `/paintbrush` opens that editor directly.
 
 ## Paint Brush editor
 
@@ -23,3 +23,25 @@ MoulConfig supplies a scrolling category sidebar, search and collapsible groups.
 The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
 
 `./gradlew build` checks parsing, identity, persistence and editor helpers. `./gradlew runClient -PuiSmokeTest -PuiCapture` exercises editor input, picker return and closing back to settings, and captures the settings/editor screens. The fixture maps editor coordinates through the same viewport transform and is excluded from release artifacts.
+
+## Merged settings correction (4.0.1)
+
+The top-level categories are Appearance, Hypixel Pack, Garden, Chat Commands and Command
+Hotkeys. Paint Brush and SkyBlock Visuals are ordinary option groups under Appearance.
+Soul Whip Fix has no separate group; its original description is available on hover.
+The existing rarity controls and Hypixel Pack controls keep their prior editors.
+
+Chat commands retain the same per-command and per-channel configuration keys. A command
+group has one Dandelion label description and three compact boolean rows. The pinned
+Dandelion BooleanController builder has no compact-row option: its standard MoulConfig
+editor wraps every boolean in a full title/description card. `CompactToggleController`
+implements the supported, non-sealed BooleanController interface and composes MoulConfig's
+maintained RowComponent, SwitchComponent, text, alignment and hover components. It uses
+no custom drawing, coordinate interception, reflection or framework patches. This adapter
+is limited to the imported visual and chat-command booleans; recheck it on library upgrades.
+
+PestWorkflow and its event registrations/state are deleted. The native Loadouts key mapping
+and all pest UI/translation controls are removed. The old Force Finnegan serialization slot
+is private and has no runtime accessor; the old loadouts key is not registered or polled.
+These inert bytes remain solely to meet the requirement not to change migration logic or
+saved values. Migration files, marker logic and other feature algorithms are unchanged.

@@ -2,13 +2,13 @@
 
 Client-only Fabric mod for **Minecraft 26.1.2**, Java 25, Fabric Loader 0.19.5+, and Fabric API 0.155.2+26.1.2 or a compatible newer release for 26.1.2.
 
-Install `build/libs/eviemod-4.0.0+26.1.2.jar` and Fabric API in your instance's `mods` directory. Replace the previous eviemod JAR and remove Kabeewie Unified (and any standalone Garden Tools, Soul Whip Fix, SkyBlock Visuals or Skyshitter JAR) when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
+Install `build/libs/eviemod-4.0.1+26.1.2.jar` and Fabric API in your instance's `mods` directory. Replace the previous eviemod JAR and remove Kabeewie Unified (and any standalone Garden Tools, Soul Whip Fix, SkyBlock Visuals or Skyshitter JAR) when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
 
 All active mod configuration lives in `config/eviemod/`. Existing root-level eviemod files (or older skyshitter per-item files) are copied once; originals are preserved and existing destination files win. Kabeewie settings migrate once per feature group without changing legacy files. See [integration and migration details](docs/kabeewie-integration.md).
 
 ## Settings and rarity backgrounds
 
-Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. The Paint Brush category has an **Open editor** button. `/paintbrush` opens that same standalone editor directly. Its panels use MoulConfig’s renderer, with matching dark surfaces and cyan selection accents.
+Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. Appearance → Paint Brush has an **Open editor** button. `/paintbrush` opens that same standalone editor directly. Its panels use MoulConfig’s renderer, with matching dark surfaces and cyan selection accents.
 
 Rarity backgrounds default to square with 45% opacity. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod/settings.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
 
@@ -109,7 +109,7 @@ With Java 25 selected:
 ./gradlew build
 ```
 
-Output: `build/libs/eviemod-4.0.0+26.1.2.jar` (the sources JAR is not the installable mod).
+Output: `build/libs/eviemod-4.0.1+26.1.2.jar` (the sources JAR is not the installable mod).
 
 Automated tests cover UUID extraction, missing and malformed UUIDs, distinct UUIDs, unchanged stack components, changed stack data, persistence, clearing, and malformed config preservation. Color tests also cover all four leather armor pieces, opaque black, hex validation, non-leather exclusions, persistence, and unchanged dye components. Name tests cover persistence, clearing, validation, fallback, styling, Unicode gradient endpoints and interpolation, selection ranges in either direction, edits preserving formatting, styled-space persistence, legacy migration, autocomplete matching, suggestion click routing and acceptance, dropdown bounds and focus, and unchanged stack components.
 
@@ -156,3 +156,14 @@ commands and custom command hotkeys from Kabeewie Unified 1.2.0. The supplied be
 settings and defaults are retained. `/kabeewie` and `/gardentools` are aliases into this same
 page. Migration keeps existing eviemod choices and leaves the old configuration files as
 backups. See [migration rules and verification limits](docs/kabeewie-integration.md).
+
+## Settings cleanup (4.0.1)
+
+The main categories are Appearance, Hypixel Pack, Garden, Chat Commands and Command
+Hotkeys. Appearance contains Paint Brush and SkyBlock Visuals; Soul Whip Fix is one toggle
+alongside the other visual settings. Chat Commands contains each command, including Ping,
+with compact Party, Guild and Co-op rows and one description per command.
+
+The Garden pest workflow, Force Finnegan control, Loadouts binding, cooldown timers and
+notifications have been removed. Garden mouse lock, plot teleport, setspawn and warp remain.
+Existing saved values and migration logic are preserved; retired pest data is inert.
