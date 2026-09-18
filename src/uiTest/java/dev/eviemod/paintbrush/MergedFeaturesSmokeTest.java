@@ -31,7 +31,7 @@ final class MergedFeaturesSmokeTest {
             }
             ticks++;
             switch (ticks) {
-                case 10 -> { select("eviemod:skyblock_visuals"); editor().goToOption(option("eviemod:soul_whip/enabled")); }
+                case 10 -> { select("eviemod:skyblock_visuals"); expand("eviemod:soul_whip"); }
                 case 25 -> capture(client, "merged-visuals.png");
                 case 30 -> {
                     check(option("eviemod:soul_whip/enabled").set(true), "Soul Whip UI binding");
@@ -47,7 +47,7 @@ final class MergedFeaturesSmokeTest {
                     check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
                     captureKey("eviemod:garden/key/tptoplot", 80, false);
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands"); editor().goToOption(option("eviemod:commands/warp/party"));
+                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:party_commands"); expand("eviemod:commands/warp");
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Plot persisted");
                     check(EviemodSettings.features().garden.mouseLock, "Mouse lock persisted");
                     check(EviemodSettings.features().garden.keys.get("tptoplot").equals("key.keyboard.p"), "Garden key persisted");
@@ -56,7 +56,7 @@ final class MergedFeaturesSmokeTest {
                 case 70 -> {
                     check(option("eviemod:commands/warp/party").set(false), "Party channel UI binding");
                     check(option("eviemod:commands/warp/guild").set(true), "Guild channel UI binding");
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); editor().goToOption(option("eviemod:hotkeys/0/key"));
+                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); expand("eviemod:hotkeys/0");
                 }
                 case 85 -> capture(client, "merged-hotkeys.png");
                 case 90 -> {
@@ -95,6 +95,9 @@ final class MergedFeaturesSmokeTest {
     private static ProcessedOption option(String path) {
         return editor().getAllOptions().stream().filter(option -> option.getDebugDeclarationLocation().equals(path)).findFirst()
             .orElseThrow(() -> new AssertionError("Missing option " + path + " in " + editor().getAllOptions().stream().map(ProcessedOption::getDebugDeclarationLocation).toList()));
+    }
+    private static void expand(String path) {
+        ((net.azureaaron.dandelion.deps.moulconfig.gui.editors.GuiOptionEditorAccordion)option(path).getEditor()).setToggled(true);
     }
     private static void action(String path) { ((Runnable)option(path).get()).run(); }
     private static void captureKey(String path, int code, boolean mouse) {
