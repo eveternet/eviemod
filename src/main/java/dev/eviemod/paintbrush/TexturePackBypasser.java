@@ -33,7 +33,7 @@ public final class TexturePackBypasser {
         if (enabled() && !busy && (!initialized || System.currentTimeMillis() >= nextCheck)) check(false);
     }
     static void manualCheck() {
-        if (!enabled()) { notifyUser("Enable Texture Pack Bypasser first."); return; }
+        if (!enabled()) { notifyUser("Enable Hypixel Pack first."); return; }
         if (busy) { manualRequested = true; notifyUser("Checking for updates…"); return; }
         check(true);
     }
@@ -140,6 +140,6 @@ public final class TexturePackBypasser {
     }
     private static void notifyUser(String message) {
         SystemToast.addOrUpdate(Minecraft.getInstance().getToastManager(), TOAST,
-            Component.literal("Texture Pack Bypasser"), Component.literal(message));
+            Component.literal("Hypixel Pack"), Component.literal(message));
     }
 }

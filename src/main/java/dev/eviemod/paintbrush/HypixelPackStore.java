@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 
 /** Single-worker storage/HTTP boundary. Never selects packs or touches Minecraft state. */
 final class HypixelPackStore {
+    static final String FILENAME = "eviemod-hypixel.zip";
     static final URI API = URI.create("https://api.hypixel.net/v2/resources/packs");
     static final long DAY = Duration.ofDays(1).toMillis();
     private static final long MAX_PACK = 256L * 1024 * 1024;
@@ -27,12 +28,13 @@ final class HypixelPackStore {
         this.directory = directory; this.statePath = statePath; this.fetch = fetch;
         if (Files.exists(statePath)) {
             try {
+                // Keep the prior stable path: renaming it would change Minecraft's pack selection ID.
                 state = GSON.fromJson(Files.readString(statePath), State.class);
-                if (state == null || state.file() == null || !state.file().matches("eviemod-hypixel-[0-9a-f-]{36}\\.zip")
+                if (state == null || state.file() == null || (!FILENAME.equals(state.file()) && !state.file().matches("eviemod-hypixel-[0-9a-f-]{36}\\.zip"))
                     || state.checkedAt() < 0) throw new IllegalArgumentException("Invalid pack state");
                 if (state.pack() != null) validate(state.pack());
             } catch (RuntimeException e) { throw new IOException("Invalid Hypixel pack state; original file preserved", e); }
-        } else state = new State("eviemod-hypixel-" + UUID.randomUUID() + ".zip", null, 0, false);
+        } else state = new State(FILENAME, null, 0, false);
     }
     State state() { return state; }
     Path file() { return directory.resolve(state.file()); }

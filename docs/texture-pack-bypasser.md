@@ -1,4 +1,4 @@
-# Texture Pack Bypasser (3.0.0, Minecraft 26.1.2)
+# Hypixel Pack (3.0.1, Minecraft 26.1.2)
 
 The new shared-settings category defaults off, including old configurations and resets.
 Enabling installs the official SkyBlock pack in the active instance's resource-pack directory.
@@ -14,8 +14,10 @@ The running game's client-resource format major is matched exactly; there is no 
 fallback or hardcoded pack version/URL. Download URLs must be HTTPS on
 `resourcepacks.hypixel.net` under `/SkyBlock/`; redirects fail closed.
 
-A random, persistent `eviemod-hypixel-<UUID>.zip` filename gives the pack a stable Minecraft
-selection ID. `config/eviemod-hypixel-pack.json` stores that filename, deployment ID, format,
+New installations use the fixed filename `eviemod-hypixel.zip`. Existing installations retain
+their recorded `eviemod-hypixel-<UUID>.zip` path (a one-time UUID, not a hash or version),
+so their Minecraft selection ID and ordering remain intact. Updates replace the same path
+after temporary-file validation; hash and deployment version live only in configuration. `config/eviemod-hypixel-pack.json` stores that filename, deployment ID, format,
 URL, hash, last attempted check and pending reload. The worker verifies SHA-1 on startup/checks;
 the packet adapter checks file identity, size and modification time without blocking on hashing.
 SHA-1 verifies the API's content identity, not independent authenticity (HTTPS supplies that).

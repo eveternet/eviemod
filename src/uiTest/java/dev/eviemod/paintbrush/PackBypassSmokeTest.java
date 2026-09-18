@@ -15,16 +15,16 @@ final class PackBypassSmokeTest {
                 catch (ClassNotFoundException e) { throw new AssertionError(e); }
                 if (new ModSettings.Values().texturePackBypasser) throw new AssertionError("Bypass must default off");
                 var category = SettingsCategories.create(new ModSettings.Values(), List.of()).stream()
-                    .filter(value -> value.name().getString().equals("Texture Pack Bypasser")).findFirst().orElseThrow();
+                    .filter(value -> value.name().getString().equals("Hypixel Pack")).findFirst().orElseThrow();
                 if (category.rootGroup().options().size() != 2) throw new AssertionError("Expected one toggle and one action");
-                client.setScreen(EviemodSettings.screen(null, "Texture Pack Bypasser", null)); opened = true;
+                client.setScreen(EviemodSettings.screen(null, "Hypixel Pack", null)); opened = true;
             }
             if (opened && ++ticks == 40) {
                 net.minecraft.client.Screenshot.grab(client.gameDirectory, "texture-pack-bypasser.png", client.getMainRenderTarget(), 1,
                     message -> org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info(message.getString()));
             }
             if (opened && ticks == 60) {
-                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Texture Pack Bypasser settings and mixin smoke test passed");
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("Hypixel Pack settings and mixin smoke test passed");
                 client.stop();
             }
         });

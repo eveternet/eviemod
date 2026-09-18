@@ -53,6 +53,7 @@ class HypixelPackStoreTest {
     @Test void installsPersistsSkipsUnchangedAndKeepsStableFilename() throws Exception {
         var remote = new Remote(zip("one")); var store = store(remote);
         assertTrue(store.check(84, 1000)); Path file = store.file();
+        assertEquals("eviemod-hypixel.zip", file.getFileName().toString());
         assertTrue(store.validInstalled(84)); assertTrue(store.state().pendingReload());
         assertFalse(store.check(84, 2000)); assertEquals(1, remote.downloads);
         assertEquals(store.state(), store(remote).state());
@@ -61,6 +62,20 @@ class HypixelPackStoreTest {
         assertEquals(HypixelPackStore.hash(remote.payload), store.state().pack().hash());
         store.applied("wrong hash"); assertTrue(store.state().pendingReload());
         store.applied(store.state().pack().hash()); assertFalse(store(remote).state().pendingReload());
+    }
+    @Test void existingStablePathSurvivesUpdatesWithoutRenaming() throws Exception {
+        var remote = new Remote(zip("one")); var store = store(remote); store.check(84, 1000);
+        String legacyName = "eviemod-hypixel-00000000-0000-0000-0000-000000000001.zip";
+        Path legacy = store.file().resolveSibling(legacyName);
+        Files.move(store.file(), legacy);
+        Path state = root.resolve("config/state.json");
+        Files.writeString(state, Files.readString(state).replace(HypixelPackStore.FILENAME, legacyName));
+        var restarted = store(remote);
+        assertEquals(legacy, restarted.file()); assertTrue(restarted.validInstalled(84));
+        remote.update(zip("two")); assertTrue(restarted.check(84, 2000));
+        assertEquals(legacy, restarted.file()); assertTrue(restarted.validInstalled(84));
+        assertFalse(Files.exists(legacy.resolveSibling(HypixelPackStore.FILENAME)));
+        assertEquals(legacyName, store(remote).state().file());
     }
     @Test void attemptsAreThrottledAcrossRestartEvenOnFailure() throws Exception {
         var remote = new Remote(zip("one")); var store = store(remote); remote.offline = true;

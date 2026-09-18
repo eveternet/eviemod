@@ -39,9 +39,9 @@ final class SettingsCategories {
                 .build()).build();
     }
     private static ConfigCategory texturePackBypasser(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
-        return ConfigCategory.createBuilder().id(id("texture_pack_bypasser")).name(text("Texture Pack Bypasser"))
+        return ConfigCategory.createBuilder().id(id("texture_pack_bypasser")).name(text("Hypixel Pack"))
             .description(text("Keep Hypixel's SkyBlock pack as a local resource pack."))
-            .option(Option.<Boolean>createBuilder().id(id("texture_pack_bypasser/enabled")).name(text("Texture Pack Bypasser"))
+            .option(Option.<Boolean>createBuilder().id(id("texture_pack_bypasser/enabled")).name(text("Hypixel Pack"))
                 .description(text("Download and update the official pack locally. Select and arrange it in Minecraft's Resource Packs screen."))
                 .binding(false, () -> draft.texturePackBypasser, value -> draft.texturePackBypasser = value)
                 .controller(BooleanController.createBuilder().build()).build())

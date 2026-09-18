@@ -139,9 +139,9 @@ Paint Brush opens as a separate compact editor again, both from its command and 
 
 The UI fixture checks model completion, name entry, tab switching, picker return, and closing back to settings. Local fixtures do not establish live SkyBlock compatibility.
 
-## Texture Pack Bypasser
+## Hypixel Pack
 
-Enable **Texture Pack Bypasser** in `/eviemod settings` to install Hypixel's official SkyBlock
+Enable **Hypixel Pack** in `/eviemod settings` to install Hypixel's official SkyBlock
 pack locally. Then select and arrange it in Minecraft's **Resource Packs** screen. It defaults
 off and never changes your pack order. Set it up before connecting to avoid normal server-pack
 reloads. Automatic checks run at most daily; changed selected packs reload on the next SkyBlock
