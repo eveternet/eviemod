@@ -40,6 +40,8 @@ class HypixelPackStoreTest {
     @Test void selectsOnlyExactSkyblockFormatAndOfficialUrl() throws Exception {
         String json = api("a".repeat(40));
         assertEquals(84, HypixelPackStore.select(json, 84).format());
+        assertThrows(IOException.class, () -> HypixelPackStore.select(json.replace("84,", "84.5,"), 84));
+        assertThrows(IOException.class, () -> HypixelPackStore.select(json.replace("84,", "\"84\","), 84));
         assertThrows(IOException.class, () -> HypixelPackStore.select(json, 88));
         assertThrows(IOException.class, () -> HypixelPackStore.select(json.replace("SkyBlock\"", "Other\""), 84));
         assertThrows(IOException.class, () -> HypixelPackStore.select(json.replace("resourcepacks.hypixel.net", "evil.example"), 84));

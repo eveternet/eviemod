@@ -13,8 +13,8 @@ final class ModSettings {
         int opacity = 45;
         Shape shape = Shape.SQUARE;
         boolean rememberRarity = true;
-        // Legacy keys retained for persistence compatibility; per-item choices are the opt-in now.
         boolean texturePackBypasser = false;
+        // Legacy keys retained for persistence compatibility; per-item choices are the opt-in now.
         boolean helmetSkins = false;
         boolean customTextures = false;
         Values copy() { return GSON.fromJson(GSON.toJson(this), Values.class); }

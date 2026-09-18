@@ -46,13 +46,13 @@ class ModSettingsTest {
     }
     @Test void texturePackBypasserDefaultsOffAndPreservesOptIn() throws Exception {
         assertFalse(new ModSettings.Values().texturePackBypasser);
-        Path path = dir.resolve("bypasser.json");
+        Path path = directory.resolve("bypasser.json");
         Files.writeString(path, "{}");
         var store = new ModSettings(path); store.load();
         assertFalse(store.values().texturePackBypasser);
         var draft = store.values().copy(); draft.texturePackBypasser = true; store.save(draft);
         var restarted = new ModSettings(path); restarted.load(); assertTrue(restarted.values().texturePackBypasser);
         Files.writeString(path, "{\"texturePackBypasser\":\"true\"}");
-        assertThrows(IOException.class, restarted::load);
+        assertThrows(java.io.IOException.class, restarted::load);
     }
 }

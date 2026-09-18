@@ -19,7 +19,7 @@ public final class TexturePackBypasser {
     private static final SystemToast.SystemToastId TOAST = new SystemToast.SystemToastId();
     private static HypixelPackStore store; // worker only
     private static Snapshot installed; // client thread only
-    private static boolean busy, initialized, reloading;
+    private static boolean busy, initialized, reloading, manualRequested;
     private static long nextCheck;
     private record Snapshot(HypixelPackStore.State state, Path file, long size, java.nio.file.attribute.FileTime modified, Object key) {}
     private TexturePackBypasser() {}
@@ -31,11 +31,12 @@ public final class TexturePackBypasser {
     }
     static void manualCheck() {
         if (!enabled()) { notifyUser("Enable Texture Pack Bypasser first."); return; }
-        if (busy) { notifyUser("Checking for updates…"); return; }
+        if (busy) { manualRequested = true; notifyUser("Checking for updates…"); return; }
         check(true);
     }
     private static void check(boolean manual) {
         busy = true;
+        manualRequested = manual;
         var client = Minecraft.getInstance();
         int format = format();
         Path directory = client.getResourcePackDirectory();
@@ -60,7 +61,8 @@ public final class TexturePackBypasser {
             Snapshot result = snapshot; String error = failure; boolean updated = changed; long deadline = next;
             client.execute(() -> {
                 installed = result; initialized = true; nextCheck = deadline; busy = false;
-                if (manual) {
+                boolean notify = manualRequested; manualRequested = false;
+                if (notify) {
                     if (error != null) notifyUser(error);
                     else {
                         notifyUser(updated ? "Hypixel pack updated." : "Hypixel pack is up to date.");

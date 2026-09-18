@@ -90,14 +90,16 @@ final class HypixelPackStore {
     static Pack select(String json, int format) throws IOException {
         try {
             JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-            if (!root.get("success").getAsBoolean()) throw new IOException("Hypixel API was unsuccessful");
+            if (!root.get("success").isJsonPrimitive() || !root.getAsJsonPrimitive("success").isBoolean()
+                || !root.get("success").getAsBoolean()) throw new IOException("Hypixel API was unsuccessful");
             Pack found = null;
             for (var element : root.getAsJsonArray("packs")) {
                 var pack = element.getAsJsonObject();
                 if (!"SkyBlock".equals(pack.get("id").getAsString())) continue;
                 for (var entry : pack.getAsJsonArray("versions")) {
                     var version = entry.getAsJsonObject();
-                    if (version.get("packFormat").getAsInt() != format) continue;
+                    var rawFormat = version.getAsJsonPrimitive("packFormat");
+                    if (!rawFormat.isNumber() || rawFormat.getAsBigDecimal().intValueExact() != format) continue;
                     Pack candidate = new Pack(format, version.get("hash").getAsString().toLowerCase(Locale.ROOT),
                         version.get("url").getAsString(), pack.get("deployId").getAsString());
                     validate(candidate);
