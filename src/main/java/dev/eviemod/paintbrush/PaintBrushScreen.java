@@ -14,6 +14,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 import dev.eviemod.paintbrush.mixin.EditBoxSelectionAccessor;
 
 public final class PaintBrushScreen extends CompactScreen {
+    private static final int HORIZONTAL_INSET = 16;
     private final net.minecraft.client.gui.screens.Screen parent;
     private final Map<UUID, Draft> drafts = new HashMap<>();
     private final List<ItemStack> fixtures;
@@ -47,7 +48,7 @@ public final class PaintBrushScreen extends CompactScreen {
         updateViewport();
         clearWidgets(); styleButtons.clear(); nameBox = null; modelField = null; variantField = null; colorSelection = null; dyeTab = null;
         w = 440; h = 260; x = (viewWidth - w) / 2; y = (viewHeight - h) / 2;
-        left = x + 16; contentWidth = w - 32;
+        left = x + HORIZONTAL_INSET; contentWidth = w - 2 * HORIZONTAL_INSET;
         button("Done", x + w - 62, y + 8, 50, this::onClose);
         button("Choose item", left, y + 42, 98, () -> minecraft.setScreen(new InventoryPicker()));
         if (draft == null) return;
@@ -57,7 +58,7 @@ public final class PaintBrushScreen extends CompactScreen {
         for (int i = 0; i < visibleTabs.size(); i++) {
             final int t = visibleTabs.get(i);
             var b = addRenderableWidget(new EditorButton(tabs[t], left + i * (contentWidth / visibleTabs.size()), y + 74,
-                contentWidth / visibleTabs.size() - 2, () -> { tab = t; pendingTexture = null; error = ""; rebuildWidgets(); }, () -> tab == t));
+                contentWidth / visibleTabs.size() - (i == visibleTabs.size() - 1 ? 0 : 2), () -> { tab = t; pendingTexture = null; error = ""; rebuildWidgets(); }, () -> tab == t));
             if (t == 1) { dyeTab = b; b.active = canDye(); }
             if (t == 3) b.active = HelmetSkins.supports(selected);
         }
@@ -79,7 +80,7 @@ public final class PaintBrushScreen extends CompactScreen {
                 var presets = new ImportedTextures.Preset[] {ImportedTextures.Preset.BOW, ImportedTextures.Preset.SWORD, ImportedTextures.Preset.HANDHELD};
                 for (int i = 0; i < presets.length; i++) {
                     var preset = presets[i];
-                    addRenderableWidget(new EditorButton(preset.label, left + i * (contentWidth / 3), body + 28, contentWidth / 3 - 2,
+                    addRenderableWidget(new EditorButton(preset.label, left + i * (contentWidth / 3), body + 28, contentWidth / 3 - (i == presets.length - 1 ? 0 : 2),
                         () -> { texturePreset = preset; rebuildWidgets(); }, () -> texturePreset == preset));
                 }
                 button("Import PNG & apply", left, body + 56, contentWidth, () -> {
@@ -310,10 +311,8 @@ public final class PaintBrushScreen extends CompactScreen {
         updateSelection();
         g.fill(0, 0, viewWidth, viewHeight, 0x99000000);
         EditorTheme.panel(g, x, y, w, h);
-        EditorTheme.panel(g, x + 5, y + 5, w - 10, 28);
         g.text(font, "Paint Brush", x + (w - font.width("Paint Brush")) / 2, y + 15, 0xffcccccc);
-        EditorTheme.panel(g, x + 5, y + 37, w - 10, h - 42);
-        EditorTheme.inset(g, left - 5, y + 101, contentWidth + 10, 105);
+        EditorTheme.inset(g, left, y + 101, contentWidth, 105);
         if (draft == null) g.text(font, "Choose an item to customize", left, y + 112, 0xffcccccc);
         if (draft != null) {
             var preview = selected.copy(); preview.remove(DataComponents.CUSTOM_DATA);
