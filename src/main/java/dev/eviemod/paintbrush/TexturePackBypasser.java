@@ -21,6 +21,9 @@ public final class TexturePackBypasser {
     private static Snapshot installed; // client thread only
     private static boolean busy, initialized, reloading, manualRequested;
     private static long nextCheck;
+    // Resource instances change on normal Minecraft reloads. Remember the old instance so a
+    // player-initiated reload (or startup loading a pending update) needs no second reload.
+    private static net.minecraft.server.packs.PackResources loadedAtUpdate;
     private record Snapshot(HypixelPackStore.State state, Path file, long size, java.nio.file.attribute.FileTime modified, Object key) {}
     private TexturePackBypasser() {}
     private static boolean enabled() { return EviemodSettings.STORE.error() == null && EviemodSettings.STORE.values().texturePackBypasser; }
@@ -41,13 +44,15 @@ public final class TexturePackBypasser {
         int format = format();
         Path directory = client.getResourcePackDirectory();
         WORKER.execute(() -> {
-            boolean changed = false; Snapshot snapshot = null; String failure = null;
+            boolean changed = false, queried = false; Snapshot snapshot = null; String failure = null;
             long next = System.currentTimeMillis() + HypixelPackStore.DAY;
             try {
                 if (store == null) store = new HypixelPackStore(directory,
                     FabricLoader.getInstance().getConfigDir().resolve("eviemod-hypixel-pack.json"), HypixelPackStore.http());
                 boolean hadPack = store.state().pack() != null;
-                if (manual || store.due(System.currentTimeMillis())) changed = store.check(format, System.currentTimeMillis());
+                if (manual || store.due(System.currentTimeMillis())) {
+                    queried = true; changed = store.check(format, System.currentTimeMillis());
+                }
                 if (store.validInstalled(format)) snapshot = snapshot();
                 next = Math.max(System.currentTimeMillis() + 1000, store.state().checkedAt() + HypixelPackStore.DAY);
                 if (changed && !hadPack) client.execute(() -> notifyUser("Hypixel pack installed. Select it in Resource Packs."));
@@ -58,11 +63,13 @@ public final class TexturePackBypasser {
                 try { if (store != null && store.validInstalled(format)) snapshot = snapshot(); }
                 catch (Exception ignored) { /* Fail open to vanilla. */ }
             }
-            Snapshot result = snapshot; String error = failure; boolean updated = changed; long deadline = next;
+            Snapshot result = snapshot; String error = failure; boolean updated = changed, requested = queried; long deadline = next;
             client.execute(() -> {
+                if (updated && result != null) loadedAtUpdate = loadedPack(result.state().file());
                 installed = result; initialized = true; nextCheck = deadline; busy = false;
                 boolean notify = manualRequested; manualRequested = false;
                 if (notify) {
+                    if (!requested && error == null) { check(true); return; }
                     if (error != null) notifyUser(error);
                     else {
                         notifyUser(updated ? "Hypixel pack updated." : "Hypixel pack is up to date.");
@@ -88,7 +95,8 @@ public final class TexturePackBypasser {
         // Refresh discovery only. Never add to selection, re-enable or reorder the pack.
         client.getResourcePackRepository().reload();
         reloading = true;
-        CompletableFuture<Void> reload = selected ? client.reloadResourcePacks() : CompletableFuture.completedFuture(null);
+        boolean needsReload = selected && loadedPack(current.state().file()) == loadedAtUpdate;
+        CompletableFuture<Void> reload = needsReload ? client.reloadResourcePacks() : CompletableFuture.completedFuture(null);
         reload.whenComplete((unused, error) -> client.execute(() -> {
             if (error != null) {
                 reloading = false;
@@ -103,6 +111,11 @@ public final class TexturePackBypasser {
                 client.execute(() -> { if (result != null) installed = result; reloading = false; });
             });
         }));
+    }
+    private static net.minecraft.server.packs.PackResources loadedPack(String filename) {
+        try (var packs = Minecraft.getInstance().getResourceManager().listPacks()) {
+            return packs.filter(pack -> pack.packId().equals("file/" + filename)).findFirst().orElse(null);
+        }
     }
     private static boolean intact(Snapshot snapshot) {
         try {

@@ -144,11 +144,17 @@ final class HypixelPackStore {
         var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NEVER).build();
         return (uri, destination, limit) -> {
             var request = HttpRequest.newBuilder(uri).timeout(Duration.ofMinutes(2)).header("User-Agent", "eviemod").GET().build();
-            // A bounded subscriber keeps the request deadline active through the entire body.
+            var body = new LimitedBody(destination, limit);
+            var response = client.sendAsync(request, info -> body);
             try {
-                var response = client.send(request, info -> new LimitedBody(destination, limit));
-                if (response.statusCode() != 200) throw new IOException("Hypixel HTTP " + response.statusCode());
-            } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IOException("Download interrupted", e); }
+                if (response.get(2, java.util.concurrent.TimeUnit.MINUTES).statusCode() != 200)
+                    throw new IOException("Hypixel returned an unsuccessful HTTP status");
+            } catch (InterruptedException e) {
+                response.cancel(true); body.fail(e); Thread.currentThread().interrupt();
+                throw new IOException("Download interrupted", e);
+            } catch (java.util.concurrent.TimeoutException e) {
+                response.cancel(true); body.fail(e); throw new IOException("Download timed out", e);
+            } catch (java.util.concurrent.ExecutionException e) { throw new IOException("Download failed", e.getCause()); }
         };
     }
     private static final class LimitedBody implements HttpResponse.BodySubscriber<Path> {
@@ -157,11 +163,13 @@ final class HypixelPackStore {
         private OutputStream output; private java.util.concurrent.Flow.Subscription subscription;
         LimitedBody(Path path, long limit) { this.path = path; this.limit = limit; }
         public java.util.concurrent.CompletionStage<Path> getBody() { return result; }
-        public void onSubscribe(java.util.concurrent.Flow.Subscription value) {
+        public synchronized void onSubscribe(java.util.concurrent.Flow.Subscription value) {
             subscription = value;
+            if (result.isDone()) { value.cancel(); return; }
             try { output = Files.newOutputStream(path); value.request(1); } catch (IOException e) { fail(e); }
         }
-        public void onNext(List<java.nio.ByteBuffer> buffers) {
+        public synchronized void onNext(List<java.nio.ByteBuffer> buffers) {
+            if (result.isDone()) return;
             try {
                 for (var buffer : buffers) {
                     size += buffer.remaining(); if (size > limit) throw new IOException("Download exceeds size limit");
@@ -170,13 +178,14 @@ final class HypixelPackStore {
                 subscription.request(1);
             } catch (IOException e) { fail(e); }
         }
-        private void fail(Throwable error) {
+        private synchronized void fail(Throwable error) {
             if (subscription != null) subscription.cancel();
             try { if (output != null) output.close(); } catch (IOException close) { error.addSuppressed(close); }
             result.completeExceptionally(error);
         }
         public void onError(Throwable error) { fail(error); }
-        public void onComplete() {
+        public synchronized void onComplete() {
+            if (result.isDone()) return;
             try { output.close(); result.complete(path); } catch (IOException e) { fail(e); }
         }
     }

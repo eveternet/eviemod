@@ -47,7 +47,9 @@ whose structured server type is `SKYBLOCK` is an entry opportunity (including is
 If the managed pack is selected, the client refreshes discovery and reloads once; unselected
 packs need only discovery refresh. Manual checks apply a pending update immediately, including
 one previously downloaded automatically. Successful application clears only the matching hash;
-failed reloads retain the pending flag for a later entry. No local pack is forcibly activated.
+failed reloads retain the pending flag for a later entry. Resource-manager pack instances detect
+when startup or a player-initiated reload already loaded the replacement, avoiding a second
+reload on entry. No local pack is forcibly activated.
 
 ## Packet boundary and limitations
 
@@ -67,3 +69,12 @@ file ownership and safe replacement. Local compilation/fixtures do not prove liv
 acceptance, server-transfer behavior or visual reload behavior. Recheck the packet hook and
 resource-pack format API on Minecraft upgrades; recheck API schema and request identity if
 Hypixel changes its deployment behavior.
+
+## Local validation
+
+`./gradlew build --offline` passed compilation and regression tests.
+`./gradlew runClient -PuiSmokeTest -PpackCapture --offline` passed the offline Minecraft
+fixture: the new category has exactly the enable toggle and update action, renders with the
+feature off, and the common packet listener loads with the mixin applied. The fixture captures
+`run/screenshots/texture-pack-bypasser.png` and exits without joining a server. This is not a
+live Hypixel login test.
