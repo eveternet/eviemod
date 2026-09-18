@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "dev.eviemod.features.soulwhip.mixin.client",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ItemInHandRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

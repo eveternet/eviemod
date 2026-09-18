@@ -12,10 +12,18 @@ final class ConfigMigration {
         catch (IOException e) { throw new IllegalStateException("Could not migrate " + name + "; old file preserved", e); }
     }
     static Path migrate(Path directory, String name) throws IOException {
-        Path target = directory.resolve(name);
-        Path legacy = directory.resolve(name.replace("eviemod-", "skyshitter-"));
-        // Copy once; preserve the original and never overwrite a newer eviemod configuration.
-        if (!Files.exists(target) && Files.exists(legacy)) Files.copy(legacy, target);
+        Path target = directory.resolve("eviemod").resolve(name.equals("eviemod.json") ? "settings.json" : name.replace("eviemod-", ""));
+        Path previous = directory.resolve(name);
+        Path legacy = Files.exists(previous) ? previous : directory.resolve(name.replace("eviemod-", "skyshitter-"));
+        // Copy atomically, once. Both generations remain untouched as backups.
+        if (!Files.exists(target) && Files.exists(legacy)) {
+            Files.createDirectories(target.getParent());
+            Path temporary = Files.createTempFile(target.getParent(), "migration-", ".tmp");
+            try {
+                Files.copy(legacy, temporary, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                Files.move(temporary, target, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            } finally { Files.deleteIfExists(temporary); }
+        }
         return target;
     }
 }

@@ -48,7 +48,7 @@ public final class TexturePackBypasser {
             long next = System.currentTimeMillis() + HypixelPackStore.DAY;
             try {
                 if (store == null) store = new HypixelPackStore(directory,
-                    FabricLoader.getInstance().getConfigDir().resolve("eviemod-hypixel-pack.json"), HypixelPackStore.http());
+                    ConfigMigration.path("eviemod-hypixel-pack.json"), HypixelPackStore.http());
                 boolean hadPack = store.state().pack() != null;
                 if (manual || store.due(System.currentTimeMillis())) {
                     queried = true; changed = store.check(format, System.currentTimeMillis());

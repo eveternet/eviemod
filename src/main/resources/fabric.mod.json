@@ -14,7 +14,10 @@
     ]
   },
   "mixins": [
-    "eviemod.mixins.json"
+    "eviemod.mixins.json",
+    "eviemod-skyblock.mixins.json",
+    "eviemod-garden.mixins.json",
+    "eviemod-soulwhip.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.19.5",
@@ -27,6 +30,10 @@
     "fabric-language-kotlin": "*"
   },
   "breaks": {
-    "skyshitter": "*"
+    "skyshitter": "*",
+    "kabeewie": "*",
+    "gardentools": "*",
+    "soulwhipfix": "*",
+    "skyblockvisuals": "*"
   }
 }

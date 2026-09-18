@@ -14,13 +14,15 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.LoggerFactory;
 
 public final class EviemodSettings {
-    static final ModSettings STORE = new ModSettings(FabricLoader.getInstance().getConfigDir().resolve("eviemod.json"));
+    static final ModSettings STORE = new ModSettings(ConfigMigration.path("eviemod.json"));
+    public static ImportedFeatures features() { return STORE.values().features; }
     private static String pendingError;
     static void load() {
-        try { STORE.load(); }
+        try { STORE.load(); ImportedFeatureMigration.run(STORE, FabricLoader.getInstance().getConfigDir()); }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error(e.getMessage(), e); }
     }
     static void tick(Minecraft client) {
+        ImportedKeyBindings.tick();
         if (pendingError != null) {
             String message = pendingError; pendingError = null;
             Screen parent = client.screen;
@@ -42,10 +44,17 @@ public final class EviemodSettings {
         return screen;
     }
 
+    static void rebuild(Screen current, ModSettings.Values draft, String search) {
+        try {
+            STORE.save(draft);
+            Minecraft.getInstance().setScreen(screen(null, search, null));
+        } catch (IOException e) { pendingError = e.getMessage(); }
+    }
+
     /** Adapts the existing validated, atomic settings store; no config-format migration needed. */
     private static final class SettingsManager extends net.azureaaron.dandelion.impl.ConfigManagerImpl<ModSettings.Values> {
         private final ModSettings.Values draft = STORE.values().copy();
-        SettingsManager() { super(ModSettings.Values.class, FabricLoader.getInstance().getConfigDir().resolve("eviemod.json"), builder -> builder); }
+        SettingsManager() { super(ModSettings.Values.class, ConfigMigration.path("eviemod.json"), builder -> builder); }
         @Override protected ModSettings.Values createNewConfigInstance() { return new ModSettings.Values(); }
         @Override public boolean saveAll() { return save(); }
         @Override public Class<ModSettings.Values> configClass() { return ModSettings.Values.class; }

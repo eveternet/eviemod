@@ -13,7 +13,9 @@ final class SettingsCategories {
     }
     private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::paintBrush, SettingsCategories::texturePackBypasser);
     static List<ConfigCategory> create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures) {
-        return CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList();
+        var categories = new java.util.ArrayList<>(CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList());
+        categories.addAll(ImportedSettingsCategories.create(settings));
+        return categories;
     }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("eviemod", path); }
     private static Component text(String value) { return Component.literal(value); }

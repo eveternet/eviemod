@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "dev.eviemod.features.skyblock.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ClientPacketListenerMixin",
+    "GuiMixin",
+    "WorldBorderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

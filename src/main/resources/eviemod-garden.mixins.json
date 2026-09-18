@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "dev.eviemod.features.garden.mixin.client",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "MouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
