@@ -13,12 +13,13 @@ import java.util.function.Consumer;
 
 /** Offline fixture: exercises the actual generated MoulConfig controls and transformed mixin targets. */
 final class MergedFeaturesSmokeTest {
-    private int ticks;
+    private int ticks, startupTicks;
     private Screen parent;
     void start() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (ticks == 0) {
                 if (!(client.screen instanceof TitleScreen) || client.getOverlay() != null) return;
+                if (++startupTicks < 60) return;
                 parent = client.screen;
                 for (String type : new String[]{"net.minecraft.client.multiplayer.ClientPacketListener", "net.minecraft.client.gui.Gui",
                         "net.minecraft.world.level.border.WorldBorder", "net.minecraft.client.renderer.ItemInHandRenderer", "net.minecraft.client.MouseHandler"}) {
