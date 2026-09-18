@@ -95,7 +95,7 @@ public final class TexturePackBypasser {
         // Refresh discovery only. Never add to selection, re-enable or reorder the pack.
         client.getResourcePackRepository().reload();
         reloading = true;
-        boolean needsReload = selected && loadedPack(current.state().file()) == loadedAtUpdate;
+        boolean needsReload = needsReload(selected, loadedPack(current.state().file()), loadedAtUpdate);
         CompletableFuture<Void> reload = needsReload ? client.reloadResourcePacks() : CompletableFuture.completedFuture(null);
         reload.whenComplete((unused, error) -> client.execute(() -> {
             if (error != null) {
@@ -111,6 +111,9 @@ public final class TexturePackBypasser {
                 client.execute(() -> { if (result != null) installed = result; reloading = false; });
             });
         }));
+    }
+    static boolean needsReload(boolean selected, Object loaded, Object beforeUpdate) {
+        return selected && (loaded == null || loaded == beforeUpdate);
     }
     private static net.minecraft.server.packs.PackResources loadedPack(String filename) {
         try (var packs = Minecraft.getInstance().getResourceManager().listPacks()) {

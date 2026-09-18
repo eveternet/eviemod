@@ -4,6 +4,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HypixelPacketPolicyTest {
+    @Test void reloadOnlySelectedPacksStillUsingTheOldResources() {
+        Object oldPack = new Object(), reloadedPack = new Object();
+        assertTrue(TexturePackBypasser.needsReload(true, oldPack, oldPack));
+        assertTrue(TexturePackBypasser.needsReload(true, null, oldPack));
+        assertTrue(TexturePackBypasser.needsReload(true, null, null));
+        assertFalse(TexturePackBypasser.needsReload(false, oldPack, oldPack));
+        assertFalse(TexturePackBypasser.needsReload(true, reloadedPack, oldPack));
+        assertFalse(TexturePackBypasser.needsReload(true, reloadedPack, null));
+    }
+
     @Test void onlyTheVerifiedPackOnHypixelIsIntercepted() {
         var pack = new HypixelPackStore.Pack(84, "a".repeat(40), "https://resourcepacks.hypixel.net/SkyBlock/deployment/84.zip", "deployment");
         assertTrue(TexturePackBypasser.matches("mc.hypixel.net:25565", pack.url(), pack.hash(), pack));
