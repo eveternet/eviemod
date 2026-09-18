@@ -98,6 +98,7 @@ public final class PaintBrushClient implements ClientModInitializer {
             updateEquipmentContext(client);
             RarityBackgrounds.tick(client);
             EviemodSettings.tick(client);
+            TexturePackBypasser.tick(client);
             if (openSettings) { openSettings = false; client.setScreen(EviemodSettings.screen(null)); }
             if (client.player != null) for (var slot : ARMOR_SLOTS)
                 equipmentColors.observe(slot, client.player.getItemBySlot(slot));

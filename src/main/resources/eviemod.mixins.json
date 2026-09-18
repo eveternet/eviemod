@@ -11,7 +11,8 @@
     "ContainerBackgroundMixin",
     "HotbarBackgroundMixin",
     "HelmetSkinRenderMixin",
-    "HelmetSkinArmorMixin"
+    "HelmetSkinArmorMixin",
+    "HypixelServerPackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -138,3 +138,13 @@ Earlier references to YACL as Skyblocker's main configuration UI were incomplete
 Paint Brush opens as a separate compact editor again, both from its command and the standard Dandelion **Open editor** button. The embedded custom-option adapter has been removed. The editor and item picker reuse MoulConfig's panel renderer; selected tabs use cyan text and an underline. Existing model/dye/name editing, explicit Apply/Reset, drafts and discard confirmation remain.
 
 The UI fixture checks model completion, name entry, tab switching, picker return, and closing back to settings. Local fixtures do not establish live SkyBlock compatibility.
+
+## Texture Pack Bypasser
+
+Enable **Texture Pack Bypasser** in `/eviemod settings` to install Hypixel's official SkyBlock
+pack locally. Then select and arrange it in Minecraft's **Resource Packs** screen. It defaults
+off and never changes your pack order. Set it up before connecting to avoid normal server-pack
+reloads. Automatic checks run at most daily; changed selected packs reload on the next SkyBlock
+entry. **Check for updates** checks immediately and applies an available update.
+
+See [implementation and validation notes](docs/texture-pack-bypasser.md).

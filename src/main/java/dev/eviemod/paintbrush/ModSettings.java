@@ -14,6 +14,7 @@ final class ModSettings {
         Shape shape = Shape.SQUARE;
         boolean rememberRarity = true;
         // Legacy keys retained for persistence compatibility; per-item choices are the opt-in now.
+        boolean texturePackBypasser = false;
         boolean helmetSkins = false;
         boolean customTextures = false;
         Values copy() { return GSON.fromJson(GSON.toJson(this), Values.class); }
@@ -31,7 +32,7 @@ final class ModSettings {
             var json = JsonParser.parseString(Files.readString(path));
             if (!json.isJsonObject()) throw new IllegalArgumentException("Expected a settings object");
             var object = json.getAsJsonObject();
-            for (String key : new String[]{"rarityBackgrounds", "rememberRarity", "helmetSkins", "customTextures"}) {
+            for (String key : new String[]{"rarityBackgrounds", "rememberRarity", "helmetSkins", "customTextures", "texturePackBypasser"}) {
                 if (object.has(key) && (!object.get(key).isJsonPrimitive() || !object.getAsJsonPrimitive(key).isBoolean()))
                     throw new IllegalArgumentException("Invalid " + key);
             }

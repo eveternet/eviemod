@@ -24,6 +24,7 @@ final class SkyBlockSession {
         boolean next = "SKYBLOCK".equals(serverType);
         if (next != skyblock) RarityBackgrounds.clear();
         skyblock = next;
+        if (next) TexturePackBypasser.enteredSkyBlock();
     }
     static boolean active() {
         var client = Minecraft.getInstance();

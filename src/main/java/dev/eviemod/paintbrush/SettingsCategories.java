@@ -11,7 +11,7 @@ final class SettingsCategories {
     @FunctionalInterface interface CategoryFactory {
         ConfigCategory create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures);
     }
-    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::paintBrush);
+    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::paintBrush, SettingsCategories::texturePackBypasser);
     static List<ConfigCategory> create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures) {
         return CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList();
     }
@@ -37,6 +37,25 @@ final class SettingsCategories {
                     .binding(45, () -> draft.opacity, value -> draft.opacity = value)
                     .controller(IntegerController.createBuilder().range(0, 100).slider(5).build()).build())
                 .build()).build();
+    }
+    private static ConfigCategory texturePackBypasser(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
+        return ConfigCategory.createBuilder().id(id("texture_pack_bypasser")).name(text("Texture Pack Bypasser"))
+            .description(text("Keep Hypixel's SkyBlock pack as a local resource pack."))
+            .option(Option.<Boolean>createBuilder().id(id("texture_pack_bypasser/enabled")).name(text("Texture Pack Bypasser"))
+                .description(text("Download and update the official pack locally. Select and arrange it in Minecraft's Resource Packs screen."))
+                .binding(false, () -> draft.texturePackBypasser, value -> draft.texturePackBypasser = value)
+                .controller(BooleanController.createBuilder().build()).build())
+            .option(ButtonOption.createBuilder().id(id("texture_pack_bypasser/check")).name(text("Check for updates"))
+                .description(text("Check now and reload the pack if an update is ready and the pack is selected."))
+                .prompt(text("Check for updates"))
+                .action(parent -> {
+                    try { EviemodSettings.STORE.save(draft); TexturePackBypasser.manualCheck(); }
+                    catch (java.io.IOException e) {
+                        var client = net.minecraft.client.Minecraft.getInstance();
+                        client.setScreen(new net.minecraft.client.gui.screens.AlertScreen(() -> client.setScreen(parent),
+                            text("Settings could not be saved"), text(e.getMessage())));
+                    }
+                }).build()).build();
     }
     private static ConfigCategory paintBrush(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("paintbrush")).name(text("Paint Brush"))

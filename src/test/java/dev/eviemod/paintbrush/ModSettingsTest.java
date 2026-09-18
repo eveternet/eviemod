@@ -44,4 +44,15 @@ class ModSettingsTest {
         Files.writeString(path, "new"); ConfigMigration.migrate(directory, "eviemod-colors.json");
         assertEquals("new", Files.readString(path)); assertEquals("legacy", Files.readString(old));
     }
+    @Test void texturePackBypasserDefaultsOffAndPreservesOptIn() throws Exception {
+        assertFalse(new ModSettings.Values().texturePackBypasser);
+        Path path = dir.resolve("bypasser.json");
+        Files.writeString(path, "{}");
+        var store = new ModSettings(path); store.load();
+        assertFalse(store.values().texturePackBypasser);
+        var draft = store.values().copy(); draft.texturePackBypasser = true; store.save(draft);
+        var restarted = new ModSettings(path); restarted.load(); assertTrue(restarted.values().texturePackBypasser);
+        Files.writeString(path, "{\"texturePackBypasser\":\"true\"}");
+        assertThrows(IOException.class, restarted::load);
+    }
 }
