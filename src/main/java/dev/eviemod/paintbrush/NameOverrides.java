@@ -39,6 +39,7 @@ public final class NameOverrides {
     }
 
     public synchronized void load() throws IOException {
+        ConfigMigration.prepare(file);
         if (!Files.exists(file)) { overrides = Map.of(); return; }
         Map<UUID, StyledName> loaded = new HashMap<>();
         try (var reader = Files.newBufferedReader(file)) {
@@ -66,6 +67,7 @@ public final class NameOverrides {
     }
 
     public synchronized void setStyle(UUID uuid, StyledName name) throws IOException {
+        ConfigMigration.prepare(file);
         if (uuid == null) throw new IllegalArgumentException("An item UUID is required");
         Map<UUID, StyledName> next = new HashMap<>(overrides);
         if (name == null) next.remove(uuid); else { validate(name.text()); next.put(uuid, name); }

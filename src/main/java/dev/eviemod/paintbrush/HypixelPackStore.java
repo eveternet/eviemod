@@ -25,6 +25,7 @@ final class HypixelPackStore {
     private State state;
 
     HypixelPackStore(Path directory, Path statePath, Fetch fetch) throws IOException {
+        ConfigMigration.prepare(statePath);
         this.directory = directory; this.statePath = statePath; this.fetch = fetch;
         if (Files.exists(statePath)) {
             try {

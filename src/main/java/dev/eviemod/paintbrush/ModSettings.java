@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.*;
 
-final class ModSettings {
+class ModSettings {
     enum Shape { SQUARE, CIRCLE }
     static final class Values {
         ImportedFeatures features = new ImportedFeatures();
@@ -19,6 +19,8 @@ final class ModSettings {
         // Legacy keys retained for persistence compatibility; per-item choices are the opt-in now.
         boolean helmetSkins = false;
         boolean customTextures = false;
+        transient java.util.Set<String> featureChoices = new java.util.HashSet<>();
+        void choose(String path) { featureChoices.add(path); }
         Values copy() { return GSON.fromJson(GSON.toJson(this), Values.class); }
     }
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -32,7 +34,8 @@ final class ModSettings {
     String error() { return error; }
     void load() throws IOException {
         try {
-            if (!Files.exists(path)) { values = new Values(); error = null; return; }
+            ConfigMigration.prepare(path);
+            if (!Files.exists(path)) { values = new Values(); present = new com.google.gson.JsonObject(); error = null; return; }
             var json = JsonParser.parseString(Files.readString(path));
             if (!json.isJsonObject()) throw new IllegalArgumentException("Expected a settings object");
             var object = json.getAsJsonObject();
@@ -48,17 +51,20 @@ final class ModSettings {
             ImportedFeatureMigration.validate(object);
             validate(loaded); present = object.deepCopy(); values = loaded; error = null;
         } catch (RuntimeException | IOException e) {
-            error = "Could not load eviemod.json. Original file preserved. Fix it, then use /eviemod reload.";
+            error = "Could not load eviemod/settings.json. Original file preserved. Fix it, then use /eviemod reload.";
             throw new IOException(error, e);
         }
     }
     private static void validate(Values value) {
-        if (value == null || value.features == null || value.migrations == null || value.shape == null || value.opacity < 0 || value.opacity > 100)
+        if (value == null || value.features == null || value.features.skyblock == null || value.features.garden == null
+            || value.features.soulWhip == null || value.features.skyblock.commandHotkeys == null
+            || value.features.skyblock.partyCommands == null || value.features.garden.keys == null || value.migrations == null || value.shape == null || value.opacity < 0 || value.opacity > 100)
             throw new IllegalArgumentException("Invalid rarity background settings");
     }
     void save(Values next) throws IOException { save(next, null); }
     void save(Values next, String importedGroup) throws IOException {
         if (error != null) throw new IOException(error);
+        ConfigMigration.prepare(path);
         validate(next);
         var json = GSON.toJsonTree(next).getAsJsonObject();
         ImportedFeatureMigration.validate(json);
@@ -66,6 +72,16 @@ final class ModSettings {
         var explicit = present.has("features") ? present.getAsJsonObject("features") : new com.google.gson.JsonObject();
         var sparse = ImportedFeatureMigration.changed(explicit, prior.getAsJsonObject("features"), json.getAsJsonObject("features"));
         if (importedGroup != null) sparse.add(importedGroup, json.getAsJsonObject("features").get(importedGroup).deepCopy());
+        for (String choice : next.featureChoices) {
+            String[] parts = choice.split("\\.");
+            var source = json.getAsJsonObject("features"); var destination = sparse;
+            for (int i = 0; i < parts.length - 1; i++) {
+                source = source.getAsJsonObject(parts[i]);
+                if (!destination.has(parts[i])) destination.add(parts[i], new com.google.gson.JsonObject());
+                destination = destination.getAsJsonObject(parts[i]);
+            }
+            destination.add(parts[parts.length - 1], source.get(parts[parts.length - 1]).deepCopy());
+        }
         json.add("features", sparse);
         Files.createDirectories(path.toAbsolutePath().getParent());
         Path temporary = Files.createTempFile(path.toAbsolutePath().getParent(), "eviemod-", ".tmp");

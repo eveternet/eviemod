@@ -59,6 +59,7 @@ public final class ColorOverrides {
     }
 
     public synchronized void load() throws IOException {
+        ConfigMigration.prepare(file);
         if (!Files.exists(file)) { overrides = Map.of(); return; }
         Map<UUID, String> loaded = new HashMap<>();
         try (var reader = Files.newBufferedReader(file)) {
@@ -86,6 +87,7 @@ public final class ColorOverrides {
     }
 
     public synchronized void setValue(UUID uuid, String value) throws IOException {
+        ConfigMigration.prepare(file);
         if (uuid == null) throw new IllegalArgumentException("An item UUID is required");
         String rgb = DyePresets.normalize(value);
         Map<UUID, String> next = new HashMap<>(overrides);

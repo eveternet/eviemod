@@ -6,13 +6,24 @@ import java.nio.file.Path;
 import net.fabricmc.loader.api.FabricLoader;
 
 final class ConfigMigration {
+    private record Source(Path directory, String name) {}
+    private static final java.util.Map<Path, Source> SOURCES = new java.util.concurrent.ConcurrentHashMap<>();
     static Path path(String name) {
         Path directory = FabricLoader.getInstance().getConfigDir();
-        try { return migrate(directory, name); }
-        catch (IOException e) { throw new IllegalStateException("Could not migrate " + name + "; old file preserved", e); }
+        Path target = target(directory, name);
+        SOURCES.put(target, new Source(directory, name));
+        return target;
+    }
+    // Persistence boundaries call this inside their existing IOException handling, never static initialization.
+    static void prepare(Path target) throws IOException {
+        Source source = SOURCES.get(target);
+        if (source != null) migrate(source.directory(), source.name());
+    }
+    private static Path target(Path directory, String name) {
+        return directory.resolve("eviemod").resolve(name.equals("eviemod.json") ? "settings.json" : name.replace("eviemod-", ""));
     }
     static Path migrate(Path directory, String name) throws IOException {
-        Path target = directory.resolve("eviemod").resolve(name.equals("eviemod.json") ? "settings.json" : name.replace("eviemod-", ""));
+        Path target = target(directory, name);
         Path previous = directory.resolve(name);
         Path legacy = Files.exists(previous) ? previous : directory.resolve(name.replace("eviemod-", "skyshitter-"));
         // Copy atomically, once. Both generations remain untouched as backups.

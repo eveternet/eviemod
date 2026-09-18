@@ -55,7 +55,12 @@ if (providers.gradleProperty('uiSmokeTest').isPresent()) {
         if (providers.gradleProperty('uiCapture').isPresent()) jvmArgs '-Deviemod.capture=true'
         if (providers.gradleProperty('textureCapture').isPresent()) jvmArgs '-Deviemod.textureCapture=true'
         if (providers.gradleProperty('packCapture').isPresent()) jvmArgs '-Deviemod.packCapture=true'
+        if (providers.gradleProperty('mergedCapture').isPresent()) jvmArgs '-Deviemod.mergedCapture=true'
         dependsOn tasks.named('uiTestClasses')
         classpath += sourceSets.uiTest.runtimeClasspath
     }
+}
+
+if (providers.gradleProperty('mergedCapture').isPresent()) {
+    loom.runs.client.runDir = 'run/merged-fixture'
 }

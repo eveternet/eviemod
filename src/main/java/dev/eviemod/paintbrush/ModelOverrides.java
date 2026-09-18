@@ -30,6 +30,7 @@ public final class ModelOverrides {
     }
 
     public synchronized void load() throws IOException {
+        ConfigMigration.prepare(file);
         if (!Files.exists(file)) { overrides = Map.of(); return; }
         Map<UUID, Identifier> loaded = new HashMap<>();
         try (var reader = Files.newBufferedReader(file)) {
@@ -51,6 +52,7 @@ public final class ModelOverrides {
     }
 
     public synchronized void set(UUID uuid, Identifier model) throws IOException {
+        ConfigMigration.prepare(file);
         if (uuid == null) throw new IllegalArgumentException("An item UUID is required");
         Map<UUID, Identifier> next = new HashMap<>(overrides);
         if (model == null) next.remove(uuid); else next.put(uuid, model);

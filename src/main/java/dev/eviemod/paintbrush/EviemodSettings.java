@@ -17,6 +17,8 @@ public final class EviemodSettings {
     static final ModSettings STORE = new ModSettings(ConfigMigration.path("eviemod.json"));
     public static ImportedFeatures features() { return STORE.values().features; }
     private static String pendingError;
+    private record ScreenOrigin(Screen parent, List<ItemStack> fixtures) {}
+    private static final java.util.Map<Screen, ScreenOrigin> ORIGINS = new java.util.WeakHashMap<>();
     static void load() {
         try { STORE.load(); ImportedFeatureMigration.run(STORE, FabricLoader.getInstance().getConfigDir()); }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error(e.getMessage(), e); }
@@ -41,17 +43,19 @@ public final class EviemodSettings {
         screen.getGuiContext().setCloseRequestHandler(() -> {
             if (manager.save()) Minecraft.getInstance().setScreen(parent);
         });
+        ORIGINS.put(screen, new ScreenOrigin(parent, fixtures));
         return screen;
     }
 
     static void rebuild(Screen current, ModSettings.Values draft, String search) {
         try {
             STORE.save(draft);
-            Minecraft.getInstance().setScreen(screen(null, search, null));
+            var origin = ORIGINS.getOrDefault(current, new ScreenOrigin(null, null));
+            Minecraft.getInstance().setScreen(screen(origin.parent(), search, origin.fixtures()));
         } catch (IOException e) { pendingError = e.getMessage(); }
     }
 
-    /** Adapts the existing validated, atomic settings store; no config-format migration needed. */
+    /** Adapts the shared validated, atomic settings store. */
     private static final class SettingsManager extends net.azureaaron.dandelion.impl.ConfigManagerImpl<ModSettings.Values> {
         private final ModSettings.Values draft = STORE.values().copy();
         SettingsManager() { super(ModSettings.Values.class, ConfigMigration.path("eviemod.json"), builder -> builder); }
