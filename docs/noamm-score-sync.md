@@ -1,4 +1,4 @@
-# Noamm score-sync v1 (Eviemod 4.1.1)
+# Noamm score-sync v1 (Eviemod 5.0.1)
 
 ## Contract and optional boundary
 
@@ -155,6 +155,7 @@ JARs were also inspected and contain no `com/github/noamm9` fixture entries.
   `event/impl/WebSocketEvent.java`, and `event/priority/EventPriority.java`.
 - Offline client fixture: `src/uiTest/java/dev/eviemod/paintbrush/NoammAbsenceSmokeTest.java`
   and its dispatch in `UiSmokeTest.java`.
-- `build.gradle`: one minor release bump within the existing Chat Commands section
-  and an isolated offline smoke-test launch option. No dependencies added.
+- `build.gradle`: the score-sync feature introduces major version 5.0.0; the
+  out-of-order announcement fix is patch 5.0.1. Also adds an isolated offline
+  smoke-test launch option. No dependencies added.
 - This document: `docs/noamm-score-sync.md`.
