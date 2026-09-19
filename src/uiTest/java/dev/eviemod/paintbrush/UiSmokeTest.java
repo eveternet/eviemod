@@ -16,6 +16,7 @@ public final class UiSmokeTest implements ClientModInitializer {
     private boolean opened;
     private int captureTicks;
     @Override public void onInitializeClient() {
+        if (Boolean.getBoolean("eviemod.scoreSyncSmoke")) { new NoammAbsenceSmokeTest().start(); return; }
         if (Boolean.getBoolean("eviemod.mergedCapture")) { new MergedFeaturesSmokeTest().start(); return; }
         if (Boolean.getBoolean("eviemod.packCapture")) { new PackBypassSmokeTest().start(); return; }
         if (Boolean.getBoolean("eviemod.textureCapture")) { new TextureSmokeTest().start(); return; }
