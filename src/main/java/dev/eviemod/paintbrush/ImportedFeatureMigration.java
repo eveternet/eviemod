@@ -143,7 +143,7 @@ final class ImportedFeatureMigration {
         }
         if (features.has("skyblock")) {
             var skyblock = object(features.get("skyblock"), "skyblock");
-            booleans(skyblock, "noBarrierEffects", "maxTenHearts", "commandHotkeysEnabled");
+            booleans(skyblock, "noBarrierEffects", "maxTenHearts", "commandHotkeysEnabled", "noammScoreSync");
             if (skyblock.has("commandHotkeys")) {
                 if (!skyblock.get("commandHotkeys").isJsonArray()) throw new IllegalArgumentException("Invalid commandHotkeys");
                 for (var entry : skyblock.getAsJsonArray("commandHotkeys")) {

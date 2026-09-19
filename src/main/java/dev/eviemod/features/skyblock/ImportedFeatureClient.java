@@ -12,6 +12,7 @@ public final class ImportedFeatureClient {
         GardenToolsClient.initialize();
         CustomCommandHotkeys.initialize();
         PartyCommandController.register();
+        dev.eviemod.features.scoresync.ScoreSyncClient.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) ->
             dispatcher.register(ClientCommands.literal("kabeewie")
                 .executes(context -> openSettings())

@@ -58,6 +58,12 @@ final class ImportedSettingsCategories {
     }
     private static ConfigCategory commands(ModSettings.Values draft) {
         var category = ConfigCategory.createBuilder().id(id("chat_commands")).name(text("Chat Commands"));
+        if (dev.eviemod.features.scoresync.ScoreSyncClient.available()) {
+            category.option(toggle("commands/noamm_score_sync", "Noamm Score Sync",
+                "Relay incoming Noamm Mimic and Prince events to party chat when nobody announces them within one second.", false,
+                () -> dev.eviemod.features.scoresync.ScoreSyncClient.available() && draft.features.skyblock.noammScoreSync,
+                value -> { draft.features.skyblock.noammScoreSync = value && dev.eviemod.features.scoresync.ScoreSyncClient.available(); draft.choose("skyblock.noammScoreSync"); }));
+        }
         for (var feature : PartyCommandController.FEATURES) {
             var channels = draft.features.skyblock.partyCommands.getOrDefault(feature.key(), new ImportedFeatures.Channels());
             var group = OptionGroup.createBuilder().id(id("commands/" + feature.key())).name(text(feature.name()))

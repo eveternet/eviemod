@@ -12,6 +12,7 @@ public final class ImportedFeatures {
     public SoulWhip soulWhip = new SoulWhip();
     public static final class SoulWhip { public boolean enabled = true; }
     public static final class Skyblock {
+        public boolean noammScoreSync = false;
         public boolean noBarrierEffects = true;
         public boolean maxTenHearts = true;
         public boolean commandHotkeysEnabled = true;
