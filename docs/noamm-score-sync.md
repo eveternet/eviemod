@@ -121,5 +121,34 @@ window boundaries, default and explicit retry delay, retry exhaustion, mute and
 generic failure abandonment, foreign send/echo/timeout attribution, transport
 exceptions, lifecycle clearing, absent/unready/incompatible Noamm, exact listener
 class and public registration, persistence defaults and malformed preservation.
-Fixture registration is not live Noamm testing. No claim is made that these tests
-exercise Noamm's actual binary, a running game, or live Hypixel chat failures.
+Fixture registration is not live Noamm testing. No claim is made that these unit
+tests exercise Noamm's actual binary or live Hypixel chat failures.
+
+The real offline Minecraft 26.1.2 client smoke test passed without Noamm installed:
+startup completed, fresh configuration defaulted off, the shared settings UI
+exposed no score-sync control even with an in-memory saved true choice, and no
+relay timer thread started. Run it with
+`./gradlew runClient -PuiSmokeTest -PscoreSyncSmoke`; it uses the isolated
+`run/score-sync-fixture` directory and exits after its assertions. Test fixtures
+under `src/test` are not included in this client run. The release and sources
+JARs were also inspected and contain no `com/github/noamm9` fixture entries.
+
+## Changed files
+
+- Runtime: `src/main/java/dev/eviemod/features/scoresync/ScoreSyncClient.java`,
+  `NoammScoreHook.java`, `ScoreRelay.java`, `DungeonChatContext.java`, and
+  `ChatCooldown.java` in that same package.
+- Initialization: `src/main/java/dev/eviemod/features/skyblock/ImportedFeatureClient.java`.
+- Shared settings: `src/main/java/dev/eviemod/paintbrush/ImportedFeatures.java`,
+  `ImportedFeatureMigration.java`, and `ImportedSettingsCategories.java`.
+- Regression tests: `src/test/java/dev/eviemod/features/scoresync/ScoreRelayTest.java`,
+  `NoammScoreHookTest.java`, `DungeonChatContextTest.java`, `ChatCooldownTest.java`,
+  and `src/test/java/dev/eviemod/paintbrush/NoammScoreSettingsTest.java`.
+- Contract fixtures: `src/test/java/com/github/noamm9/NoammAddons.java`,
+  `event/Event.java`, `event/EventContext.java`, `event/EventListener.java`,
+  `event/impl/WebSocketEvent.java`, and `event/priority/EventPriority.java`.
+- Offline client fixture: `src/uiTest/java/dev/eviemod/paintbrush/NoammAbsenceSmokeTest.java`
+  and its dispatch in `UiSmokeTest.java`.
+- `build.gradle`: one minor release bump within the existing Chat Commands section
+  and an isolated offline smoke-test launch option. No dependencies added.
+- This document: `docs/noamm-score-sync.md`.

@@ -89,6 +89,14 @@ class ScoreRelayTest {
         f.relay.chat("You can only chat once every 3 seconds! Ranked users bypass this restriction!", true, 7, false);
         f.at(3999); assertEquals(1, f.sent.size()); f.at(4000); assertEquals(2, f.sent.size());
     }
+    @Test void overlappingOccurrencesEachHaveOnlyOneRetry() {
+        var f = new Fixture(); f.event("mimic"); f.event("prince"); f.at(1000);
+        f.relay.chat(COOLDOWN, true, 7, false); f.relay.chat(COOLDOWN, true, 7, false);
+        f.at(2000);
+        assertEquals(java.util.List.of("pc Mimic Killed!", "pc Prince Killed!", "pc Mimic Killed!", "pc Prince Killed!"), f.sent);
+        f.relay.chat(COOLDOWN, true, 7, false); f.relay.chat(COOLDOWN, true, 7, false);
+        f.at(100000); assertEquals(4, f.sent.size());
+    }
     @Test void muteGenericAndUnknownFailuresNeverRetryEvenIfFollowedByCooldown() {
         for (String failure : java.util.List.of("You are currently muted!", "You are not currently in a party.",
             "An unknown error occurred!", "Error: chat is unavailable", "Mute reason: test", "You cannot say the same message twice!")) {
