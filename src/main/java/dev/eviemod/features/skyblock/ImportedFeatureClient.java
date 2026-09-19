@@ -10,6 +10,7 @@ public final class ImportedFeatureClient {
     private static boolean openSettings;
     public static void initialize() {
         GardenToolsClient.initialize();
+        CustomCommandHotkeys.initialize();
         PartyCommandController.register();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) ->
             dispatcher.register(ClientCommands.literal("kabeewie")

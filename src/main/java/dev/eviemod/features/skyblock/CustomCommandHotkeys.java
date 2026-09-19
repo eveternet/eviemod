@@ -4,30 +4,34 @@ import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import org.lwjgl.glfw.GLFW;
 
 public final class CustomCommandHotkeys {
    public static final int UNBOUND_KEY = -1;
-   private static final List<Boolean> wasDown = new ArrayList<>();
+   private static final List<HotkeyPressState> pressedStates = new ArrayList<>();
 
    private CustomCommandHotkeys() {
    }
 
+   public static void initialize() {
+      ScreenEvents.BEFORE_INIT.register((client, screen, width, height) -> {
+         sampleKeys(client, false);
+         // Capture keys typed after the last screen tick, before gameplay resumes.
+         ScreenEvents.remove(screen).register(closed -> sampleKeys(client, false));
+      });
+   }
+
    public static void tick(Minecraft client) {
-      if (FeatureSettings.isCommandHotkeysEnabled() && client.screen == null && client.getConnection() != null) {
-         syncPressedStateSize();
+      sampleKeys(client, FeatureSettings.isCommandHotkeysEnabled() && client.screen == null && client.getConnection() != null);
+   }
 
-         for (int slot = 0; slot < FeatureSettings.getCommandHotkeyCount(); slot++) {
-            int key = FeatureSettings.getCommandHotkeyKey(slot);
-            boolean down = key != -1 && isDown(client, key);
-            if (down && !wasDown.get(slot)) {
-               execute(slot, client);
-            }
-
-            wasDown.set(slot, down);
-         }
-      } else {
-         clearPressedState();
+   private static void sampleKeys(Minecraft client, boolean active) {
+      syncPressedStateSize();
+      for (int slot = 0; slot < FeatureSettings.getCommandHotkeyCount(); slot++) {
+         int key = FeatureSettings.getCommandHotkeyKey(slot);
+         boolean down = key != UNBOUND_KEY && isDown(client, key);
+         if (pressedStates.get(slot).sample(key, down, active)) execute(slot, client);
       }
    }
 
@@ -91,23 +95,15 @@ public final class CustomCommandHotkeys {
       return key >= 0 && key <= 7;
    }
 
-   private static void clearPressedState() {
-      syncPressedStateSize();
-
-      for (int i = 0; i < wasDown.size(); i++) {
-         wasDown.set(i, false);
-      }
-   }
-
    private static void syncPressedStateSize() {
       int count = FeatureSettings.getCommandHotkeyCount();
 
-      while (wasDown.size() < count) {
-         wasDown.add(false);
+      while (pressedStates.size() < count) {
+         pressedStates.add(new HotkeyPressState());
       }
 
-      while (wasDown.size() > count) {
-         wasDown.remove(wasDown.size() - 1);
+      while (pressedStates.size() > count) {
+         pressedStates.remove(pressedStates.size() - 1);
       }
    }
 }

@@ -139,3 +139,19 @@ Local tests and exact source parity do not establish live Hypixel behavior or in
 with the user's complete modpack. Live verification still needs a SkyBlock session for
 health/Rift transitions, borders, party/guild/co-op commands, pest cooldown/loadout flow,
 Garden mouse locking and first-person animation behavior.
+
+## Command hotkey input (4.0.2)
+
+Custom command hotkeys retain sampled physical key/button state while screens own input,
+while disabled, and while disconnected. A held key cannot become a new press just because
+chat closes. Fabric ScreenEvents samples state at screen initialization and removal as well
+as ticks; removal catches a character pressed after the last chat tick immediately before
+Enter. Commands still execute through the existing tick path, only on an up-to-down edge in
+gameplay. New/rebound slots baseline the current state instead of firing a held binding.
+Bindings, command text, and command dispatch are unchanged. This applies to every screen,
+without guessing which widgets accept text. As before, polling can miss a complete physical
+release/press between samples; no input is buffered or replayed after a screen closes.
+
+Regression tests cover held chat keys, between-tick closing, immediate fresh gameplay presses,
+ordinary holds, disabled/disconnected input, changed bindings and independent mouse bindings.
+These are local input-state fixtures, not live SkyBlock command execution tests.
