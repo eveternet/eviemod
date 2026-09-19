@@ -1,4 +1,4 @@
-# Noamm score-sync v1 (Eviemod 4.1.0)
+# Noamm score-sync v1 (Eviemod 4.1.1)
 
 ## Contract and optional boundary
 
@@ -35,7 +35,8 @@ Legacy migration does not populate this new field.
 
 `ScoreRelay` is a client-thread state machine with an injected monotonic clock,
 timer and normal command sender. Strict JSON accepts only string `type` values
-`dungeonmimic` and `dungeonprince`. Each packet creates its own pending occurrence.
+`dungeonmimic` and `dungeonprince`. Each packet creates its own pending occurrence unless a matching valid party
+announcement was observed within the preceding 1,000 ms (inclusive).
 A timer is scheduled for 1,000 ms and dispatches back onto the client executor.
 It never sends early. Like any Minecraft client task, actual transmission can
 be later if the client thread is stalled; exact wall-clock execution cannot be
@@ -45,7 +46,12 @@ Chat cancellation strips legacy code pairs and uses `^Party > .*?: (.+)$` with
 only `Locale.ROOT` lowercasing of the captured body, exactly the ten contract
 bodies, and no trimming or approximate body matching. The observation window
 is `[receipt, receipt + 1000 ms)`. A match cancels all same-kind windows containing
-that observation. Earlier/later messages and other kinds do not suppress events.
+that observation. The latest valid announcement timestamp is also retained for
+each kind, creating a one-second lookback for out-of-order arrivals. Announcements
+older than 1,000 ms and other kinds do not suppress an incoming event. Only chat
+that passes the same body and dungeon/floor checks at observation time updates
+these timestamps; lifecycle clearing removes them. This is time-bounded
+reconciliation, not per-run deduplication.
 Canonical sends are `pc Mimic Killed!` and `pc Prince Killed!` through the existing
 Minecraft command transport. No per-run state is retained.
 

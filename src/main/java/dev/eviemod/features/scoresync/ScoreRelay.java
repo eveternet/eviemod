@@ -7,6 +7,7 @@ import com.google.gson.Strictness;
 import java.util.ArrayList;
 import java.util.ArrayDeque;
 import java.util.Locale;
+import java.util.EnumMap;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ final class ScoreRelay {
     private final Consumer<String> send;
     private final ArrayList<Pending> windows = new ArrayList<>();
     private final ArrayDeque<Response> responses = new ArrayDeque<>();
+    private final EnumMap<Kind, Long> lastAnnouncements = new EnumMap<>(Kind.class);
     private long generation;
 
     ScoreRelay(LongSupplier clock, Timer timer, Consumer<String> send) {
@@ -35,7 +37,10 @@ final class ScoreRelay {
     void incoming(String json) {
         Kind kind = packetKind(json);
         if (kind == null) return;
-        Pending pending = new Pending(kind, clock.getAsLong() + 1000, generation);
+        long now = clock.getAsLong();
+        Long lastAnnouncement = lastAnnouncements.get(kind);
+        if (lastAnnouncement != null && now - lastAnnouncement >= 0 && now - lastAnnouncement <= 1000) return;
+        Pending pending = new Pending(kind, now + 1000, generation);
         windows.add(pending);
         timer.after(1000, () -> {
             if (pending.generation != generation || !windows.remove(pending)) return;
@@ -50,6 +55,7 @@ final class ScoreRelay {
             Kind kind = bodyKind(party.group(1));
             if (kind != null && dungeon && (kind != Kind.MIMIC || floor == 6 || floor == 7)) {
                 long now = clock.getAsLong();
+                lastAnnouncements.put(kind, now);
                 windows.removeIf(p -> p.kind == kind && now < p.deadline);
             }
             if (ownMessage && kind != null) {
@@ -79,7 +85,7 @@ final class ScoreRelay {
     }
 
     void foreignSend() { responses.clear(); }
-    void clear() { generation++; windows.clear(); responses.clear(); }
+    void clear() { generation++; windows.clear(); responses.clear(); lastAnnouncements.clear(); }
 
     private void transmit(Pending pending) {
         Response response = new Response(pending);
