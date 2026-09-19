@@ -50,15 +50,15 @@ class ScoreRelayTest {
             assertEquals(1, f.sent.size(), line);
         }
     }
-    @Test void contextAtObservationControlsCancellation() {
+    @Test void websocketFirstCancellationDoesNotRequireDungeonContext() {
         for (int floor : new int[]{-1, 0, 1, 5, 6, 7}) {
-            var f = new Fixture(); f.event("mimic"); f.chat("Mimic Killed!", floor >= 0, floor); f.at(1000);
-            assertEquals(floor == 6 || floor == 7 ? 0 : 1, f.sent.size());
-            var p = new Fixture(); p.event("prince"); p.chat("Prince Killed!", floor >= 0, floor); p.at(1000);
-            assertEquals(floor >= 0 ? 0 : 1, p.sent.size());
+            var f = new Fixture(); f.event("mimic"); f.at(500); f.chat("Mimic Killed!", floor >= 0, floor); f.at(1000);
+            assertTrue(f.sent.isEmpty());
+            var p = new Fixture(); p.event("prince"); p.at(500); p.chat("Prince Killed!", floor >= 0, floor); p.at(1000);
+            assertTrue(p.sent.isEmpty());
         }
         var f = new Fixture(); f.event("mimic"); f.chat("Mimic Killed!", false, 7); f.at(1000);
-        assertEquals(1, f.sent.size());
+        assertTrue(f.sent.isEmpty());
     }
     @Test void repeatedEventsAreIndependentAndOverlappingWindowsCancelTogether() {
         var f = new Fixture(); f.event("mimic"); f.at(500); f.event("mimic");
@@ -76,7 +76,7 @@ class ScoreRelayTest {
             for (String suffix : java.util.List.of(" killed", " slain", " killed!", " dead", " dead!")) {
                 for (long age : new long[]{0, 500, 999, 1000}) {
                     var f = new Fixture();
-                    f.chat((kind + suffix).toUpperCase(java.util.Locale.ROOT), true, 7);
+                    f.chat((kind + suffix).toUpperCase(java.util.Locale.ROOT), false, -1);
                     f.at(age); f.event(kind);
                     assertTrue(f.tasks.isEmpty(), "Suppression must not schedule a relay");
                     f.at(10000); assertTrue(f.sent.isEmpty());
@@ -86,14 +86,14 @@ class ScoreRelayTest {
     }
     @Test void chatOlderThanOneSecondDoesNotSuppressEitherKind() {
         for (String kind : java.util.List.of("mimic", "prince")) {
-            var f = new Fixture(); f.chat(kind + " killed!", true, 7);
+            var f = new Fixture(); f.chat(kind + " killed!", false, -1);
             f.at(1001); f.event(kind); f.at(2000); assertTrue(f.sent.isEmpty());
             f.at(2001); assertEquals(1, f.sent.size());
         }
     }
     @Test void recentChatDoesNotSuppressOtherKind() {
         for (String kind : java.util.List.of("mimic", "prince")) {
-            var f = new Fixture(); f.chat(kind + " killed!", true, 7); f.at(500);
+            var f = new Fixture(); f.chat(kind + " killed!", false, -1); f.at(500);
             f.event("mimic"); f.event("prince"); f.at(1500);
             assertEquals(java.util.List.of(kind.equals("mimic") ? "pc Prince Killed!" : "pc Mimic Killed!"), f.sent);
         }
@@ -102,15 +102,16 @@ class ScoreRelayTest {
         for (String line : java.util.List.of("Party > Player: hello", "Guild > Player: Mimic Killed!",
             "party > Player: Mimic Killed!", "Party > Player: Mimic  Killed!", "Party > Player: Prince Killed!!",
             "Party > Player: Prince Killed! ")) {
-            var f = new Fixture(); f.relay.chat(line, true, 7, false); f.at(500);
+            var f = new Fixture(); f.relay.chat(line, false, -1, false); f.at(500);
             f.event("mimic"); f.event("prince"); f.at(1500); assertEquals(2, f.sent.size(), line);
         }
     }
-    @Test void lookbackUsesDungeonContextAtChatObservation() {
+    @Test void chatFirstSuppressionDoesNotRequireDungeonContext() {
         for (int floor : new int[]{-1, 0, 5, 6, 7}) {
             var f = new Fixture(); f.chat("Mimic Dead!", floor >= 0, floor); f.chat("Prince Slain", floor >= 0, floor);
-            f.at(500); f.event("mimic"); f.event("prince"); f.at(1500);
-            assertEquals(floor < 0 ? 2 : floor == 6 || floor == 7 ? 0 : 1, f.sent.size());
+            f.at(500); f.event("mimic"); f.event("prince");
+            assertTrue(f.tasks.isEmpty(), "Recorded chat must suppress immediately, even with floor -1");
+            f.at(1500); assertTrue(f.sent.isEmpty());
         }
     }
     @Test void newestMatchingAnnouncementRefreshesLookbackButUnrelatedChatDoesNot() {

@@ -1,4 +1,4 @@
-# Noamm score-sync v1 (Eviemod 5.0.1)
+# Noamm score-sync v1 (Eviemod 5.0.2)
 
 ## Contract and optional boundary
 
@@ -49,8 +49,8 @@ is `[receipt, receipt + 1000 ms)`. A match cancels all same-kind windows contain
 that observation. The latest valid announcement timestamp is also retained for
 each kind, creating a one-second lookback for out-of-order arrivals. Announcements
 older than 1,000 ms and other kinds do not suppress an incoming event. Only chat
-that passes the same body and dungeon/floor checks at observation time updates
-these timestamps; lifecycle clearing removes them. This is time-bounded
+that passes the exact party extraction and accepted-body checks updates
+these timestamps; dungeon/floor results are diagnostic only; lifecycle clearing removes them. This is time-bounded
 reconciliation, not per-run deduplication.
 Canonical sends are `pc Mimic Killed!` and `pc Prince Killed!` through the existing
 Minecraft command transport. No per-run state is retained.
@@ -61,21 +61,17 @@ normal server failure handling. Settings disablement, disconnect, level change,
 and integration failure invalidate pending work and retries. The scheduler is
 created lazily on the first supported, enabled event.
 
-## Dungeon context limitation
+## Dungeon context is diagnostic only
 
-Eviemod previously had Hypixel/SkyBlock/Rift detection, but no dungeon/floor API.
-`DungeonChatContext` reads the current sidebar at chat observation time rather
-than guessing from Noamm packets or tracking dungeon runs. It accepts only the
-location line `The Catacombs (F1..F7)`, `(M1..M7)`, or `(E)`, optionally prefixed
-with `⏣ `, after legacy formatting removal and outer whitespace stripping.
-That whitespace handling is location-only, never applied to party detection.
-Mimic cancellation requires numeric floor 6 or 7; Prince requires a recognized
-dungeon location. Unknown/changing scoreboard data does not cancel a relay.
+Live debug logs showed correctly parsed Prince announcements being rejected
+because `DungeonChatContext.floor(client)` returned `-1`. As of 5.0.2, valid
+Mimic/Prince party announcements are recorded and cancel matching pending relays
+without independently proving dungeon or floor state. Reconciliation still
+requires a separate supported Noamm event and the same one-second windows.
 
-These location fixtures are a documented Hypixel display heuristic, not proof
-of equivalence to Odin's `DungeonUtils.inDungeons` during every server transition.
-Live floor/entrance/master-mode and scoreboard-transition validation remains
-required. No Odin implementation or private state is accessed.
+The existing scoreboard adapter and temporary dungeon/floor log fields remain
+for diagnosis, but do not gate either ordering of reconciliation. Noamm event
+handling and the existing runtime availability/Hypixel checks are unchanged.
 
 ## Send failures and correlation limitation
 
@@ -122,7 +118,8 @@ network fallback, second protocol, Bat support, or run bookkeeping are added.
 
 Deterministic tests cover strict packet parsing/Bat exclusion, both canonical
 messages at the one-second deadline, all accepted announcements, exact whitespace
-and prefix rules, dungeon/floor gating, overlapping and repeated occurrences,
+and prefix rules, reconciliation with unavailable dungeon/floor data, overlapping
+and repeated occurrences,
 window boundaries, default and explicit retry delay, retry exhaustion, mute and
 generic failure abandonment, foreign send/echo/timeout attribution, transport
 exceptions, lifecycle clearing, absent/unready/incompatible Noamm, exact listener
@@ -156,6 +153,7 @@ JARs were also inspected and contain no `com/github/noamm9` fixture entries.
 - Offline client fixture: `src/uiTest/java/dev/eviemod/paintbrush/NoammAbsenceSmokeTest.java`
   and its dispatch in `UiSmokeTest.java`.
 - `build.gradle`: the score-sync feature introduces major version 5.0.0; the
-  out-of-order announcement fix is patch 5.0.1. Also adds an isolated offline
+  out-of-order announcement fix is patch 5.0.1, and the unavailable-floor
+  reconciliation fix is patch 5.0.2. Also adds an isolated offline
   smoke-test launch option. No dependencies added.
 - This document: `docs/noamm-score-sync.md`.

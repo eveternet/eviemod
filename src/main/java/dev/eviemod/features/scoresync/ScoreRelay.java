@@ -58,7 +58,8 @@ final class ScoreRelay {
         var party = PARTY.matcher(plain);
         if (party.matches()) {
             Kind kind = bodyKind(party.group(1));
-            if (kind != null && dungeon && (kind != Kind.MIMIC || floor == 6 || floor == 7)) {
+            // Chat reconciles a separate Noamm event; scoreboard context is diagnostic only.
+            if (kind != null) {
                 long now = clock.getAsLong();
                 lastAnnouncements.put(kind, now);
                 windows.removeIf(p -> p.kind == kind && now < p.deadline);
