@@ -91,7 +91,7 @@ class ScoreRelayTest {
     }
     @Test void muteGenericAndUnknownFailuresNeverRetryEvenIfFollowedByCooldown() {
         for (String failure : java.util.List.of("You are currently muted!", "You are not currently in a party.",
-            "An unknown error occurred!", "You cannot say the same message twice!")) {
+            "An unknown error occurred!", "Error: chat is unavailable", "Mute reason: test", "You cannot say the same message twice!")) {
             var f = new Fixture(); f.event("prince"); f.at(1000); f.relay.chat(failure, true, 7, false);
             f.relay.chat(COOLDOWN, true, 7, false); f.at(100000); assertEquals(1, f.sent.size());
         }

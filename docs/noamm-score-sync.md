@@ -95,7 +95,7 @@ A cooldown consumes the oldest outstanding attempt and schedules one retry only;
 the retry flag belongs to the occurrence. A recognized own party echo retires
 the oldest corresponding attempt. Other outgoing chat/commands abandon outstanding
 response attribution, preventing a later foreign error from triggering a relay
-retry. An unclassified system line without a chat separator clears outstanding
+retry. An unclassified non-party system line clears outstanding
 response tracking, conservatively covering mute and generic failures. No response,
 a thrown send error, or an unclassified error ever schedules a retry.
 

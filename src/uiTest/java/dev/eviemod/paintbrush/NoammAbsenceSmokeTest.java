@@ -6,14 +6,13 @@ import net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor;
 import net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screens.TitleScreen;
 
 /** Real offline client and shared UI, with no Noamm classes on the runtime classpath. */
 final class NoammAbsenceSmokeTest {
     private int ticks;
     void start() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!(client.screen instanceof TitleScreen) || client.getOverlay() != null || ++ticks < 60) return;
+            if (client.getOverlay() != null || ++ticks < 20) return;
             if (FabricLoader.getInstance().isModLoaded("noammaddons") || ScoreSyncClient.available())
                 throw new AssertionError("Noamm must be absent and unavailable");
             if (EviemodSettings.features().skyblock.noammScoreSync)

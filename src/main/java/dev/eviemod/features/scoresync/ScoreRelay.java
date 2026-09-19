@@ -60,8 +60,7 @@ final class ScoreRelay {
             }
             return;
         }
-        // Player chat (including guild, public and private chat) must not classify as a server error.
-        if (plain.contains(": ")) return;
+        // Full-line cooldown matching cannot classify prefixed player chat as a retryable error.
         Long cooldown = ChatCooldown.delay(plain);
         if (cooldown != null) {
             Response response = responses.pollFirst();
