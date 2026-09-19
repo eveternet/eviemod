@@ -20,6 +20,8 @@ final class ScoreRelay {
         Kind(String body) { this.body = body; }
     }
     interface Timer { void after(long millis, Runnable task); }
+    // TEMPORARY: INFO level keeps diagnostics visible in the normal client log.
+    private static final org.slf4j.Logger DEBUG = org.slf4j.LoggerFactory.getLogger("eviemod-score-sync-debug");
     private static final Pattern PARTY = Pattern.compile("^Party > .*?: (.+)$");
     private static final Gson JSON = new GsonBuilder().setStrictness(Strictness.STRICT).create();
     private final LongSupplier clock;
@@ -39,7 +41,10 @@ final class ScoreRelay {
         if (kind == null) return;
         long now = clock.getAsLong();
         Long lastAnnouncement = lastAnnouncements.get(kind);
-        if (lastAnnouncement != null && now - lastAnnouncement >= 0 && now - lastAnnouncement <= 1000) return;
+        boolean suppress = lastAnnouncement != null && now - lastAnnouncement >= 0 && now - lastAnnouncement <= 1000;
+        DEBUG.info("websocket kind={} nowMs={} storedTimestampMs={} ageMs={} suppress={}",
+            kind, now, lastAnnouncement, lastAnnouncement == null ? null : now - lastAnnouncement, suppress);
+        if (suppress) return;
         Pending pending = new Pending(kind, now + 1000, generation);
         windows.add(pending);
         timer.after(1000, () -> {
@@ -57,6 +62,11 @@ final class ScoreRelay {
                 long now = clock.getAsLong();
                 lastAnnouncements.put(kind, now);
                 windows.removeIf(p -> p.kind == kind && now < p.deadline);
+                DEBUG.info("chat input={} parsedKind={} dungeon={} floor={} lastAnnouncementsWritten=true timestampMs={}",
+                    JSON.toJson(text), kind, dungeon, floor, now);
+            } else {
+                DEBUG.info("chat input={} parsedKind={} dungeon={} floor={} lastAnnouncementsWritten=false",
+                    JSON.toJson(text), kind, dungeon, floor);
             }
             if (ownMessage && kind != null) {
                 // The chat transport has no request IDs; acknowledge the oldest corresponding send.
@@ -66,6 +76,8 @@ final class ScoreRelay {
             }
             return;
         }
+        DEBUG.info("chat input={} parsedKind=null dungeon={} floor={} lastAnnouncementsWritten=false partyMatched=false",
+            JSON.toJson(text), dungeon, floor);
         // Full-line cooldown matching cannot classify prefixed player chat as a retryable error.
         Long cooldown = ChatCooldown.delay(plain);
         if (cooldown != null) {

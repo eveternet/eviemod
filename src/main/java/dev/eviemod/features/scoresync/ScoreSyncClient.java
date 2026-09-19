@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 /** Fabric, configuration, timing and normal chat transport adapter. All relay mutation runs on the client thread. */
 public final class ScoreSyncClient {
+    // TEMPORARY: log callback input before the existing relay eligibility filters.
+    private static final org.slf4j.Logger DEBUG = LoggerFactory.getLogger("eviemod-score-sync-debug");
     private static final NoammScoreHook HOOK = new NoammScoreHook();
     private static boolean available, sending;
     private static ScheduledExecutorService timer;
@@ -55,11 +57,13 @@ public final class ScoreSyncClient {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> reset());
         // GAME is Hypixel's unsigned system chat; CHAT covers signed chat without treating it as an error response.
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            DEBUG.info("chat callback=GAME input={} overlay={}", message.getString(), overlay);
             var client = Minecraft.getInstance();
             if (overlay || !active(client)) return;
             observe(message.getString(), client);
         });
         ClientReceiveMessageEvents.CHAT.register((message, signed, sender, params, time) -> {
+            DEBUG.info("chat callback=CHAT input={}", message.getString());
             var client = Minecraft.getInstance();
             if (active(client) && ScoreRelay.stripFormatting(message.getString()).startsWith("Party > "))
                 observe(message.getString(), client);
