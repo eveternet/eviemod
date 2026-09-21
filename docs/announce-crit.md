@@ -9,3 +9,5 @@ Parsing and rendering are independent of Minecraft. Positive integer enemy count
 Local output adds a literal chat component. Party mode instead uses the existing PartyCommandController.sendCommand helper with `pc ` followed by the rendered template (the Minecraft command API omits the leading slash). The original Hypixel message is untouched. Normal Minecraft/Hypixel command length and chat restrictions still apply.
 
 Regression fixtures cover parsing, rounding, templates, output selection, disabled/overlay behavior, configuration persistence and invalid-file preservation. These are local tests, not live Hypixel or interactive UI validation. Version 6.0.0 follows the repository's major-version rule for a new settings section.
+
+Validation: `./gradlew -PuiSmokeTest build compileUiTestJava` passed, including the full JUnit suite and compilation of the updated six-category UI fixture. Local output uses the verified 26.1.2 `ChatComponent.addClientSystemMessage` API.

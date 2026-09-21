@@ -15,7 +15,7 @@ public final class AnnounceCritClient {
             var settings = EviemodSettings.features().dungeons;
             AnnounceCrit.receive(message.getString(), overlay, settings.announceCrit, settings.announceCritTemplate,
                 settings.announceCritPartyChat,
-                text -> client.player.displayClientMessage(Component.literal(text), false),
+                text -> client.gui.getChat().addClientSystemMessage(Component.literal(text)),
                 PartyCommandController::sendCommand);
         });
     }
