@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.eviemod'
-version = '5.0.2+26.1.2'
+version = '6.0.0+26.1.2'
 
 repositories {
     flatDir { dirs 'libs'; content { includeGroup 'local.eviemod' } }

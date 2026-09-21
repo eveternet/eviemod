@@ -19,7 +19,7 @@ final class ImportedSettingsCategories {
             .binding(initial, get, set).controller(BooleanController.createBuilder().build()).build();
     }
     static List<ConfigCategory> create(ModSettings.Values draft) {
-        return List.of(garden(draft), commands(draft), hotkeys(draft));
+        return List.of(garden(draft), dungeons(draft), commands(draft), hotkeys(draft));
     }
     private static Option<Boolean> compactToggle(String path, String name, String description, boolean initial, Supplier<Boolean> get, Consumer<Boolean> set) {
         var option = Option.<Boolean>createBuilder().id(id(path)).name(text(name))
@@ -56,14 +56,30 @@ final class ImportedSettingsCategories {
         });
         return category.build();
     }
-    private static ConfigCategory commands(ModSettings.Values draft) {
-        var category = ConfigCategory.createBuilder().id(id("chat_commands")).name(text("Chat Commands"));
+    private static ConfigCategory dungeons(ModSettings.Values draft) {
+        var values = draft.features.dungeons;
+        var category = ConfigCategory.createBuilder().id(id("dungeons")).name(text("Dungeons"));
         if (dev.eviemod.features.scoresync.ScoreSyncClient.available()) {
-            category.option(toggle("commands/noamm_score_sync", "Noamm Score Sync",
+            category.option(toggle("dungeons/noamm_score_sync", "Noamm Score Sync",
                 "Relay incoming Noamm Mimic and Prince events to party chat when nobody announces them within one second.", false,
                 () -> dev.eviemod.features.scoresync.ScoreSyncClient.available() && draft.features.skyblock.noammScoreSync,
                 value -> { draft.features.skyblock.noammScoreSync = value && dev.eviemod.features.scoresync.ScoreSyncClient.available(); draft.choose("skyblock.noammScoreSync"); }));
         }
+        category.group(OptionGroup.createBuilder().id(id("dungeons/announce_crit")).name(text("Announce Crit")).collapsed(false)
+            .option(toggle("dungeons/announce_crit/enabled", "Announce Crit", "Announce average damage per enemy from Explosive Shot.", false,
+                () -> values.announceCrit, value -> { values.announceCrit = value; draft.choose("dungeons.announceCrit"); }))
+            .option(Option.<String>createBuilder().id(id("dungeons/announce_crit/template")).name(text("Announcement"))
+                .description(text("Use {damage} for damage per enemy."))
+                .binding(dev.eviemod.features.dungeons.AnnounceCrit.DEFAULT_TEMPLATE, () -> values.announceCritTemplate,
+                    value -> { values.announceCritTemplate = value; draft.choose("dungeons.announceCritTemplate"); })
+                .controller(StringController.createBuilder().build()).build())
+            .option(toggle("dungeons/announce_crit/party_chat", "Party chat", "Send the announcement to party chat instead of showing it locally.", false,
+                () -> values.announceCritPartyChat, value -> { values.announceCritPartyChat = value; draft.choose("dungeons.announceCritPartyChat"); }))
+            .build());
+        return category.build();
+    }
+    private static ConfigCategory commands(ModSettings.Values draft) {
+        var category = ConfigCategory.createBuilder().id(id("chat_commands")).name(text("Chat Commands"));
         for (var feature : PartyCommandController.FEATURES) {
             var channels = draft.features.skyblock.partyCommands.getOrDefault(feature.key(), new ImportedFeatures.Channels());
             var group = OptionGroup.createBuilder().id(id("commands/" + feature.key())).name(text(feature.name()))

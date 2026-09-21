@@ -233,7 +233,7 @@ public final class PartyCommandController {
       }
    }
 
-   private static void sendCommand(String command) {
+   public static void sendCommand(String command) {
       Minecraft client = Minecraft.getInstance();
       if (client.getConnection() != null) {
          client.getConnection().sendCommand(command);

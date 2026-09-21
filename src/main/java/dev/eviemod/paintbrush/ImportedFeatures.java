@@ -8,6 +8,12 @@ import java.util.Map;
 /** Settings only. Defaults intentionally match Kabeewie Unified 1.2.0. */
 public final class ImportedFeatures {
     public Skyblock skyblock = new Skyblock();
+    public Dungeons dungeons = new Dungeons();
+    public static final class Dungeons {
+        public boolean announceCrit = false;
+        public boolean announceCritPartyChat = false;
+        public String announceCritTemplate = dev.eviemod.features.dungeons.AnnounceCrit.DEFAULT_TEMPLATE;
+    }
     public Garden garden = new Garden();
     public SoulWhip soulWhip = new SoulWhip();
     public static final class SoulWhip { public boolean enabled = true; }

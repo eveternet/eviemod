@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 public final class ImportedFeatureClient {
     private static boolean openSettings;
     public static void initialize() {
+        dev.eviemod.features.dungeons.AnnounceCritClient.initialize();
         GardenToolsClient.initialize();
         CustomCommandHotkeys.initialize();
         PartyCommandController.register();

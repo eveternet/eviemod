@@ -141,6 +141,11 @@ final class ImportedFeatureMigration {
             }
             if (garden.has("keys")) for (var entry : object(garden.get("keys"), "keys").entrySet()) string(entry.getValue(), "key binding");
         }
+        if (features.has("dungeons")) {
+            var dungeons = object(features.get("dungeons"), "dungeons");
+            booleans(dungeons, "announceCrit", "announceCritPartyChat");
+            if (dungeons.has("announceCritTemplate")) string(dungeons.get("announceCritTemplate"), "announceCritTemplate");
+        }
         if (features.has("skyblock")) {
             var skyblock = object(features.get("skyblock"), "skyblock");
             booleans(skyblock, "noBarrierEffects", "maxTenHearts", "commandHotkeysEnabled", "noammScoreSync");

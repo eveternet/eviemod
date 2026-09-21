@@ -57,6 +57,7 @@ class ModSettings {
     }
     private static void validate(Values value) {
         if (value == null || value.features == null || value.features.skyblock == null || value.features.garden == null
+            || value.features.dungeons == null || value.features.dungeons.announceCritTemplate == null
             || value.features.soulWhip == null || value.features.skyblock.commandHotkeys == null
             || value.features.skyblock.partyCommands == null || value.features.garden.keys == null || value.migrations == null || value.shape == null || value.opacity < 0 || value.opacity > 100)
             throw new IllegalArgumentException("Invalid rarity background settings");
