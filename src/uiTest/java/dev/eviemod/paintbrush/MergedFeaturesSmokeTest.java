@@ -25,7 +25,7 @@ final class MergedFeaturesSmokeTest {
                 }
                 client.setScreen(EviemodSettings.screen(parent));
                 check(editor().getAllCategories().values().stream().map(category -> category.getDisplayName().getText()).toList()
-                    .equals(java.util.List.of("Appearance", "Hypixel Pack", "Garden", "Chat Commands", "Command Hotkeys")), "Five feature categories in order");
+                    .equals(java.util.List.of("Appearance", "Hypixel Pack", "Garden", "Dungeons", "Chat Commands", "Command Hotkeys")), "Six feature categories in order");
                 check(editor().getAllOptions().stream().noneMatch(option -> optionId(option).equals("eviemod:soul_whip")
                     || optionId(option).equals("eviemod:garden/finnegan") || optionId(option).equals("eviemod:garden/key/loadouts")), "No single-toggle Soul Whip group or pest controls");
                 check(java.util.Arrays.stream(client.options.keyMappings).noneMatch(key -> key.getName().equals("key.gardentools.loadouts")), "No native Loadouts binding");

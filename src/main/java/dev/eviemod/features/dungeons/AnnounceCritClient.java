@@ -10,10 +10,12 @@ import net.minecraft.network.chat.Component;
 public final class AnnounceCritClient {
     public static void initialize() {
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            var client = Minecraft.getInstance();
+            if (client.player == null) return;
             var settings = EviemodSettings.features().dungeons;
             AnnounceCrit.receive(message.getString(), overlay, settings.announceCrit, settings.announceCritTemplate,
                 settings.announceCritPartyChat,
-                text -> Minecraft.getInstance().gui.getChat().addMessage(Component.literal(text)),
+                text -> client.player.displayClientMessage(Component.literal(text), false),
                 PartyCommandController::sendCommand);
         });
     }

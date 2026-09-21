@@ -159,7 +159,7 @@ backups. See [migration rules and verification limits](docs/kabeewie-integration
 
 ## Settings cleanup (4.0.1)
 
-The main categories are Appearance, Hypixel Pack, Garden, Chat Commands and Command
+The main categories are Appearance, Hypixel Pack, Garden, Dungeons, Chat Commands and Command
 Hotkeys. Appearance contains Paint Brush and SkyBlock Visuals; Soul Whip Fix is one toggle
 alongside the other visual settings. Chat Commands contains each command, including Ping,
 with compact Party, Guild and Co-op rows and one description per command.
@@ -167,3 +167,5 @@ with compact Party, Guild and Co-op rows and one description per command.
 The Garden pest workflow, Force Finnegan control, Loadouts binding, cooldown timers and
 notifications have been removed. Garden mouse lock, plot teleport, setspawn and warp remain.
 Existing saved values and migration logic are preserved; retired pest data is inert.
+
+Dungeons contains Noamm Score Sync and **Announce Crit** (off by default). Announce Crit reports average Explosive Shot damage per enemy using an editable `{damage}` template. Enable its Party chat option to send the result with `/pc` instead of displaying it locally.

@@ -25,7 +25,7 @@ The callback reads only `EventContext.getEvent().getMessage()` and returns Kotli
 unregistered at shutdown. API errors disable the bridge without failing startup.
 There is no networking, authentication, token, or Odin state access.
 
-The setting lives in the existing Chat Commands category, is absent when the
+The setting lives in the Dungeons category (moved from Chat Commands in 6.0.0), is absent when the
 hook is unavailable, and defaults to false on fresh/missing/reset configuration.
 Both its UI setter and runtime gate enforce availability. A saved explicit true
 choice remains saved while Noamm is absent, but cannot activate the relay.
