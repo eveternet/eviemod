@@ -114,6 +114,8 @@ final class ImportedFeatureMigration {
     /** Keep absent groups sparse so saving another group cannot masquerade as an explicit choice. */
     static JsonObject changed(JsonObject explicit, JsonObject before, JsonObject after) {
         JsonObject result = explicit.deepCopy();
+        // Remove known map entries cleared by a reset; retain unrecognized saved fields.
+        for (String key : before.keySet()) if (!after.has(key)) result.remove(key);
         for (var entry : after.entrySet()) {
             String key = entry.getKey(); JsonElement value = entry.getValue();
             if (value.isJsonObject() && before.has(key) && before.get(key).isJsonObject()) {

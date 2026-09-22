@@ -81,7 +81,8 @@ Markers are independently stored as `migrations.skyblock`, `migrations.garden` a
 `migrations.soulWhip`. A completed group is skipped before opening any legacy file.
 An absent group is left eligible for a later import. Saving a different group does not
 materialize unchosen imported defaults as if they were explicit eviemod settings.
-Explicit UI choices are recorded even when equal to a default.
+Explicit UI choices are recorded even when equal to a default. Resetting a settings map
+removes its cleared entries from the saved file, so old channel choices cannot return on reload.
 
 | Group | Legacy source and fields |
 | --- | --- |

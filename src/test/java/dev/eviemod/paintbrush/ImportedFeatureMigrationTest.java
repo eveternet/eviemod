@@ -158,7 +158,7 @@ class ImportedFeatureMigrationTest {
     @Test void realFilesystemFailureDoesNotPublishCandidateOrMarker() throws Exception {
         Files.writeString(config.resolve("eviemod"), "blocked directory"); legacy(ALL);
         var store = store(); ImportedFeatureMigration.run(store, config);
-        assertFalse(store.values().migrations.skyblock); assertTrue(store.values().features.skyblock.maxTenHearts);
+        assertFalse(store.values().migrations.skyblock); assertFalse(store.values().features.skyblock.maxTenHearts);
         assertEquals("blocked directory", Files.readString(config.resolve("eviemod")));
     }
     @Test void existingEviemodFilesAreCopiedIntoDirectoryOnlyOnce() throws Exception {
@@ -200,7 +200,7 @@ class ImportedFeatureMigrationTest {
         var store = store(); var draft = store.values().copy();
         draft.features.soulWhip.enabled = false; draft.choose("soulWhip.enabled");
         draft.features.skyblock.commandHotkeys.clear(); draft.choose("skyblock.commandHotkeys");
-        store.save(draft); legacy("{\"soulWhipFix\":true}"); store = store(); ImportedFeatureMigration.run(store, config);
+        store.save(draft); legacy(ALL.replace("\"soulWhipFix\":false", "\"soulWhipFix\":true")); store = store(); ImportedFeatureMigration.run(store, config);
         assertFalse(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
     }
 
