@@ -27,7 +27,7 @@ final class SettingsCategories {
                 .collapsed(false)
                 .option(Option.<Boolean>createBuilder().id(id("rarity/enabled")).name(text("Rarity backgrounds"))
                     .description(text("Show rarity colors behind eligible items. Disable Skyblocker's backgrounds if both mods are installed."))
-                    .binding(true, () -> draft.rarityBackgrounds, value -> draft.rarityBackgrounds = value)
+                    .binding(false, () -> draft.rarityBackgrounds, value -> draft.rarityBackgrounds = value)
                     .controller(BooleanController.createBuilder().build()).build())
                 .option(Option.<ModSettings.Shape>createBuilder().id(id("rarity/shape")).name(text("Shape"))
                     .description(text("Choose the shape of item backgrounds."))

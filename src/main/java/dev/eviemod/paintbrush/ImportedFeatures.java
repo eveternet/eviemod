@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Settings only. Defaults intentionally match Kabeewie Unified 1.2.0. */
+/** Settings only. Features remain off until explicitly enabled. */
 public final class ImportedFeatures {
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();
@@ -16,18 +16,18 @@ public final class ImportedFeatures {
     }
     public Garden garden = new Garden();
     public SoulWhip soulWhip = new SoulWhip();
-    public static final class SoulWhip { public boolean enabled = true; }
+    public static final class SoulWhip { public boolean enabled = false; }
     public static final class Skyblock {
         public boolean noammScoreSync = false;
-        public boolean noBarrierEffects = true;
-        public boolean maxTenHearts = true;
-        public boolean commandHotkeysEnabled = true;
+        public boolean noBarrierEffects = false;
+        public boolean maxTenHearts = false;
+        public boolean commandHotkeysEnabled = false;
         public List<Hotkey> commandHotkeys = new ArrayList<>();
         public Map<String, Channels> partyCommands = new LinkedHashMap<>();
         public Channels channels(String key) { return partyCommands.computeIfAbsent(key, ignored -> new Channels()); }
     }
     public static final class Channels {
-        public boolean party = true;
+        public boolean party = false;
         public boolean guild = false;
         public boolean coop = false;
     }

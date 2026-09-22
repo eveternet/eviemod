@@ -30,11 +30,11 @@ final class ImportedSettingsCategories {
     static OptionGroup visuals(ModSettings.Values draft) {
         var values = draft.features;
         return OptionGroup.createBuilder().id(id("skyblock_visuals")).name(text("SkyBlock Visuals"))
-            .option(compactToggle("visuals/barrier", "No Barrier Effects", "Removes client-side barrier border effects in SkyBlock.", true,
+            .option(compactToggle("visuals/barrier", "No Barrier Effects", "Removes client-side barrier border effects in SkyBlock.", false,
                 () -> values.skyblock.noBarrierEffects, value -> { values.skyblock.noBarrierEffects = value; draft.choose("skyblock.noBarrierEffects"); }))
-            .option(compactToggle("visuals/hearts", "Max 10 Hearts", "Scales SkyBlock health to 10 hearts outside The Rift.", true,
+            .option(compactToggle("visuals/hearts", "Max 10 Hearts", "Scales SkyBlock health to 10 hearts outside The Rift.", false,
                 () -> values.skyblock.maxTenHearts, value -> { values.skyblock.maxTenHearts = value; draft.choose("skyblock.maxTenHearts"); }))
-            .option(compactToggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", true,
+            .option(compactToggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", false,
                     () -> values.soulWhip.enabled, value -> { values.soulWhip.enabled = value; draft.choose("soulWhip.enabled"); })).build();
     }
     private static ConfigCategory garden(ModSettings.Values draft) {
@@ -87,7 +87,7 @@ final class ImportedSettingsCategories {
                 .option(LabelOption.createBuilder().label(text(feature.description())).build());
             for (var channel : PartyCommandController.CommandChannel.values()) {
                 String path = "commands/" + feature.key() + "/" + channel.name().toLowerCase(Locale.ROOT);
-                group.option(compactToggle(path, channel.displayName, "", channel == PartyCommandController.CommandChannel.PARTY,
+                group.option(compactToggle(path, channel.displayName, "", false,
                     () -> switch (channel) { case PARTY -> channels.party; case GUILD -> channels.guild; case COOP -> channels.coop; },
                     value -> { draft.features.skyblock.partyCommands.put(feature.key(), channels); draft.choose("skyblock.partyCommands." + feature.key() + "." + channel.name().toLowerCase(Locale.ROOT)); switch (channel) { case PARTY -> channels.party = value; case GUILD -> channels.guild = value; case COOP -> channels.coop = value; } }));
             }
@@ -99,7 +99,7 @@ final class ImportedSettingsCategories {
         var values = draft.features.skyblock;
         var category = ConfigCategory.createBuilder().id(id("command_hotkeys")).name(text("Command Hotkeys"))
             .description(text("Bind keys to run chat commands. Use commands with or without a leading slash."))
-            .option(toggle("hotkeys/enabled", "Command Hotkeys", "Enable custom command hotkeys.", true,
+            .option(toggle("hotkeys/enabled", "Command Hotkeys", "Enable custom command hotkeys.", false,
                 () -> values.commandHotkeysEnabled, value -> { values.commandHotkeysEnabled = value; draft.choose("skyblock.commandHotkeysEnabled"); }))
             .option(ButtonOption.createBuilder().id(id("hotkeys/add")).name(text("Add hotkey")).prompt(text("Add"))
                 .action(parent -> { values.commandHotkeys.add(new ImportedFeatures.Hotkey()); draft.choose("skyblock.commandHotkeys"); EviemodSettings.rebuild(parent, draft, "Command Hotkeys"); }).build());

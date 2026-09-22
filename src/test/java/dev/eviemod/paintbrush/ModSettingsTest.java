@@ -18,6 +18,44 @@ class ModSettingsTest {
         store.save(new ModSettings.Values()); store.load();
         assertFalse(store.values().helmetSkins); assertFalse(store.values().customTextures);
     }
+    @Test void allFeatureDefaultsStayOffAcrossMissingFieldsAndReset() throws Exception {
+        var file = directory.resolve("defaults.json"); var store = new ModSettings(file); store.load();
+        assertAllTogglesOff(store.values());
+        for (String json : new String[]{"{}", "{\"opacity\":60}",
+                "{\"features\":{\"skyblock\":{\"partyCommands\":{\"warp\":{}}},\"soulWhip\":{}}}"}) {
+            Files.writeString(file, json); store.load();
+            assertAllTogglesOff(store.values());
+            store.save(store.values().copy()); store.load();
+            assertAllTogglesOff(store.values());
+        }
+        var draft = store.values().copy();
+        draft.rarityBackgrounds = true; draft.rememberRarity = true;
+        draft.features.soulWhip.enabled = true;
+        draft.features.skyblock.noBarrierEffects = true;
+        draft.features.skyblock.maxTenHearts = true;
+        draft.features.skyblock.commandHotkeysEnabled = true;
+        draft.features.skyblock.channels("warp").party = true;
+        store.save(draft); store.load();
+        assertTrue(store.values().rarityBackgrounds); assertTrue(store.values().rememberRarity);
+        assertTrue(store.values().features.soulWhip.enabled);
+        assertTrue(store.values().features.skyblock.noBarrierEffects);
+        assertTrue(store.values().features.skyblock.maxTenHearts);
+        assertTrue(store.values().features.skyblock.commandHotkeysEnabled);
+        assertTrue(store.values().features.skyblock.channels("warp").party);
+        store.save(new ModSettings.Values()); store.load();
+        assertAllTogglesOff(store.values());
+    }
+    private static void assertAllTogglesOff(ModSettings.Values values) {
+        values.features.skyblock.channels("warp");
+        assertBooleansOff(new com.google.gson.Gson().toJsonTree(values), "settings");
+    }
+    private static void assertBooleansOff(com.google.gson.JsonElement value, String path) {
+        if (value.isJsonObject()) {
+            value.getAsJsonObject().entrySet().forEach(entry -> assertBooleansOff(entry.getValue(), path + "." + entry.getKey()));
+        } else if (value.isJsonPrimitive() && value.getAsJsonPrimitive().isBoolean()) {
+            assertFalse(value.getAsBoolean(), path);
+        }
+    }
     @Test void persistsSettingsAndIsolatesDrafts() throws Exception {
         var file = directory.resolve("eviemod.json"); var store = new ModSettings(file); store.load();
         var draft = store.values().copy(); draft.opacity = 80; draft.shape = ModSettings.Shape.CIRCLE;

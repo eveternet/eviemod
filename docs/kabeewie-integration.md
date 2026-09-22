@@ -30,11 +30,11 @@ The existing health attribute/packet handling, border hooks, broad main-hand ani
 party command responses, and always-running pest workflow are intentionally retained.
 This merge does not change those behaviors or add a pest enable toggle.
 
-The task explicitly requested preserving existing defaults, overriding the general project
-rule about new features defaulting off. Soul Whip Fix, barrier suppression, ten-heart scaling,
-custom hotkeys and party-channel command responses default on. Guild/co-op responses,
-Garden mouse lock and Force Finnegan default off. Plot defaults to 1; custom hotkeys start
-empty and native Garden bindings start unbound. No new enable controls were added.
+As of 6.0.1, all feature toggles default to off, including Soul Whip Fix, barrier
+suppression, ten-heart scaling, custom hotkeys and every party-command channel.
+Fresh installs, missing fields and UI resets use these defaults. Explicit saved choices
+(including legacy imports) remain unchanged. Plot defaults to 1; custom hotkeys start
+empty and native Garden bindings start unbound.
 
 ## Shared settings and storage
 
@@ -92,7 +92,7 @@ Explicit UI choices are recorded even when equal to a default.
 The supplied combined mod first reads standalone Garden settings, then replaces the entire
 Garden object when the combined file has one. Migration preserves that precedence,
 including original defaults for omitted combined Garden fields. Plot numbers are clamped
-to 1–24 as in the source. Missing optional fields use source defaults; malformed types
+to 1–24 as in the source. Missing feature toggles default to off; malformed types
 reject the affected group rather than silently coercing or replacing its settings.
 
 Existing explicit eviemod fields win recursively, including `false`, default-valued fields,

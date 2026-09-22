@@ -2,7 +2,7 @@
 
 Client-only Fabric mod for **Minecraft 26.1.2**, Java 25, Fabric Loader 0.19.5+, and Fabric API 0.155.2+26.1.2 or a compatible newer release for 26.1.2.
 
-Install `build/libs/eviemod-4.0.1+26.1.2.jar` and Fabric API in your instance's `mods` directory. Replace the previous eviemod JAR and remove Kabeewie Unified (and any standalone Garden Tools, Soul Whip Fix, SkyBlock Visuals or Skyshitter JAR) when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
+Install `build/libs/eviemod-6.0.1+26.1.2.jar` and Fabric API in your instance's `mods` directory. Replace the previous eviemod JAR and remove Kabeewie Unified (and any standalone Garden Tools, Soul Whip Fix, SkyBlock Visuals or Skyshitter JAR) when upgrading. Skyblocker is not required. Dandelion (with MoulConfig), YACL, Fabric Language Kotlin, and HM API are bundled; Mod Menu is optional.
 
 All active mod configuration lives in `config/eviemod/`. Existing root-level eviemod files (or older skyshitter per-item files) are copied once; originals are preserved and existing destination files win. Kabeewie settings migrate once per feature group without changing legacy files. See [integration and migration details](docs/kabeewie-integration.md).
 
@@ -10,7 +10,7 @@ All active mod configuration lives in `config/eviemod/`. Existing root-level evi
 
 Open `/eviemod` (or `/eviemod settings`), or use eviemod's Configure button in Mod Menu. The screen uses [Dandelion](https://github.com/AzureAaron/Dandelion) with its MoulConfig backend, matching the configuration framework in the supplied Skyblocker version. It provides a searchable category sidebar and collapsible option groups. Appearance → Paint Brush has an **Open editor** button. `/paintbrush` opens that same standalone editor directly. Its panels use MoulConfig’s renderer, with matching dark surfaces and cyan selection accents.
 
-Rarity backgrounds default to square with 45% opacity. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod/settings.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
+Rarity backgrounds default to off, with square shape and 45% opacity when enabled. Appearance offers enable/disable, shape and opacity. Settings save when closing and persist in `config/eviemod/settings.json`; `/eviemod reload` reloads that file. Malformed files are preserved and must be fixed before settings can be saved. Paint Brush customizations retain their explicit Apply/Reset controls. See [settings architecture](docs/settings-ui.md) for adding categories, groups and custom editors.
 
 Background visibility follows the supplied Skyblocker 6.10.2+26.1.2 JAR's vanilla UI hooks: ordinary container/inventory slots and the nine main hotbar slots, only while Hypixel's location API reports the `SKYBLOCK` game type. There is no global GUI-item hook. Cursor-held items, floating/snapback renders, fake slots, offhand hotbar items, and arbitrary previews do not get backgrounds. The development fixture has the same local-development exception as Skyblocker.
 
@@ -18,7 +18,7 @@ Rarity lookup also follows that version: PET items use valid `petInfo` and the t
 
 The session remembers confirmed rarity by UUID (up to 2,048 items), and by local inventory/equipment slot while the same item type and SkyBlock ID remain. This bridges stripped lore/tooltip styles and local UUID gaps without a timeout, but only inside the eligible SkyBlock slot rendering paths. Invalid pet data cannot be bypassed using remembered rarity. Empty slots, changed item types/IDs, invalid identity, stack count changes, recognized replacement UUIDs, and player/world changes invalidate the relevant slot memory. Full returning rarity metadata immediately wins. UUID-less foreign stacks and detached copies cannot borrow local slot memory; no rarity is guessed globally from an item ID. Nothing changes live item data or packets.
 
-Limits: an item must first be observed with rarity data. A same-type, same-ID, UUID-less swap without an observable empty slot remains ambiguous, so a prior rarity may remain until identity returns. UUID-less container copies without established local ownership cannot be recovered. Continuity is automatic by default; its implementation and limitations are documented in [the source reference](docs/armor-refresh.md). Skyblocker's own custom backpack/profile/storage screens use explicit Skyblocker rendering calls; eviemod does not inject into those other-mod screens.
+Limits: an item must first be observed with rarity data. A same-type, same-ID, UUID-less swap without an observable empty slot remains ambiguous, so a prior rarity may remain until identity returns. UUID-less container copies without established local ownership cannot be recovered. Rarity continuity defaults to off (`rememberRarity` in settings.json); its implementation and limitations are documented in [the source reference](docs/armor-refresh.md). Skyblocker's own custom backpack/profile/storage screens use explicit Skyblocker rendering calls; eviemod does not inject into those other-mod screens.
 
 ## Use the editor
 
@@ -109,7 +109,7 @@ With Java 25 selected:
 ./gradlew build
 ```
 
-Output: `build/libs/eviemod-4.0.1+26.1.2.jar` (the sources JAR is not the installable mod).
+Output: `build/libs/eviemod-6.0.1+26.1.2.jar` (the sources JAR is not the installable mod).
 
 Automated tests cover UUID extraction, missing and malformed UUIDs, distinct UUIDs, unchanged stack components, changed stack data, persistence, clearing, and malformed config preservation. Color tests also cover all four leather armor pieces, opaque black, hex validation, non-leather exclusions, persistence, and unchanged dye components. Name tests cover persistence, clearing, validation, fallback, styling, Unicode gradient endpoints and interpolation, selection ranges in either direction, edits preserving formatting, styled-space persistence, legacy migration, autocomplete matching, suggestion click routing and acceptance, dropdown bounds and focus, and unchanged stack components.
 
@@ -153,7 +153,7 @@ See [implementation and validation notes](docs/texture-pack-bypasser.md).
 
 The shared settings page now includes SkyBlock visuals, Soul Whip Fix, Garden Tools, party
 commands and custom command hotkeys from Kabeewie Unified 1.2.0. The supplied behavior,
-settings and defaults are retained. `/kabeewie` and `/gardentools` are aliases into this same
+settings are retained. As of 6.0.1, all feature toggles default to off; saved choices are preserved. `/kabeewie` and `/gardentools` are aliases into this same
 page. Migration keeps existing eviemod choices and leaves the old configuration files as
 backups. See [migration rules and verification limits](docs/kabeewie-integration.md).
 

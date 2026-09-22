@@ -24,13 +24,13 @@ class ImportedFeatureMigrationTest {
          "garden":{"mouseLock":false,"forceFinnegan":false,"teleportPlot":24}}
         """;
 
-    @Test void freshInstallPreservesSuppliedDefaultsWithoutInventingMigrations() throws Exception {
+    @Test void freshInstallDefaultsOffWithoutInventingMigrations() throws Exception {
         var store = store(); ImportedFeatureMigration.run(store, config);
-        assertTrue(store.values().features.soulWhip.enabled);
-        assertTrue(store.values().features.skyblock.maxTenHearts);
-        assertTrue(store.values().features.skyblock.noBarrierEffects);
-        assertTrue(store.values().features.skyblock.commandHotkeysEnabled);
-        assertTrue(new ImportedFeatures.Channels().party);
+        assertFalse(store.values().features.soulWhip.enabled);
+        assertFalse(store.values().features.skyblock.maxTenHearts);
+        assertFalse(store.values().features.skyblock.noBarrierEffects);
+        assertFalse(store.values().features.skyblock.commandHotkeysEnabled);
+        assertFalse(new ImportedFeatures.Channels().party);
         assertFalse(new ImportedFeatures.Channels().guild);
         assertFalse(store.values().features.garden.mouseLock);
         assertFalse(retiredPestValue(store.values().features.garden));
@@ -105,7 +105,7 @@ class ImportedFeatureMigrationTest {
         legacy("{\"soulWhipFix\":false,\"maxTenHearts\":\"false\",\"garden\":{\"forceFinnegan\":true}}");
         var store = store(); ImportedFeatureMigration.run(store, config);
         assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip); assertFalse(store.values().migrations.skyblock);
-        assertTrue(store.values().features.skyblock.maxTenHearts); assertTrue(retiredPestValue(store.values().features.garden));
+        assertFalse(store.values().features.skyblock.maxTenHearts); assertTrue(retiredPestValue(store.values().features.garden));
         legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config); assertFalse(store.values().features.skyblock.maxTenHearts);
     }
     @Test void malformedInputsDoNotChangeLastValidDestinationOrSources() throws Exception {
@@ -126,11 +126,11 @@ class ImportedFeatureMigrationTest {
         ImportedFeatureMigration.run(store, config); assertEquals("{\"features\":null}", Files.readString(target()));
         assertFalse(store.values().migrations.skyblock);
     }
-    @Test void incompleteOlderEntriesUseOriginalDefaults() throws Exception {
+    @Test void incompleteOlderEntriesDefaultOff() throws Exception {
         legacy("{\"commandHotkeys\":[{}, {\"command\":\"warp garden\"}],\"partyCommands\":{\"warp\":{\"guild\":true}},\"garden\":{}}");
         var store = store(); ImportedFeatureMigration.run(store, config);
         assertEquals(-1, store.values().features.skyblock.commandHotkeys.get(0).key); assertEquals("", store.values().features.skyblock.commandHotkeys.get(0).command);
-        assertTrue(store.values().features.skyblock.channels("warp").party); assertTrue(store.values().features.skyblock.channels("warp").guild);
+        assertFalse(store.values().features.skyblock.channels("warp").party); assertTrue(store.values().features.skyblock.channels("warp").guild);
         assertFalse(store.values().features.skyblock.channels("warp").coop); assertEquals(1, store.values().features.garden.teleportPlot);
     }
     @Test void failedDataSaveKeepsMemoryFileAndMarkerUnchanged() throws Exception {
@@ -140,7 +140,7 @@ class ImportedFeatureMigrationTest {
         };
         failing.load(); legacy(ALL); ImportedFeatureMigration.run(failing, config);
         assertArrayEquals(before, Files.readAllBytes(target())); assertEquals(73, failing.values().opacity);
-        assertTrue(failing.values().features.skyblock.maxTenHearts); assertFalse(failing.values().migrations.skyblock);
+        assertFalse(failing.values().features.skyblock.maxTenHearts); assertFalse(failing.values().migrations.skyblock);
     }
     @Test void failedMarkerSaveLeavesValidValuesAndRetriesWithoutOverwritingThem() throws Exception {
         legacy("{\"soulWhipFix\":false}");
@@ -198,10 +198,10 @@ class ImportedFeatureMigrationTest {
     }
     @Test void explicitDefaultValuedUiChoiceWinsOverLaterLegacyValue() throws Exception {
         var store = store(); var draft = store.values().copy();
-        draft.features.soulWhip.enabled = true; draft.choose("soulWhip.enabled");
+        draft.features.soulWhip.enabled = false; draft.choose("soulWhip.enabled");
         draft.features.skyblock.commandHotkeys.clear(); draft.choose("skyblock.commandHotkeys");
-        store.save(draft); legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config);
-        assertTrue(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
+        store.save(draft); legacy("{\"soulWhipFix\":true}"); store = store(); ImportedFeatureMigration.run(store, config);
+        assertFalse(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
     }
 
     @Test void retiredPestValuesAreOpaqueAndSurviveUnrelatedSettingsSaves() throws Exception {

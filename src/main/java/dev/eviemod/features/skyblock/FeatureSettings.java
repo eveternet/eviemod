@@ -15,7 +15,7 @@ public final class FeatureSettings {
     public static String getCommandHotkeyCommand(int slot) { return settings().commandHotkeys.get(slot).command; }
     public static boolean isPartyCommandEnabled(String key, PartyCommandController.CommandChannel channel) {
         var channels = settings().partyCommands.get(key);
-        if (channels == null) return channel == PartyCommandController.CommandChannel.PARTY;
+        if (channels == null) return false;
         return switch (channel) {
             case PARTY -> channels.party;
             case GUILD -> channels.guild;

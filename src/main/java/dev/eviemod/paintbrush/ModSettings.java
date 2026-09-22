@@ -11,10 +11,10 @@ class ModSettings {
     static final class Values {
         ImportedFeatures features = new ImportedFeatures();
         ImportedFeatures.Migrations migrations = new ImportedFeatures.Migrations();
-        boolean rarityBackgrounds = true;
+        boolean rarityBackgrounds = false;
         int opacity = 45;
         Shape shape = Shape.SQUARE;
-        boolean rememberRarity = true;
+        boolean rememberRarity = false;
         boolean texturePackBypasser = false;
         // Legacy keys retained for persistence compatibility; per-item choices are the opt-in now.
         boolean helmetSkins = false;
