@@ -31,7 +31,7 @@ These instructions apply throughout eviemod.
 
 - After opening a pull request, comment `@coderabbit review` on that PR to request CodeRabbit review.
 - After triggering a review, estimate its processing time from the PR's size and depth, usually 5–15 minutes. Wait that long before checking CodeRabbit's status instead of polling repeatedly; a delayed wait such as `sleep 300` is fine when appropriate. Remain available for user messages while waiting.
-- Check the review and its status checks. Address actionable findings, push fixes to the same PR, and repeat review as needed until CodeRabbit's checks pass. Explain any finding that cannot be resolved instead of silently dismissing it.
+- Check the review and its status checks. Address actionable findings and push fixes to the same PR. Request another review only when new commits have been pushed since the last completed review and those commits still need review; CodeRabbit does not re-review already reviewed commits. Respect its review limit, and do not retrigger a completed review just to clear advisory warnings. Explain any finding that cannot be resolved instead of silently dismissing it.
 
 ## Build on established UI
 
