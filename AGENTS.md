@@ -27,6 +27,11 @@ These instructions apply throughout eviemod.
 - Review the staged diff before committing. Keep unrelated changes, generated build output, local game data, and secrets out of the commit.
 - If there are no changes to commit, do not create an empty commit. Commit locally without asking for confirmation; push only when requested.
 
+## Pull request review
+
+- After opening a pull request, comment `@coderabbit review` on that PR to request CodeRabbit review.
+- Check the review and its status checks. Address actionable findings, push fixes to the same PR, and repeat review as needed until CodeRabbit's checks pass. Explain any finding that cannot be resolved instead of silently dismissing it.
+
 ## Build on established UI
 
 - Prefer existing, maintained UI frameworks and their standard controls, navigation, search, layout, and accessibility behavior. Avoid novel UI solutions when an established pattern meets the need.
