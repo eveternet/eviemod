@@ -22,7 +22,7 @@ class ScoreRelayTest {
             }
             now = time;
         }
-        void chat(String body, boolean dungeon, int floor) { relay.chat("Party > [MVP+] Player: " + body, dungeon, floor, false); }
+        void chat(String body) { relay.chat("Party > [MVP+] Player: " + body, false); }
     }
 
     @Test void bothKindsSendAtExactlyOneSecond() {
@@ -35,7 +35,7 @@ class ScoreRelayTest {
         for (String kind : java.util.List.of("mimic", "prince")) {
             for (String suffix : java.util.List.of(" killed", " slain", " killed!", " dead", " dead!")) {
                 var f = new Fixture(); f.event("mimic"); f.event("prince"); f.at(999);
-                f.relay.chat("§aParty > §b[VIP] Player: §r" + (kind + suffix).toUpperCase(java.util.Locale.ROOT), true, 7, false);
+                f.relay.chat("§aParty > §b[VIP] Player: §r" + (kind + suffix).toUpperCase(java.util.Locale.ROOT), false);
                 f.at(1000); assertEquals(1, f.sent.size());
                 assertEquals(kind.equals("mimic") ? "pc Prince Killed!" : "pc Mimic Killed!", f.sent.getFirst());
             }
@@ -46,37 +46,33 @@ class ScoreRelayTest {
             "Party > Player:Mimic Killed!", "Party > Player:  Mimic Killed!", "Party > Player: Mimic Killed! ",
             "Party > Player: Mimic  Killed!", "Party > Player: Mimic Killed!!", "Guild > Player: Mimic Killed!",
             "Party > Player: someone: Mimic Killed!", "Mimic Killed!", "Party > Player: hi")) {
-            var f = new Fixture(); f.event("mimic"); f.relay.chat(line, true, 7, false); f.at(1000);
+            var f = new Fixture(); f.event("mimic"); f.relay.chat(line, false); f.at(1000);
             assertEquals(1, f.sent.size(), line);
         }
     }
-    @Test void websocketFirstCancellationDoesNotRequireDungeonContext() {
-        for (int floor : new int[]{-1, 0, 1, 5, 6, 7}) {
-            var f = new Fixture(); f.event("mimic"); f.at(500); f.chat("Mimic Killed!", floor >= 0, floor); f.at(1000);
-            assertTrue(f.sent.isEmpty());
-            var p = new Fixture(); p.event("prince"); p.at(500); p.chat("Prince Killed!", floor >= 0, floor); p.at(1000);
-            assertTrue(p.sent.isEmpty());
-        }
-        var f = new Fixture(); f.event("mimic"); f.chat("Mimic Killed!", false, 7); f.at(1000);
+    @Test void websocketFirstCancellation() {
+        var f = new Fixture(); f.event("mimic"); f.at(500); f.chat("Mimic Killed!"); f.at(1000);
         assertTrue(f.sent.isEmpty());
+        var p = new Fixture(); p.event("prince"); p.at(500); p.chat("Prince Killed!"); p.at(1000);
+        assertTrue(p.sent.isEmpty());
     }
     @Test void repeatedEventsAreIndependentAndOverlappingWindowsCancelTogether() {
         var f = new Fixture(); f.event("mimic"); f.at(500); f.event("mimic");
-        f.at(999); f.chat("Mimic Dead!", true, 6); f.at(1500); assertTrue(f.sent.isEmpty());
+        f.at(999); f.chat("Mimic Dead!"); f.at(1500); assertTrue(f.sent.isEmpty());
         f.at(2000); f.event("mimic"); f.at(3000); assertEquals(1, f.sent.size());
         f.event("mimic"); f.event("mimic"); f.at(4000); assertEquals(3, f.sent.size());
     }
     @Test void messagesOutsideWindowDoNotSuppress() {
         var f = new Fixture(); f.event("mimic");
         // Simulate a delayed timer dispatch: a message at the deadline is outside [start, deadline).
-        f.now = 1000; f.chat("Mimic Killed!", true, 7); f.at(1000); assertEquals(1, f.sent.size());
+        f.now = 1000; f.chat("Mimic Killed!"); f.at(1000); assertEquals(1, f.sent.size());
     }
     @Test void recentChatSuppressesImmediatelyForBothKindsAndAllAcceptedBodies() {
         for (String kind : java.util.List.of("mimic", "prince")) {
             for (String suffix : java.util.List.of(" killed", " slain", " killed!", " dead", " dead!")) {
                 for (long age : new long[]{0, 500, 999, 1000}) {
                     var f = new Fixture();
-                    f.chat((kind + suffix).toUpperCase(java.util.Locale.ROOT), false, -1);
+                    f.chat((kind + suffix).toUpperCase(java.util.Locale.ROOT));
                     f.at(age); f.event(kind);
                     assertTrue(f.tasks.isEmpty(), "Suppression must not schedule a relay");
                     f.at(10000); assertTrue(f.sent.isEmpty());
@@ -86,14 +82,14 @@ class ScoreRelayTest {
     }
     @Test void chatOlderThanOneSecondDoesNotSuppressEitherKind() {
         for (String kind : java.util.List.of("mimic", "prince")) {
-            var f = new Fixture(); f.chat(kind + " killed!", false, -1);
+            var f = new Fixture(); f.chat(kind + " killed!");
             f.at(1001); f.event(kind); f.at(2000); assertTrue(f.sent.isEmpty());
             f.at(2001); assertEquals(1, f.sent.size());
         }
     }
     @Test void recentChatDoesNotSuppressOtherKind() {
         for (String kind : java.util.List.of("mimic", "prince")) {
-            var f = new Fixture(); f.chat(kind + " killed!", false, -1); f.at(500);
+            var f = new Fixture(); f.chat(kind + " killed!"); f.at(500);
             f.event("mimic"); f.event("prince"); f.at(1500);
             assertEquals(java.util.List.of(kind.equals("mimic") ? "pc Prince Killed!" : "pc Mimic Killed!"), f.sent);
         }
@@ -102,26 +98,24 @@ class ScoreRelayTest {
         for (String line : java.util.List.of("Party > Player: hello", "Guild > Player: Mimic Killed!",
             "party > Player: Mimic Killed!", "Party > Player: Mimic  Killed!", "Party > Player: Prince Killed!!",
             "Party > Player: Prince Killed! ")) {
-            var f = new Fixture(); f.relay.chat(line, false, -1, false); f.at(500);
+            var f = new Fixture(); f.relay.chat(line, false); f.at(500);
             f.event("mimic"); f.event("prince"); f.at(1500); assertEquals(2, f.sent.size(), line);
         }
     }
-    @Test void chatFirstSuppressionDoesNotRequireDungeonContext() {
-        for (int floor : new int[]{-1, 0, 5, 6, 7}) {
-            var f = new Fixture(); f.chat("Mimic Dead!", floor >= 0, floor); f.chat("Prince Slain", floor >= 0, floor);
-            f.at(500); f.event("mimic"); f.event("prince");
-            assertTrue(f.tasks.isEmpty(), "Recorded chat must suppress immediately, even with floor -1");
-            f.at(1500); assertTrue(f.sent.isEmpty());
-        }
+    @Test void chatFirstSuppression() {
+        var f = new Fixture(); f.chat("Mimic Dead!"); f.chat("Prince Slain");
+        f.at(500); f.event("mimic"); f.event("prince");
+        assertTrue(f.tasks.isEmpty(), "Recorded chat must suppress immediately");
+        f.at(1500); assertTrue(f.sent.isEmpty());
     }
     @Test void newestMatchingAnnouncementRefreshesLookbackButUnrelatedChatDoesNot() {
-        var f = new Fixture(); f.chat("Mimic Killed!", true, 7); f.at(900); f.chat("Mimic Slain", true, 7);
+        var f = new Fixture(); f.chat("Mimic Killed!"); f.at(900); f.chat("Mimic Slain");
         f.at(1500); f.event("mimic"); assertTrue(f.tasks.isEmpty());
-        f.at(1800); f.chat("hello", true, 7); f.at(1901); f.event("mimic");
+        f.at(1800); f.chat("hello"); f.at(1901); f.event("mimic");
         f.at(2901); assertEquals(1, f.sent.size());
     }
     @Test void resetClearsRecentAnnouncementsForBothKinds() {
-        var f = new Fixture(); f.chat("Mimic Killed!", true, 7); f.chat("Prince Killed!", true, 7);
+        var f = new Fixture(); f.chat("Mimic Killed!"); f.chat("Prince Killed!");
         f.relay.clear(); f.event("mimic"); f.event("prince"); f.at(1000); assertEquals(2, f.sent.size());
     }
     @Test void onlyExactStringPacketTypesAreSupportedAndJsonMustBeValid() {
@@ -133,33 +127,33 @@ class ScoreRelayTest {
     }
     @Test void cooldownRetriesOnceWithDefaultDelay() {
         var f = new Fixture(); f.event("mimic"); f.at(1000);
-        f.relay.chat(COOLDOWN, true, 7, false); f.at(1999); assertEquals(1, f.sent.size());
-        f.at(2000); assertEquals(2, f.sent.size()); f.relay.chat(COOLDOWN, true, 7, false);
+        f.relay.chat(COOLDOWN, false); f.at(1999); assertEquals(1, f.sent.size());
+        f.at(2000); assertEquals(2, f.sent.size()); f.relay.chat(COOLDOWN, false);
         f.at(100000); assertEquals(2, f.sent.size());
     }
     @Test void cooldownUsesExposedDuration() {
         var f = new Fixture(); f.event("prince"); f.at(1000);
-        f.relay.chat("You can only chat once every 3 seconds! Ranked users bypass this restriction!", true, 7, false);
+        f.relay.chat("You can only chat once every 3 seconds! Ranked users bypass this restriction!", false);
         f.at(3999); assertEquals(1, f.sent.size()); f.at(4000); assertEquals(2, f.sent.size());
     }
     @Test void overlappingOccurrencesEachHaveOnlyOneRetry() {
         var f = new Fixture(); f.event("mimic"); f.event("prince"); f.at(1000);
-        f.relay.chat(COOLDOWN, true, 7, false); f.relay.chat(COOLDOWN, true, 7, false);
+        f.relay.chat(COOLDOWN, false); f.relay.chat(COOLDOWN, false);
         f.at(2000);
         assertEquals(java.util.List.of("pc Mimic Killed!", "pc Prince Killed!", "pc Mimic Killed!", "pc Prince Killed!"), f.sent);
-        f.relay.chat(COOLDOWN, true, 7, false); f.relay.chat(COOLDOWN, true, 7, false);
+        f.relay.chat(COOLDOWN, false); f.relay.chat(COOLDOWN, false);
         f.at(100000); assertEquals(4, f.sent.size());
     }
     @Test void muteGenericAndUnknownFailuresNeverRetryEvenIfFollowedByCooldown() {
         for (String failure : java.util.List.of("You are currently muted!", "You are not currently in a party.",
             "An unknown error occurred!", "Error: chat is unavailable", "Mute reason: test", "You cannot say the same message twice!")) {
-            var f = new Fixture(); f.event("prince"); f.at(1000); f.relay.chat(failure, true, 7, false);
-            f.relay.chat(COOLDOWN, true, 7, false); f.at(100000); assertEquals(1, f.sent.size());
+            var f = new Fixture(); f.event("prince"); f.at(1000); f.relay.chat(failure, false);
+            f.relay.chat(COOLDOWN, false); f.at(100000); assertEquals(1, f.sent.size());
         }
     }
     @Test void resetCancelsWindowsAndScheduledRetry() {
         var f = new Fixture(); f.event("mimic"); f.relay.clear(); f.at(1000); assertTrue(f.sent.isEmpty());
-        f.event("prince"); f.at(2000); f.relay.chat(COOLDOWN, true, 7, false); f.relay.clear();
+        f.event("prince"); f.at(2000); f.relay.chat(COOLDOWN, false); f.relay.clear();
         f.at(100000); assertEquals(1, f.sent.size());
     }
     @Test void foreignSendsOwnEchoAndExpiredResponsesPreventMisattributedRetry() {
@@ -167,16 +161,16 @@ class ScoreRelayTest {
             var f = new Fixture(); f.event("mimic"); f.at(1000);
             switch (action) {
                 case 0 -> f.relay.foreignSend();
-                case 1 -> f.relay.chat("Party > Me: Mimic Killed!", true, 7, true);
+                case 1 -> f.relay.chat("Party > Me: Mimic Killed!", true);
                 case 2 -> f.at(6000);
             }
-            f.relay.chat(COOLDOWN, true, 7, false); f.at(100000); assertEquals(1, f.sent.size());
+            f.relay.chat(COOLDOWN, false); f.at(100000); assertEquals(1, f.sent.size());
         }
     }
     @Test void playerCooldownTextIsNotAnErrorAndUnrelatedChatDoesNotCancel() {
         var f = new Fixture(); f.event("mimic"); f.at(1000);
-        f.relay.chat("Party > Player: " + COOLDOWN, true, 7, false);
-        f.relay.chat("[VIP] Player: " + COOLDOWN, true, 7, false);
+        f.relay.chat("Party > Player: " + COOLDOWN, false);
+        f.relay.chat("[VIP] Player: " + COOLDOWN, false);
         f.at(10000); assertEquals(1, f.sent.size());
     }
     @Test void transportExceptionsGiveUp() {

@@ -35,45 +35,6 @@ public final class CustomCommandHotkeys {
       }
    }
 
-   public static String keyName(int key) {
-      if (key == -1) {
-         return "Unbound";
-      }
-
-      if (isMouseButton(key)) {
-         return switch (key) {
-            case 0 -> "Mouse 1";
-            case 1 -> "Mouse 2";
-            case 2 -> "Mouse 3";
-            default -> "Mouse " + (key + 1);
-         };
-      } else {
-         String name = GLFW.glfwGetKeyName(key, 0);
-         if (name != null && !name.isBlank()) {
-            return name.toUpperCase();
-         }
-
-         return switch (key) {
-            case 32 -> "Space";
-            case 257 -> "Enter";
-            case 258 -> "Tab";
-            case 259 -> "Backspace";
-            case 261 -> "Delete";
-            case 262 -> "Right";
-            case 263 -> "Left";
-            case 264 -> "Down";
-            case 265 -> "Up";
-            case 340 -> "LShift";
-            case 341 -> "LCtrl";
-            case 342 -> "LAlt";
-            case 344 -> "RShift";
-            case 345 -> "RCtrl";
-            case 346 -> "RAlt";
-            default -> key >= 290 && key <= 314 ? "F" + (key - 290 + 1) : "Key " + key;
-         };
-      }
-   }
-
    private static void execute(int slot, Minecraft client) {
       String command = FeatureSettings.getCommandHotkeyCommand(slot).trim();
       if (!command.isEmpty()) {

@@ -39,6 +39,7 @@ class ModSettings {
             var json = JsonParser.parseString(Files.readString(path));
             if (!json.isJsonObject()) throw new IllegalArgumentException("Expected a settings object");
             var object = json.getAsJsonObject();
+            discardRetiredGardenData(object);
             for (String key : new String[]{"rarityBackgrounds", "rememberRarity", "helmetSkins", "customTextures", "texturePackBypasser"}) {
                 if (object.has(key) && (!object.get(key).isJsonPrimitive() || !object.getAsJsonPrimitive(key).isBoolean()))
                     throw new IllegalArgumentException("Invalid " + key);
@@ -61,6 +62,14 @@ class ModSettings {
             || value.features.soulWhip == null || value.features.skyblock.commandHotkeys == null
             || value.features.skyblock.partyCommands == null || value.features.garden.keys == null || value.migrations == null || value.shape == null || value.opacity < 0 || value.opacity > 100)
             throw new IllegalArgumentException("Invalid rarity background settings");
+    }
+    private static void discardRetiredGardenData(com.google.gson.JsonObject root) {
+        if (!root.has("features") || !root.get("features").isJsonObject()) return;
+        var features = root.getAsJsonObject("features");
+        if (!features.has("garden") || !features.get("garden").isJsonObject()) return;
+        var garden = features.getAsJsonObject("garden");
+        garden.remove("forceFinnegan");
+        if (garden.has("keys") && garden.get("keys").isJsonObject()) garden.getAsJsonObject("keys").remove("loadouts");
     }
     void save(Values next) throws IOException { save(next, null); }
     void save(Values next, String importedGroup) throws IOException {

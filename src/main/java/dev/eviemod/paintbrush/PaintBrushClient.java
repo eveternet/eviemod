@@ -36,6 +36,7 @@ public final class PaintBrushClient implements ClientModInitializer {
     public static ModelOverrides models() { return overrides; }
     public static ColorOverrides colors() { return colors; }
     public static NameOverrides names() { return names; }
+    public static void requestSettings() { openSettings = true; }
     public static void requireReady(int tab) throws IOException {
         if (!(tab == 0 ? configReady : tab == 1 ? colorsReady : namesReady))
             throw new IOException("Fix the config file and run /paintbrush reload before saving.");
@@ -110,8 +111,8 @@ public final class PaintBrushClient implements ClientModInitializer {
         });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) -> {
             dispatcher.register(literal("eviemod")
-                .executes(ctx -> { openSettings = true; return 1; })
-                .then(literal("settings").executes(ctx -> { openSettings = true; return 1; }))
+                .executes(ctx -> { requestSettings(); return 1; })
+                .then(literal("settings").executes(ctx -> { requestSettings(); return 1; }))
                 .then(literal("reload").executes(ctx -> {
                     EviemodSettings.load(); RarityBackgrounds.clear();
                     return EviemodSettings.STORE.error() == null ? feedback(ctx.getSource(), "eviemod settings reloaded.")

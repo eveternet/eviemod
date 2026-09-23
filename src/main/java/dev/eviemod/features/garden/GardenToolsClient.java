@@ -1,7 +1,7 @@
 package dev.eviemod.features.garden;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.eviemod.paintbrush.EviemodSettings;
+import dev.eviemod.paintbrush.PaintBrushClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.StartTick;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 public final class GardenToolsClient {
    public static final String MOD_ID = "gardentools";
@@ -16,11 +17,13 @@ public final class GardenToolsClient {
 
    public static void initialize() {
       GardenKeyMappings.initialize();
+      // Legacy alias remains for macros; /eviemod settings owns the screen.
       ClientCommandRegistrationCallback.EVENT
          .register(
-            (ClientCommandRegistrationCallback)(dispatcher, registryAccess) -> dispatcher.register(
-               (LiteralArgumentBuilder)ClientCommands.literal("gardentools").executes(context -> {
-                  Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(EviemodSettings.screen(null)));
+            (dispatcher, registryAccess) -> dispatcher.register(
+               ClientCommands.literal("gardentools").executes(context -> {
+                  context.getSource().sendFeedback(Component.literal("/gardentools is deprecated. Use /eviemod settings instead."));
+                  PaintBrushClient.requestSettings();
                   return 1;
                })
             )

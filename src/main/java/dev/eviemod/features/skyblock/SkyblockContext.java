@@ -11,7 +11,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 
 public final class SkyblockContext {
-   private static final int SCOREBOARD_SCAN_INTERVAL_TICKS = 20;
    private static boolean hypixel;
    private static boolean skyblock;
    private static boolean rift;

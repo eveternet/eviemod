@@ -41,7 +41,6 @@ no custom drawing, coordinate interception, reflection or framework patches. Thi
 is limited to the imported visual and chat-command booleans; recheck it on library upgrades.
 
 PestWorkflow and its event registrations/state are deleted. The native Loadouts key mapping
-and all pest UI/translation controls are removed. The old Force Finnegan serialization slot
-is private and has no runtime accessor; the old loadouts key is not registered or polled.
-These inert bytes remain solely to meet the requirement not to change migration logic or
-saved values. Migration files, marker logic and other feature algorithms are unchanged.
+and all pest UI/translation controls are removed. Force Finnegan and Loadouts values are
+excluded from Garden migration and discarded from existing eviemod settings on the next save.
+Other Garden values, migration markers, and feature algorithms remain unchanged.
