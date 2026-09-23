@@ -45,6 +45,7 @@ public final class PaintBrushScreen extends CompactScreen {
         if (SkyBlockUuid.read(held) != null) setItem(held);
     }
 
+    /** Builds the editor controls, including the searchable helmet texture catalog. */
     @Override protected void init() {
         updateViewport();
         clearWidgets(); styleButtons.clear(); nameBox = null; modelField = null; variantField = null; colorSelection = null; dyeTab = null;
@@ -125,7 +126,7 @@ public final class PaintBrushScreen extends CompactScreen {
         if (tab == 3) {
             modelField = addRenderableWidget(new ModelField(font, left, body, contentWidth, HelmetSkinCatalog.names(), draft.skinName,
                 value -> { if (!draft.skinName.equals(value)) draft.variant = "Default"; draft.skinName = value; draft.dirty[3] = true; error = ""; }, false, true,
-                "Helmet skin", "Search Hypixel helmet skins"));
+                "Helmet texture", "Search helmet skins and defaults"));
             shownSkin = draft.skinName;
             var skin = HelmetSkinCatalog.find(draft.skinName);
             if (skin != null && !skin.variants().isEmpty()) {

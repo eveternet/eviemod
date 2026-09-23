@@ -1,0 +1,855 @@
+{
+  "source": "NotEnoughUpdates-REPO 4c55e5d5d5199a4f5517ae1d22d276f5b360d925",
+  "skins": [
+    {
+      "id": "DEFAULT_ABYSSAL_HELMET",
+      "name": "Abyssal Helmet (Default)",
+      "texture": "29c1fb923e363b02929de8207c8013ea3c7e4b3933047fc9ca2bb08b8dc07254"
+    },
+    {
+      "id": "DEFAULT_ADAPTIVE_HELMET",
+      "name": "Adaptive Helmet (Default)",
+      "texture": "16f0d34aaa714377983701c1bbe9b3f6e7b30cb38571bc0a2fd7541d7edb1637"
+    },
+    {
+      "id": "DEFAULT_AGARICUS_CAP_CAP",
+      "name": "Agaricus Cap Cap (Default)",
+      "texture": "18446d49e2fe45337c858757437f048699a0df35105187a1974122eae9bf7ecc"
+    },
+    {
+      "id": "DEFAULT_ARACHNE_HELMET",
+      "name": "Arachne's Helmet (Default)",
+      "texture": "10505f1e9765e47e7fb9208e2ad8f171668decf39465ec40d3a589f8cbeb9722"
+    },
+    {
+      "id": "DEFAULT_ARMADILLO_MASK",
+      "name": "Armadillo Mask (Default)",
+      "texture": "9259a342be4f1399334c9a40ec2500b81d1e73afe8f296fe767125dedec38e4f"
+    },
+    {
+      "id": "DEFAULT_AURORA_HELMET",
+      "name": "Aurora Helmet (Default)",
+      "texture": "763d2fe93881b4f26cbe1dd3b09da7cc48dbcdc568d19852ad635d5d16859611"
+    },
+    {
+      "id": "DEFAULT_BACKWATER_HELMET",
+      "name": "Backwater Helmet (Default)",
+      "texture": "f6f6c3ebab908a184d49a0f8c85edd3ed48a65d69213bc0367db67a7a1c0c3a7"
+    },
+    {
+      "id": "DEFAULT_BAT_PERSON_HELMET",
+      "name": "Bat Person Helmet (Default)",
+      "texture": "a83b3f04fc16bc2c2cb36a12044265b0b933f3dfa2b342eb45798ff7d715b0d8"
+    },
+    {
+      "id": "DEFAULT_BEE_MASK",
+      "name": "Bee Mask (Default)",
+      "texture": "f2450ff787abd966de7ae88dc8a812149ac91ddd8f120866f6939f2a17999cd0"
+    },
+    {
+      "id": "DEFAULT_BERSERKER_HELMET",
+      "name": "Berserker Helmet (Default)",
+      "texture": "fead3b51077eda3dea6f76f18b7ef089e289e87c002a6c8f92e6a340f9ae84a4"
+    },
+    {
+      "id": "DEFAULT_BIOHAZARD_HELMET",
+      "name": "Biohazard Helmet (Default)",
+      "texture": "3e876547f3d946b70e06fb6b18c76e093af93fb899fd8435368091296029d078"
+    },
+    {
+      "id": "DEFAULT_BLAZE_HAT",
+      "name": "Blaze Hat (Default)",
+      "texture": "b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0"
+    },
+    {
+      "id": "DEFAULT_BLAZE_HELMET",
+      "name": "Blaze Helmet (Default)",
+      "texture": "531b2183392ebcffe217a983c96a573cf90dd58687d18fd63036ccc59eb2f47d"
+    },
+    {
+      "id": "DEFAULT_BLOBFISH_HAT",
+      "name": "Blobfish Hat (Default)",
+      "texture": "ebef5ee1738090c3831b08384339f4ecaaf2c5f15c803619c2645ca1026cf445"
+    },
+    {
+      "id": "DEFAULT_BONZO_MASK",
+      "name": "Bonzo's Mask (Default)",
+      "texture": "12716ecbf5b8da00b05f316ec6af61e8bd02805b21eb8e440151468dc656549c"
+    },
+    {
+      "id": "DEFAULT_BURNING_AURORA_HELMET",
+      "name": "Burning Aurora Helmet (Default)",
+      "texture": "f886b484b750c367107892586930a5e50cd57e9be843bd3db7eb217cb782f0a1"
+    },
+    {
+      "id": "DEFAULT_BURNING_CRIMSON_HELMET",
+      "name": "Burning Crimson Helmet (Default)",
+      "texture": "eb034a5d97c24fe0ec902bd02fec52a09d917366be060c51f9a1a276b284a9d7"
+    },
+    {
+      "id": "DEFAULT_BURNING_FERVOR_HELMET",
+      "name": "Burning Fervor Helmet (Default)",
+      "texture": "97e2d177faac867c9e49542aa4ec831b458d8537f20672014c9149e4ddba43d6"
+    },
+    {
+      "id": "DEFAULT_BURNING_HOLLOW_HELMET",
+      "name": "Burning Hollow Helmet (Default)",
+      "texture": "92aa17c32d27b92816b00362c2f69d867cd99ba376d10b097796368287834ea1"
+    },
+    {
+      "id": "DEFAULT_BURNING_TERROR_HELMET",
+      "name": "Burning Terror Helmet (Default)",
+      "texture": "4482ec351f353445775b439ebc909d5702732f8bae9d32b0b08860b3d6439061"
+    },
+    {
+      "id": "DEFAULT_CANOPY_HELMET",
+      "name": "Canopy Mask (Default)",
+      "texture": "93da8ca9a62856d5c0ee7808f12fa850594294a9755ca527dbc6679bacc3f7bb"
+    },
+    {
+      "id": "DEFAULT_CHALLENGER_HELMET",
+      "name": "Challenger's Helmet (Default)",
+      "texture": "efca286890072570f152239faf68e8dd82e792236b49e3e0338d82d50f379b13"
+    },
+    {
+      "id": "DEFAULT_CHICKEN_HEAD",
+      "name": "Chicken Hat (Default)",
+      "texture": "1638469a599ceef7207537603248a9ab11ff591fd378bea4735b346a7fae893"
+    },
+    {
+      "id": "DEFAULT_CLOVER_HELMET",
+      "name": "Clover Helmet (Default)",
+      "texture": "598949f4d546bd504376f79f8425b57ecf77be672976ee82aef5c86ec0db5d49"
+    },
+    {
+      "id": "DEFAULT_COW_HEAD",
+      "name": "Cow Hat (Default)",
+      "texture": "5d6c6eda942f7f5f71c3161c7306f4aed307d82895f9d2b07ab4525718edc5"
+    },
+    {
+      "id": "DEFAULT_CRIMSON_HELMET",
+      "name": "Crimson Helmet (Default)",
+      "texture": "5051c83d9ebf69013f1ec8c9efc979ec2d925a921cc877ff64abe09aadd2f6cc"
+    },
+    {
+      "id": "DEFAULT_CROPIE_HELMET",
+      "name": "Cropie Helmet (Default)",
+      "texture": "e4bacb96734e244b9f7331d453e686fa2e32522a411aa568f960e741d74b3289"
+    },
+    {
+      "id": "DEFAULT_CROWN_OF_AVARICE",
+      "name": "Crown of Avarice (Default)",
+      "texture": "9b60d6f6557520c0cb0dfc0a1193f23a2f29de52c18dbb746e4a1a99f18dc61c"
+    },
+    {
+      "id": "DEFAULT_CRYSTALLIZED_HEART",
+      "name": "Crystallized Heart (Default)",
+      "texture": "87dfb7c1ee4de31f54931eac5c657c145e4fa7fa09e3f52b1788a682b65ac75"
+    },
+    {
+      "id": "DEFAULT_DARK_GOGGLES",
+      "name": "Dark Goggles (Default)",
+      "texture": "29319525825f1f30727eb940d3a06426bc4cec07fbd80af5cd146e3eb3879f68"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_BONZO_HEAD",
+      "name": "Diamond Bonzo Head (Default)",
+      "texture": "2ae201b06f10b5b4eb0130ecd7d59fac7e4e013bbd4f5d5d0463580fb0549a8b"
+    },
+    {
+      "id": "DEFAULT_FROGGLES_DIAMOND",
+      "name": "Diamond Froggles (Default)",
+      "texture": "9f513d71bcd29c5e8fac396378609a0f29540443aaaae652f7e618dcb98ef2ad"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_LIVID_HEAD",
+      "name": "Diamond Livid Head (Default)",
+      "texture": "9268e36505f1312384eb36ed477f4c2053576c60058fd26bede24d90cb4cf7bf"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_NECRON_HEAD",
+      "name": "Diamond Necron Head (Default)",
+      "texture": "8b115cdc45fd84f21fba7ac0f2bc77bc3b6302be670842f6e11f66eb557f13ee"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_PROFESSOR_HEAD",
+      "name": "Diamond Professor Head (Default)",
+      "texture": "b23c3ad8c4410145095280779293cc1e7904b6fce93d70378ac5f32032ba1d86"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_SADAN_HEAD",
+      "name": "Diamond Sadan Head (Default)",
+      "texture": "3c63c4f7f8f5b8c5fe1bac9a708e5a62ccd04970072aab5e323b1b7d4004f4a2"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_SCARF_HEAD",
+      "name": "Diamond Scarf Head (Default)",
+      "texture": "4da5ca2f6800516a63d25878eb7a713e80d63b62f9f6cab3f31097f9494b6121"
+    },
+    {
+      "id": "DEFAULT_DIAMOND_THORN_HEAD",
+      "name": "Diamond Thorn Head (Default)",
+      "texture": "383a1ffadcc6ccc54905f2a79b963a339bb9e0b0bcea428252a17f01e317bec0"
+    },
+    {
+      "id": "DEFAULT_DIVER_HELMET",
+      "name": "Diver's Mask (Default)",
+      "texture": "d8f11c2b1eb0568cac64f976e50e0e45f3c09a65801e7ed72734b1a99f1606ca"
+    },
+    {
+      "id": "DEFAULT_EMBER_HELMET",
+      "name": "Ember Helmet (Default)",
+      "texture": "38d199e23c17488a01a07005a41fe330b1d22b04e99943c9f8c897d156e9555a"
+    },
+    {
+      "id": "DEFAULT_END_HELMET",
+      "name": "Ender Helmet (Default)",
+      "texture": "f715ca0f742544ae3ca104297578c2ed700ea3a54980413512f5e7a0bc06729a"
+    },
+    {
+      "id": "DEFAULT_ENDERMAN_MASK",
+      "name": "Enderman Mask (Default)",
+      "texture": "5bc4c2cb99f647217baa7c19d74ee1f0257cfdfc1befab4304d3455d466e841"
+    },
+    {
+      "id": "DEFAULT_FALLEN_STAR_HAT",
+      "name": "Fallen Star Helmet (Default)",
+      "texture": "496f1fe8b1cffb3d5fe2daaa259c172eaf5926690ec364778d3e471b200b283e"
+    },
+    {
+      "id": "DEFAULT_FERMENTO_HELMET",
+      "name": "Fermento Helmet (Default)",
+      "texture": "5086ddbe960f33480ca229da7402391ab417d32ebb21770430ea610de5801fe3"
+    },
+    {
+      "id": "DEFAULT_FERVOR_HELMET",
+      "name": "Fervor Helmet (Default)",
+      "texture": "bc6e137e2a6a501dfc854ca900b5b681227dea4d5a9616849a3a68f09c6dc327"
+    },
+    {
+      "id": "DEFAULT_FIERY_AURORA_HELMET",
+      "name": "Fiery Aurora Helmet (Default)",
+      "texture": "1855aabafa461d35b864291d494ca36a2f46307ceadad3a28774054f86788e8"
+    },
+    {
+      "id": "DEFAULT_FIERY_CRIMSON_HELMET",
+      "name": "Fiery Crimson Helmet (Default)",
+      "texture": "91f0c7afff1782465d8cdb5eba261b65423a7a0712ee3a4c572c33f94c68c55"
+    },
+    {
+      "id": "DEFAULT_FIERY_FERVOR_HELMET",
+      "name": "Fiery Fervor Helmet (Default)",
+      "texture": "73f65fffe8fb4e70ee1c1edb8d8f5ef7bb66d0fd1807fb2568b09f1ab976d64f"
+    },
+    {
+      "id": "DEFAULT_FIERY_HOLLOW_HELMET",
+      "name": "Fiery Hollow Helmet (Default)",
+      "texture": "28c6bdbff6f033c61bc335dd9a78956e6cdfdd613ebb5a77ec38d271a8332612"
+    },
+    {
+      "id": "DEFAULT_FIERY_TERROR_HELMET",
+      "name": "Fiery Terror Helmet (Default)",
+      "texture": "b46902e1756a242f401d0c2567ec6481c65084af9b1aaabb9732f56cade542f3"
+    },
+    {
+      "id": "DEFAULT_FIG_HELMET",
+      "name": "Fig Cap (Default)",
+      "texture": "531d3f448491a35d711b877973e5da5d0e72a2ecfdc98dede71bfa1b537bb4eb"
+    },
+    {
+      "id": "DEFAULT_FINAL_DESTINATION_HELMET",
+      "name": "Final Destination Helmet (Default)",
+      "texture": "6217c56bbd77f647b8403803ed7ed982dd7afcf8a2ca4133d2c357ee0896efe2"
+    },
+    {
+      "id": "DEFAULT_FISH_HAT",
+      "name": "Fish Hat (Default)",
+      "texture": "5023c4325ee03f3e7eb7a447dec779f9af762b963d0fa2a2bd039edeae8e3ba2"
+    },
+    {
+      "id": "DEFAULT_FLEX_HELMET",
+      "name": "Flex Helmet (Default)",
+      "texture": "6d18bcec40faeb9d8dde0ef43d3a8de14743b554ea43bc39237a179bffadfc7e"
+    },
+    {
+      "id": "DEFAULT_FROG_MASK",
+      "name": "Frog Mask (Default)",
+      "texture": "87522a1eadf8996f42a8d2e5fb0ca9bfb3ab483d3fbaf68ef29a42de8cef74c5"
+    },
+    {
+      "id": "DEFAULT_FROGGLES",
+      "name": "Froggles (Default)",
+      "texture": "abe42a481ce4419604910531aaca9d5bff2f7b430585103189d476f558c85e7e"
+    },
+    {
+      "id": "DEFAULT_FROZEN_BLAZE_HELMET",
+      "name": "Frozen Blaze Helmet (Default)",
+      "texture": "70310b55eed958fee8ffaaf718467167deb1a7c9046d67b25887b596925636bb"
+    },
+    {
+      "id": "DEFAULT_GHAST_HEAD",
+      "name": "Ghast Head (Default)",
+      "texture": "7a8b714d32d7f6cf8b37e221b758b9c599ff76667c7cd45bbc49c5ef19858646"
+    },
+    {
+      "id": "DEFAULT_GLOSSY_MINERAL_HELMET",
+      "name": "Glossy Mineral Helmet (Default)",
+      "texture": "6528b235c607467c369ca9c3f2bf89014fe2ea45f88df28d029a581ff4bb1721"
+    },
+    {
+      "id": "DEFAULT_GOBLIN_HELMET",
+      "name": "Goblin Helmet (Default)",
+      "texture": "82cbb800ce0bd9ea4cecc0ecce3c9528cdef396f3fd779a287dc6d5cb99e2394"
+    },
+    {
+      "id": "DEFAULT_GOLD_BONZO_HEAD",
+      "name": "Golden Bonzo Head (Default)",
+      "texture": "15e75eae869bf0c298ee48790a62c2d6140790bd481b1de89b768d52f28c74a9"
+    },
+    {
+      "id": "DEFAULT_FROGGLES_GOLD",
+      "name": "Golden Froggles (Default)",
+      "texture": "98090ff60d1692455f162d8712dca32f449dae3d309f67148b1a346f926722e6"
+    },
+    {
+      "id": "DEFAULT_GOLD_LIVID_HEAD",
+      "name": "Golden Livid Head (Default)",
+      "texture": "62512ac6cc5d8c7ae3dddeee2c429d4a2d6a8341bde056e18e5ae21011bbe643"
+    },
+    {
+      "id": "DEFAULT_GOLD_NECRON_HEAD",
+      "name": "Golden Necron Head (Default)",
+      "texture": "1669e0b41da4fd58f625bfd140bb5b24f84d56ede6658b68f124478042cdafe6"
+    },
+    {
+      "id": "DEFAULT_GOLD_PROFESSOR_HEAD",
+      "name": "Golden Professor Head (Default)",
+      "texture": "68ca03d78d157df34e8c42881ff57ea89818367e40e288da7f8b41cca5c1d406"
+    },
+    {
+      "id": "DEFAULT_GOLD_SADAN_HEAD",
+      "name": "Golden Sadan Head (Default)",
+      "texture": "5766a0d21d261c878763ca8264cd2dd0b17ecfac342411db07886b078e6cb013"
+    },
+    {
+      "id": "DEFAULT_GOLD_SCARF_HEAD",
+      "name": "Golden Scarf Head (Default)",
+      "texture": "612f90a2a66d7f937cf9fb15c7d8aef97d38f562bd9678b24f4c904b65bcc60c"
+    },
+    {
+      "id": "DEFAULT_GOLD_THORN_HEAD",
+      "name": "Golden Thorn Head (Default)",
+      "texture": "a40168e7f7bccd19b5a1ede9a196b41c57c91985ec723bcf4220967525582158"
+    },
+    {
+      "id": "DEFAULT_TANK_WITHER_HELMET",
+      "name": "Goldor's Helmet (Default)",
+      "texture": "d4923e28a187fe6af2278b7394ef253a96331fa2dc0731879c780bfee244228a"
+    },
+    {
+      "id": "DEFAULT_GOLEM_HAT",
+      "name": "Golem Hat (Default)",
+      "texture": "89091d79ea0f59ef7ef94d7bba6e5f17f2f7d4572c44f90f76c4819a714"
+    },
+    {
+      "id": "DEFAULT_HAPPY_MASK",
+      "name": "Happy Mask (Default)",
+      "texture": "740b16c123e21a7d19e6ca2940e5f5c3db9f638d631785fe9df554ed67441c4f"
+    },
+    {
+      "id": "DEFAULT_BETRAYAL_HEAD",
+      "name": "Head of Betrayal (Default)",
+      "texture": "c7b9ef075cfb7d396d6fb4e3770f470284bda0c20579b68c543847e96f25e532"
+    },
+    {
+      "id": "DEFAULT_HELIANTHUS_HELMET",
+      "name": "Helianthus Helmet (Default)",
+      "texture": "46e48a6eff318dcda57d5d76a9b2656be25973e3d472b6d2e446a8e60f60a78a"
+    },
+    {
+      "id": "DEFAULT_HELIX_ARMOR_HELMET",
+      "name": "Helix Helmet (Default)",
+      "texture": "b2ad235b9458cc26c9dd794a35c1100e1b5bbe4a0c6c3da6ffd4830006683cb9"
+    },
+    {
+      "id": "DEFAULT_DIVAN_HELMET",
+      "name": "Helmet of Divan (Default)",
+      "texture": "83f69ef27f3120a51050e6be66a0e3f8e89af888d4806716bf86f590da638317"
+    },
+    {
+      "id": "DEFAULT_ARMOR_OF_THE_RESISTANCE_HELMET",
+      "name": "Helmet of the Rising Sun (Default)",
+      "texture": "74cf3c5f24c9bf8b9031e8aed5337b6a07f819cde8c622085545162f8a693060"
+    },
+    {
+      "id": "DEFAULT_HOLLOW_HELMET",
+      "name": "Hollow Helmet (Default)",
+      "texture": "4aacd705a29b790528a70ee93a1cbd92c029601a762d52805f60460e7a7ff8f7"
+    },
+    {
+      "id": "DEFAULT_HOLY_DRAGON_HELMET",
+      "name": "Holy Dragon Helmet (Default)",
+      "texture": "99cc8ba26793218f6f6491947a1837fd52878701f33f76bbe2883a45aba8ab8f"
+    },
+    {
+      "id": "DEFAULT_HOT_AURORA_HELMET",
+      "name": "Hot Aurora Helmet (Default)",
+      "texture": "30b6e2d43ee24c9a246a83515f9b7414846f315ad954400c38ca65cdf08e919e"
+    },
+    {
+      "id": "DEFAULT_HOT_CRIMSON_HELMET",
+      "name": "Hot Crimson Helmet (Default)",
+      "texture": "bbe6d66770a61bf56e6d4b476922b1c3b3dc9f78a26e56b36cd965b7ab20b417"
+    },
+    {
+      "id": "DEFAULT_HOT_FERVOR_HELMET",
+      "name": "Hot Fervor Helmet (Default)",
+      "texture": "3030c3217a2ac070e404cf8c21eafba3a0f6b579dbf4ec9fdc1633ad2180cf28"
+    },
+    {
+      "id": "DEFAULT_HOT_HOLLOW_HELMET",
+      "name": "Hot Hollow Helmet (Default)",
+      "texture": "cc344d65ae6bc2230ee220d76dda1e080f90282ca0f9f0d9bc9667d22048ce9f"
+    },
+    {
+      "id": "DEFAULT_HOT_TERROR_HELMET",
+      "name": "Hot Terror Helmet (Default)",
+      "texture": "bdea30e305483713ac9a5295ae698d4109766c9ae2bc744ac58f6bb4cf93a9f1"
+    },
+    {
+      "id": "DEFAULT_INFERNAL_AURORA_HELMET",
+      "name": "Infernal Aurora Helmet (Default)",
+      "texture": "2cc3ea5345c288c24f1aa7dd8fc63295597d3fb374e314f605640b8dea06fe3f"
+    },
+    {
+      "id": "DEFAULT_INFERNAL_CRIMSON_HELMET",
+      "name": "Infernal Crimson Helmet (Default)",
+      "texture": "507d6bf7611190ed9c580d8c87c296059216230c9501eec6359e0d60ec84758e"
+    },
+    {
+      "id": "DEFAULT_INFERNAL_FERVOR_HELMET",
+      "name": "Infernal Fervor Helmet (Default)",
+      "texture": "1d47cf6e12d12a5eb161759ba95689a9237ec111473e92a140ecab0158dfd258"
+    },
+    {
+      "id": "DEFAULT_INFERNAL_HOLLOW_HELMET",
+      "name": "Infernal Hollow Helmet (Default)",
+      "texture": "84eee9f23952f9777d0519c111655066851fb4c1793629d3767a00dacee6f250"
+    },
+    {
+      "id": "DEFAULT_INFERNAL_TERROR_HELMET",
+      "name": "Infernal Terror Helmet (Default)",
+      "texture": "4eadf2954f1629d793d7f467181c449e18d89aa4941bec3ea5211e5909bb567"
+    },
+    {
+      "id": "DEFAULT_JERRY_HELMET",
+      "name": "Jerry Helmet (Default)",
+      "texture": "822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b"
+    },
+    {
+      "id": "DEFAULT_KALHUIKI_MASK",
+      "name": "Kalhuiki Mask (Default)",
+      "texture": "d65870619b0c2db822479d2cb382126bd799c582378b5b1df93e75b7d01551b7"
+    },
+    {
+      "id": "DEFAULT_KRAMPUS_HELMET",
+      "name": "Krampus Helmet (Default)",
+      "texture": "80ed61109371e866b7d0025d26f9d48fffdbdfda5c8731b0d3c93c51e16e3344"
+    },
+    {
+      "id": "DEFAULT_KUUDRA_FOLLOWER_HELMET",
+      "name": "Kuudra Follower Helmet (Default)",
+      "texture": "e57de815a24c961b28d539c92e0044ca4f37dad2672822f42d85e3ccf4d193b7"
+    },
+    {
+      "id": "DEFAULT_ENCHANTED_JACK_O_LANTERN",
+      "name": "Lantern Helmet (Default)",
+      "texture": "8a06221ca4a7355f34098692e4da691fef06abac0bf9041d573a13d62cc3091"
+    },
+    {
+      "id": "DEFAULT_MAGMA_CUBE_HEAD",
+      "name": "Magma Cube Head (Default)",
+      "texture": "38957d5023c937c4c41aa2412d43410bda23cf79a9f6ab36b76fef2d7c429"
+    },
+    {
+      "id": "DEFAULT_MAGMA_LORD_HELMET",
+      "name": "Magma Lord Helmet (Default)",
+      "texture": "77d91bac4755dbc968add75e6ec3979a74da30bcb4d2556e35a4635718ae7390"
+    },
+    {
+      "id": "DEFAULT_MAGMA_FISH_HAT",
+      "name": "Magmafish Hat (Default)",
+      "texture": "d184df9f7615f719103b9d1b0fd3f545c885746fade2cb81e965856eb2a3a948"
+    },
+    {
+      "id": "DEFAULT_MASTIFF_HELMET",
+      "name": "Mastiff Crown (Default)",
+      "texture": "3285950fd67858e76c439b0b5b87c69a6c52a4df936e224d843b14c22565949e"
+    },
+    {
+      "id": "DEFAULT_SPEED_WITHER_HELMET",
+      "name": "Maxor's Helmet (Default)",
+      "texture": "dbfb0ed5959190d415e726a15f2984007a67a5fd4ea5671d0d676f9f641b5bac"
+    },
+    {
+      "id": "DEFAULT_MENDER_CROWN",
+      "name": "Mender Crown (Default)",
+      "texture": "6c7e1070d12581bd48e80f59054e92412e453a627ed2988b3a5a35fd5c708e0d"
+    },
+    {
+      "id": "DEFAULT_MENDER_FEDORA",
+      "name": "Mender Fedora (Default)",
+      "texture": "52d0e7b60fadf9b0805aa866ed7bd2980abea0812db2b7150752a71fbf2e20ef"
+    },
+    {
+      "id": "DEFAULT_MENDER_HELMET",
+      "name": "Mender Helmet (Default)",
+      "texture": "13301950a1e80cdfee82cfca4cb0d8aeea712fe3331ccd7e1e55722230bd43ff"
+    },
+    {
+      "id": "DEFAULT_MINERAL_HELMET",
+      "name": "Mineral Helmet (Default)",
+      "texture": "a95280a7b21b06e3887f165c8ca7a03bfac96378acd96cdf5944bcd08a0b6587"
+    },
+    {
+      "id": "DEFAULT_MOLE_HAT",
+      "name": "Mole Hat (Default)",
+      "texture": "f20783e2743b8976b00f827ee283675d7911140c98284239f6bc1c8dd1d27c81"
+    },
+    {
+      "id": "DEFAULT_MYTHOS_HELMET",
+      "name": "Mythos Helmet (Default)",
+      "texture": "5ff0d31cfe43b97a772c9055e6bdad3cb0df60fed34cbc6492df65616dadbbdf"
+    },
+    {
+      "id": "DEFAULT_NECROMANCER_LORD_HELMET",
+      "name": "Necromancer Lord Helmet (Default)",
+      "texture": "7dade8bae567a0670fbeb025e63506a06e4010ef6644ff7b556bdf93d2608954"
+    },
+    {
+      "id": "DEFAULT_POWER_WITHER_HELMET",
+      "name": "Necron's Helmet (Default)",
+      "texture": "2bbb2fa7a6ca087280ea0cb564b41ef1ae404a19f7a8128d3d28c519a85e063f"
+    },
+    {
+      "id": "DEFAULT_NOT_DEADGEHOG_MASK",
+      "name": "Not-Dead-Gehog Mask (Default)",
+      "texture": "79a8a0b2fc34576b13c7af02079074f75e26bb49244eea5e8841f0b13fa7f062"
+    },
+    {
+      "id": "DEFAULT_NUTCRACKER_HELMET",
+      "name": "Nutcracker Helmet (Default)",
+      "texture": "c2407e66c81b1443c2e7dfc4d6583eb19c622fa22f34fbf99fe6c45f76a"
+    },
+    {
+      "id": "DEFAULT_OLD_DRAGON_HELMET",
+      "name": "Old Dragon Helmet (Default)",
+      "texture": "524c4da6ab27e9c93fbf49ea1b1fefaefbe2d4c0c8b222e2ff6b18179fb5addf"
+    },
+    {
+      "id": "DEFAULT_PARROT_MASK",
+      "name": "Parrot Mask (Default)",
+      "texture": "84b43fa30018b2794cb82c3eac8a89e87b1a23080fce80c52246e31c53947c0d"
+    },
+    {
+      "id": "DEFAULT_PIG_MASK",
+      "name": "Pig Mask (Default)",
+      "texture": "253f3a1ceae0f9a98320fa21bf2162c5ce692933b6205c47286d78daa2e20732"
+    },
+    {
+      "id": "DEFAULT_PRECURSOR_EYE",
+      "name": "Precursor Eye (Default)",
+      "texture": "72c0683b2019ca3d3947273e394bfca1b4d71b61b67b39474c2d6d73a9b67508"
+    },
+    {
+      "id": "DEFAULT_PRIMORDIAL_HELMET",
+      "name": "Primordial Helmet (Default)",
+      "texture": "307cefa20028878ef529d6b9208d2812010d086f961b964c328f09b3f6573d6"
+    },
+    {
+      "id": "DEFAULT_PROTECTOR_DRAGON_HELMET",
+      "name": "Protector Dragon Helmet (Default)",
+      "texture": "1f1a1ccbb024ed1d28471bc4b3c28d093277161a3871d2699d68e5d2c387964"
+    },
+    {
+      "id": "DEFAULT_PUFFERFISH_HAT",
+      "name": "Pufferfish Hat (Default)",
+      "texture": "44f7f2203e3a850b6c83dce47fd6714a62e4d7648c16ed1fd9dc8168ab3c484f"
+    },
+    {
+      "id": "DEFAULT_RABBIT_HAT",
+      "name": "Rabbit Hat (Default)",
+      "texture": "b50459bcb08db5ce93e021079c1cfc038c9ebe7ad9a149516efe4d5ee8afb59f"
+    },
+    {
+      "id": "DEFAULT_RABBIT_HELMET",
+      "name": "Rabbit Helmet (Default)",
+      "texture": "da0ca2b90d831f17f7c8b771fb3973cca2d76a456bb7b47b80d6872b05b251f5"
+    },
+    {
+      "id": "DEFAULT_RACING_HELMET",
+      "name": "Racing Helmet (Default)",
+      "texture": "2ce0746b12ee4053958e140ba29593272bd84ca34baf50d0d80b5bc3c615e9c6"
+    },
+    {
+      "id": "DEFAULT_RAMPART_HELMET",
+      "name": "Rampart Helmet (Default)",
+      "texture": "50db6fa8eff25b222a34df5f42ca67a68e6b6f50c0276a8cdb8afb40e3272927"
+    },
+    {
+      "id": "DEFAULT_REAPER_MASK",
+      "name": "Reaper Mask (Default)",
+      "texture": "1fc0184473fe882d2895ce7cbc8197bd40ff70bf10d3745de97b6c2a9c5fc78f"
+    },
+    {
+      "id": "DEFAULT_REKINDLED_EMBER_HELMET",
+      "name": "Rekindled Ember Helmet (Default)",
+      "texture": "7b2991911f452ac341a8933b710e139900b3ef0f0307141a30260c623f029714"
+    },
+    {
+      "id": "DEFAULT_RETRO_ENCABULATING_VISOR",
+      "name": "Retro-Encabulating Visor (Default)",
+      "texture": "6e21a315121df0199ac831642e8a546adbb5ed361651ffa4d69466d992796128"
+    },
+    {
+      "id": "DEFAULT_REVIVED_HEART",
+      "name": "Revived Heart (Default)",
+      "texture": "4a61b4f8b070e4bc30a86b2290db6e57e2681c44e0250d1906a89adb8fc455b1"
+    },
+    {
+      "id": "DEFAULT_SALMON_HAT",
+      "name": "Salmon Hat (Default)",
+      "texture": "a5b43503b10f52f48f4bcc4715b4a0a56e7ef39533a181e25b48f5c38affe71"
+    },
+    {
+      "id": "DEFAULT_SALMON_MASK",
+      "name": "Salmon Mask (Default)",
+      "texture": "e969747a5bbc9a3661fde68d369acffca54c9f9b19f94daa3879970796629244"
+    },
+    {
+      "id": "DEFAULT_SHADOW_ASSASSIN_HELMET",
+      "name": "Shadow Assassin Helmet (Default)",
+      "texture": "a1aa14de9c158d3513949c85cabb9e37848b984ec3fb5b44a3219f4fb58a00da"
+    },
+    {
+      "id": "DEFAULT_SHADOW_GOGGLES",
+      "name": "Shadow Goggles (Default)",
+      "texture": "c465a847e114ef62e7833cbfb2fe5de5764bab5f10af125fd2d316238268279f"
+    },
+    {
+      "id": "DEFAULT_SHARK_SCALE_HELMET",
+      "name": "Shark Scale Helmet (Default)",
+      "texture": "d38e3f1152b4855fea5865357e03ecb4d80c52889d641cc5f023e6d16996d8f1"
+    },
+    {
+      "id": "DEFAULT_SHIMMERING_LIGHT_HOOD",
+      "name": "Shimmering Light Hood (Default)",
+      "texture": "764b352f87e7b52291079c12061010f3f53cf15bfb9ce02f647bdf846a5afb4c"
+    },
+    {
+      "id": "DEFAULT_FROGGLES_SILVER",
+      "name": "Silver Froggles (Default)",
+      "texture": "8a8d0de688ad5741dda96a937fdc17f9d6d31b9592e38a517fd82f78602b08a3"
+    },
+    {
+      "id": "DEFAULT_SKELETOR_HELMET",
+      "name": "Skeletor Helmet (Default)",
+      "texture": "89d074ad9b9971879eb325bddff3675f7224856bd6d569fc8d483c133d73005d"
+    },
+    {
+      "id": "DEFAULT_SLIME_HAT",
+      "name": "Slime Hat (Default)",
+      "texture": "a20e84d32d1e9c919d3fdbb53f2b37ba274c121c57b2810e5a472f40dacf004f"
+    },
+    {
+      "id": "DEFAULT_SNIPER_HELMET",
+      "name": "Sniper Helmet (Default)",
+      "texture": "b18c071f080dba50a62a6263ff724edc157ce4fb4883cceff2491d5bbde830c1"
+    },
+    {
+      "id": "DEFAULT_SNORKELING_HELMET",
+      "name": "Snorkeling Visor (Default)",
+      "texture": "875478f91a51c281255545fd700d3155d9628ac7f6ecacb96110416cbc3849d3"
+    },
+    {
+      "id": "DEFAULT_SNOW_SUIT_HELMET",
+      "name": "Snow Suit Helmet (Default)",
+      "texture": "3d1119643cecfbe004141a1ea4062f8315ca78e503958ac50505e8592c44a601"
+    },
+    {
+      "id": "DEFAULT_SNOWMAN_MASK",
+      "name": "Snowman Mask (Default)",
+      "texture": "c321c12d4d88273abba4fa2f5f9a90f3d1445229dc7ccaa5711975c8b0a833b7"
+    },
+    {
+      "id": "DEFAULT_SPIDER_HAT",
+      "name": "Spider Hat (Default)",
+      "texture": "9d83d0494939dba5f27a1dcba7031d5feff44d6efe8d8623e12052470d0a6674"
+    },
+    {
+      "id": "DEFAULT_SPIRIT_MASK",
+      "name": "Spirit Mask (Default)",
+      "texture": "9bbe721d7ad8ab965f08cbec0b834f779b5197f79da4aea3d13d253ece9dec2"
+    },
+    {
+      "id": "DEFAULT_SPOOKY_HELMET",
+      "name": "Spooky Helmet (Default)",
+      "texture": "121ebb2b36c1f5dde4fa665cd39a4895ef02d00fcb3eb3588b86a13f9ae7e9a8"
+    },
+    {
+      "id": "DEFAULT_PUMPKIN_HELMET",
+      "name": "Sprout Helmet (Default)",
+      "texture": "2f92489725093d51dd18a259382fa0207a20a94495883d9f4b1fd97a8a11b9f0"
+    },
+    {
+      "id": "DEFAULT_SQUASH_HELMET",
+      "name": "Squash Helmet (Default)",
+      "texture": "de1087c0c519a9a1dcee4325410b19a1be4855eac5a662ae1b523329f90faecd"
+    },
+    {
+      "id": "DEFAULT_SQUID_HAT",
+      "name": "Squid Hat (Default)",
+      "texture": "32581d564f01d712255125e1f101e534217f76e3599dab7f4ae0ffe328f729eb"
+    },
+    {
+      "id": "DEFAULT_WISE_WITHER_HELMET",
+      "name": "Storm's Helmet (Default)",
+      "texture": "f83159c5bb7d80454d2d646b15774b7116aabcb3af5b6777a27573fc45f7854f"
+    },
+    {
+      "id": "DEFAULT_STRONG_DRAGON_HELMET",
+      "name": "Strong Dragon Helmet (Default)",
+      "texture": "78bc6551beb2148d939b69925140d2379fe0fab6e7d31f65df50b59e9f77a0e4"
+    },
+    {
+      "id": "DEFAULT_SUNFLOWER_HEAD",
+      "name": "Sunflower Head (Default)",
+      "texture": "f34c2716a56557cc79333ab50391ca7a04bb27389198b57f41b244b001dff050"
+    },
+    {
+      "id": "DEFAULT_SUPERIOR_DRAGON_HELMET",
+      "name": "Superior Dragon Helmet (Default)",
+      "texture": "1e0329f42192ee7c1a0c704f82dbbbe7c00fbfa3f020c1067a208630b991b988"
+    },
+    {
+      "id": "DEFAULT_MELON_HELMET",
+      "name": "Tater Helmet (Default)",
+      "texture": "8208669e699d6f0d3a77f74b2b27228ce51b9359678d26f9c3408764b2e779aa"
+    },
+    {
+      "id": "DEFAULT_TAURUS_HELMET",
+      "name": "Taurus Helmet (Default)",
+      "texture": "1642a06cd75ef307c1913ba7a224fb2082d8a2c5254fd1bf006125a087a9a868"
+    },
+    {
+      "id": "DEFAULT_TERROR_HELMET",
+      "name": "Terror Helmet (Default)",
+      "texture": "52af8833697c81b46e83c8f1895266e606efbb3a59f1c3b4ca2816da2bcfa9d6"
+    },
+    {
+      "id": "DEFAULT_THERMODYNAMIC_HELMET",
+      "name": "Thermodynamic Helmet (Default)",
+      "texture": "cad67cf33188a54b6f55d2ef5248cd3b72176994e1d203731e86b365a8581726"
+    },
+    {
+      "id": "DEFAULT_THUNDER_HELMET",
+      "name": "Thunder Helmet (Default)",
+      "texture": "4a93d2bf999a7fe052bf6795e0a0bc7555cc1e014c667fa86dc421cb186d5b67"
+    },
+    {
+      "id": "DEFAULT_TIKI_MASK",
+      "name": "Tiki Mask (Default)",
+      "texture": "f3c802e580bfefc18c4af94cceb82968b5b4aeab0d832346a633a7473a41dfac"
+    },
+    {
+      "id": "DEFAULT_CLOWNFISH_HAT",
+      "name": "Tropical Fish Hat (Default)",
+      "texture": "eec04fe3d83418db0f36bc8fd7d50e4bc1b57f5cb643241dac43179e2c016b77"
+    },
+    {
+      "id": "DEFAULT_UNSTABLE_DRAGON_HELMET",
+      "name": "Unstable Dragon Helmet (Default)",
+      "texture": "605fc4e2b68c45059afef3999e9a95aa3d8943597a7894e569397d6cf5d1672a"
+    },
+    {
+      "id": "DEFAULT_DETRANSFIGURED_MASK",
+      "name": "Used Detransfigured Face (Default)",
+      "texture": "1b6bb8ec632562b513300cb9413d7f7974671e67aaaf20ded1f37d8c1c50b88b"
+    },
+    {
+      "id": "DEFAULT_VAMPIRE_MASK",
+      "name": "Vampire Mask (Default)",
+      "texture": "8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9"
+    },
+    {
+      "id": "DEFAULT_VAMPIRE_WITCH_MASK",
+      "name": "Vampire Witch Mask (Default)",
+      "texture": "6cfccc10953eeb73300b7bfcafcd3fd641ae739558662f625667a2e9d33cde74"
+    },
+    {
+      "id": "DEFAULT_WARDEN_HELMET",
+      "name": "Warden Helmet (Default)",
+      "texture": "e5eb0bd85aaddf0d29ed082eac03fcade43d0ee803b0e8162add28a6379fb54e"
+    },
+    {
+      "id": "DEFAULT_WARM_WIZARD_FACE_2",
+      "name": "Warmer Wizard Face (Default)",
+      "texture": "5d98a12f32a0284b74fefb9e982a1e9ec2487766470aa1230f6f26f9aace3de6"
+    },
+    {
+      "id": "DEFAULT_WATER_HYDRA_HEAD",
+      "name": "Water Hydra Head (Default)",
+      "texture": "6d6bcd3bea0dff1f45d808e7a8550f95106af41b6d8d18a0793e19c9255ae845"
+    },
+    {
+      "id": "DEFAULT_WEREWOLF_HELMET",
+      "name": "Werewolf Helmet (Default)",
+      "texture": "ce4606c6d973a999aec1687c7e075f7d37db8185e88b844507f16b3e2b3eb690"
+    },
+    {
+      "id": "DEFAULT_WISE_DRAGON_HELMET",
+      "name": "Wise Dragon Helmet (Default)",
+      "texture": "5797c77ccee3c04c3deed770595ea83ea1e84c9a4629b753af5d351c0cc11a74"
+    },
+    {
+      "id": "DEFAULT_WITCH_MASK",
+      "name": "Witch Mask (Default)",
+      "texture": "11c8bf446092e279e2c9fe3bc8d02e9c6c43e1e40de56f51aaf1c4fd44003724"
+    },
+    {
+      "id": "DEFAULT_WITHER_GOGGLES",
+      "name": "Wither Goggles (Default)",
+      "texture": "37ceb8f0758e2d8ac49de6f977603c7bfc23fd82a8574810a45f5e97c6436d79"
+    },
+    {
+      "id": "DEFAULT_WITHER_HELMET",
+      "name": "Wither Helmet (Default)",
+      "texture": "691129409789589ae1b43e1d828c06fc9a213b78348a68b7313bdd401d7485cc"
+    },
+    {
+      "id": "DEFAULT_WIZARD_FACE",
+      "name": "Wizard Face (Default)",
+      "texture": "43b797ae013d2b882db3163465b912f03d57c82d44df0486df032e7bab86479a"
+    },
+    {
+      "id": "DEFAULT_WYLD_HELMET",
+      "name": "Wyld Helmet on a Helmet (Default)",
+      "texture": "fc8593b91058ff24a0f6845130ed3e449569ce9c6b22fa9cd1ed7360b5045ea3"
+    },
+    {
+      "id": "DEFAULT_YOUNG_DRAGON_HELMET",
+      "name": "Young Dragon Helmet (Default)",
+      "texture": "a0e81ed07dfb0244d56f4d5f2b37553ec026fb4796f0fb0c57a8eb264983e1e0"
+    },
+    {
+      "id": "DEFAULT_ZOMBIE_MASK",
+      "name": "Zombie Mask (Default)",
+      "texture": "9bfb6565082d9f2f7ab8a58ec8b4549091102a72944b956c7aafe4d2d49cd6d7"
+    },
+    {
+      "id": "DEFAULT_ZOMBIE_HEART",
+      "name": "Zombie's Heart (Default)",
+      "texture": "65d9d98ad6d154ef1f4c63dba92a51337cd1f4eb0cb65b9b2a90fe8b03096db7"
+    }
+  ]
+}

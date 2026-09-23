@@ -8,7 +8,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/** Bundled NEU catalogue; downloads only the chosen texture from Minecraft's texture service. */
+/** Bundled NEU helmet skins and default heads; downloads only the chosen texture. */
 final class HelmetSkinCatalog {
     record Skin(String id, String name, String texture, List<Skin> variants, String legacyHash) {
         Skin(String id, String name, String texture) { this(id, name, texture, List.of(), null); }
@@ -60,16 +60,24 @@ final class HelmetSkinCatalog {
         return new Skin(item.get("id").getAsString(), item.get("name").getAsString(), item.get("texture").getAsString(),
             List.copyOf(variants), item.has("legacyHash") ? item.get("legacyHash").getAsString() : null);
     }
+    /**
+     * Loads the bundled applied-skin and default-head catalogs in display order.
+     *
+     * @return an immutable list containing entries from both catalogs
+     * @throws IllegalStateException if either catalog is missing or cannot be parsed
+     */
     private static List<Skin> load() {
-        try (var stream = HelmetSkinCatalog.class.getResourceAsStream("/assets/eviemod/helmet-skins.json")) {
-            if (stream == null) throw new IOException("Missing helmet skin catalog");
-            var entries = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("skins");
-            var result = new java.util.ArrayList<Skin>();
-            for (var entry : entries) {
-                var item = entry.getAsJsonObject();
-                result.add(read(item));
-            }
-            return List.copyOf(result);
-        } catch (IOException | RuntimeException e) { throw new IllegalStateException("Could not load helmet skin catalog", e); }
+        var result = new java.util.ArrayList<Skin>();
+        for (String file : List.of("helmet-skins.json", "default-helmets.json")) {
+            try (var stream = HelmetSkinCatalog.class.getResourceAsStream("/assets/eviemod/" + file)) {
+                if (stream == null) throw new IOException("Missing helmet catalog: " + file);
+                var entries = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("skins");
+                for (var entry : entries) {
+                    var item = entry.getAsJsonObject();
+                    result.add(read(item));
+                }
+            } catch (IOException | RuntimeException e) { throw new IllegalStateException("Could not load helmet catalog: " + file, e); }
+        }
+        return List.copyOf(result);
     }
 }

@@ -133,6 +133,11 @@ class ImportedTexturesTest {
         var warden = HelmetSkinCatalog.find("True Warden Skin");
         var legacy = Identifier.parse(ImportedTextures.NAMESPACE + ":helmet/" + warden.legacyHash());
         assertEquals(warden, HelmetSkinCatalog.choice(legacy).skin());
+        var defaultWarden = HelmetSkinCatalog.find("Warden Helmet (Default)");
+        assertNotNull(defaultWarden);
+        assertEquals(defaultWarden, HelmetSkinCatalog.choice(defaultWarden.modelId()).skin());
+        assertNotEquals(warden.modelId(), defaultWarden.modelId());
+        assertNotNull(HelmetSkinCatalog.find("Necron's Helmet (Default)"));
         for (String name : HelmetSkinCatalog.names()) {
             var skin = HelmetSkinCatalog.find(name);
             assertEquals(skin.variants().size(), skin.variants().stream().map(HelmetSkinCatalog.Skin::name).distinct().count());
