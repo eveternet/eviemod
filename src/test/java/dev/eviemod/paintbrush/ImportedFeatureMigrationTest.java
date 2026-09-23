@@ -8,9 +8,6 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImportedFeatureMigrationTest {
-    private static boolean retiredPestValue(ImportedFeatures.Garden garden) {
-        return new com.google.gson.Gson().toJsonTree(garden).getAsJsonObject().get("forceFinnegan").getAsBoolean();
-    }
     @TempDir Path config;
     private Path target() { return config.resolve("eviemod/settings.json"); }
     private ModSettings store() throws IOException { var store = new ModSettings(target()); store.load(); return store; }
@@ -21,7 +18,7 @@ class ImportedFeatureMigrationTest {
         {"soulWhipFix":false,"noBarrierEffects":false,"maxTenHearts":false,"commandHotkeysEnabled":false,
          "commandHotkeys":[{"key":0,"command":"/warp garden"},{"key":-1,"command":""},{"key":290,"command":"p warp"}],
          "partyCommands":{"warp":{"party":false,"guild":true,"coop":true}},
-         "garden":{"mouseLock":false,"forceFinnegan":false,"teleportPlot":24}}
+         "garden":{"mouseLock":false,"teleportPlot":24}}
         """;
 
     @Test void freshInstallDefaultsOffWithoutInventingMigrations() throws Exception {
@@ -33,7 +30,6 @@ class ImportedFeatureMigrationTest {
         assertFalse(new ImportedFeatures.Channels().party);
         assertFalse(new ImportedFeatures.Channels().guild);
         assertFalse(store.values().features.garden.mouseLock);
-        assertFalse(retiredPestValue(store.values().features.garden));
         assertEquals(1, store.values().features.garden.teleportPlot);
         assertFalse(store.values().migrations.skyblock); assertFalse(store.values().migrations.garden); assertFalse(store.values().migrations.soulWhip);
         assertFalse(Files.exists(target()));
@@ -46,7 +42,7 @@ class ImportedFeatureMigrationTest {
         assertTrue(store.values().migrations.skyblock); assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip);
         var values = store.values().features;
         assertFalse(values.soulWhip.enabled); assertFalse(values.skyblock.noBarrierEffects); assertFalse(values.skyblock.maxTenHearts);
-        assertFalse(values.skyblock.commandHotkeysEnabled); assertFalse(values.garden.mouseLock); assertFalse(retiredPestValue(values.garden));
+        assertFalse(values.skyblock.commandHotkeysEnabled); assertFalse(values.garden.mouseLock);
         assertEquals(24, values.garden.teleportPlot);
         assertEquals(3, values.skyblock.commandHotkeys.size()); assertEquals(0, values.skyblock.commandHotkeys.get(0).key);
         assertEquals("/warp garden", values.skyblock.commandHotkeys.get(0).command); assertEquals(-1, values.skyblock.commandHotkeys.get(1).key);
@@ -69,16 +65,16 @@ class ImportedFeatureMigrationTest {
         assertTrue(store.values().features.garden.mouseLock);
     }
     @Test void standaloneGardenIsSupportedAndNeverModified() throws Exception {
-        Path old = config.resolve("garden-tools.json"); String original = "{\"mouseLock\":true,\"forceFinnegan\":true,\"teleportPlot\":100}";
+        Path old = config.resolve("garden-tools.json"); String original = "{\"mouseLock\":true,\"teleportPlot\":100}";
         Files.writeString(old, original); var store = store(); ImportedFeatureMigration.run(store, config);
-        assertTrue(store.values().features.garden.mouseLock); assertTrue(retiredPestValue(store.values().features.garden));
+        assertTrue(store.values().features.garden.mouseLock);
         assertEquals(24, store.values().features.garden.teleportPlot); assertTrue(store.values().migrations.garden);
         assertFalse(store.values().migrations.skyblock); assertEquals(original, Files.readString(old));
     }
     @Test void combinedGardenReplacesStandaloneIncludingMissingFieldDefaults() throws Exception {
-        Files.writeString(config.resolve("garden-tools.json"), "{\"mouseLock\":true,\"forceFinnegan\":true,\"teleportPlot\":15}");
+        Files.writeString(config.resolve("garden-tools.json"), "{\"mouseLock\":true,\"teleportPlot\":15}");
         legacy("{\"garden\":{\"teleportPlot\":2}}"); var store = store(); ImportedFeatureMigration.run(store, config);
-        assertFalse(store.values().features.garden.mouseLock); assertFalse(retiredPestValue(store.values().features.garden)); assertEquals(2, store.values().features.garden.teleportPlot);
+        assertFalse(store.values().features.garden.mouseLock); assertEquals(2, store.values().features.garden.teleportPlot);
     }
     @Test void existingValuesWinIndividuallyIncludingFalseDefaultAndEmptyList() throws Exception {
         Files.createDirectories(target().getParent()); Files.writeString(target(), """
@@ -102,7 +98,7 @@ class ImportedFeatureMigrationTest {
         assertEquals(7, store.values().features.garden.teleportPlot); assertTrue(store.values().features.soulWhip.enabled);
     }
     @Test void malformedGroupDoesNotPreventOtherGroupsMigrating() throws Exception {
-        legacy("{\"soulWhipFix\":false,\"maxTenHearts\":\"false\",\"garden\":{\"forceFinnegan\":true}}");
+        legacy("{\"soulWhipFix\":false,\"maxTenHearts\":\"false\",\"garden\":{\"teleportPlot\":2}}");
         var store = store(); ImportedFeatureMigration.run(store, config);
         assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip); assertFalse(store.values().migrations.skyblock);
         assertFalse(store.values().features.skyblock.maxTenHearts); assertTrue(retiredPestValue(store.values().features.garden));
@@ -173,14 +169,14 @@ class ImportedFeatureMigrationTest {
     @Test void nativeGardenKeysAreInTheSameTransactionAndOptionsRemainUnchanged() throws Exception {
         Path instanceConfig = config.resolve("instance/config"); Files.createDirectories(instanceConfig);
         Path options = instanceConfig.resolveSibling("options.txt");
-        String original = "version:4790\nkey_key.gardentools.tptoplot:key.keyboard.o\nkey_key.gardentools.loadouts:key.mouse.middle\n";
+        String original = "version:4790\nkey_key.gardentools.tptoplot:key.keyboard.o\nkey_key.gardentools.setspawn:key.mouse.middle\n";
         Files.writeString(options, original);
         var store = new ModSettings(instanceConfig.resolve("eviemod/settings.json")); store.load();
         ImportedFeatureMigration.run(store, instanceConfig); store.load();
         assertTrue(store.values().migrations.garden); assertFalse(store.values().migrations.skyblock);
         assertEquals("key.keyboard.o", store.values().features.garden.keys.get("tptoplot"));
-        assertEquals("key.mouse.middle", store.values().features.garden.keys.get("loadouts"));
-        assertEquals("key.keyboard.unknown", store.values().features.garden.keys.get("setspawn"));
+        assertEquals("key.mouse.middle", store.values().features.garden.keys.get("setspawn"));
+        assertEquals("key.keyboard.unknown", store.values().features.garden.keys.get("warp_garden"));
         assertEquals(original, Files.readString(options));
         Files.writeString(options, "key_key.gardentools.tptoplot:key.keyboard.x\n");
         ImportedFeatureMigration.run(store, instanceConfig);
@@ -204,15 +200,22 @@ class ImportedFeatureMigrationTest {
         assertFalse(store.values().features.soulWhip.enabled); assertTrue(store.values().features.skyblock.commandHotkeys.isEmpty());
     }
 
-    @Test void retiredPestValuesAreOpaqueAndSurviveUnrelatedSettingsSaves() throws Exception {
+    @Test void retiredGardenValuesAreDroppedFromSettingsAndMigration() throws Exception {
         Files.createDirectories(target().getParent());
         Files.writeString(target(), "{\"features\":{\"garden\":{\"forceFinnegan\":true,\"keys\":{\"loadouts\":\"key.keyboard.l\"}}},\"migrations\":{\"garden\":true}}");
         var store = store(); var draft = store.values().copy(); draft.opacity = 60; store.save(draft); store.load();
         var garden = store.present().getAsJsonObject("features").getAsJsonObject("garden");
-        assertTrue(garden.get("forceFinnegan").getAsBoolean());
-        assertEquals("key.keyboard.l", garden.getAsJsonObject("keys").get("loadouts").getAsString());
+        assertFalse(garden.has("forceFinnegan"));
+        assertFalse(garden.getAsJsonObject("keys").has("loadouts"));
         assertTrue(store.values().migrations.garden);
-        assertThrows(NoSuchFieldException.class, () -> ImportedFeatures.Garden.class.getField("forceFinnegan"));
+        assertFalse(Files.readString(target()).contains("forceFinnegan"));
+        assertFalse(Files.readString(target()).contains("loadouts"));
+        var legacyStore = new ModSettings(config.resolve("another/settings.json")); legacyStore.load();
+        legacy("{\"garden\":{\"forceFinnegan\":true,\"keys\":{\"loadouts\":\"key.keyboard.l\"},\"mouseLock\":true}}");
+        ImportedFeatureMigration.run(legacyStore, config);
+        assertTrue(legacyStore.values().features.garden.mouseLock);
+        assertFalse(legacyStore.present().getAsJsonObject("features").getAsJsonObject("garden").has("forceFinnegan"));
+        assertFalse(legacyStore.values().features.garden.keys.containsKey("loadouts"));
     }
 
 }

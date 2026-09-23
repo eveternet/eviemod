@@ -53,14 +53,14 @@ public final class PartyCommandController {
       Pattern.compile("^You are not currently in a party\\.$")
    };
    public static final PartyCommandController.CommandFeature[] FEATURES = new PartyCommandController.CommandFeature[]{
-      new PartyCommandController.CommandFeature("warp", "Warp", "!w / !warp -> /p warp", true),
-      new PartyCommandController.CommandFeature("coords", "Coordinates", "!coords -> sends your coordinates", false),
-      new PartyCommandController.CommandFeature("invite", "Invite", "!inv [ign] -> /p invite [ign]", false),
-      new PartyCommandController.CommandFeature("kick", "Kick", "!k / !kick [ign] -> /p kick [ign], sender when blank", true),
-      new PartyCommandController.CommandFeature("transfer", "Party Transfer", "!pt [ign] -> /party transfer [ign], sender when blank", true),
-      new PartyCommandController.CommandFeature("ping", "Ping", "!ping -> sends your current ping", false),
-      new PartyCommandController.CommandFeature("tps", "TPS", "!tps -> sends estimated server TPS", false),
-      new PartyCommandController.CommandFeature("fps", "FPS", "!fps -> sends your current FPS", false)
+      new PartyCommandController.CommandFeature("warp", "Warp", "!w / !warp -> /p warp"),
+      new PartyCommandController.CommandFeature("coords", "Coordinates", "!coords -> sends your coordinates"),
+      new PartyCommandController.CommandFeature("invite", "Invite", "!inv [ign] -> /p invite [ign]"),
+      new PartyCommandController.CommandFeature("kick", "Kick", "!k / !kick [ign] -> /p kick [ign], sender when blank"),
+      new PartyCommandController.CommandFeature("transfer", "Party Transfer", "!pt [ign] -> /party transfer [ign], sender when blank"),
+      new PartyCommandController.CommandFeature("ping", "Ping", "!ping -> sends your current ping"),
+      new PartyCommandController.CommandFeature("tps", "TPS", "!tps -> sends estimated server TPS"),
+      new PartyCommandController.CommandFeature("fps", "FPS", "!fps -> sends your current FPS")
    };
    private static final List<String> members = new ArrayList<>();
    private static String partyLeader;
@@ -105,6 +105,7 @@ public final class PartyCommandController {
    private static void handleChatLine(Component component) {
       String line = stripControlCodes(component.getString());
       updatePartyState(line);
+      if (!line.startsWith("Party > ") && !line.startsWith("Guild > ") && !line.startsWith("Co-op > ")) return;
       Matcher matcher = CHAT_PATTERN.matcher(line);
       if (matcher.matches()) {
          PartyCommandController.CommandChannel channel;
@@ -365,6 +366,6 @@ public final class PartyCommandController {
       }
    }
 
-   public record CommandFeature(String key, String name, String description, boolean leaderOnly) {
+   public record CommandFeature(String key, String name, String description) {
    }
 }

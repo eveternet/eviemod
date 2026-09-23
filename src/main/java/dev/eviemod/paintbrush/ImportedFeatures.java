@@ -37,10 +37,6 @@ public final class ImportedFeatures {
     }
     public static final class Garden {
         public boolean mouseLock = false;
-        // Serialization-only legacy data: retain saved values and the existing migration format.
-        // No runtime setting, UI binding, getter or pest workflow remains.
-        @com.google.gson.annotations.SerializedName("forceFinnegan")
-        private boolean retiredPestValue = false;
         public int teleportPlot = 1;
         public Map<String, String> keys = new LinkedHashMap<>();
     }
