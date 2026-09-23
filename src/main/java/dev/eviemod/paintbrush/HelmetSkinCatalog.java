@@ -60,6 +60,12 @@ final class HelmetSkinCatalog {
         return new Skin(item.get("id").getAsString(), item.get("name").getAsString(), item.get("texture").getAsString(),
             List.copyOf(variants), item.has("legacyHash") ? item.get("legacyHash").getAsString() : null);
     }
+    /**
+     * Loads the bundled applied-skin and default-head catalogs in display order.
+     *
+     * @return an immutable list containing entries from both catalogs
+     * @throws IllegalStateException if either catalog is missing or cannot be parsed
+     */
     private static List<Skin> load() {
         var result = new java.util.ArrayList<Skin>();
         for (String file : List.of("helmet-skins.json", "default-helmets.json")) {
