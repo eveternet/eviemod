@@ -14,8 +14,10 @@ public final class RarityBackgrounds {
     private record Observed(ItemStack live, ItemStack snapshot, ItemRarity fresh) {}
     private static final Map<Integer, Observed> observed = new HashMap<>();
     private static final IdentityHashMap<ItemStack, Integer> liveSlots = new IdentityHashMap<>();
+    private static final IdentityHashMap<ItemStack, Integer> renderSlots = new IdentityHashMap<>();
+    private static GuiGraphicsExtractor indexedGraphics;
     private static Object player, level;
-    public static void clear() { MEMORY.clear(); observed.clear(); liveSlots.clear(); }
+    public static void clear() { MEMORY.clear(); observed.clear(); liveSlots.clear(); renderSlots.clear(); indexedGraphics = null; }
     private static void context(Minecraft client) {
         if (player != client.player || level != client.level) {
             clear(); player = client.player; level = client.level;
@@ -26,6 +28,7 @@ public final class RarityBackgrounds {
         var settings = EviemodSettings.STORE.values();
         if (!SkyBlockSession.active() || client.player == null || !settings.rarityBackgrounds || !settings.rememberRarity) return;
         liveSlots.clear();
+        indexedGraphics = null;
         var inventory = client.player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             var stack = inventory.getItem(slot);
@@ -52,7 +55,7 @@ public final class RarityBackgrounds {
         else observed.remove(slot);
         return rarity;
     }
-    private static int findSlot(Minecraft client, ItemStack stack) {
+    private static int findSlot(Minecraft client, GuiGraphicsExtractor graphics, ItemStack stack) {
         if (client.player == null) return -1;
         var inventory = client.player.getInventory();
         Integer known = liveSlots.get(stack);
@@ -61,14 +64,20 @@ public final class RarityBackgrounds {
             if (known >= 100) for (var slot : ARMOR_SLOTS)
                 if (known == 100 + slot.ordinal() && client.player.getItemBySlot(slot) == stack) return known;
         }
-        // Covers a stack created or moved after the last tick; verify identity before borrowing slot memory.
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++)
-            if (inventory.getItem(slot) == stack) { liveSlots.put(stack, slot); return slot; }
-        for (var slot : ARMOR_SLOTS)
-            if (client.player.getItemBySlot(slot) == stack) {
-                int index = 100 + slot.ordinal(); liveSlots.put(stack, index); return index;
-            }
-        return -1;
+        // A container can render many non-owned stacks. Index the live inventory once per extraction,
+        // including changes since the last tick, instead of scanning it for every container slot.
+        if (indexedGraphics != graphics || known != null) {
+            renderSlots.clear();
+            for (int slot = 0; slot < inventory.getContainerSize(); slot++)
+                renderSlots.putIfAbsent(inventory.getItem(slot), slot);
+            for (var slot : ARMOR_SLOTS)
+                renderSlots.putIfAbsent(client.player.getItemBySlot(slot), 100 + slot.ordinal());
+            indexedGraphics = graphics;
+        }
+        Integer current = renderSlots.get(stack);
+        if (current != null) liveSlots.put(stack, current);
+        else liveSlots.remove(stack);
+        return current == null ? -1 : current;
     }
     public static void draw(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
         var client = Minecraft.getInstance(); context(client);
@@ -76,7 +85,7 @@ public final class RarityBackgrounds {
         if (!SkyBlockSession.active() || !settings.rarityBackgrounds || settings.opacity == 0 || stack.isEmpty()) return;
         ItemRarity rarity;
         if (settings.rememberRarity) {
-            int slot = findSlot(client, stack);
+            int slot = findSlot(client, graphics, stack);
             rarity = slot >= 0 ? observe(slot, stack) : MEMORY.resolve(stack);
         } else rarity = ItemRarity.read(stack);
         if (rarity == null) return;
