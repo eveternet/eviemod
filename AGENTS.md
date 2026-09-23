@@ -10,10 +10,16 @@ These instructions apply throughout eviemod.
 
 ## Versioning
 
-- Major versions introduce new feature sections.
-- Minor versions modify or add capabilities within existing feature sections.
-- Patch versions fix bugs, debugging findings, and user criticism of the UX flow, including corrections to prior implementations. Do not use a minor bump just because a fix changes several files.
+- Use four numeric components: `important.new-feature.modification.patch` (for example, `1.0.0.0`). This is intentional; never normalize it to three-component SemVer.
+- The first component marks important releases; the second adds a new feature; the third modifies a current feature; the fourth fixes bugs, debugging findings, or UX criticism, including corrections to prior implementations. A fix touching several files is still a patch.
+- When incrementing a component, reset the components to its right to zero. Preserve the version unless a requested change calls for a bump; use an explicitly requested version exactly.
 - Choose one version for the user-facing change; do not bump again for intermediate builds or test fixes.
+
+## Release requests
+
+- An explicit instruction to "cut a release" authorizes the full release process: build and test the intended commit, commit the task's changes, push the release commit, create and push its `v<version>` tag, and verify that GitHub Actions creates the GitHub Release with the distributable mod JAR attached.
+- Use the four-component project version unchanged after the tag's `v` prefix. Never move or overwrite an existing release tag.
+- Other requests, including building a local release, changing a version, committing, or pushing normal changes, do not authorize creating or pushing a release tag or publishing a GitHub Release. A local release means building the distributable JAR locally only. Follow any explicit restriction on publishing even when release terminology is used.
 
 ## Commit after every build
 
