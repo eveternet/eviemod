@@ -101,7 +101,7 @@ class ImportedFeatureMigrationTest {
         legacy("{\"soulWhipFix\":false,\"maxTenHearts\":\"false\",\"garden\":{\"teleportPlot\":2}}");
         var store = store(); ImportedFeatureMigration.run(store, config);
         assertTrue(store.values().migrations.garden); assertTrue(store.values().migrations.soulWhip); assertFalse(store.values().migrations.skyblock);
-        assertFalse(store.values().features.skyblock.maxTenHearts); assertTrue(retiredPestValue(store.values().features.garden));
+        assertFalse(store.values().features.skyblock.maxTenHearts); assertEquals(2, store.values().features.garden.teleportPlot);
         legacy(ALL); store = store(); ImportedFeatureMigration.run(store, config); assertFalse(store.values().features.skyblock.maxTenHearts);
     }
     @Test void malformedInputsDoNotChangeLastValidDestinationOrSources() throws Exception {
