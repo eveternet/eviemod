@@ -45,6 +45,7 @@ public final class PaintBrushScreen extends CompactScreen {
         if (SkyBlockUuid.read(held) != null) setItem(held);
     }
 
+    /** Builds the editor controls, including the searchable helmet texture catalog. */
     @Override protected void init() {
         updateViewport();
         clearWidgets(); styleButtons.clear(); nameBox = null; modelField = null; variantField = null; colorSelection = null; dyeTab = null;
