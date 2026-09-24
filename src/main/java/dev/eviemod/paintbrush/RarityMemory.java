@@ -55,7 +55,7 @@ final class RarityMemory {
     ItemRarity observe(int slot, ItemStack stack, ItemRarity fresh) {
         return observe(slot, stack, fresh, tag(stack));
     }
-    private ItemRarity observe(int slot, ItemStack stack, ItemRarity fresh, CompoundTag tag) {
+    ItemRarity observe(int slot, ItemStack stack, ItemRarity fresh, CompoundTag tag) {
         ItemRarity rarity = resolve(stack, fresh, tag);
         UUID uuid = uuid(tag);
         String id = id(tag);

@@ -5,6 +5,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
@@ -48,8 +49,10 @@ public final class RarityBackgrounds {
             MEMORY.refreshKnown(slot);
             return previous.fresh();
         }
-        ItemRarity fresh = ItemRarity.read(stack);
-        ItemRarity rarity = MEMORY.observe(slot, stack, fresh);
+        var data = stack.get(DataComponents.CUSTOM_DATA);
+        var tag = data == null ? null : data.copyTag();
+        ItemRarity fresh = ItemRarity.read(stack, tag);
+        ItemRarity rarity = MEMORY.observe(slot, stack, fresh, tag);
         // Empty slots and metadata-less items have no useful parsed value to cache.
         if (fresh != null) observed.put(slot, new Observed(stack, stack.copy(), fresh));
         else observed.remove(slot);

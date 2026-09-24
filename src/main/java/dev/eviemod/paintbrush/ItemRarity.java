@@ -30,6 +30,7 @@ public enum ItemRarity {
     private static ItemRarity known(String name) { return name.equals("UNKNOWN") ? null : valueOf(name); }
 
     static ItemRarity read(ItemStack stack) {
+        if (stack.isEmpty()) return null;
         var data = stack.get(DataComponents.CUSTOM_DATA);
         return read(stack, data == null ? null : data.copyTag());
     }
