@@ -43,4 +43,6 @@ is limited to the imported visual and chat-command booleans; recheck it on libra
 PestWorkflow and its event registrations/state are deleted. The native Loadouts key mapping
 and all pest UI/translation controls are removed. Force Finnegan and Loadouts values are
 excluded from Garden migration and discarded from existing eviemod settings on the next save.
-Other Garden values, migration markers, and feature algorithms remain unchanged.
+Other Garden values and feature algorithms remain unchanged. Completed migration
+markers remain unchanged; a legacy source containing only Force Finnegan or a
+native Loadouts binding does not set the Garden migration marker.
