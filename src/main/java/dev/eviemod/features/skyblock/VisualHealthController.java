@@ -10,7 +10,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public final class VisualHealthController {
-   private static final float VANILLA_MAX_HEALTH = 20.0F;
    private static VisualHealthController.MaxHealthSnapshot serverMaxHealthSnapshot;
    private static float serverMaxHealth = 20.0F;
    private static float serverHealth = 20.0F;

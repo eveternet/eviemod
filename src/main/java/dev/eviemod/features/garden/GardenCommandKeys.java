@@ -8,8 +8,8 @@ public final class GardenCommandKeys {
    private GardenCommandKeys() {
    }
 
-   public static void tick(Minecraft client) {
-      boolean active = GardenDetector.isInGarden(client) && client.player != null && client.screen == null;
+   public static void tick(Minecraft client, boolean inGarden) {
+      boolean active = inGarden && client.player != null && client.screen == null;
       if (!active) {
          drain(GardenKeyMappings.TELEPORT_TO_PLOT);
          drain(GardenKeyMappings.SET_SPAWN);

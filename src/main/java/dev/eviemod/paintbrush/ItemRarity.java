@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Locale;
 import java.util.Optional;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 /** Lookup behavior verified against the supplied Skyblocker 6.10.2+26.1.2 JAR. */
@@ -31,10 +32,14 @@ public enum ItemRarity {
     static ItemRarity read(ItemStack stack) {
         if (stack.isEmpty()) return null;
         var data = stack.get(DataComponents.CUSTOM_DATA);
-        if (data != null && data.copyTag().getStringOr("id", "").equals("PET")) {
+        return read(stack, data == null ? null : data.copyTag());
+    }
+    static ItemRarity read(ItemStack stack, CompoundTag tag) {
+        if (stack.isEmpty()) return null;
+        if (tag != null && tag.getStringOr("id", "").equals("PET")) {
             // A malformed pet is UNKNOWN; Skyblocker does not fall through to lore/style.
             try {
-                String raw = data.copyTag().getStringOr("petInfo", "");
+                String raw = tag.getStringOr("petInfo", "");
                 Pet pet = Pet.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(raw)).result().orElse(null);
                 if (pet == null) return null;
                 ItemRarity tier = known(pet.tier());
@@ -73,7 +78,10 @@ public enum ItemRarity {
 
     static boolean missingMetadata(ItemStack stack) {
         var data = stack.get(DataComponents.CUSTOM_DATA);
-        if (data != null && data.copyTag().getStringOr("id", "").equals("PET")) return false;
+        return missingMetadata(stack, data == null ? null : data.copyTag());
+    }
+    static boolean missingMetadata(ItemStack stack, CompoundTag tag) {
+        if (tag != null && tag.getStringOr("id", "").equals("PET")) return false;
         var lore = stack.get(DataComponents.LORE);
         return stack.get(DataComponents.TOOLTIP_STYLE) == null && (lore == null || lore.lines().isEmpty());
     }

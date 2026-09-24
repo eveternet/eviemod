@@ -1,10 +1,12 @@
 package dev.eviemod.paintbrush;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 
 public final class SkyBlockUuid {
+    private static final Pattern UUID_SHAPE = Pattern.compile("(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
     private SkyBlockUuid() {}
 
     public static UUID read(ItemStack stack) {
@@ -19,7 +21,7 @@ public final class SkyBlockUuid {
 
     public static UUID parse(String value) {
         // UUID.fromString alone accepts abbreviated groups, so validate the full shape.
-        if (value == null || !value.matches("(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) return null;
+        if (value == null || !UUID_SHAPE.matcher(value).matches()) return null;
         return UUID.fromString(value);
     }
 }

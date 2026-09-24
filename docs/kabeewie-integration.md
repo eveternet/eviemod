@@ -3,9 +3,12 @@
 The audit below describes the original merge. In 4.0.1, the requested settings correction
 moves Paint Brush and SkyBlock Visuals under Appearance, renames Party Commands to Chat
 Commands, and removes the Garden pest workflow, its controls and native Loadouts binding.
-Soul Whip Fix is a single visual toggle. Migration logic and saved values are unchanged;
-retired pest values are retained only as inert compatibility data. See
+Soul Whip Fix is a single visual toggle. The former Force Finnegan and Loadouts
+values are no longer migrated or retained in eviemod settings. See
 [the current settings notes](settings-ui.md#merged-settings-correction-401).
+`/kabeewie`, `/kabeewie settings`, and `/gardentools` remain registered as
+deprecated aliases. Each opens the shared settings screen through `/eviemod`'s
+request path and tells the player to use `/eviemod` or `/eviemod settings`.
 
 ## Reference and behavior boundary
 

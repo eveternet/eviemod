@@ -55,6 +55,9 @@ final class ImportedFeatureMigration {
             if (combined.has("garden")) result = object(combined.get("garden"), "garden").deepCopy();
             else if (Files.exists(garden)) result = read(garden);
             else if (!hasGardenKeys(directory)) return null;
+            result.remove("forceFinnegan");
+            result.remove("keys"); // Native bindings below are the only Garden key source.
+            if (result.isEmpty() && !hasGardenKeys(directory)) return null;
             // Native key choices are part of the Garden migration transaction, before its marker.
             result.add("keys", gardenKeys(directory));
             if (result.has("teleportPlot")) {
@@ -68,7 +71,7 @@ final class ImportedFeatureMigration {
         return result;
     }
 
-    private static final List<String> GARDEN_KEYS = List.of("tptoplot", "setspawn", "warp_garden", "loadouts");
+    private static final List<String> GARDEN_KEYS = List.of("tptoplot", "setspawn", "warp_garden");
     private static boolean hasGardenKeys(Path directory) throws IOException {
         Path options = directory.resolveSibling("options.txt");
         if (!Files.exists(options)) return false;
@@ -135,7 +138,7 @@ final class ImportedFeatureMigration {
         if (features.has("soulWhip")) booleans(object(features.get("soulWhip"), "soulWhip"), "enabled");
         if (features.has("garden")) {
             var garden = object(features.get("garden"), "garden");
-            booleans(garden, "mouseLock", "forceFinnegan");
+            booleans(garden, "mouseLock");
             if (garden.has("teleportPlot")) {
                 integer(garden.get("teleportPlot"), "teleportPlot");
                 int plot = garden.get("teleportPlot").getAsInt();
