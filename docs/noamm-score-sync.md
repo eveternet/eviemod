@@ -50,7 +50,7 @@ that observation. The latest valid announcement timestamp is also retained for
 each kind, creating a one-second lookback for out-of-order arrivals. Announcements
 older than 1,000 ms and other kinds do not suppress an incoming event. Only chat
 that passes the exact party extraction and accepted-body checks updates
-these timestamps; dungeon/floor results are diagnostic only; lifecycle clearing removes them. This is time-bounded
+these timestamps; lifecycle clearing removes them. This is time-bounded
 reconciliation, not per-run deduplication.
 Canonical sends are `pc Mimic Killed!` and `pc Prince Killed!` through the existing
 Minecraft command transport. No per-run state is retained.
@@ -61,17 +61,16 @@ normal server failure handling. Settings disablement, disconnect, level change,
 and integration failure invalidate pending work and retries. The scheduler is
 created lazily on the first supported, enabled event.
 
-## Dungeon context is diagnostic only
+## Dungeon context
 
 Live debug logs showed correctly parsed Prince announcements being rejected
-because `DungeonChatContext.floor(client)` returned `-1`. As of 5.0.2, valid
+when the scoreboard floor could not be determined. As of 5.0.2, valid
 Mimic/Prince party announcements are recorded and cancel matching pending relays
 without independently proving dungeon or floor state. Reconciliation still
 requires a separate supported Noamm event and the same one-second windows.
 
-The existing scoreboard adapter and temporary dungeon/floor log fields remain
-for diagnosis, but do not gate either ordering of reconciliation. Noamm event
-handling and the existing runtime availability/Hypixel checks are unchanged.
+The temporary scoreboard parser and INFO-level chat diagnostics were removed.
+Noamm event handling and the runtime availability/Hypixel checks are unchanged.
 
 ## Send failures and correlation limitation
 
@@ -118,7 +117,7 @@ network fallback, second protocol, Bat support, or run bookkeeping are added.
 
 Deterministic tests cover strict packet parsing/Bat exclusion, both canonical
 messages at the one-second deadline, all accepted announcements, exact whitespace
-and prefix rules, reconciliation with unavailable dungeon/floor data, overlapping
+and prefix rules, reconciliation without scoreboard context, overlapping
 and repeated occurrences,
 window boundaries, default and explicit retry delay, retry exhaustion, mute and
 generic failure abandonment, foreign send/echo/timeout attribution, transport
@@ -139,13 +138,12 @@ JARs were also inspected and contain no `com/github/noamm9` fixture entries.
 ## Changed files
 
 - Runtime: `src/main/java/dev/eviemod/features/scoresync/ScoreSyncClient.java`,
-  `NoammScoreHook.java`, `ScoreRelay.java`, `DungeonChatContext.java`, and
-  `ChatCooldown.java` in that same package.
+  `NoammScoreHook.java`, `ScoreRelay.java`, and `ChatCooldown.java` in that same package.
 - Initialization: `src/main/java/dev/eviemod/features/skyblock/ImportedFeatureClient.java`.
 - Shared settings: `src/main/java/dev/eviemod/paintbrush/ImportedFeatures.java`,
   `ImportedFeatureMigration.java`, and `ImportedSettingsCategories.java`.
 - Regression tests: `src/test/java/dev/eviemod/features/scoresync/ScoreRelayTest.java`,
-  `NoammScoreHookTest.java`, `DungeonChatContextTest.java`, `ChatCooldownTest.java`,
+  `NoammScoreHookTest.java`, `ChatCooldownTest.java`,
   and `src/test/java/dev/eviemod/paintbrush/NoammScoreSettingsTest.java`.
 - Contract fixtures: `src/test/java/com/github/noamm9/NoammAddons.java`,
   `event/Event.java`, `event/EventContext.java`, `event/EventListener.java`,

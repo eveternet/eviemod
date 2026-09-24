@@ -89,4 +89,35 @@ class RarityMemoryTest {
         assertNull(memory.resolve(item(UUID, "New unrecognized lore")));
         assertNull(memory.resolve(item(UUID, null)));
     }
+    @Test void backgroundObservationInvalidatesChangedStacksAndSlots() {
+        RarityBackgrounds.clear();
+        try {
+            var stack = item(UUID, "RARE BOOTS");
+            assertEquals(ItemRarity.RARE, RarityBackgrounds.observe(1, stack));
+            assertEquals(ItemRarity.RARE, RarityBackgrounds.observe(1, stack));
+            stack.set(DataComponents.LORE, new ItemLore(List.of(Component.literal("MYTHIC BOOTS"))));
+            assertEquals(ItemRarity.MYTHIC, RarityBackgrounds.observe(1, stack));
+            stack.remove(DataComponents.LORE);
+            assertEquals(ItemRarity.MYTHIC, RarityBackgrounds.observe(1, stack));
+            assertNull(RarityBackgrounds.observe(1, item(OTHER, null)));
+            assertEquals(ItemRarity.MYTHIC, RarityBackgrounds.observe(2, stack));
+            assertNull(RarityBackgrounds.observe(1, ItemStack.EMPTY));
+            assertNull(RarityBackgrounds.observe(1, item(null, null)));
+            RarityBackgrounds.clear();
+            assertNull(RarityBackgrounds.observe(2, stack));
+        } finally { RarityBackgrounds.clear(); }
+    }
+    @Test void backgroundObservationRechecksCountAndCustomDataInPlace() {
+        RarityBackgrounds.clear();
+        try {
+            var stack = item(UUID, "LEGENDARY BOOTS");
+            assertEquals(ItemRarity.LEGENDARY, RarityBackgrounds.observe(4, stack));
+            stack.setCount(2);
+            assertEquals(ItemRarity.LEGENDARY, RarityBackgrounds.observe(4, stack));
+            stack.setCount(1);
+            stack.set(DataComponents.CUSTOM_DATA, item(OTHER, null).get(DataComponents.CUSTOM_DATA));
+            stack.remove(DataComponents.LORE);
+            assertNull(RarityBackgrounds.observe(4, stack));
+        } finally { RarityBackgrounds.clear(); }
+    }
 }
