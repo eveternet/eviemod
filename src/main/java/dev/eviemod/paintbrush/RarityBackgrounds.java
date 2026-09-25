@@ -1,24 +1,20 @@
 package dev.eviemod.paintbrush;
 
-import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
 public final class RarityBackgrounds {
     private static final EquipmentSlot[] ARMOR_SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.OFFHAND};
     private static final RarityMemory MEMORY = new RarityMemory();
-    private record Observed(ItemStack live, ItemStack snapshot, ItemRarity fresh) {}
-    private static final Map<Integer, Observed> observed = new HashMap<>();
+    private static final RarityCache PARSED = new RarityCache();
     private static final IdentityHashMap<ItemStack, Integer> liveSlots = new IdentityHashMap<>();
     private static final IdentityHashMap<ItemStack, Integer> renderSlots = new IdentityHashMap<>();
     private static GuiGraphicsExtractor indexedGraphics;
     private static Object player, level;
-    public static void clear() { MEMORY.clear(); observed.clear(); liveSlots.clear(); renderSlots.clear(); indexedGraphics = null; }
+    public static void clear() { MEMORY.clear(); PARSED.clear(); liveSlots.clear(); renderSlots.clear(); indexedGraphics = null; }
     private static void context(Minecraft client) {
         if (player != client.player || level != client.level) {
             clear(); player = client.player; level = client.level;
@@ -41,22 +37,10 @@ public final class RarityBackgrounds {
         }
     }
     static ItemRarity observe(int slot, ItemStack stack) {
-        var previous = observed.get(slot);
-        // Remembered rarity can change when another stack supplies metadata; only fresh rarity is stable.
-        if (previous != null && previous.live() == stack && previous.fresh() != null
-            && previous.snapshot().getCount() == stack.getCount()
-            && ItemStack.isSameItemSameComponents(previous.snapshot(), stack)) {
-            MEMORY.refreshKnown(slot);
-            return previous.fresh();
-        }
-        var data = stack.get(DataComponents.CUSTOM_DATA);
-        var tag = data == null ? null : data.copyTag();
-        ItemRarity fresh = ItemRarity.read(stack, tag);
-        ItemRarity rarity = MEMORY.observe(slot, stack, fresh, tag);
-        // Empty slots and metadata-less items have no useful parsed value to cache.
-        if (fresh != null) observed.put(slot, new Observed(stack, stack.copy(), fresh));
-        else observed.remove(slot);
-        return rarity;
+        var parsed = PARSED.get(stack);
+        // Memory is reconciled on every observation, including count/identity changes
+        // and metadata gaps. Only the expensive fresh parse is cached.
+        return MEMORY.observe(slot, stack, parsed.rarity(), parsed.tag());
     }
     private static int findSlot(Minecraft client, GuiGraphicsExtractor graphics, ItemStack stack) {
         if (client.player == null) return -1;
@@ -89,8 +73,12 @@ public final class RarityBackgrounds {
         ItemRarity rarity;
         if (settings.rememberRarity) {
             int slot = findSlot(client, graphics, stack);
-            rarity = slot >= 0 ? observe(slot, stack) : MEMORY.resolve(stack);
-        } else rarity = ItemRarity.read(stack);
+            if (slot >= 0) rarity = observe(slot, stack);
+            else {
+                var parsed = PARSED.get(stack);
+                rarity = MEMORY.resolve(stack, parsed.rarity(), parsed.tag());
+            }
+        } else rarity = PARSED.get(stack).rarity();
         if (rarity == null) return;
         int color = (Math.round(settings.opacity * 2.55f) << 24) | rarity.rgb;
         if (settings.shape == ModSettings.Shape.SQUARE) graphics.fill(x, y, x + 16, y + 16, color);
