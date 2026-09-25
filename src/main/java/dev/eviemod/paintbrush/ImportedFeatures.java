@@ -10,6 +10,8 @@ public final class ImportedFeatures {
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();
     public static final class Dungeons {
+        public boolean partyFinderAlert = false;
+        public String partyFinderSubtitle = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE;
         public boolean announceCrit = false;
         public boolean announceCritPartyChat = false;
         public String announceCritTemplate = dev.eviemod.features.dungeons.AnnounceCrit.DEFAULT_TEMPLATE;

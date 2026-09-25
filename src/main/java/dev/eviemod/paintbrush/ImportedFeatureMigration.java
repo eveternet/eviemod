@@ -148,7 +148,8 @@ final class ImportedFeatureMigration {
         }
         if (features.has("dungeons")) {
             var dungeons = object(features.get("dungeons"), "dungeons");
-            booleans(dungeons, "announceCrit", "announceCritPartyChat");
+            booleans(dungeons, "announceCrit", "announceCritPartyChat", "partyFinderAlert");
+            if (dungeons.has("partyFinderSubtitle")) string(dungeons.get("partyFinderSubtitle"), "partyFinderSubtitle");
             if (dungeons.has("announceCritTemplate")) string(dungeons.get("announceCritTemplate"), "announceCritTemplate");
         }
         if (features.has("skyblock")) {
