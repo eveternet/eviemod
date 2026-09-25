@@ -65,6 +65,14 @@ final class ImportedSettingsCategories {
                 () -> dev.eviemod.features.scoresync.ScoreSyncClient.available() && draft.features.skyblock.noammScoreSync,
                 value -> { draft.features.skyblock.noammScoreSync = value && dev.eviemod.features.scoresync.ScoreSyncClient.available(); draft.choose("skyblock.noammScoreSync"); }));
         }
+        category.group(OptionGroup.createBuilder().id(id("dungeons/party_finder")).name(text("Party Finder")).collapsed(false)
+            .option(toggle("dungeons/party_finder/enabled", "Party Full Alert", "Show a subtitle when your dungeon group fills.", false,
+                () -> values.partyFinderAlert, value -> { values.partyFinderAlert = value; draft.choose("dungeons.partyFinderAlert"); }))
+            .option(Option.<String>createBuilder().id(id("dungeons/party_finder/subtitle")).name(text("Subtitle"))
+                .binding(dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE, () -> values.partyFinderSubtitle,
+                    value -> { values.partyFinderSubtitle = value; draft.choose("dungeons.partyFinderSubtitle"); })
+                .controller(StringController.createBuilder().build()).build())
+            .build());
         category.group(OptionGroup.createBuilder().id(id("dungeons/announce_crit")).name(text("Announce Crit")).collapsed(false)
             .option(toggle("dungeons/announce_crit/enabled", "Announce Crit", "Announce average damage per enemy from Explosive Shot.", false,
                 () -> values.announceCrit, value -> { values.announceCrit = value; draft.choose("dungeons.announceCrit"); }))
