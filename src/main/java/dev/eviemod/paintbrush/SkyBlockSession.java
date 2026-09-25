@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.features.skyblock.SkyblockContext;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.azureaaron.hmapi.events.HypixelPacketEvents;
 import net.azureaaron.hmapi.network.HypixelNetworking;
@@ -21,18 +22,18 @@ final class SkyBlockSession {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> update(""));
     }
     static void update(String serverType) {
-        boolean next = "SKYBLOCK".equals(serverType);
+        boolean next = "SKYBLOCK".equals(serverType) && SkyblockContext.isHypixelServer(Minecraft.getInstance());
         if (next != skyblock) RarityBackgrounds.clear();
         skyblock = next;
         if (next) TexturePackBypasser.enteredSkyBlock();
     }
     static boolean active() {
         var client = Minecraft.getInstance();
-        return allowed(skyblock, FabricLoader.getInstance().isDevelopmentEnvironment(),
+        return allowed(skyblock, SkyblockContext.isHypixelServer(client), FabricLoader.getInstance().isDevelopmentEnvironment(),
             client.level == null || client.isLocalServer());
     }
-    static boolean allowed(boolean skyblock, boolean development, boolean localOrNoWorld) {
+    static boolean allowed(boolean skyblock, boolean hypixel, boolean development, boolean localOrNoWorld) {
         // Skyblocker permits its own local development fixtures; never a release bypass.
-        return skyblock || (development && localOrNoWorld);
+        return (skyblock && hypixel && !localOrNoWorld) || (development && localOrNoWorld);
     }
 }
