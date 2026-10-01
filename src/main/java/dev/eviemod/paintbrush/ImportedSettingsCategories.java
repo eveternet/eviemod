@@ -72,6 +72,23 @@ final class ImportedSettingsCategories {
                 .binding(dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE, () -> values.partyFinderSubtitle,
                     value -> { values.partyFinderSubtitle = value; draft.choose("dungeons.partyFinderSubtitle"); })
                 .controller(StringController.createBuilder().build()).build())
+            .option(toggle("dungeons/party_finder/sound_enabled", "Party Full Sound",
+                "Play a sound when your dungeon group fills.", false,
+                () -> values.partyFinderSound, value -> { values.partyFinderSound = value; draft.choose("dungeons.partyFinderSound"); }))
+            .option(Option.<String>createBuilder().id(id("dungeons/party_finder/sound_id")).name(text("Sound"))
+                .description(text("Sound ID, for example minecraft:block.note_block.pling. Unknown IDs are silent."))
+                .binding(dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SOUND, () -> values.partyFinderSoundId,
+                    value -> { values.partyFinderSoundId = value; draft.choose("dungeons.partyFinderSoundId"); })
+                .controller(StringController.createBuilder().build()).build())
+            .option(Option.<Float>createBuilder().id(id("dungeons/party_finder/sound_pitch")).name(text("Pitch"))
+                .binding(dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_PITCH, () -> values.partyFinderSoundPitch,
+                    value -> { values.partyFinderSoundPitch = value; draft.choose("dungeons.partyFinderSoundPitch"); })
+                .controller(FloatController.createBuilder().range(0.5F, 2.0F).slider(0.05F).build()).build())
+            .option(Option.<Float>createBuilder().id(id("dungeons/party_finder/sound_volume")).name(text("Volume"))
+                .description(text("0 is silent; 1 is full volume. Respects Minecraft's master volume."))
+                .binding(dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_VOLUME, () -> values.partyFinderSoundVolume,
+                    value -> { values.partyFinderSoundVolume = value; draft.choose("dungeons.partyFinderSoundVolume"); })
+                .controller(FloatController.createBuilder().range(0.0F, 1.0F).slider(0.05F).build()).build())
             .build());
         category.group(OptionGroup.createBuilder().id(id("dungeons/announce_crit")).name(text("Announce Crit")).collapsed(false)
             .option(toggle("dungeons/announce_crit/enabled", "Announce Crit", "Announce average damage per enemy from Explosive Shot.", false,

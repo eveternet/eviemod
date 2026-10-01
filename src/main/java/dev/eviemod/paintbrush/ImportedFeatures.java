@@ -12,6 +12,10 @@ public final class ImportedFeatures {
     public static final class Dungeons {
         public boolean partyFinderAlert = false;
         public String partyFinderSubtitle = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE;
+        public boolean partyFinderSound = false;
+        public String partyFinderSoundId = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SOUND;
+        public float partyFinderSoundVolume = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_VOLUME;
+        public float partyFinderSoundPitch = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_PITCH;
         public boolean announceCrit = false;
         public boolean announceCritPartyChat = false;
         public String announceCritTemplate = dev.eviemod.features.dungeons.AnnounceCrit.DEFAULT_TEMPLATE;

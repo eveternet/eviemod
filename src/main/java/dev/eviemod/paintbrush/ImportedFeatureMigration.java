@@ -148,8 +148,11 @@ final class ImportedFeatureMigration {
         }
         if (features.has("dungeons")) {
             var dungeons = object(features.get("dungeons"), "dungeons");
-            booleans(dungeons, "announceCrit", "announceCritPartyChat", "partyFinderAlert");
+            booleans(dungeons, "announceCrit", "announceCritPartyChat", "partyFinderAlert", "partyFinderSound");
             if (dungeons.has("partyFinderSubtitle")) string(dungeons.get("partyFinderSubtitle"), "partyFinderSubtitle");
+            if (dungeons.has("partyFinderSoundId")) string(dungeons.get("partyFinderSoundId"), "partyFinderSoundId");
+            if (dungeons.has("partyFinderSoundVolume")) number(dungeons.get("partyFinderSoundVolume"), "partyFinderSoundVolume", 0.0, 1.0);
+            if (dungeons.has("partyFinderSoundPitch")) number(dungeons.get("partyFinderSoundPitch"), "partyFinderSoundPitch", 0.5, 2.0);
             if (dungeons.has("announceCritTemplate")) string(dungeons.get("announceCritTemplate"), "announceCritTemplate");
         }
         if (features.has("skyblock")) {
@@ -175,6 +178,13 @@ final class ImportedFeatureMigration {
         if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) throw new IllegalArgumentException("Invalid integer: " + name);
         try { value.getAsBigDecimal().intValueExact(); }
         catch (ArithmeticException e) { throw new IllegalArgumentException("Invalid integer: " + name, e); }
+    }
+    private static void number(JsonElement value, String name, double minimum, double maximum) {
+        if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber())
+            throw new IllegalArgumentException("Invalid number: " + name);
+        double number = value.getAsDouble();
+        if (!Double.isFinite(number) || number < minimum || number > maximum)
+            throw new IllegalArgumentException("Invalid number: " + name);
     }
     private static void string(JsonElement value, String name) {
         if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw new IllegalArgumentException("Invalid string: " + name);
