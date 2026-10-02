@@ -17,7 +17,6 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.textures.TextureFormat;
 import java.nio.ByteBuffer;
-import net.fabricmc.loader.api.FabricLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,6 @@ public class MetalDevice implements GpuDeviceBackend {
     public MetalDevice(long window, ShaderSource defaultShaderSource) {
         Mtl.init(0); // Preflight without changing the window; attach only after success.
         if (Mtl.GPU_PROFILING) Mtl.setGpuProfiling(true);
-        ShaderTranslator.enableCache(FabricLoader.getInstance().getGameDir().resolve("eviemod-metal/shader-cache"));
         this.defaultShaderSource = defaultShaderSource;
         this.deviceName = Mtl.deviceName();
     }

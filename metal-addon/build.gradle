@@ -46,7 +46,11 @@ java {
 def headers = layout.buildDirectory.dir('generated/jni')
 tasks.withType(JavaCompile).configureEach { options.release = 25 }
 compileJava { options.headerOutputDirectory = headers }
-test { useJUnitPlatform() }
+test {
+    useJUnitPlatform()
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    testLogging { exceptionFormat = 'full' }
+}
 loom {
     runs.client {
         if (providers.gradleProperty('metal').isPresent()) property 'eviemod.metal', 'true'

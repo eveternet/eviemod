@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.EOFException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,7 +56,7 @@ final class ShaderCache {
         try (DataInputStream in = new DataInputStream(Files.newInputStream(file))) {
             return new ShaderTranslator.Result(readString(in), readString(in), readMap(in), readMap(in), readMap(in), readMap(in), readMap(in),
                     readMap(in), in.readInt());
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             EvieMetal.LOGGER.warn("Ignoring unreadable shader cache entry {}: {}", file, e.toString());
             return null;
         }
@@ -88,7 +89,11 @@ final class ShaderCache {
     }
 
     private static String readString(DataInputStream in) throws IOException {
-        return new String(in.readNBytes(in.readInt()), StandardCharsets.UTF_8);
+        int size = in.readInt();
+        if (size < 0 || size > 4 * 1024 * 1024) throw new IOException("Invalid shader cache string size");
+        byte[] bytes = in.readNBytes(size);
+        if (bytes.length != size) throw new EOFException("Truncated shader cache string");
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     private static void writeMap(DataOutputStream out, Map<String, Integer> map) throws IOException {
@@ -101,6 +106,7 @@ final class ShaderCache {
 
     private static Map<String, Integer> readMap(DataInputStream in) throws IOException {
         int n = in.readInt();
+        if (n < 0 || n > 4096) throw new IOException("Invalid shader cache resource count");
         Map<String, Integer> map = new HashMap<>(n);
         for (int i = 0; i < n; i++) map.put(readString(in), in.readInt());
         return map;

@@ -60,7 +60,8 @@ and fallback testing; CI only publishes the macOS addon as a distribution.
 CI runs Linux compilation/unit tests and a macOS native distribution build.
 Shader tests translate the actual 26.1.2 core/post shaders on both platforms
 and also compile the resulting MSL using Apple's compiler on macOS. Native
-smoke tests verify buffer/texture upload, clear/readback, fences, and teardown
+smoke tests verify buffer/texture upload, indexed triangle rendering,
+clear/readback, fences, and teardown
 without a window. A launch fixture verifies that the mixin applies and the
 disabled addon starts on vanilla OpenGL. These checks are not live gameplay
 or a performance benchmark.

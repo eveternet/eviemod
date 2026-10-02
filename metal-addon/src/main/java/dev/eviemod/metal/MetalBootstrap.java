@@ -29,6 +29,7 @@ public final class MetalBootstrap {
         try {
             NativeLoader.load();
             nativeLoaded = true;
+            ShaderTranslator.enableCache(loader.getGameDir().resolve("eviemod-metal/shader-cache"));
             device = new MetalDevice(window, shaders);
             // Exercise both translator natives and Apple's compiler before touching the Cocoa view.
             var test = ShaderTranslator.translate("startup", "#version 330\nvoid main(){gl_Position=vec4(0,0,0,1);}",
