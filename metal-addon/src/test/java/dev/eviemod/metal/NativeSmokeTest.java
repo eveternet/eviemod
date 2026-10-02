@@ -9,6 +9,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class NativeSmokeTest {
+    @Test void completedUploadsDoNotRetainEveryCommandBuffer() {
+        NativeLoader.load();
+        Mtl.init(0);
+        try {
+            for (int i = 0; i < 8; i++) copyAndRelease();
+            long baseline = Mtl.allocatedBytes();
+            for (int i = 0; i < 64; i++) copyAndRelease();
+            long growth = Mtl.allocatedBytes() - baseline;
+            System.out.println("Completed-upload allocation growth: " + growth + " bytes");
+            assertTrue(growth < 16L * 1024 * 1024, "Completed uploads retained " + growth + " bytes");
+        } finally { Mtl.shutdown(); }
+    }
+
+    private static void copyAndRelease() {
+        long source = Mtl.newBuffer(1024 * 1024), destination = Mtl.newBuffer(1024 * 1024);
+        try {
+            Mtl.copyBuffer(source, 0, destination, 0, 1024 * 1024);
+            assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+        } finally { Mtl.release(source); Mtl.release(destination); }
+    }
+
     @Test void clearUploadReadbackFenceAndCleanup() {
         NativeLoader.load();
         Mtl.init(0);

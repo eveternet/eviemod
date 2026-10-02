@@ -316,6 +316,13 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_release(JNIEnv*, jclass, j
     if (handle) CFRelease((CFTypeRef)(void*)handle);
 }
 
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_allocatedBytes(JNIEnv*, jclass) {
+    @autoreleasepool {
+        if (gLastCommand) [gLastCommand waitUntilCompleted];
+        return (jlong)gDevice.currentAllocatedSize;
+    }
+}
+
 // ---- Buffers ----------------------------------------------------------------
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newBuffer(JNIEnv*, jclass, jlong size) {

@@ -25,6 +25,9 @@ public final class Mtl {
     public static native int maxTextureSize();
     public static native void release(long handle);
 
+    /** Regression diagnostics: driver-reported resource bytes after submitted work completes. */
+    public static native long allocatedBytes();
+
     public static native long newBuffer(long size);
     public static native long bufferContents(long buffer);
     public static native void copyBuffer(long src, long srcOffset, long dst, long dstOffset, long length);
