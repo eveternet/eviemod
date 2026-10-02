@@ -22,6 +22,27 @@ class NativeSmokeTest {
         } finally { Mtl.shutdown(); }
     }
 
+    @Test void completedRenderPassesReleaseAttachments() {
+        NativeLoader.load(); Mtl.init(0);
+        try {
+            for (int i = 0; i < 8; i++) clearAndRelease();
+            long baseline = Mtl.allocatedBytes();
+            for (int i = 0; i < 64; i++) clearAndRelease();
+            long growth = Mtl.allocatedBytes() - baseline;
+            System.out.println("Completed-render allocation growth: " + growth + " bytes");
+            assertTrue(growth < 16L * 1024 * 1024, "Completed passes retained " + growth + " bytes");
+        } finally { Mtl.shutdown(); }
+    }
+
+    private static void clearAndRelease() {
+        long texture = Mtl.newTexture(0, 1024, 1024, 1, false, true, "memory-regression");
+        try {
+            Mtl.beginPass(texture, true, 1, 0, 0, 1, 0, false, 1);
+            Mtl.endPass();
+            assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+        } finally { Mtl.release(texture); }
+    }
+
     private static void copyAndRelease() {
         long source = Mtl.newBuffer(1024 * 1024), destination = Mtl.newBuffer(1024 * 1024);
         try {
