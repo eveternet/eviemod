@@ -44,6 +44,8 @@ jobs:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-15
     timeout-minutes: 15
+    env:
+      MTL_DEBUG_LAYER: '1'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-java@v5

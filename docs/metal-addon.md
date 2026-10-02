@@ -40,8 +40,8 @@ argument and restart. JVM/native driver crashes cannot be caught by Java.
 
 Initial support is vanilla Blaze3D plus eviemod. Sodium, Iris, VulkanMod,
 Metallum, MetalCraft, and MetalRender cause startup fallback. Other mods using
-raw OpenGL are unsupported. This is experimental: live rendering, resource
-packs, dimension changes, fullscreen, and resize still need Mac validation.
+raw OpenGL are unsupported. This is experimental: full gameplay, resource
+packs, dimension changes, fullscreen, and resize still need physical Mac validation.
 No FPS improvement is promised without measurements on the target hardware.
 
 ## Build and verification
@@ -58,14 +58,17 @@ are required on macOS. Gradle builds an arm64 dylib using the selected JDK's JNI
 headers. Linux builds deliberately produce a Java-only addon for compilation
 and fallback testing; CI only publishes the macOS addon as a distribution.
 
-CI runs Linux compilation/unit tests and a macOS native distribution build.
+CI runs Linux compilation/unit tests and a macOS native distribution build
+with Metal API validation enabled.
 Shader tests translate the actual 26.1.2 core/post shaders on both platforms
 and also compile the resulting MSL using Apple's compiler on macOS. Native
 smoke tests verify buffer/texture upload, indexed triangle rendering,
 clear/readback, fences, and teardown
 without a window. A launch fixture verifies that the mixin applies and the
 unsupported opt-in addon starts on vanilla OpenGL. A macOS launch fixture also
-requires an active Metal backend and a nonblank title-screen screenshot.
+requires an active Metal backend and a nonblank title-screen screenshot;
+that frame includes the 3D panorama, UI textures, and text. GitHub's Mac runner
+uses Apple's paravirtual Metal device, rather than a physical Mac's GPU.
 These checks are not live gameplay
 or a performance benchmark.
 
