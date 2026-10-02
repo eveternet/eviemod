@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import java.nio.file.Path;
 import java.io.IOException;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,22 +16,6 @@ abstract class FallbackLaunchMixin {
     private int readyFrames;
     private boolean requestedScreenshot;
     private final long smokeStart = System.nanoTime();
-    @Unique private final Thread metalWatchdog = startMetalWatchdog();
-
-    /** A native hang can prevent runTick from reaching its timeout check. CI must still exit with evidence. */
-    @Unique private static Thread startMetalWatchdog() {
-        if (!Boolean.getBoolean("eviemod.metal.smokeExpected")) return null;
-        return Thread.ofPlatform().daemon().name("metal-smoke-watchdog").start(() -> {
-            try { Thread.sleep(180_000); }
-            catch (InterruptedException e) { return; }
-            System.err.println("Metal launch/readback watchdog timed out");
-            Thread.getAllStackTraces().forEach((thread, trace) -> {
-                System.err.println(thread);
-                for (var frame : trace) System.err.println("    at " + frame);
-            });
-            Runtime.getRuntime().halt(1);
-        });
-    }
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
     private void verifyFallback(CallbackInfo ci) {

@@ -24,13 +24,14 @@ The backend implements Blaze3D buffers, textures, samplers, render passes,
 pipelines, fences, timer queries, readback, and presentation through native
 Metal. Minecraft GLSL is translated through shaderc/SPIRV-Cross to MSL; resource
 pack core shaders use the same path. No per-frame OpenGL drawing or CPU image
-copy is involved. An unused GLFW OpenGL context is retained solely to permit
-startup fallback.
+copy is involved. Metal uses a GLFW window with `GLFW_NO_API`; it does not
+require an OpenGL context.
 
 Platform/conflict checks run before loading native code. Disabled/unsupported
 launches keep vanilla behavior. Missing libraries, shader-toolchain failures,
-or native initialization failures log the reason and keep OpenGL. Native
-preflight completes before replacing the Cocoa view's layer.
+or native initialization failures log the reason and let Minecraft close the
+Metal window and retry with a fresh OpenGL window. Native preflight completes
+before attaching the Cocoa view's layer.
 
 After Metal resources exist, switching those resources to OpenGL mid-frame is
 not supported. Pipeline compilation failures throw a clear error; asynchronous
@@ -63,7 +64,9 @@ and also compile the resulting MSL using Apple's compiler on macOS. Native
 smoke tests verify buffer/texture upload, indexed triangle rendering,
 clear/readback, fences, and teardown
 without a window. A launch fixture verifies that the mixin applies and the
-disabled addon starts on vanilla OpenGL. These checks are not live gameplay
+unsupported opt-in addon starts on vanilla OpenGL. A macOS launch fixture also
+requires an active Metal backend and a nonblank title-screen screenshot.
+These checks are not live gameplay
 or a performance benchmark.
 
 Before calling the renderer verified, test on Apple Silicon with Metal API
@@ -74,5 +77,8 @@ startup fallback with the opt-in absent and with Sodium installed.
 
 The implementation is a pinned port of MetalCraft's core; see
 [the addon notice](../metal-addon/NOTICE.md) and its GPL license. The sole mixin
-targets `GlBackend.createDevice` in 26.1.2. Keep future API changes at that
-boundary and in the backend adapters.
+prepends a `GpuBackend` to Minecraft's ordered backend candidates in 26.1.2.
+The backend uses vanilla's window cleanup/retry loop; its `createDevice` bridge
+preserves `BackendCreationException` despite the interface omitting a checked
+throws declaration. Keep future API changes at that boundary and in the
+backend adapters.

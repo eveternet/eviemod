@@ -3,6 +3,7 @@ package dev.eviemod.metal;
 
 import com.mojang.blaze3d.shaders.ShaderSource;
 import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.systems.GpuBackend;
 import dev.eviemod.metal.device.MetalDevice;
 import dev.eviemod.metal.mtl.Mtl;
 import dev.eviemod.metal.shader.ShaderTranslator;
@@ -13,8 +14,8 @@ import net.fabricmc.loader.api.FabricLoader;
 public final class MetalBootstrap {
     private MetalBootstrap() {}
 
-    /** Null means leave device creation entirely to vanilla. No native access before policy checks. */
-    public static GpuDevice tryCreate(long window, ShaderSource shaders) {
+    /** Policy runs before window creation or native loading; vanilla's candidates remain available for retry. */
+    public static GpuBackend[] selectBackends(GpuBackend[] defaults) {
         var loader = FabricLoader.getInstance();
         String reason = MetalSupport.unavailableReason(Boolean.getBoolean("eviemod.metal"),
                 System.getProperty("os.name", ""), System.getProperty("os.arch", ""),
@@ -22,8 +23,17 @@ public final class MetalBootstrap {
                 loader.getAllMods().stream().map(m -> m.getMetadata().getId()).collect(Collectors.toSet()));
         if (reason != null) {
             EvieMetal.LOGGER.info("Using OpenGL: {}", reason);
-            return null;
+            return defaults;
         }
+        GpuBackend[] backends = new GpuBackend[defaults.length + 1];
+        backends[0] = new MetalBackend();
+        System.arraycopy(defaults, 0, backends, 1, defaults.length);
+        return backends;
+    }
+
+    /** Null asks MetalBackend to enter vanilla's window cleanup and backend retry path. */
+    static GpuDevice tryCreate(long window, ShaderSource shaders) {
+        var loader = FabricLoader.getInstance();
         boolean nativeLoaded = false;
         MetalDevice device = null;
         try {

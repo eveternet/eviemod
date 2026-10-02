@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "dev.eviemod.metal.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["GlBackendMixin"],
+  "client": ["MinecraftBackendMixin"],
   "injectors": {"defaultRequire": 1}
 }
