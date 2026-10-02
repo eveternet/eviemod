@@ -7,6 +7,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.CompiledRenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.shaders.ShaderSource;
+import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.blaze3d.systems.CommandEncoderBackend;
 import com.mojang.blaze3d.systems.GpuDeviceBackend;
 import com.mojang.blaze3d.textures.AddressMode;
@@ -24,6 +25,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFWNativeCocoa;
 import org.lwjgl.system.MemoryUtil;
+import net.minecraft.resources.Identifier;
 
 public class MetalDevice implements GpuDeviceBackend {
     private static final int MAX_ANISOTROPY = 16;
@@ -33,6 +35,8 @@ public class MetalDevice implements GpuDeviceBackend {
     private final ShaderSource defaultShaderSource;
     private final MetalCommandEncoder encoder = new MetalCommandEncoder(this);
     private final Map<RenderPipeline, MetalPipeline> pipelines = new HashMap<>();
+    private record ShaderKey(Identifier id, ShaderType type) {}
+    private final Map<ShaderKey, String> shaderSources = new HashMap<>();
     private final String deviceName;
 
     public MetalDevice(long window, ShaderSource defaultShaderSource) {
@@ -152,17 +156,29 @@ public class MetalDevice implements GpuDeviceBackend {
     @Override
     public CompiledRenderPipeline precompilePipeline(RenderPipeline pipeline, @Nullable ShaderSource source) {
         ShaderSource src = source != null ? source : defaultShaderSource;
-        return pipelines.computeIfAbsent(pipeline, p -> MetalPipeline.compile(p, src));
+        return pipelines.computeIfAbsent(pipeline, p -> MetalPipeline.compile(p, remembering(src)));
     }
 
     MetalPipeline getOrCompilePipeline(RenderPipeline pipeline) {
-        return pipelines.computeIfAbsent(pipeline, p -> MetalPipeline.compile(p, defaultShaderSource));
+        return pipelines.computeIfAbsent(pipeline, p -> MetalPipeline.compile(p, remembering(defaultShaderSource)));
+    }
+
+    // Minecraft preloads UI shaders through one pipeline before its default resource provider is ready.
+    // Other pipelines (such as the loading logo) reuse those stages, like vanilla's shader-module cache.
+    private ShaderSource remembering(ShaderSource preferred) {
+        return (id, type) -> {
+            var key = new ShaderKey(id, type);
+            String source = preferred.get(id, type);
+            if (source != null) shaderSources.put(key, source);
+            return source != null ? source : shaderSources.get(key);
+        };
     }
 
     @Override
     public void clearPipelineCache() {
         pipelines.values().forEach(MetalPipeline::close);
         pipelines.clear();
+        shaderSources.clear();
     }
 
     @Override

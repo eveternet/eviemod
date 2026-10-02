@@ -40,6 +40,8 @@ jobs:
           if-no-files-found: error
 
   metal:
+    # Branch compilation runs on every push; avoid duplicate Mac jobs for the same open PR.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-15
     timeout-minutes: 15
     steps:

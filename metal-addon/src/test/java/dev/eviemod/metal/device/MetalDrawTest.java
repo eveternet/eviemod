@@ -3,6 +3,7 @@ package dev.eviemod.metal.device;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.shaders.ShaderType;
+import com.mojang.blaze3d.shaders.ShaderSource;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.TextureFormat;
@@ -25,9 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class MetalDrawTest {
     @Test void indexedBaseVertexMissingAttributeAndMergedClear() {
         NativeLoader.load();
-        var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX
+        ShaderSource startupSource = (id, type) -> type == ShaderType.VERTEX
                 ? "#version 330\nin vec3 Position; in vec3 Normal; void main(){gl_Position=vec4(Position+Normal,1);}"
-                : "#version 330\nout vec4 color; void main(){color=vec4(0,1,0,1);}");
+                : "#version 330\nout vec4 color; void main(){color=vec4(0,1,0,1);}";
+        var device = new MetalDevice(0, (id, type) -> null);
         long readback = 0;
         ByteBuffer vertices = MemoryUtil.memAlloc(72), indices = MemoryUtil.memAlloc(12);
         try {
@@ -43,6 +45,12 @@ class MetalDrawTest {
                     .withVertexShader(id).withFragmentShader(id)
                     .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
                     .withCull(false).withDepthStencilState(Optional.empty()).build();
+            // UI preload supplies shaders on a different pipeline while the default provider is empty.
+            var preload = RenderPipeline.builder().withLocation(Identifier.fromNamespaceAndPath("eviemod_metal", "preload"))
+                    .withVertexShader(id).withFragmentShader(id)
+                    .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
+                    .withCull(false).withDepthStencilState(Optional.empty()).build();
+            device.precompilePipeline(preload, startupSource);
             try (var vb = device.createBuffer(() -> "vertices", GpuBuffer.USAGE_VERTEX, vertices);
                  var ib = device.createBuffer(() -> "indices", GpuBuffer.USAGE_INDEX, indices);
                  var texture = device.createTexture("smoke", GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC,
@@ -76,6 +84,9 @@ class MetalDrawTest {
                 assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(address)));
                 assertEquals(0, MemoryUtil.memGetByte(address + 1));
                 Mtl.checkError();
+                device.clearPipelineCache();
+                assertThrows(IllegalStateException.class, () -> device.precompilePipeline(pipeline, null),
+                        "Resource reload must invalidate previously supplied shader sources");
             }
         } finally {
             MemoryUtil.memFree(vertices); MemoryUtil.memFree(indices);
