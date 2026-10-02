@@ -1,0 +1,97 @@
+plugins {
+    id 'net.fabricmc.fabric-loom'
+}
+
+group = 'dev.eviemod'
+version = '0.1.0.0'
+base.archivesName = 'eviemod-metal'
+
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'com.mojang:minecraft:26.1.2'
+    implementation 'net.fabricmc:fabric-loader:0.19.5'
+    // Match the LWJGL ABI shipped by Minecraft 26.1.2.
+    ['lwjgl-shaderc', 'lwjgl-spvc'].each { module ->
+        include implementation("org.lwjgl:${module}:3.4.1")
+        include runtimeOnly("org.lwjgl:${module}:3.4.1:natives-macos-arm64")
+        testRuntimeOnly "org.lwjgl:${module}:3.4.1:natives-linux"
+    }
+    testRuntimeOnly 'org.lwjgl:lwjgl:3.4.1:natives-linux'
+    testRuntimeOnly 'org.lwjgl:lwjgl:3.4.1:natives-macos-arm64'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+if (providers.gradleProperty('metalSmokeTest').isPresent()) {
+    sourceSets {
+        smokeTest {
+            compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+        }
+    }
+    loom.mods {
+        eviemod_metal { sourceSet sourceSets.main }
+        eviemod_metal_smoke { sourceSet sourceSets.smokeTest }
+    }
+    tasks.named('runClient') {
+        dependsOn tasks.named('smokeTestClasses')
+        classpath += sourceSets.smokeTest.runtimeClasspath
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+def headers = layout.buildDirectory.dir('generated/jni')
+tasks.withType(JavaCompile).configureEach { options.release = 25 }
+compileJava { options.headerOutputDirectory = headers }
+test { useJUnitPlatform() }
+loom {
+    runs.client {
+        if (providers.gradleProperty('metal').isPresent()) property 'eviemod.metal', 'true'
+    }
+}
+
+def isMac = System.getProperty('os.name').toLowerCase(Locale.ROOT).startsWith('mac')
+def nativeLibrary = layout.buildDirectory.file('native/libeviemod_metal.dylib')
+def compilerHome = javaToolchains.compilerFor(java.toolchain).map { it.metadata.installationPath }
+def buildNative = tasks.register('buildNative', Exec) {
+    dependsOn compileJava
+    onlyIf { isMac }
+    inputs.files(fileTree('src/main/native'), headers)
+    inputs.property 'compilerHome', compilerHome.map { it.asFile.absolutePath }
+    outputs.file nativeLibrary
+    def output = nativeLibrary.get().asFile
+    def headerDir = headers.get().asFile
+    def source = file('src/main/native/eviemod_metal.mm')
+    doFirst {
+        output.parentFile.mkdirs()
+        commandLine 'xcrun', 'clang++', '-std=c++20', '-fobjc-arc', '-O2',
+            '-arch', 'arm64', '-mmacosx-version-min=14.0', '-dynamiclib',
+            '-framework', 'Metal', '-framework', 'QuartzCore', '-framework', 'Cocoa',
+            "-I${compilerHome.get()}/include", "-I${compilerHome.get()}/include/darwin",
+            "-I${headerDir}", '-o', output.absolutePath, source.absolutePath
+    }
+}
+processResources {
+    dependsOn buildNative
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+    if (isMac) from(nativeLibrary) { into 'natives' }
+}
+jar { from('LICENSE'); from('NOTICE.md') }
+sourcesJar { from('src/main/native') { into 'native' }; from('LICENSE'); from('NOTICE.md') }
+// Distribution builds must contain the arm64 library; Linux builds exercise Java and fallback only.
+tasks.register('verifyDistribution') {
+    dependsOn jar
+    def archive = jar.archiveFile
+    doLast {
+        def zip = new java.util.zip.ZipFile(archive.get().asFile)
+        try {
+            if (zip.getEntry('natives/libeviemod_metal.dylib') == null) {
+                throw new GradleException('Build the distributable Metal addon on macOS (arm64 native missing).')
+            }
+        } finally { zip.close() }
+    }
+}
