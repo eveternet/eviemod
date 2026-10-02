@@ -45,6 +45,8 @@ All JNI entry points now have lexical autorelease pools. Strong context fields a
 
 ## Verification and limits
 
+The final macOS build and distribution check passed; all **14 tests** passed with `MTL_DEBUG_LAYER=1` and none were skipped. The actual Minecraft launch fixture also passed on the M3 Pro: Metal initialized, rendered the title-screen panorama/UI/text, saved a nonblank screenshot through GPU readback, printed `EVIEMOD_METAL_FRAME_OK`, and exited successfully. This was a short title-screen check, not sustained world gameplay.
+
 Regression coverage includes completed attachment release, completed buffer copies, mixed-size staging, the staging submission budget with GPU readback of every copied value, queued reads across buffer orphaning, repeated context/profiling teardown, existing indexed drawing and partial clears, shader translation/compilation, and shader-cache invalidation.
 
 The native build uses the SDK bundled with Xcode explicitly on this machine because the selected compiler and the default Command Line Tools SDK have different versions. This is a local build-environment override, not a source change.

@@ -44,6 +44,9 @@ raw OpenGL are unsupported. This is experimental: full gameplay, resource
 packs, dimension changes, fullscreen, and resize still need physical Mac validation.
 No FPS improvement is promised without measurements on the target hardware.
 
+Memory-lifetime findings and the 0.1.0.1 regression results are in the
+[Metal memory audit](metal-memory-audit.md).
+
 ## Build and verification
 
 ```sh
