@@ -3,7 +3,6 @@
 package dev.eviemod.metal.device;
 
 import dev.eviemod.metal.mtl.Mtl;
-import dev.eviemod.metal.shader.ShaderTranslator;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.CompiledRenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderPipeline;

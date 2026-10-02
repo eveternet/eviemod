@@ -21,6 +21,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Build
         run: ./gradlew build
+      - name: Verify independently loadable artifacts
+        run: python3 .github/scripts/verify-metal-artifacts.py
       - name: Verify addon launches with OpenGL on an unsupported host
         run: |
           xvfb-run -a ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal > metal-smoke.log 2>&1
