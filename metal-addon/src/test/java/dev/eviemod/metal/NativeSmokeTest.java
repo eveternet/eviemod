@@ -51,6 +51,26 @@ class NativeSmokeTest {
         } finally { Mtl.release(source); Mtl.release(destination); }
     }
 
+    @Test void repeatedContextsResetFencesAndProfiling() {
+        NativeLoader.load();
+        for (int cycle = 0; cycle < 3; cycle++) {
+            Mtl.init(0);
+            long texture = 0;
+            try {
+                assertEquals(1, Mtl.fence());
+                assertEquals("", Mtl.takeGpuProfile());
+                Mtl.setGpuProfiling(true);
+                Mtl.setPassLabel("lifecycle-" + cycle);
+                texture = Mtl.newTexture(0, 1, 1, 1, false, true, "lifecycle");
+                Mtl.clearRegion(texture, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1);
+                assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+                Mtl.allocatedBytes(); // Wait for completion handlers before checking teardown.
+                Mtl.checkError();
+            } finally { Mtl.release(texture); Mtl.shutdown(); }
+            assertEquals("", Mtl.takeGpuProfile());
+        }
+    }
+
     @Test void clearUploadReadbackFenceAndCleanup() {
         NativeLoader.load();
         Mtl.init(0);

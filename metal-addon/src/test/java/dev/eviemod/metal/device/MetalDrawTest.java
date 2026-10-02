@@ -24,6 +24,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class MetalDrawTest {
+    @Test void orphanedBuffersSurviveQueuedReadsAndThenRelease() {
+        NativeLoader.load(); Mtl.init(0);
+        long readback = Mtl.newBuffer(256);
+        ByteBuffer source = MemoryUtil.memAlloc(4);
+        try (var buffer = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 256)) {
+            for (int i = 0; i < 32; i++) {
+                source.putInt(0, i);
+                assertTrue(buffer.tryOrphanWrite(0, MemoryUtil.memAddress(source), 4));
+                Mtl.copyBuffer(buffer.handle, 0, readback, i * 4L, 4);
+            }
+            assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+            for (int i = 0; i < 32; i++) assertEquals(i, MemoryUtil.memGetInt(Mtl.bufferContents(readback) + i * 4L));
+            Mtl.checkError();
+        } finally { Mtl.release(readback); MemoryUtil.memFree(source); Mtl.shutdown(); }
+    }
+
     @Test void indexedBaseVertexMissingAttributeAndMergedClear() {
         NativeLoader.load();
         ShaderSource startupSource = (id, type) -> type == ShaderType.VERTEX
