@@ -10,3 +10,7 @@ A client-side Fabric mod for Hypixel SkyBlock on Minecraft 26.1.2, with item cus
 - **Dungeons:** Noamm score sync and customizable Explosive Shot damage announcements, locally or in party chat.
 - **Chat commands:** warp, coordinates, invite, kick, party transfer, ping, TPS, and FPS, individually configurable for party, guild, and co-op chat.
 - **Command hotkeys:** custom key bindings for commands.
+
+## Building
+
+With Java 25 installed, run `./gradlew build`. The mod JAR is written to `build/libs/`.
