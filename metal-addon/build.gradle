@@ -76,8 +76,9 @@ def buildNative = tasks.register('buildNative', Exec) {
 }
 processResources {
     dependsOn buildNative
-    inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') { expand version: project.version }
+    def addonVersion = project.version
+    inputs.property 'version', addonVersion
+    filesMatching('fabric.mod.json') { expand version: addonVersion }
     if (isMac) from(nativeLibrary) { into 'natives' }
 }
 jar { from('LICENSE'); from('NOTICE.md') }

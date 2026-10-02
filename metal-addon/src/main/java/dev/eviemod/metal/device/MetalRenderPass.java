@@ -126,7 +126,7 @@ public class MetalRenderPass implements RenderPassBackend {
             if (draw.uniformUploaderConsumer() != null) draw.uniformUploaderConsumer().accept(context, uniforms::put);
             if (!setup()) return;
             GpuBuffer ib = draw.indexBuffer() != null ? draw.indexBuffer() : defaultIndexBuffer;
-            drawIndexed(ib, draw.indexType() != null ? draw.indexType() : fallbackType, 0, draw.firstIndex(), draw.indexCount(), 1);
+            drawIndexed(ib, draw.indexType() != null ? draw.indexType() : fallbackType, draw.baseVertex(), draw.firstIndex(), draw.indexCount(), 1);
         }
     }
 
@@ -155,6 +155,12 @@ public class MetalRenderPass implements RenderPassBackend {
     private static long fanIndices;
     private static int fanCapacity;
 
+    static void closeSharedBuffers() {
+        Mtl.release(fanIndices);
+        fanIndices = 0;
+        fanCapacity = 0;
+    }
+
     /**
      * Triangle-list indices for a fan of {@code count} consecutive vertices. The list for n vertices is a prefix of the
      * list for any larger n, so one shared buffer, grown on demand, serves every size (the sky draws fans each frame).
@@ -163,6 +169,7 @@ public class MetalRenderPass implements RenderPassBackend {
         if (count > fanCapacity) {
             int capacity = Math.max(count, 64);
             long buffer = Mtl.newBuffer((capacity - 2) * 12L);
+            if (buffer == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Metal fan buffer allocation failed");
             long p = Mtl.bufferContents(buffer);
             for (int i = 0; i < capacity - 2; i++) {
                 MemoryUtil.memPutInt(p + i * 12L, 0);
@@ -182,6 +189,7 @@ public class MetalRenderPass implements RenderPassBackend {
         if (count < 3) return;
         int triangles = count - 2;
         long buffer = Mtl.newBuffer(triangles * 12L);
+        if (buffer == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Metal fan buffer allocation failed");
         long p = Mtl.bufferContents(buffer);
         for (int i = 0; i < triangles; i++) {
             MemoryUtil.memPutInt(p + i * 12L, index.applyAsInt(0));

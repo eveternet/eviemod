@@ -189,6 +189,7 @@ public class MetalDevice implements GpuDeviceBackend {
     public void close() {
         clearPipelineCache();
         encoder.close();
+        MetalRenderPass.closeSharedBuffers();
         UploadRing.close();
         Mtl.shutdown();
     }

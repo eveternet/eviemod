@@ -197,7 +197,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
     /** Matches Blaze3D's GL attribute setup: COLOR/NORMAL normalized, integer UVs stay integer, everything else float. */
     private static int vertexFormat(VertexFormatElement e) {
         int n = e.count() - 1;
-        boolean normalized = e.usage() == VertexFormatElement.Usage.COLOR || e.usage() == VertexFormatElement.Usage.NORMAL;
+        boolean normalized = e.normalized();
         return switch (e.type()) {
             case FLOAT -> 28 + n;
             case UBYTE -> (normalized ? new int[]{47, 7, 8, 9} : new int[]{45, 1, 2, 3})[n];

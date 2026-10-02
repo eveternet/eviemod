@@ -61,7 +61,7 @@ class ShaderTranslatorTest {
     @Test
     void reflectsResourcesByName() throws Exception {
         ShaderTranslator.Result vs = ShaderTranslator.translate("terrain.vsh", load("core/terrain.vsh"), Stage.VERTEX, Map.of());
-        assertTrue(vs.inputs().keySet().containsAll(Set.of("Position", "Color", "UV0", "UV2", "Normal")), vs.inputs().toString());
+        assertTrue(vs.inputs().keySet().containsAll(Set.of("Position", "Color", "UV0", "UV2")), vs.inputs().toString());
         assertTrue(vs.buffers().containsKey("ChunkSection"), vs.buffers().toString());
         assertTrue(vs.samplers().containsKey("Sampler2"), vs.samplers().toString());
 

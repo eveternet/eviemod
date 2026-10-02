@@ -48,7 +48,7 @@ No FPS improvement is promised without measurements on the target hardware.
 ```sh
 ./gradlew build                                  # main mod + addon Java/tests
 ./gradlew :metal-addon:verifyDistribution         # requires macOS native
-./gradlew :metal-addon:runClient -Deviemod.metal=true
+./gradlew :metal-addon:runClient -Pmetal
 ```
 
 For development, pass the JVM opt-in directly to the Gradle run task using
