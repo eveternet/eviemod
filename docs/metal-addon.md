@@ -1,6 +1,6 @@
 # Experimental Metal addon
 
-`eviemod-metal-0.1.0.0.jar` is a separately loadable Fabric addon for Minecraft
+`eviemod-metal-0.1.0.1.jar` is a separately loadable Fabric addon for Minecraft
 26.1.2. The main eviemod JAR neither includes nor requires it. The addon also
 works without eviemod; Fabric Loader is its only mod dependency.
 

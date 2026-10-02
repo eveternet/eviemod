@@ -191,14 +191,15 @@ public class MetalRenderPass implements RenderPassBackend {
         int triangles = count - 2;
         long buffer = Mtl.newBuffer(triangles * 12L);
         if (buffer == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Metal fan buffer allocation failed");
-        long p = Mtl.bufferContents(buffer);
-        for (int i = 0; i < triangles; i++) {
-            MemoryUtil.memPutInt(p + i * 12L, index.applyAsInt(0));
-            MemoryUtil.memPutInt(p + i * 12L + 4, index.applyAsInt(i + 1));
-            MemoryUtil.memPutInt(p + i * 12L + 8, index.applyAsInt(i + 2));
-        }
-        Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, triangles * 3, true, buffer, 0, instances, baseVertex);
-        Mtl.release(buffer);
+        try {
+            long p = Mtl.bufferContents(buffer);
+            for (int i = 0; i < triangles; i++) {
+                MemoryUtil.memPutInt(p + i * 12L, index.applyAsInt(0));
+                MemoryUtil.memPutInt(p + i * 12L + 4, index.applyAsInt(i + 1));
+                MemoryUtil.memPutInt(p + i * 12L + 8, index.applyAsInt(i + 2));
+            }
+            Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, triangles * 3, true, buffer, 0, instances, baseVertex);
+        } finally { Mtl.release(buffer); }
     }
 
     /** Binds pipeline state and every resource the pipeline's shaders reference. Returns false (skip the draw) for invalid pipelines, like GL does. */

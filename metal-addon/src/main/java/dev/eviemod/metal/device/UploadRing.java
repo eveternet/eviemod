@@ -48,18 +48,48 @@ public final class UploadRing {
         return new Slice(chunk.handle, offset, chunk.contents + offset);
     }
 
-    private static Chunk chunkWithRoom(long length) {
-        if (current != null && current.offset + length <= current.capacity) return current;
-        if (current != null) RETIRED.addLast(current);
-        Chunk oldest = RETIRED.peekFirst();
-        if (oldest != null && oldest.capacity >= length && oldest.lastUse <= Mtl.completedFence()) {
-            RETIRED.removeFirst();
-            oldest.offset = 0;
-            current = oldest;
-        } else {
-            // ponytail: chunks are never freed; steady state is ~3 frames of uploads. Trim RETIRED if memory matters.
-            current = new Chunk(Math.max(CHUNK_SIZE, length));
+    // Bound queued staging allocations. A single larger upload is allowed, then reclaimed once complete.
+    private static final long BUDGET = 64L << 20;
+
+    static long retainedBytes() {
+        long bytes = current == null ? 0 : current.capacity;
+        for (Chunk chunk : RETIRED) bytes += chunk.capacity;
+        return bytes;
+    }
+
+    /** Called after presentation as well as allocation, so a loading spike can shrink during quiet frames. */
+    static void trimCompleted() {
+        long completed = Mtl.completedFence();
+        var it = RETIRED.iterator();
+        while (it.hasNext()) {
+            Chunk chunk = it.next();
+            if (chunk.lastUse <= completed) { Mtl.release(chunk.handle); it.remove(); }
         }
-        return current;
+        if (current != null && current.lastUse <= completed) {
+            if (current.capacity > CHUNK_SIZE) { Mtl.release(current.handle); current = null; }
+            else current.offset = 0;
+        }
+    }
+
+    private static Chunk chunkWithRoom(long length) {
+        if (length <= 0 || length > Long.MAX_VALUE - ALIGNMENT) throw new IllegalArgumentException("Invalid upload size");
+        if (current != null && length <= current.capacity - current.offset) return current;
+        // Reclaim every completed chunk, not just the oldest: a small oldest chunk used to prevent all reuse.
+        trimCompleted();
+        if (current != null && length <= current.capacity - current.offset) return current;
+        long capacity = Math.max(CHUNK_SIZE, length);
+        if (retainedBytes() > Math.max(0, BUDGET - capacity)) {
+            // reserve() is used outside render passes. Submit and wait before creating more staging storage.
+            if (!Mtl.fenceWait(Mtl.fence(), 5000)) {
+                throw new IllegalStateException("Metal upload queue stalled; refusing unbounded staging allocation");
+            }
+            trimCompleted();
+            if (current != null && length <= current.capacity - current.offset) return current;
+        }
+        // Allocate before changing ownership, so allocation failure leaves the old chunk tracked exactly once.
+        Chunk next = new Chunk(capacity);
+        if (current != null) RETIRED.addLast(current);
+        current = next;
+        return next;
     }
 }

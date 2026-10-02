@@ -26,8 +26,9 @@ public class MetalBuffer extends GpuBuffer {
 
     private void allocate() {
         // MSL rounds uniform structs up to their 16-byte alignment, while std140 sizes from Blaze3D are exact.
-        handle = Mtl.newBuffer((size() + 15) & ~15L);
-        if (handle == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Could not allocate buffer of " + size());
+        long next = Mtl.newBuffer((size() + 15) & ~15L);
+        if (next == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Could not allocate buffer of " + size());
+        handle = next;
         contents = Mtl.bufferContents(handle);
     }
 

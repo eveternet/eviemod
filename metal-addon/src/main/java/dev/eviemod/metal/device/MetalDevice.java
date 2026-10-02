@@ -38,6 +38,7 @@ public class MetalDevice implements GpuDeviceBackend {
     private record ShaderKey(Identifier id, ShaderType type) {}
     private final Map<ShaderKey, String> shaderSources = new HashMap<>();
     private final String deviceName;
+    private boolean closed;
 
     public MetalDevice(long window, ShaderSource defaultShaderSource) {
         Mtl.init(0); // Preflight without changing the window; attach only after success.
@@ -200,6 +201,8 @@ public class MetalDevice implements GpuDeviceBackend {
 
     @Override
     public void close() {
+        if (closed) return;
+        closed = true;
         clearPipelineCache();
         encoder.close();
         MetalRenderPass.closeSharedBuffers();

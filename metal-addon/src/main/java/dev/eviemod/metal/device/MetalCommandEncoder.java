@@ -108,6 +108,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     public void writeToBuffer(GpuBufferSlice slice, ByteBuffer data) {
         assertNoRenderPass();
         int length = data.remaining();
+        if (length == 0) return;
         if (length > slice.length()) throw new IllegalArgumentException("Cannot write more data than the slice allows (attempting to write " + length + " bytes into a slice of length " + slice.length() + ")");
         MetalBuffer buffer = (MetalBuffer) slice.buffer();
         // Orphaning keeps writes out of blit encoders, which would split the surrounding render passes.
@@ -236,6 +237,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         assertNoRenderPass();
         if (!view.texture().getFormat().hasColorAspect()) throw new IllegalStateException("Cannot present a non-color texture!");
         Mtl.present(handle(view.texture()));
+        UploadRing.trimCompleted();
     }
 
     @Override

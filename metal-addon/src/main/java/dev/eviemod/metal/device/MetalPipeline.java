@@ -27,6 +27,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
     final ShaderTranslator.@Nullable Result vertex;
     final ShaderTranslator.@Nullable Result fragment;
     private final long vertexFn, fragmentFn;
+    private boolean closed;
     final long depthState;
     final int primitive;
     final int cull;
@@ -39,11 +40,12 @@ public class MetalPipeline implements CompiledRenderPipeline {
         this.fragment = fragment;
         this.vertexFn = vertexFn;
         this.fragmentFn = fragmentFn;
+        this.primitive = primitive(info.getVertexFormatMode());
+        this.cull = info.isCull() ? Mtl.CULL_BACK : Mtl.CULL_NONE;
         var depth = info.getDepthStencilState();
         this.depthState = Mtl.newDepthStencilState(depth == null ? Mtl.COMPARE_ALWAYS : compare(depth.depthTest()),
                 depth != null && depth.writeDepth());
-        this.primitive = primitive(info.getVertexFormatMode());
-        this.cull = info.isCull() ? Mtl.CULL_BACK : Mtl.CULL_NONE;
+        if (depthState == 0) throw new IllegalStateException("Metal depth state allocation failed");
     }
 
     static MetalPipeline compile(RenderPipeline info, ShaderSource source) {
@@ -64,7 +66,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
             try {
                 fragmentFn = function(fs);
                 return new MetalPipeline(info, vs, fs, vertexFn, fragmentFn);
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | Error e) {
                 Mtl.release(vertexFn);
                 Mtl.release(fragmentFn);
                 throw e;
@@ -84,7 +86,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
 
     @Override
     public boolean isValid() {
-        return vertexFn != 0;
+        return !closed && vertexFn != 0;
     }
 
     /** Pipeline state for a pass with the given color format ordinal and depth format ordinal (-1 = no depth). */
@@ -143,6 +145,8 @@ public class MetalPipeline implements CompiledRenderPipeline {
     }
 
     void close() {
+        if (closed) return;
+        closed = true;
         for (long pso : variants.values()) Mtl.release(pso);
         variants.clear();
         Mtl.release(vertexFn);

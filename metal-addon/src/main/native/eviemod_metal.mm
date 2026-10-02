@@ -2,7 +2,9 @@
 // Derived from Im-Fran/MetalCraft, commit a2cc82780d01a51d00a297f75cf07c221d7c8700.
 // EvieMetal native layer: a thin JNI veneer over Metal.
 // Metal objects cross into Java as retained pointers (jlong) and are released with Mtl.release().
-// All calls happen on Minecraft's render thread (the macOS main thread), so state below is unsynchronized.
+// JNI calls run on the render thread; drawable/completion callbacks use the locks below.
+// Every JNI entry owns a local autorelease pool: a pool in present() cannot drain objects
+// created by earlier JNI calls. Retained handles and strong context fields survive these pools.
 
 #import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
@@ -39,12 +41,15 @@ static const uint64_t kHistorySize = 1024;
 static struct { uint64_t fence; double seconds; } gHistory[kHistorySize];
 static std::mutex gHistoryLock;
 static const int kFramesInFlight = 3;
+static uint64_t gFrameFence[kFramesInFlight];
+static int gFrame;
 static id<MTLBlitCommandEncoder> gBlit;
 static id<MTLRenderCommandEncoder> gRender;
 static id<MTLRenderPipelineState> gPresentPipeline;
 static id<MTLSamplerState> gPresentSampler;
 static id<MTLLibrary> gBuiltins;
 static id<MTLDepthStencilState> gClearDepthState;
+static NSMutableDictionary<NSNumber*, id<MTLRenderPipelineState>>* gClearPipelines;
 
 static const char* kPresentShader = R"(
 #include <metal_stdlib>
@@ -121,7 +126,7 @@ static void profilePass(MTLRenderPassDescriptor* d, NSString* label) {
 static void profileMerge(NSString* label) {
     if (!gProfile || !gSampleLabels.count || !label) return;
     NSMutableString* current = gSampleLabels.lastObject;
-    if (![current containsString:label]) [current appendFormat:@" + %@", label];
+    if (current.length < 1024 && ![current containsString:label]) [current appendFormat:@" + %@", label];
 }
 
 static void endRender() {
@@ -145,32 +150,36 @@ static void commit() {
     gSamples = nil;
     gSampleLabels = nil;
     [gCmd addCompletedHandler:^(id<MTLCommandBuffer> cb) {
-        if (cb.status == MTLCommandBufferStatusError) {
-            std::lock_guard<std::mutex> lock(gErrorLock);
-            gError = cb.error.localizedDescription.UTF8String ?: "Metal command buffer failed";
-        }
-        gGpuSeconds.fetch_add(cb.GPUEndTime - cb.GPUStartTime);
-        {
-            std::lock_guard<std::mutex> lock(gHistoryLock);
-            gHistory[fenceValue % kHistorySize] = {fenceValue, cb.GPUEndTime - cb.GPUStartTime};
-        }
-        if (!samples || !labels.count) return;
-        NSData* data = [samples resolveCounterRange:NSMakeRange(0, labels.count * 2)];
-        const MTLCounterResultTimestamp* t = (const MTLCounterResultTimestamp*)data.bytes;
-        std::lock_guard<std::mutex> lock(gProfileLock);
-        // Encoders overlap (the next vertex stage starts while the previous fragments drain), so each encoder is
-        // charged only the time it extends the timeline by: its end minus max(its start, the previous end).
-        uint64_t previousEnd = 0;
-        for (NSUInteger k = 0; k < labels.count; k++) {
-            uint64_t start = t[2 * k].timestamp, end = t[2 * k + 1].timestamp;
-            if (start == MTLCounterErrorValue || end == MTLCounterErrorValue || end < start) continue;
-            start = MAX(start, previousEnd);
-            if (end < start) continue;
-            previousEnd = end;
-            NSString* key = labels[k];
-            gProfileSeconds[key] = @(gProfileSeconds[key].doubleValue + (end - start) * 1e-9);  // Apple GPU timestamps are ns.
-            NSString* countKey = [key stringByAppendingString:@" #"];
-            gProfileSeconds[countKey] = @(gProfileSeconds[countKey].doubleValue + 1);
+        @autoreleasepool {
+            if (cb.status == MTLCommandBufferStatusError) {
+                std::lock_guard<std::mutex> lock(gErrorLock);
+                gError = cb.error.localizedDescription.UTF8String ?: "Metal command buffer failed";
+            }
+            gGpuSeconds.fetch_add(cb.GPUEndTime - cb.GPUStartTime);
+            {
+                std::lock_guard<std::mutex> lock(gHistoryLock);
+                gHistory[fenceValue % kHistorySize] = {fenceValue, cb.GPUEndTime - cb.GPUStartTime};
+            }
+            if (!samples || !labels.count) return;
+            NSData* data = [samples resolveCounterRange:NSMakeRange(0, labels.count * 2)];
+            if (data.length < labels.count * 2 * sizeof(MTLCounterResultTimestamp)) return;
+            const MTLCounterResultTimestamp* t = (const MTLCounterResultTimestamp*)data.bytes;
+            std::lock_guard<std::mutex> lock(gProfileLock);
+            // Encoders overlap (the next vertex stage starts while the previous fragments drain), so each encoder is
+            // charged only the time it extends the timeline by: its end minus max(its start, the previous end).
+            uint64_t previousEnd = 0;
+            for (NSUInteger k = 0; k < labels.count; k++) {
+                uint64_t start = t[2 * k].timestamp, end = t[2 * k + 1].timestamp;
+                if (start == MTLCounterErrorValue || end == MTLCounterErrorValue || end < start) continue;
+                start = MAX(start, previousEnd);
+                if (end < start) continue;
+                previousEnd = end;
+                NSString* key = labels[k];
+                if (!gProfileSeconds[key] && gProfileSeconds.count >= 2048) continue;
+                gProfileSeconds[key] = @(gProfileSeconds[key].doubleValue + (end - start) * 1e-9);  // Apple GPU timestamps are ns.
+                NSString* countKey = [key stringByAppendingString:@" #"];
+                gProfileSeconds[countKey] = @(gProfileSeconds[countKey].doubleValue + 1);
+            }
         }
     }];
     gLastCommand = gCmd;
@@ -275,8 +284,10 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_attach(JNIEnv* env, jclass
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_checkError(JNIEnv* env, jclass) {
-    std::lock_guard<std::mutex> lock(gErrorLock);
-    if (!gError.empty()) throwJava(env, @(gError.c_str()));
+    @autoreleasepool {
+        std::lock_guard<std::mutex> lock(gErrorLock);
+        if (!gError.empty()) throwJava(env, @(gError.c_str()));
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_shutdown(JNIEnv*, jclass) {
@@ -297,6 +308,13 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_shutdown(JNIEnv*, jclass) 
         gQueue = nil; gEvent = nil; gDevice = nil; gDrawableQueue = nil;
         gLastCommand = nil; gBuiltins = nil; gPresentPipeline = nil;
         gPresentSampler = nil; gClearDepthState = nil;
+        gClearPipelines = nil;
+        gSamples = nil; gSampleLabels = nil; gTimestampSet = nil; gNextLabel = nil;
+        { std::lock_guard<std::mutex> profileLock(gProfileLock); gProfileSeconds = nil; }
+        gProfile = false; gInPass = false;
+        gGpuSeconds.store(0);
+        { std::lock_guard<std::mutex> historyLock(gHistoryLock); memset(gHistory, 0, sizeof(gHistory)); }
+        memset(gFrameFence, 0, sizeof(gFrameFence)); gFrame = 0;
         gEventValue = 0;
         std::lock_guard<std::mutex> lock(gErrorLock);
         gError.clear();
@@ -304,16 +322,22 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_shutdown(JNIEnv*, jclass) 
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setVsync(JNIEnv*, jclass, jboolean enabled) {
-    gVsync = enabled;
-    gLayer.displaySyncEnabled = enabled;
+    @autoreleasepool {
+        gVsync = enabled;
+        gLayer.displaySyncEnabled = enabled;
+    }
 }
 
 JNIEXPORT jint JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxTextureSize(JNIEnv*, jclass) {
-    return [gDevice supportsFamily:MTLGPUFamilyApple3] ? 16384 : 8192;
+    @autoreleasepool {
+        return [gDevice supportsFamily:MTLGPUFamilyApple3] ? 16384 : 8192;
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_release(JNIEnv*, jclass, jlong handle) {
-    if (handle) CFRelease((CFTypeRef)(void*)handle);
+    @autoreleasepool {
+        if (handle) CFRelease((CFTypeRef)(void*)handle);
+    }
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_allocatedBytes(JNIEnv*, jclass) {
@@ -326,23 +350,31 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_allocatedBytes(JNIEnv*, j
 // ---- Buffers ----------------------------------------------------------------
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newBuffer(JNIEnv*, jclass, jlong size) {
-    // Unified memory: shared storage lets Java map the contents directly with no staging copy.
-    return RETAIN([gDevice newBufferWithLength:(NSUInteger)size options:MTLResourceStorageModeShared]);
+    @autoreleasepool {
+        // Unified memory: shared storage lets Java map the contents directly with no staging copy.
+        return RETAIN([gDevice newBufferWithLength:(NSUInteger)size options:MTLResourceStorageModeShared]);
+    }
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_bufferContents(JNIEnv*, jclass, jlong buffer) {
-    return (jlong)OBJ(id<MTLBuffer>, buffer).contents;
+    @autoreleasepool {
+        return (jlong)OBJ(id<MTLBuffer>, buffer).contents;
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyBuffer(JNIEnv*, jclass, jlong src, jlong srcOffset, jlong dst, jlong dstOffset, jlong length) {
-    [blit() copyFromBuffer:OBJ(id<MTLBuffer>, src) sourceOffset:srcOffset toBuffer:OBJ(id<MTLBuffer>, dst) destinationOffset:dstOffset size:length];
+    @autoreleasepool {
+        [blit() copyFromBuffer:OBJ(id<MTLBuffer>, src) sourceOffset:srcOffset toBuffer:OBJ(id<MTLBuffer>, dst) destinationOffset:dstOffset size:length];
+    }
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureBuffer(JNIEnv*, jclass, jlong buffer, jint format, jlong length, jint pixelSize) {
-    NSUInteger width = (NSUInteger)(length / pixelSize);
-    MTLTextureDescriptor* d = [MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:pixelFormat(format) width:width
-                                                                          resourceOptions:MTLResourceStorageModeShared usage:MTLTextureUsageShaderRead];
-    return RETAIN([OBJ(id<MTLBuffer>, buffer) newTextureWithDescriptor:d offset:0 bytesPerRow:(NSUInteger)length]);
+    @autoreleasepool {
+        NSUInteger width = (NSUInteger)(length / pixelSize);
+        MTLTextureDescriptor* d = [MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:pixelFormat(format) width:width
+                                                                              resourceOptions:MTLResourceStorageModeShared usage:MTLTextureUsageShaderRead];
+        return RETAIN([OBJ(id<MTLBuffer>, buffer) newTextureWithDescriptor:d offset:0 bytesPerRow:(NSUInteger)length]);
+    }
 }
 
 // ---- Textures ---------------------------------------------------------------
@@ -369,39 +401,49 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTexture(JNIEnv* env, j
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureView(JNIEnv*, jclass, jlong texture, jint baseMip, jint mipCount) {
-    id<MTLTexture> tex = OBJ(id<MTLTexture>, texture);
-    NSUInteger slices = tex.textureType == MTLTextureTypeCube ? 6 : 1;
-    return RETAIN([tex newTextureViewWithPixelFormat:tex.pixelFormat textureType:tex.textureType
-                                              levels:NSMakeRange(baseMip, mipCount) slices:NSMakeRange(0, slices)]);
+    @autoreleasepool {
+        id<MTLTexture> tex = OBJ(id<MTLTexture>, texture);
+        NSUInteger slices = tex.textureType == MTLTextureTypeCube ? 6 : 1;
+        return RETAIN([tex newTextureViewWithPixelFormat:tex.pixelFormat textureType:tex.textureType
+                                                  levels:NSMakeRange(baseMip, mipCount) slices:NSMakeRange(0, slices)]);
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyBufferToTexture(JNIEnv*, jclass, jlong buffer, jlong offset, jint bytesPerRow, jlong texture, jint slice, jint mip, jint x, jint y, jint w, jint h) {
-    [blit() copyFromBuffer:OBJ(id<MTLBuffer>, buffer) sourceOffset:offset sourceBytesPerRow:bytesPerRow sourceBytesPerImage:(NSUInteger)bytesPerRow * h
-                sourceSize:MTLSizeMake(w, h, 1) toTexture:OBJ(id<MTLTexture>, texture) destinationSlice:slice destinationLevel:mip
-         destinationOrigin:MTLOriginMake(x, y, 0)];
+    @autoreleasepool {
+        [blit() copyFromBuffer:OBJ(id<MTLBuffer>, buffer) sourceOffset:offset sourceBytesPerRow:bytesPerRow sourceBytesPerImage:(NSUInteger)bytesPerRow * h
+                    sourceSize:MTLSizeMake(w, h, 1) toTexture:OBJ(id<MTLTexture>, texture) destinationSlice:slice destinationLevel:mip
+             destinationOrigin:MTLOriginMake(x, y, 0)];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyTextureToBuffer(JNIEnv*, jclass, jlong texture, jint mip, jint x, jint y, jint w, jint h, jlong buffer, jlong offset, jint bytesPerRow) {
-    [blit() copyFromTexture:OBJ(id<MTLTexture>, texture) sourceSlice:0 sourceLevel:mip sourceOrigin:MTLOriginMake(x, y, 0) sourceSize:MTLSizeMake(w, h, 1)
-                   toBuffer:OBJ(id<MTLBuffer>, buffer) destinationOffset:offset destinationBytesPerRow:bytesPerRow destinationBytesPerImage:(NSUInteger)bytesPerRow * h];
+    @autoreleasepool {
+        [blit() copyFromTexture:OBJ(id<MTLTexture>, texture) sourceSlice:0 sourceLevel:mip sourceOrigin:MTLOriginMake(x, y, 0) sourceSize:MTLSizeMake(w, h, 1)
+                       toBuffer:OBJ(id<MTLBuffer>, buffer) destinationOffset:offset destinationBytesPerRow:bytesPerRow destinationBytesPerImage:(NSUInteger)bytesPerRow * h];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyTextureToTexture(JNIEnv*, jclass, jlong src, jlong dst, jint mip, jint dstX, jint dstY, jint srcX, jint srcY, jint w, jint h) {
-    [blit() copyFromTexture:OBJ(id<MTLTexture>, src) sourceSlice:0 sourceLevel:mip sourceOrigin:MTLOriginMake(srcX, srcY, 0) sourceSize:MTLSizeMake(w, h, 1)
-                  toTexture:OBJ(id<MTLTexture>, dst) destinationSlice:0 destinationLevel:mip destinationOrigin:MTLOriginMake(dstX, dstY, 0)];
+    @autoreleasepool {
+        [blit() copyFromTexture:OBJ(id<MTLTexture>, src) sourceSlice:0 sourceLevel:mip sourceOrigin:MTLOriginMake(srcX, srcY, 0) sourceSize:MTLSizeMake(w, h, 1)
+                      toTexture:OBJ(id<MTLTexture>, dst) destinationSlice:0 destinationLevel:mip destinationOrigin:MTLOriginMake(dstX, dstY, 0)];
+    }
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newSampler(JNIEnv*, jclass, jboolean repeatU, jboolean repeatV, jboolean linearMin, jboolean linearMag, jint maxAnisotropy, jfloat maxLod) {
-    MTLSamplerDescriptor* d = [MTLSamplerDescriptor new];
-    d.sAddressMode = repeatU ? MTLSamplerAddressModeRepeat : MTLSamplerAddressModeClampToEdge;
-    d.tAddressMode = repeatV ? MTLSamplerAddressModeRepeat : MTLSamplerAddressModeClampToEdge;
-    d.rAddressMode = MTLSamplerAddressModeClampToEdge;
-    d.minFilter = linearMin ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest;
-    d.magFilter = linearMag ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest;
-    d.mipFilter = MTLSamplerMipFilterLinear;  // Blaze3D always uses *_MIPMAP_LINEAR minification.
-    d.maxAnisotropy = maxAnisotropy;
-    if (maxLod >= 0) d.lodMaxClamp = maxLod;
-    return RETAIN([gDevice newSamplerStateWithDescriptor:d]);
+    @autoreleasepool {
+        MTLSamplerDescriptor* d = [MTLSamplerDescriptor new];
+        d.sAddressMode = repeatU ? MTLSamplerAddressModeRepeat : MTLSamplerAddressModeClampToEdge;
+        d.tAddressMode = repeatV ? MTLSamplerAddressModeRepeat : MTLSamplerAddressModeClampToEdge;
+        d.rAddressMode = MTLSamplerAddressModeClampToEdge;
+        d.minFilter = linearMin ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest;
+        d.magFilter = linearMag ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest;
+        d.mipFilter = MTLSamplerMipFilterLinear;  // Blaze3D always uses *_MIPMAP_LINEAR minification.
+        d.maxAnisotropy = maxAnisotropy;
+        if (maxLod >= 0) d.lodMaxClamp = maxLod;
+        return RETAIN([gDevice newSamplerStateWithDescriptor:d]);
+    }
 }
 
 // ---- Shaders & pipelines ----------------------------------------------------
@@ -426,10 +468,12 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newLibrary(JNIEnv* env, j
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newFunction(JNIEnv* env, jclass, jlong library, jstring name) {
-    const char* s = env->GetStringUTFChars(name, nullptr);
-    id<MTLFunction> fn = [OBJ(id<MTLLibrary>, library) newFunctionWithName:@(s)];
-    env->ReleaseStringUTFChars(name, s);
-    return fn ? RETAIN(fn) : 0;
+    @autoreleasepool {
+        const char* s = env->GetStringUTFChars(name, nullptr);
+        id<MTLFunction> fn = [OBJ(id<MTLLibrary>, library) newFunctionWithName:@(s)];
+        env->ReleaseStringUTFChars(name, s);
+        return fn ? RETAIN(fn) : 0;
+    }
 }
 
 /**
@@ -496,10 +540,12 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newRenderPipeline(JNIEnv*
 }
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newDepthStencilState(JNIEnv*, jclass, jint compare, jboolean write) {
-    MTLDepthStencilDescriptor* d = [MTLDepthStencilDescriptor new];
-    d.depthCompareFunction = (MTLCompareFunction)compare;
-    d.depthWriteEnabled = write;
-    return RETAIN([gDevice newDepthStencilStateWithDescriptor:d]);
+    @autoreleasepool {
+        MTLDepthStencilDescriptor* d = [MTLDepthStencilDescriptor new];
+        d.depthCompareFunction = (MTLCompareFunction)compare;
+        d.depthWriteEnabled = write;
+        return RETAIN([gDevice newDepthStencilStateWithDescriptor:d]);
+    }
 }
 
 // ---- Render passes ----------------------------------------------------------
@@ -513,76 +559,92 @@ static bool sameAttachment(id<MTLTexture> a, id<MTLTexture> b) {
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_beginPass(JNIEnv*, jclass, jlong color, jboolean clearColor, jfloat r, jfloat g, jfloat b, jfloat a,
         jlong depth, jboolean clearDepth, jdouble depthValue) {
-    id<MTLTexture> colorView = OBJ(id<MTLTexture>, color), depthView = OBJ(id<MTLTexture>, depth);
-    gInPass = true;
-    if (gRender && !clearColor && !clearDepth && sameAttachment(colorView, gPassColor) && sameAttachment(depthView, gPassDepth)) {
-        profileMerge(gNextLabel);
-        return;
+    @autoreleasepool {
+        id<MTLTexture> colorView = OBJ(id<MTLTexture>, color), depthView = OBJ(id<MTLTexture>, depth);
+        gInPass = true;
+        if (gRender && !clearColor && !clearDepth && sameAttachment(colorView, gPassColor) && sameAttachment(depthView, gPassDepth)) {
+            profileMerge(gNextLabel);
+            return;
+        }
+        endRender();
+        endBlit();
+        gPassColor = colorView;
+        gPassDepth = depthView;
+        MTLRenderPassDescriptor* d = [MTLRenderPassDescriptor renderPassDescriptor];
+        id<MTLTexture> colorTex = OBJ(id<MTLTexture>, color);
+        if (colorTex) {
+            d.colorAttachments[0].texture = colorTex;
+            d.colorAttachments[0].loadAction = clearColor ? MTLLoadActionClear : MTLLoadActionLoad;
+            d.colorAttachments[0].clearColor = MTLClearColorMake(r, g, b, a);
+            d.colorAttachments[0].storeAction = MTLStoreActionStore;
+        }
+        if (depth) {
+            d.depthAttachment.texture = OBJ(id<MTLTexture>, depth);
+            d.depthAttachment.loadAction = clearDepth ? MTLLoadActionClear : MTLLoadActionLoad;
+            d.depthAttachment.clearDepth = depthValue;
+            d.depthAttachment.storeAction = MTLStoreActionStore;
+        }
+        profilePass(d, gNextLabel);
+        gRender = [cmd() renderCommandEncoderWithDescriptor:d];
+        // Front faces are counter-clockwise in GL; the Y flip in the vertex stage mirrors them to clockwise.
+        [gRender setFrontFacingWinding:MTLWindingClockwise];
     }
-    endRender();
-    endBlit();
-    gPassColor = colorView;
-    gPassDepth = depthView;
-    MTLRenderPassDescriptor* d = [MTLRenderPassDescriptor renderPassDescriptor];
-    id<MTLTexture> colorTex = OBJ(id<MTLTexture>, color);
-    if (colorTex) {
-        d.colorAttachments[0].texture = colorTex;
-        d.colorAttachments[0].loadAction = clearColor ? MTLLoadActionClear : MTLLoadActionLoad;
-        d.colorAttachments[0].clearColor = MTLClearColorMake(r, g, b, a);
-        d.colorAttachments[0].storeAction = MTLStoreActionStore;
-    }
-    if (depth) {
-        d.depthAttachment.texture = OBJ(id<MTLTexture>, depth);
-        d.depthAttachment.loadAction = clearDepth ? MTLLoadActionClear : MTLLoadActionLoad;
-        d.depthAttachment.clearDepth = depthValue;
-        d.depthAttachment.storeAction = MTLStoreActionStore;
-    }
-    profilePass(d, gNextLabel);
-    gRender = [cmd() renderCommandEncoderWithDescriptor:d];
-    // Front faces are counter-clockwise in GL; the Y flip in the vertex stage mirrors them to clockwise.
-    [gRender setFrontFacingWinding:MTLWindingClockwise];
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_endPass(JNIEnv*, jclass) {
-    gInPass = false;  // The encoder stays open for a possible merge; endRender() closes it when anything else needs the command buffer.
+    @autoreleasepool {
+        gInPass = false;  // The encoder stays open for a possible merge; endRender() closes it when anything else needs the command buffer.
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setPipelineState(JNIEnv*, jclass, jlong pso, jlong depthState, jint cull, jboolean wireframe, jfloat depthBiasConstant, jfloat depthBiasSlope) {
-    [gRender setRenderPipelineState:OBJ(id<MTLRenderPipelineState>, pso)];
-    [gRender setDepthStencilState:OBJ(id<MTLDepthStencilState>, depthState)];
-    [gRender setCullMode:(MTLCullMode)cull];
-    [gRender setTriangleFillMode:wireframe ? MTLTriangleFillModeLines : MTLTriangleFillModeFill];
-    [gRender setDepthBias:depthBiasConstant slopeScale:depthBiasSlope clamp:0];
+    @autoreleasepool {
+        [gRender setRenderPipelineState:OBJ(id<MTLRenderPipelineState>, pso)];
+        [gRender setDepthStencilState:OBJ(id<MTLDepthStencilState>, depthState)];
+        [gRender setCullMode:(MTLCullMode)cull];
+        [gRender setTriangleFillMode:wireframe ? MTLTriangleFillModeLines : MTLTriangleFillModeFill];
+        [gRender setDepthBias:depthBiasConstant slopeScale:depthBiasSlope clamp:0];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setScissor(JNIEnv*, jclass, jint x, jint y, jint w, jint h) {
-    [gRender setScissorRect:(MTLScissorRect){(NSUInteger)x, (NSUInteger)y, (NSUInteger)w, (NSUInteger)h}];
+    @autoreleasepool {
+        [gRender setScissorRect:(MTLScissorRect){(NSUInteger)x, (NSUInteger)y, (NSUInteger)w, (NSUInteger)h}];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setBuffer(JNIEnv*, jclass, jboolean fragment, jint index, jlong buffer, jlong offset) {
-    if (fragment) [gRender setFragmentBuffer:OBJ(id<MTLBuffer>, buffer) offset:offset atIndex:index];
-    else [gRender setVertexBuffer:OBJ(id<MTLBuffer>, buffer) offset:offset atIndex:index];
+    @autoreleasepool {
+        if (fragment) [gRender setFragmentBuffer:OBJ(id<MTLBuffer>, buffer) offset:offset atIndex:index];
+        else [gRender setVertexBuffer:OBJ(id<MTLBuffer>, buffer) offset:offset atIndex:index];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setTexture(JNIEnv*, jclass, jboolean fragment, jint index, jlong texture, jint samplerIndex, jlong sampler) {
-    id<MTLTexture> tex = OBJ(id<MTLTexture>, texture);
-    id<MTLSamplerState> smp = OBJ(id<MTLSamplerState>, sampler);
-    if (fragment) {
-        [gRender setFragmentTexture:tex atIndex:index];
-        if (smp && samplerIndex >= 0) [gRender setFragmentSamplerState:smp atIndex:samplerIndex];
-    } else {
-        [gRender setVertexTexture:tex atIndex:index];
-        if (smp && samplerIndex >= 0) [gRender setVertexSamplerState:smp atIndex:samplerIndex];
+    @autoreleasepool {
+        id<MTLTexture> tex = OBJ(id<MTLTexture>, texture);
+        id<MTLSamplerState> smp = OBJ(id<MTLSamplerState>, sampler);
+        if (fragment) {
+            [gRender setFragmentTexture:tex atIndex:index];
+            if (smp && samplerIndex >= 0) [gRender setFragmentSamplerState:smp atIndex:samplerIndex];
+        } else {
+            [gRender setVertexTexture:tex atIndex:index];
+            if (smp && samplerIndex >= 0) [gRender setVertexSamplerState:smp atIndex:samplerIndex];
+        }
     }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_draw(JNIEnv*, jclass, jint primitive, jint first, jint count, jint instances) {
-    [gRender drawPrimitives:(MTLPrimitiveType)primitive vertexStart:first vertexCount:count instanceCount:instances];
+    @autoreleasepool {
+        [gRender drawPrimitives:(MTLPrimitiveType)primitive vertexStart:first vertexCount:count instanceCount:instances];
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_drawIndexed(JNIEnv*, jclass, jint primitive, jint count, jboolean uint32, jlong indexBuffer, jlong indexOffset, jint instances, jint baseVertex) {
-    [gRender drawIndexedPrimitives:(MTLPrimitiveType)primitive indexCount:count indexType:uint32 ? MTLIndexTypeUInt32 : MTLIndexTypeUInt16
-                       indexBuffer:OBJ(id<MTLBuffer>, indexBuffer) indexBufferOffset:indexOffset instanceCount:instances baseVertex:baseVertex baseInstance:0];
+    @autoreleasepool {
+        [gRender drawIndexedPrimitives:(MTLPrimitiveType)primitive indexCount:count indexType:uint32 ? MTLIndexTypeUInt32 : MTLIndexTypeUInt16
+                           indexBuffer:OBJ(id<MTLBuffer>, indexBuffer) indexBufferOffset:indexOffset instanceCount:instances baseVertex:baseVertex baseInstance:0];
+    }
 }
 
 /** Scissored clear (Metal load actions only clear whole attachments). Either texture may be 0. */
@@ -590,9 +652,9 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
         jfloat r, jfloat g, jfloat b, jfloat a, jfloat depthValue, jint x, jint y, jint w, jint h) {
     @autoreleasepool {
         // ponytail: one cached pipeline per (color, depth) format pair; only a couple of combinations exist.
-        static NSMutableDictionary<NSNumber*, id<MTLRenderPipelineState>>* pipelines = [NSMutableDictionary new];
+        if (!gClearPipelines) gClearPipelines = [NSMutableDictionary new];
         NSNumber* key = @((color ? colorFormat : 15) * 16 + (depth ? 1 : 0));
-        id<MTLRenderPipelineState> pso = pipelines[key];
+        id<MTLRenderPipelineState> pso = gClearPipelines[key];
         if (!pso) {
             MTLRenderPipelineDescriptor* d = [MTLRenderPipelineDescriptor new];
             d.vertexFunction = [gBuiltins newFunctionWithName:@"clear_vs"];
@@ -600,7 +662,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
             if (color) d.colorAttachments[0].pixelFormat = pixelFormat(colorFormat);
             if (depth) d.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
             NSError* error = nil;
-            pso = pipelines[key] = [gDevice newRenderPipelineStateWithDescriptor:d error:&error];
+            pso = gClearPipelines[key] = [gDevice newRenderPipelineStateWithDescriptor:d error:&error];
             if (!pso) return throwJava(env, error.localizedDescription);
         }
         Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, nullptr, color, JNI_FALSE, 0, 0, 0, 0, depth, JNI_FALSE, 0);
@@ -620,28 +682,32 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setBytes(JNIEnv*, jclass, jboolean fragment, jint index, jlong address, jint length) {
-    if (fragment) [gRender setFragmentBytes:(const void*)address length:length atIndex:index];
-    else [gRender setVertexBytes:(const void*)address length:length atIndex:index];
+    @autoreleasepool {
+        if (fragment) [gRender setFragmentBytes:(const void*)address length:length atIndex:index];
+        else [gRender setVertexBytes:(const void*)address length:length atIndex:index];
+    }
 }
 
 /** glMultiDrawElementsBaseVertex over raw arrays (counts: uint32, offsets: pointer-sized byte offsets, baseVertices: int32). */
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_multiDrawIndexed(JNIEnv*, jclass, jint primitive, jboolean uint32, jlong indexBuffer,
         jlong counts, jlong offsets, jlong baseVertices, jint drawCount) {
-    id<MTLBuffer> ib = OBJ(id<MTLBuffer>, indexBuffer);
-    const uint32_t* c = (const uint32_t*)counts;
-    const uintptr_t* o = (const uintptr_t*)offsets;
-    const int32_t* b = (const int32_t*)baseVertices;
-    MTLIndexType type = uint32 ? MTLIndexTypeUInt32 : MTLIndexTypeUInt16;
-    for (jint i = 0; i < drawCount; i++) {
-        if (c[i] == 0) continue;
-        [gRender drawIndexedPrimitives:(MTLPrimitiveType)primitive indexCount:c[i] indexType:type indexBuffer:ib indexBufferOffset:o[i]
-                         instanceCount:1 baseVertex:b[i] baseInstance:0];
+    @autoreleasepool {
+        id<MTLBuffer> ib = OBJ(id<MTLBuffer>, indexBuffer);
+        const uint32_t* c = (const uint32_t*)counts;
+        const uintptr_t* o = (const uintptr_t*)offsets;
+        const int32_t* b = (const int32_t*)baseVertices;
+        MTLIndexType type = uint32 ? MTLIndexTypeUInt32 : MTLIndexTypeUInt16;
+        for (jint i = 0; i < drawCount; i++) {
+            if (c[i] == 0) continue;
+            [gRender drawIndexedPrimitives:(MTLPrimitiveType)primitive indexCount:c[i] indexType:type indexBuffer:ib indexBufferOffset:o[i]
+                             instanceCount:1 baseVertex:b[i] baseInstance:0];
+        }
     }
 }
 
 // ---- Frame & synchronization -------------------------------------------------
 
-JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_present(JNIEnv*, jclass, jlong texture) {
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_present(JNIEnv* env, jclass, jlong texture) {
     @autoreleasepool {
         endRender();
         endBlit();
@@ -670,11 +736,12 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_present(JNIEnv*, jclass, j
         commit();
 
         // Keep the CPU at most kFramesInFlight frames ahead of the GPU.
-        static uint64_t frameFence[kFramesInFlight];
-        static int frame;
-        frameFence[frame] = gEventValue;
-        frame = (frame + 1) % kFramesInFlight;
-        if (gEvent.signaledValue < frameFence[frame]) [gEvent waitUntilSignaledValue:frameFence[frame] timeoutMS:1000];
+        gFrameFence[gFrame] = gEventValue;
+        gFrame = (gFrame + 1) % kFramesInFlight;
+        if (gEvent.signaledValue < gFrameFence[gFrame] &&
+                ![gEvent waitUntilSignaledValue:gFrameFence[gFrame] timeoutMS:5000]) {
+            throwJava(env, @"Metal GPU did not complete queued frames within 5 seconds; stopping to bound retained resources");
+        }
     }
 }
 
@@ -683,31 +750,42 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_present(JNIEnv*, jclass, j
  * Minecraft's many fences per frame cost one command buffer. Waiting on a not-yet-submitted fence submits first.
  */
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_fence(JNIEnv*, jclass) {
-    return (jlong)(gEventValue + 1);
+    @autoreleasepool {
+        return (jlong)(gEventValue + 1);
+    }
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setGpuProfiling(JNIEnv*, jclass, jboolean enabled) {
-    gProfile = enabled;
-    gProfileSeconds = [NSMutableDictionary new];
-    for (id<MTLCounterSet> set in gDevice.counterSets) {
-        if ([set.name isEqualToString:MTLCommonCounterSetTimestamp]) gTimestampSet = set;
+    @autoreleasepool {
+        gProfile = enabled;
+        { std::lock_guard<std::mutex> lock(gProfileLock); gProfileSeconds = enabled ? [NSMutableDictionary new] : nil; }
+        gTimestampSet = nil;
+        if (!enabled) return;
+        for (id<MTLCounterSet> set in gDevice.counterSets) {
+            if ([set.name isEqualToString:MTLCommonCounterSetTimestamp]) gTimestampSet = set;
+        }
+        if (![gDevice supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) gTimestampSet = nil;
     }
-    if (![gDevice supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) gTimestampSet = nil;
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setPassLabel(JNIEnv* env, jclass, jstring label) {
-    const char* s = env->GetStringUTFChars(label, nullptr);
-    gNextLabel = @(s);
-    env->ReleaseStringUTFChars(label, s);
+    @autoreleasepool {
+        const char* s = env->GetStringUTFChars(label, nullptr);
+        NSString* value = @(s);
+        gNextLabel = value.length > 256 ? [value substringToIndex:256] : value;
+        env->ReleaseStringUTFChars(label, s);
+    }
 }
 
 /** "label=seconds" lines accumulated since the last call. */
 JNIEXPORT jstring JNICALL Java_dev_eviemod_metal_mtl_Mtl_takeGpuProfile(JNIEnv* env, jclass) {
-    std::lock_guard<std::mutex> lock(gProfileLock);
-    NSMutableString* out = [NSMutableString new];
-    for (NSString* key in gProfileSeconds) [out appendFormat:@"%@=%f\n", key, gProfileSeconds[key].doubleValue];
-    [gProfileSeconds removeAllObjects];
-    return env->NewStringUTF(out.UTF8String);
+    @autoreleasepool {
+        std::lock_guard<std::mutex> lock(gProfileLock);
+        NSMutableString* out = [NSMutableString new];
+        for (NSString* key in gProfileSeconds) [out appendFormat:@"%@=%f\n", key, gProfileSeconds[key].doubleValue];
+        [gProfileSeconds removeAllObjects];
+        return env->NewStringUTF(out.UTF8String);
+    }
 }
 
 /**
@@ -715,30 +793,38 @@ JNIEXPORT jstring JNICALL Java_dev_eviemod_metal_mtl_Mtl_takeGpuProfile(JNIEnv* 
  * Entries older than the history window are skipped, which only happens for queries read long after the fact.
  */
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_gpuNanosBetween(JNIEnv*, jclass, jlong first, jlong last) {
-    if (gEvent.signaledValue < (uint64_t)last) return -1;
-    std::lock_guard<std::mutex> lock(gHistoryLock);
-    double seconds = 0;
-    for (uint64_t v = first; v <= (uint64_t)last; v++) {
-        if (gHistory[v % kHistorySize].fence == v) seconds += gHistory[v % kHistorySize].seconds;
+    @autoreleasepool {
+        if (gEvent.signaledValue < (uint64_t)last) return -1;
+        std::lock_guard<std::mutex> lock(gHistoryLock);
+        double seconds = 0;
+        for (uint64_t v = first; v <= (uint64_t)last; v++) {
+            if (gHistory[v % kHistorySize].fence == v) seconds += gHistory[v % kHistorySize].seconds;
+        }
+        return (jlong)(seconds * 1e9);
     }
-    return (jlong)(seconds * 1e9);
 }
 
 /** GPU execution time (seconds) accumulated since the last call. */
 JNIEXPORT jdouble JNICALL Java_dev_eviemod_metal_mtl_Mtl_takeGpuSeconds(JNIEnv*, jclass) {
-    return gGpuSeconds.exchange(0);
+    @autoreleasepool {
+        return gGpuSeconds.exchange(0);
+    }
 }
 
 /** Highest fence value the GPU has finished; never submits. */
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_completedFence(JNIEnv*, jclass) {
-    return (jlong)gEvent.signaledValue;
+    @autoreleasepool {
+        return (jlong)gEvent.signaledValue;
+    }
 }
 
 JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_fenceWait(JNIEnv*, jclass, jlong value, jlong timeoutMs) {
-    if (gEvent.signaledValue >= (uint64_t)value) return JNI_TRUE;
-    if (timeoutMs <= 0) return JNI_FALSE;
-    if ((uint64_t)value > gEventValue && !gInPass) @autoreleasepool { commit(); }
-    return [gEvent waitUntilSignaledValue:(uint64_t)value timeoutMS:(uint64_t)MIN(timeoutMs, (jlong)UINT32_MAX)];
+    @autoreleasepool {
+        if (gEvent.signaledValue >= (uint64_t)value) return JNI_TRUE;
+        if (timeoutMs <= 0) return JNI_FALSE;
+        if ((uint64_t)value > gEventValue && !gInPass) @autoreleasepool { commit(); }
+        return [gEvent waitUntilSignaledValue:(uint64_t)value timeoutMS:(uint64_t)MIN(timeoutMs, (jlong)UINT32_MAX)];
+    }
 }
 
 }  // extern "C"
