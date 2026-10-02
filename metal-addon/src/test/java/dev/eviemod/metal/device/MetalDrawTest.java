@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.lwjgl.system.MemoryUtil;
+import net.minecraft.resources.Identifier;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
@@ -37,8 +38,9 @@ class MetalDrawTest {
             vertices.putFloat(-1).putFloat(3).putFloat(0);
             vertices.flip();
             indices.putInt(0).putInt(1).putInt(2).flip();
-            var pipeline = RenderPipeline.builder().withLocation("eviemod_metal:smoke")
-                    .withVertexShader("eviemod_metal:smoke").withFragmentShader("eviemod_metal:smoke")
+            var id = Identifier.fromNamespaceAndPath("eviemod_metal", "smoke");
+            var pipeline = RenderPipeline.builder().withLocation(id)
+                    .withVertexShader(id).withFragmentShader(id)
                     .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
                     .withCull(false).withDepthStencilState(Optional.empty()).build();
             try (var vb = device.createBuffer(() -> "vertices", GpuBuffer.USAGE_VERTEX, vertices);
