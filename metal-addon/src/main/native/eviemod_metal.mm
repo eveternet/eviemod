@@ -599,6 +599,10 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
         Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, nullptr, color, JNI_FALSE, 0, 0, 0, 0, depth, JNI_FALSE, 0);
         struct { float color[4]; float depth; float pad[3]; } params = {{r, g, b, a}, depthValue, {}};
         [gRender setRenderPipelineState:pso];
+        // A merged encoder retains the previous draw's rasterization state.
+        [gRender setCullMode:MTLCullModeNone];
+        [gRender setTriangleFillMode:MTLTriangleFillModeFill];
+        [gRender setDepthBias:0 slopeScale:0 clamp:0];
         if (depth) [gRender setDepthStencilState:gClearDepthState];
         [gRender setScissorRect:(MTLScissorRect){(NSUInteger)x, (NSUInteger)y, (NSUInteger)w, (NSUInteger)h}];
         [gRender setVertexBytes:&params length:sizeof(params) atIndex:0];

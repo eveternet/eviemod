@@ -5,7 +5,8 @@ import zipfile
 
 
 def artifact(pattern):
-    paths = [p for p in glob.glob(pattern) if not p.endswith("-sources.jar")]
+    paths = [p for p in glob.glob(pattern)
+             if not p.endswith(("-sources.jar", "-dev.jar", "-shadow.jar"))]
     assert len(paths) == 1, paths
     return zipfile.ZipFile(paths[0])
 

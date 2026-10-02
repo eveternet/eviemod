@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class MetalDrawTest {
-    @Test void backendRendersIndexedTriangleWithBaseVertex() {
+    @Test void indexedBaseVertexMissingAttributeAndMergedClear() {
         NativeLoader.load();
         var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX
-                ? "#version 330\nin vec3 Position; void main(){gl_Position=vec4(Position,1);}"
+                ? "#version 330\nin vec3 Position; in vec3 Normal; void main(){gl_Position=vec4(Position+Normal,1);}"
                 : "#version 330\nout vec4 color; void main(){color=vec4(0,1,0,1);}");
         long readback = 0;
         ByteBuffer vertices = MemoryUtil.memAlloc(72), indices = MemoryUtil.memAlloc(12);
@@ -62,6 +62,19 @@ class MetalDrawTest {
                 assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(address + 1)));
                 assertEquals(0, MemoryUtil.memGetByte(address + 2));
                 assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(address + 3)));
+                Mtl.checkError();
+
+                // A following regional clear must override state left in a merged render encoder.
+                var compiled = (MetalPipeline) device.precompilePipeline(pipeline, null);
+                long target = ((MetalTexture) texture).handle;
+                Mtl.beginPass(target, false, 0, 0, 0, 0, 0, false, 1);
+                Mtl.setPipelineState(compiled.state(0, -1), compiled.depthState, Mtl.CULL_BACK, true, 10, 10);
+                Mtl.endPass();
+                Mtl.clearRegion(target, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1);
+                Mtl.copyTextureToBuffer(target, 0, 0, 0, 1, 1, readback, 0, 256);
+                assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+                assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(address)));
+                assertEquals(0, MemoryUtil.memGetByte(address + 1));
                 Mtl.checkError();
             }
         } finally {

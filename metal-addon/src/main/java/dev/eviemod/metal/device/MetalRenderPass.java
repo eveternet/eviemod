@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.MemoryStack;
 
 /** GL-style render pass state (uniforms/samplers bound by name, persisting across pipeline changes) replayed onto a Metal render encoder. */
 public class MetalRenderPass implements RenderPassBackend {
@@ -209,6 +210,13 @@ public class MetalRenderPass implements RenderPassBackend {
             RenderPipeline info = pipeline.info;
             Mtl.setPipelineState(pso, depthFormat >= 0 ? pipeline.depthState : encoder.noDepthState(), pipeline.cull,
                     info.getPolygonMode() == PolygonMode.WIREFRAME, (info.getDepthStencilState() == null ? 0 : info.getDepthStencilState().depthBiasConstant()), (info.getDepthStencilState() == null ? 0 : info.getDepthStencilState().depthBiasScaleFactor()));
+            if (pipeline.hasMissingAttributes) {
+                // setBytes copies these zeros into the encoder before the stack allocation expires.
+                try (var stack = MemoryStack.stackPush()) {
+                    Mtl.setBytes(false, ShaderTranslator.VERTEX_BUFFER_INDEX - 1,
+                            MemoryUtil.memAddress(stack.calloc(16)), 16);
+                }
+            }
             boundPipeline = pipeline;
         }
 

@@ -30,6 +30,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
     final long depthState;
     final int primitive;
     final int cull;
+    boolean hasMissingAttributes;
     private final Int2LongOpenHashMap variants = new Int2LongOpenHashMap();
 
     private MetalPipeline(RenderPipeline info, ShaderTranslator.@Nullable Result vertex, ShaderTranslator.@Nullable Result fragment, long vertexFn, long fragmentFn) {
@@ -127,6 +128,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
         for (var input : inputs.entrySet()) {
             if (!names.contains(input.getKey())) missing.add(input.getValue().intValue());
         }
+        hasMissingAttributes = !missing.isEmpty();
 
         var target = info.getColorTargetState();
         BlendFunction blend = target.blendFunction().orElse(null);
