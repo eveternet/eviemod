@@ -25,6 +25,7 @@ abstract class SodiumWorldSmokeMixin {
     private int phase;
     private boolean reopen;
     private boolean stopping;
+    private boolean respawnRequested;
     private final int[] atSeconds = {3, 8, 12, 16, 20, 25, 28, 32, 40, 48, 58, 65, 80, 88, 93, 100, 112, 124, 138, 160, 178};
 
     @Inject(method = "runTick", at = @At("TAIL"))
@@ -60,6 +61,12 @@ abstract class SodiumWorldSmokeMixin {
             }
         }
         if (mc.level == null || mc.player == null || mc.getOverlay() != null) return;
+        if (mc.player.isDeadOrDying()) {
+            if (worldStart != 0) throw new AssertionError("Creative fixture player died during the lifecycle test");
+            if (!respawnRequested) { respawnRequested = true; mc.player.respawn(); }
+            return;
+        }
+        respawnRequested = false;
         worldFrames++;
         if (worldStart == 0) worldStart = System.nanoTime();
         double seconds = (System.nanoTime() - worldStart) / 1_000_000_000.0;
