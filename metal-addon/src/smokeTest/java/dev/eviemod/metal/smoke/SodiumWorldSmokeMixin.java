@@ -70,6 +70,9 @@ abstract class SodiumWorldSmokeMixin {
         worldFrames++;
         if (worldStart == 0) worldStart = System.nanoTime();
         double seconds = (System.nanoTime() - worldStart) / 1_000_000_000.0;
+        boolean travelling = seconds >= 32 && seconds < 48;
+        mc.options.keyUp.setDown(travelling);
+        if (travelling) mc.player.setYRot(90 + (float) (Math.sin(seconds) * 35));
         if (phase < atSeconds.length && seconds >= atSeconds[phase]) {
             System.out.println("EVIEMETAL_SODIUM_PHASE " + phase + " seconds=" + seconds);
             switch (phase++) {
@@ -90,6 +93,7 @@ abstract class SodiumWorldSmokeMixin {
                 }
                 case 1 -> {
                     assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD);
+                    mc.player.getAbilities().flying = true; mc.player.onUpdateAbilities();
                     commands(mc, "particle flame 0 121 0 0.3 0.3 0.3 0.01 80 force @a");
                     capture(mc, "mixed-" + phase);
                 }
