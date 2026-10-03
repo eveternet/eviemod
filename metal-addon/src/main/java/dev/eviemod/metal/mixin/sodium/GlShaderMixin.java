@@ -6,6 +6,8 @@ import dev.eviemod.metal.compat.sodium.SodiumMetal;
 import dev.eviemod.metal.MetalBootstrap;
 import net.caffeinemc.mods.sodium.client.gl.shader.GlShader;
 import org.spongepowered.asm.mixin.Mixin;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -18,10 +20,10 @@ abstract class GlShaderMixin {
         return SodiumMetal.createShader(type);
     }
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE",
+    @WrapOperation(method = "<init>", at = @At(value = "INVOKE",
             target = "Lnet/caffeinemc/mods/sodium/client/gl/shader/ShaderWorkarounds;safeShaderSource(ILjava/lang/CharSequence;)V"))
-    private void eviemetal$source(int shader, CharSequence source) {
-        if (!MetalBootstrap.isActive()) { net.caffeinemc.mods.sodium.client.gl.shader.ShaderWorkarounds.safeShaderSource(shader, source); return; }
+    private void eviemetal$source(int shader, CharSequence source, Operation<Void> original) {
+        if (!MetalBootstrap.isActive()) { original.call(shader, source); return; }
         SodiumMetal.shaderSource(shader, source);
     }
 
