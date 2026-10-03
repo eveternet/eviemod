@@ -27,6 +27,11 @@ public final class MetalBootstrap {
             EvieMetal.LOGGER.info("Using OpenGL: {}", reason);
             return defaults;
         }
+        var sodium = loader.getModContainer("sodium");
+        if (sodium.isPresent() && !sodium.get().getMetadata().getVersion().getFriendlyString().equals("0.9.2+mc26.1.2")) {
+            throw new IllegalStateException("Metal terrain compatibility requires Sodium 0.9.2+mc26.1.2; installed "
+                    + sodium.get().getMetadata().getVersion() + "; refusing OpenGL fallback");
+        }
         GpuBackend[] backends = new GpuBackend[defaults.length + 1];
         backends[0] = new MetalBackend();
         System.arraycopy(defaults, 0, backends, 1, defaults.length);
@@ -52,7 +57,7 @@ public final class MetalBootstrap {
             EvieMetal.LOGGER.info("Experimental Metal backend active: {}", device.getRenderer());
             return new GpuDevice(device);
         } catch (Exception | LinkageError e) {
-            EvieMetal.LOGGER.error("Metal startup failed; falling back to OpenGL", e);
+            EvieMetal.LOGGER.error(loader.isModLoaded("sodium") ? "Sodium/Metal startup failed; OpenGL fallback refused" : "Metal startup failed; falling back to OpenGL", e);
             try {
                 if (device != null) device.close();
                 else if (nativeLoaded) Mtl.shutdown();

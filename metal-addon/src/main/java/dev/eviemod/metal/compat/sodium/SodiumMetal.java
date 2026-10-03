@@ -43,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
 /**
- * Runs Sodium's OpenGL object model on Metal. Sodium keeps its GL-shaped code; mixins route each GL call here.
+ * Adapts Sodium terrain programs and explicit resources to Eviemetal. CPU arenas, meshing and batches stay in Sodium.
  * Handles stay plain ints, as Sodium expects. Render thread only.
  */
 public final class SodiumMetal {
@@ -101,13 +101,13 @@ public final class SodiumMetal {
     }
 
     public static void subData(int id, long offset, long data, long length) {
-        requireNoPass("update terrain buffer");
+        suspendPass();
         RenderSystem.getDevice().createCommandEncoder().writeToBuffer(buffer(id).slice(offset, length),
                 MemoryUtil.memByteBuffer(data, Math.toIntExact(length)));
     }
 
     public static void copy(int src, int dst, long readOffset, long writeOffset, long length) {
-        requireNoPass("copy terrain buffer");
+        suspendPass();
         RenderSystem.getDevice().createCommandEncoder().copyToBuffer(buffer(src).slice(readOffset, length), buffer(dst).slice(writeOffset, length));
     }
 
@@ -385,8 +385,6 @@ public final class SodiumMetal {
             java.util.Arrays.fill(UNIT_SAMPLERS, 0);
         }
     }
-
-    private static void requireNoPass(String what) { suspendPass(); }
 
     public static void multiDraw(GlPrimitiveType primitiveType, TessellationBinding[] bindings, MultiDrawBatch batch, GlIndexType indexType) {
         Program p = current;

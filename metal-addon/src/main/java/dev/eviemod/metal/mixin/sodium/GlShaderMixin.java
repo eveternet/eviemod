@@ -21,7 +21,7 @@ abstract class GlShaderMixin {
     @Redirect(method = "<init>", at = @At(value = "INVOKE",
             target = "Lnet/caffeinemc/mods/sodium/client/gl/shader/ShaderWorkarounds;safeShaderSource(ILjava/lang/CharSequence;)V"))
     private void eviemetal$source(int shader, CharSequence source) {
-        if (!MetalBootstrap.isActive()) { org.lwjgl.opengl.GL20C.glShaderSource(shader, source); return; }
+        if (!MetalBootstrap.isActive()) { net.caffeinemc.mods.sodium.client.gl.shader.ShaderWorkarounds.safeShaderSource(shader, source); return; }
         SodiumMetal.shaderSource(shader, source);
     }
 
