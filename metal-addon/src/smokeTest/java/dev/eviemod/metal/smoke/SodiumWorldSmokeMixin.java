@@ -130,17 +130,27 @@ abstract class SodiumWorldSmokeMixin {
         if (server == null) throw new AssertionError("No fixture server");
         server.execute(() -> {
             for (String command : commands) {
-                try { server.getCommands().getDispatcher().execute(command, server.createCommandSourceStack().withSuppressedOutput()); }
-                catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
-                    // Reopening the fixture may leave an identical fill/setblock already in place.
-                    if (e.getRawMessage() instanceof net.minecraft.network.chat.Component message
-                            && message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
-                            && ((command.startsWith("fill ") && contents.getKey().equals("commands.fill.failed"))
-                            || (command.startsWith("setblock ") && contents.getKey().equals("commands.setblock.failed")))) continue;
-                    throw new AssertionError("Fixture command failed: " + command, e);
-                }
+                // Minecraft's execution context is required for /execute redirects; Brigadier.execute alone
+                // cannot run its custom modifiers. Capture errors instead of suppressing them.
+                var output = new net.minecraft.commands.CommandSource() {
+                    public boolean acceptsSuccess() { return false; }
+                    public boolean acceptsFailure() { return true; }
+                    public boolean shouldInformAdmins() { return false; }
+                    public void sendSystemMessage(net.minecraft.network.chat.Component message) {
+                        if (!alreadyPlaced(command, message)) throw new AssertionError("Fixture command failed: " + command + ": " + message.getString());
+                    }
+                };
+                server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSource(output), command);
             }
         });
+    }
+
+    private static boolean alreadyPlaced(String command, net.minecraft.network.chat.Component message) {
+        // Reopening the fixture may leave an identical fill/setblock already in place.
+        if (message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
+                && ((command.startsWith("fill ") && contents.getKey().equals("commands.fill.failed"))
+                || (command.startsWith("setblock ") && contents.getKey().equals("commands.setblock.failed")))) return true;
+        return message.getSiblings().stream().anyMatch(child -> alreadyPlaced(command, child));
     }
 
     private static void capture(Minecraft mc, String label) {
