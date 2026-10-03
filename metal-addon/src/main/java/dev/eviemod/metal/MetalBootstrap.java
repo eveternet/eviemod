@@ -52,14 +52,15 @@ public final class MetalBootstrap {
             EvieMetal.LOGGER.info("Experimental Metal backend active: {}", device.getRenderer());
             return new GpuDevice(device);
         } catch (Exception | LinkageError e) {
-            if (loader.isModLoaded("sodium")) {
-                throw new IllegalStateException("Sodium/Metal startup failed; refusing hidden OpenGL fallback", e);
-            }
             EvieMetal.LOGGER.error("Metal startup failed; falling back to OpenGL", e);
             try {
                 if (device != null) device.close();
                 else if (nativeLoaded) Mtl.shutdown();
             } catch (Exception | LinkageError cleanup) { e.addSuppressed(cleanup); }
+            active = false;
+            if (loader.isModLoaded("sodium")) {
+                throw new IllegalStateException("Sodium/Metal startup failed; refusing hidden OpenGL fallback", e);
+            }
             return null;
         }
     }

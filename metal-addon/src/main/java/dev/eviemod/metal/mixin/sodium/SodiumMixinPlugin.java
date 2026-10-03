@@ -56,7 +56,7 @@ public final class SodiumMixinPlugin implements IMixinConfigPlugin {
             int changed = 0;
             for (MethodNode method : node.methods) for (AbstractInsnNode insn : method.instructions.toArray()) {
                 if (insn instanceof MethodInsnNode call && call.owner.equals("org/lwjgl/opengl/GL") && call.name.equals("getCapabilities")) {
-                    if (!method.desc.endsWith(")Z")) throw new IllegalStateException("Sodium GL option predicate changed");
+                    if (!method.desc.endsWith(")Ljava/lang/Boolean;")) throw new IllegalStateException("Sodium GL option predicate changed");
                     gate(method, true);
                     changed++;
                 }
@@ -70,8 +70,8 @@ public final class SodiumMixinPlugin implements IMixinConfigPlugin {
         LabelNode original = new LabelNode();
         guard.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "dev/eviemod/metal/MetalBootstrap", "isActive", "()Z", false));
         guard.add(new JumpInsnNode(Opcodes.IFEQ, original));
-        if (predicate) guard.add(new InsnNode(Opcodes.ICONST_0));
-        guard.add(new InsnNode(predicate ? Opcodes.IRETURN : Opcodes.RETURN));
+        if (predicate) guard.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/Boolean", "FALSE", "Ljava/lang/Boolean;"));
+        guard.add(new InsnNode(predicate ? Opcodes.ARETURN : Opcodes.RETURN));
         guard.add(original);
         method.instructions.insert(guard);
     }
