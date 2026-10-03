@@ -127,13 +127,12 @@ not ship in the production JAR. The mod-specific local event fixture was tempora
 outside the addon; production compatibility contains no Devonian/Talium names or
 dependency. Live Hypixel gameplay and the full normal modpack were not tested here.
 
-Local build/launch logs are `/tmp/eviemetal-gui-build-2.log`,
-`/tmp/eviemetal-gui-metal-launch-2.log`, `/tmp/eviemetal-gui-opengl-launch-1.log`,
-`/tmp/eviemetal-devonian-metal-launch-1.log`, `/tmp/eviemetal-devonian-opengl-launch.log`,
-and `/tmp/eviemetal-devonian-metal-events-6.log`. Base screenshots are under
-`metal-addon/run/devonian-gui-{metal,opengl}/metal-smoke.png`; game data/output is ignored
-and excluded from commits. Linux fallback and macOS launch probes are already part
-of CI; their new markers also make a failure fatal to the existing jobs.
+The [PR CI run](https://github.com/eveternet/eviemod/actions/runs/37159130795)
+passed Linux fallback and macOS Metal launch probes. Its `metal-launch-evidence`
+artifact contains the Metal launch log, frame screenshot and test results.
+The local Devonian-specific runs above are separate from those CI probes.
+Game data/output is ignored and excluded from commits; probe failures fail the
+existing CI jobs.
 
 ## Manual modpack checks
 
