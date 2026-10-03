@@ -50,6 +50,8 @@ No FPS improvement is promised without measurements on the target hardware.
 
 Memory-lifetime findings and the 0.1.0.1 regression results are in the
 [Metal memory audit](metal-memory-audit.md).
+Legacy GLSL normalization, shader failure cleanup, validation and remaining
+unsupported forms are described in [shader compatibility](metal-shader-compatibility.md).
 
 ## Build and verification
 
