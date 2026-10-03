@@ -84,7 +84,8 @@ final class GlslCompatibility {
                 default -> null;
             };
             if (t.text.equals("gl_FragData")) throw unsupported("gl_FragData (multiple/dynamic color outputs are not supported)");
-            if (t.text.startsWith("shadow1D") || t.text.startsWith("shadow2D")) {
+            if (Set.of("shadow1D", "shadow2D", "shadow1DProj", "shadow2DProj", "shadow1DLod", "shadow2DLod",
+                    "shadow1DProjLod", "shadow2DProjLod").contains(t.text) && i + 1 < tokens.size() && tokens.get(i + 1).text.equals("(")) {
                 throw unsupported("legacy shadow sampling; use modern texture sampling with explicit result conversion");
             }
             String texture = TEXTURE_FUNCTIONS.get(t.text);

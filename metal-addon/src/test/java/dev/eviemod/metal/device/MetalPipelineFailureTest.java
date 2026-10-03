@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.eviemod.metal.NativeLoader;
 import dev.eviemod.metal.mtl.Mtl;
 import java.util.OptionalInt;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -56,7 +57,7 @@ class MetalPipelineFailureTest {
     }
 
     private static RenderPipeline pipeline(String id, String shader) {
-        return RenderPipeline.builder().withLocation(id).withVertexShader(shader).withFragmentShader(shader)
+        return RenderPipeline.builder().withLocation(Identifier.parse(id)).withVertexShader(Identifier.parse(shader)).withFragmentShader(Identifier.parse(shader))
                 .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES).withCull(false).build();
     }
 }
