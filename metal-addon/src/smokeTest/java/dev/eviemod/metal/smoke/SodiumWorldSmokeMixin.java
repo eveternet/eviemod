@@ -79,10 +79,14 @@ abstract class SodiumWorldSmokeMixin {
                             "fill 4 120 -5 4 123 5 glass", "fill 6 120 -5 6 123 5 red_stained_glass",
                             "setblock 1 120 1 chest[facing=south]", "setblock -2 120 0 campfire",
                             "setblock 2 120 -3 oak_sign", "summon cow 0 120 -4 {NoAI:1b}",
-                            "summon armor_stand 2 120 -1 {NoGravity:1b}",
-                            "particle flame 0 121 0 0.3 0.3 0.3 0.01 80 force @a");
+                            "summon armor_stand 2 120 -1 {NoGravity:1b}");
                 }
-                case 1, 19 -> capture(mc, "mixed-" + phase);
+                case 1 -> {
+                    assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD);
+                    commands(mc, "particle flame 0 121 0 0.3 0.3 0.3 0.01 80 force @a");
+                    capture(mc, "mixed-" + phase);
+                }
+                case 19 -> capture(mc, "mixed-" + phase);
                 case 2 -> {
                     mc.levelRenderer.destroyBlockProgress(12345, new net.minecraft.core.BlockPos(4, 122, 0), 6);
                     capture(mc, "breaking");
