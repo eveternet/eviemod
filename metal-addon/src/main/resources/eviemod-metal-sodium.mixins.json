@@ -21,7 +21,8 @@
     "MetalDeviceCloseMixin",
     "LifecycleAnchorsMixin$Minecraft",
     "LifecycleAnchorsMixin$RenderSystem",
-    "LifecycleAnchorsMixin$Options"
+    "LifecycleAnchorsMixin$Options",
+    "SectionTimeUploadsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -34,6 +34,7 @@ abstract class FallbackLaunchMixin {
     @Inject(method = "runTick", at = @At("TAIL"))
     private void verifyMetalFrame(boolean renderLevel, CallbackInfo ci) {
         if (!Boolean.getBoolean("eviemod.metal.smokeExpected")) return;
+        if (Boolean.getBoolean("eviemod.metal.worldSmoke")) return;
         var mc = (Minecraft) (Object) this;
         if (System.nanoTime() - smokeStart > 180_000_000_000L) throw new AssertionError("Metal launch/readback timed out");
         // CI has a fresh options file; choose the screen under test after the initial resource load.

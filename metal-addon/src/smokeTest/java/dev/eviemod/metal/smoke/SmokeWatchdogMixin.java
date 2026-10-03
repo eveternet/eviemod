@@ -13,7 +13,7 @@ abstract class SmokeWatchdogMixin {
     private static void startWatchdog(String[] args, CallbackInfo ci) {
         if (!Boolean.getBoolean("eviemod.metal.smokeExpected")) return;
         Thread.ofPlatform().daemon().name("metal-smoke-watchdog").start(() -> {
-            try { Thread.sleep(180_000); }
+            try { Thread.sleep(Boolean.getBoolean("eviemod.metal.worldSmoke") ? 900_000 : 180_000); }
             catch (InterruptedException e) { return; }
             System.err.println("Metal launch/readback watchdog timed out");
             Thread.getAllStackTraces().forEach((thread, trace) -> {
