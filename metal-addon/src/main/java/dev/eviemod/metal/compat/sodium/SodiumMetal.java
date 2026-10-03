@@ -25,7 +25,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,6 +121,7 @@ public final class SodiumMetal {
     private static final Int2IntOpenHashMap SHADER_TYPES = new Int2IntOpenHashMap();
 
     public static int createShader(int type) {
+        if (type != GL_VERTEX_SHADER && type != 0x8B30) throw new UnsupportedOperationException("Only Sodium terrain vertex/fragment shaders are supported");
         int handle = newHandle();
         SHADER_TYPES.put(handle, type);
         return handle;
@@ -185,7 +185,7 @@ public final class SodiumMetal {
             p.fsFn = function(p.fs);
             p.vsDefaults = MemoryUtil.nmemCalloc(1, Math.max(16, p.vs.defaultsSize()));
             p.fsDefaults = MemoryUtil.nmemCalloc(1, Math.max(16, p.fs.defaultsSize()));
-        } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
+        } catch (ShaderTranslator.TranslationException | RuntimeException | Error e) {
             deleteProgram(handle);
             throw new IllegalStateException("Sodium terrain shader translation failed", e);
         }
@@ -272,12 +272,6 @@ public final class SodiumMetal {
         });
     }
 
-    public static void uniformMatrix4(int location, FloatBuffer matrix) {
-        Program p = current;
-        if (p == null || location < 0) return;
-        write(p, p.uniformNames.get(location), addr -> MemoryUtil.memCopy(MemoryUtil.memAddress(matrix), addr, 64));
-    }
-
     private static void write(Program p, String name, java.util.function.LongConsumer writer) {
         Integer vsOffset = p.vs.defaults().get(name);
         if (vsOffset != null) writer.accept(p.vsDefaults + vsOffset);
@@ -290,10 +284,6 @@ public final class SodiumMetal {
     private static final GpuBufferSlice[] UNIFORM_BUFFERS = new GpuBufferSlice[16];
     private static final long[] UNIT_VIEWS = new long[16];
     private static final long[] UNIT_SAMPLERS = new long[16];
-
-    public static void bindUniformBuffer(int binding, int buffer) {
-        UNIFORM_BUFFERS[binding] = buffer(buffer).slice();
-    }
 
     public static void bindUniformRange(int binding, GpuBufferSlice slice) {
         UNIFORM_BUFFERS[binding] = slice;
@@ -470,6 +460,22 @@ public final class SodiumMetal {
         } catch (IllegalStateException e) {
             throw new IllegalStateException("Sodium Metal terrain pipeline failed: " + key.pipeline().getLocation(), e);
         }
+    }
+
+    /** Development assertions, no per-frame logging or retained history in the distributed addon. */
+    public static String resourceSummary() {
+        long bytes = 0;
+        for (GpuBuffer buffer : BUFFERS.values()) bytes += buffer.size();
+        int variants = 0;
+        for (Program program : PROGRAMS.values()) variants += program.pipelines.size();
+        return "buffers=" + BUFFER_IDS.size() + " bytes=" + bytes + " borrowed=" + BORROWED.size()
+                + " programs=" + PROGRAMS.size() + " pipelines=" + variants + " timeViews=" + TIME_VIEWS.size();
+    }
+
+    public static void assertWorldReleased() {
+        if (!BUFFER_IDS.isEmpty() || !BUFFERS.isEmpty() || !BORROWED.isEmpty() || !PROGRAMS.isEmpty() || !TIME_VIEWS.isEmpty()
+                || !SHADER_SOURCES.isEmpty() || !SHADER_TYPES.isEmpty() || pass != null || pipeline != null)
+            throw new IllegalStateException("Sodium world retained GPU owners: " + resourceSummary());
     }
 
     public static void close() {

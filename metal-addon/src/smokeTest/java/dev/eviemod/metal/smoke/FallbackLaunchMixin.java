@@ -20,6 +20,11 @@ abstract class FallbackLaunchMixin {
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
     private void verifyFallback(CallbackInfo ci) {
+        if (Boolean.getBoolean("eviemod.metal.distributionExpected")) {
+            String source = dev.eviemod.metal.EvieMetal.class.getProtectionDomain().getCodeSource().getLocation().toString();
+            if (!source.endsWith(".jar")) throw new AssertionError("Expected packaged addon JAR, loaded " + source);
+            System.out.println("EVIEMETAL_DISTRIBUTION_SOURCE " + source);
+        }
         if (Boolean.getBoolean("eviemod.metal.smokeExpected")) {
             if (!RenderSystem.getDevice().getBackendName().equals("Metal")) throw new AssertionError("Expected active Metal backend");
             return;
