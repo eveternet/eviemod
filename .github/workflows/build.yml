@@ -21,6 +21,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Build
         run: ./gradlew build
+      - name: Verify independently loadable artifacts
+        run: python3 .github/scripts/verify-metal-artifacts.py
+      - name: Verify addon launches with OpenGL on an unsupported host
+        run: |
+          set -o pipefail
+          xvfb-run -a ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal 2>&1 | tee metal-smoke.log
+          grep -q EVIEMOD_METAL_FALLBACK_OK metal-smoke.log
       - name: Upload mod JAR
         uses: actions/upload-artifact@v7
         with:
@@ -32,9 +39,48 @@ jobs:
             !build/libs/*-shadow.jar
           if-no-files-found: error
 
+  metal:
+    # Branch compilation runs on every push; avoid duplicate Mac jobs for the same open PR.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      MTL_DEBUG_LAYER: '1'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build and test Metal addon and native library
+        run: ./gradlew :metal-addon:build :metal-addon:verifyDistribution
+      - name: Render and read back a Minecraft frame using Metal
+        run: |
+          set -o pipefail
+          ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal -PexpectMetal 2>&1 | tee metal-launch.log
+          grep -q EVIEMOD_METAL_FRAME_OK metal-launch.log
+      - name: Upload Metal launch evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: metal-launch-evidence
+          path: |
+            metal-launch.log
+            metal-addon/run/metal-smoke.png
+            metal-addon/build/test-results/test/*.xml
+      - name: Upload Metal addon
+        uses: actions/upload-artifact@v7
+        with:
+          name: eviemod-metal
+          path: |
+            metal-addon/build/libs/eviemod-metal-*.jar
+            !metal-addon/build/libs/*-sources.jar
+          if-no-files-found: error
+
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, metal]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -43,6 +89,10 @@ jobs:
         with:
           name: eviemod
           path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: eviemod-metal
+          path: metal-dist
       - name: Create release with mod JAR
         env:
           GH_TOKEN: ${{ github.token }}
@@ -52,5 +102,8 @@ jobs:
           jars=(dist/*.jar)
           test "${#jars[@]}" -eq 1
           test -f "${jars[0]}"
-          gh release create "$RELEASE_TAG" "${jars[0]}" \
+          metal_jars=(metal-dist/*.jar)
+          test "${#metal_jars[@]}" -eq 1
+          test -f "${metal_jars[0]}"
+          gh release create "$RELEASE_TAG" "${jars[0]}" "${metal_jars[0]}" \
             --verify-tag --title "$RELEASE_TAG" --generate-notes

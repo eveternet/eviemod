@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "eviemod_metal",
+  "version": "${version}",
+  "name": "eviemod Metal (experimental)",
+  "description": "Opt-in Apple Silicon Metal backend. Enable with -Deviemod.metal=true and restart.",
+  "environment": "client",
+  "license": "GPL-3.0-only",
+  "mixins": ["eviemod-metal.mixins.json", "eviemod-metal-sodium.mixins.json"],
+  "depends": {"fabricloader": ">=0.19.5", "minecraft": "26.1.2", "java": ">=25"},
+  "suggests": {"eviemod": "*"}
+}

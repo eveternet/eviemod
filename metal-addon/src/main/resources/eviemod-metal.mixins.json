@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.eviemod.metal.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["MinecraftBackendMixin"],
+  "injectors": {"defaultRequire": 1}
+}

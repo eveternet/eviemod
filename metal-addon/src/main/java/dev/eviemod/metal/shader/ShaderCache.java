@@ -1,0 +1,129 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Im-Fran/MetalCraft, commit a2cc82780d01a51d00a297f75cf07c221d7c8700.
+package dev.eviemod.metal.shader;
+
+import dev.eviemod.metal.EvieMetal;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.EOFException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.HexFormat;
+import java.util.Map;
+import java.util.TreeMap;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * On-disk cache of GLSL -> MSL translations. Translating every shader takes ~2 s per launch; Metal already caches the
+ * MSL compilation itself. Keys include the translator and compatibility adapter bytecode.
+ */
+final class ShaderCache {
+    private static @Nullable Path directory;
+    private static final byte[] TRANSLATOR_VERSION = translatorVersion();
+
+    private ShaderCache() {}
+
+    /** Enables the cache. Until called (e.g. in unit tests) every lookup misses and nothing is written. */
+    static void enable(Path dir) {
+        directory = dir;
+    }
+
+    static String key(String glsl, ShaderTranslator.Stage stage, Map<String, Integer> inputLocations) {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            sha.update(TRANSLATOR_VERSION);
+            sha.update((byte) stage.ordinal());
+            sha.update(new TreeMap<>(inputLocations).toString().getBytes(StandardCharsets.UTF_8));
+            sha.update(glsl.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(sha.digest());
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static ShaderTranslator.@Nullable Result load(String key) {
+        if (directory == null) return null;
+        Path file = directory.resolve(key);
+        if (!Files.isRegularFile(file)) return null;
+        try (DataInputStream in = new DataInputStream(Files.newInputStream(file))) {
+            return new ShaderTranslator.Result(readString(in), readString(in), readMap(in), readMap(in), readMap(in), readMap(in), readMap(in),
+                    readMap(in), in.readInt());
+        } catch (IOException | IllegalArgumentException e) {
+            EvieMetal.LOGGER.warn("Ignoring unreadable shader cache entry {}: {}", file, e.toString());
+            return null;
+        }
+    }
+
+    static void store(String key, ShaderTranslator.Result r) {
+        if (directory == null) return;
+        try {
+            Files.createDirectories(directory);
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            try (DataOutputStream out = new DataOutputStream(bytes)) {
+                writeString(out, r.msl());
+                writeString(out, r.entryPoint());
+                for (Map<String, Integer> m : java.util.List.of(r.buffers(), r.textures(), r.samplers(), r.inputs(), r.outputs(), r.defaults())) writeMap(out, m);
+                out.writeInt(r.defaultsSize());
+            }
+            // Write-then-rename so a crash never leaves a truncated entry behind.
+            Path tmp = Files.createTempFile(directory, key, ".tmp");
+            Files.write(tmp, bytes.toByteArray());
+            Files.move(tmp, directory.resolve(key), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            EvieMetal.LOGGER.warn("Couldn't write shader cache entry: {}", e.toString());
+        }
+    }
+
+    private static void writeString(DataOutputStream out, String s) throws IOException {
+        byte[] b = s.getBytes(StandardCharsets.UTF_8);
+        out.writeInt(b.length);
+        out.write(b);
+    }
+
+    private static String readString(DataInputStream in) throws IOException {
+        int size = in.readInt();
+        if (size < 0 || size > 4 * 1024 * 1024) throw new IOException("Invalid shader cache string size");
+        byte[] bytes = in.readNBytes(size);
+        if (bytes.length != size) throw new EOFException("Truncated shader cache string");
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    private static void writeMap(DataOutputStream out, Map<String, Integer> map) throws IOException {
+        out.writeInt(map.size());
+        for (var e : map.entrySet()) {
+            writeString(out, e.getKey());
+            out.writeInt(e.getValue());
+        }
+    }
+
+    private static Map<String, Integer> readMap(DataInputStream in) throws IOException {
+        int n = in.readInt();
+        if (n < 0 || n > 4096) throw new IOException("Invalid shader cache resource count");
+        Map<String, Integer> map = new HashMap<>(n);
+        for (int i = 0; i < n; i++) map.put(readString(in), in.readInt());
+        return map;
+    }
+
+    private static byte[] translatorVersion() {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            for (Class<?> type : new Class<?>[]{ShaderTranslator.class, GlslCompatibility.class}) {
+                try (InputStream in = type.getResourceAsStream(type.getSimpleName() + ".class")) {
+                    if (in == null) throw new IOException("Missing translator bytecode: " + type.getName());
+                    sha.update(in.readAllBytes());
+                }
+            }
+            return sha.digest();
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return new byte[0];
+        }
+    }
+}
