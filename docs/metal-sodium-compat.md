@@ -116,7 +116,45 @@ run showed stable warm allocation. The first lifecycle run's allocated Metal
 bytes fell to 262,619,136 after final world unload; its dimension and setup
 commands were subsequently given stronger assertions for repeat validation.
 
-The packaged-JAR repetition and final evidence are recorded below after completion.
+Two subsequent packaged-JAR lifecycle sessions passed all 21 phases with
+`MTL_DEBUG_LAYER=1` on Apple M3 Pro / macOS 27.0.1 / ARM64 Temurin 25.0.3.
+Runtime metadata confirmed Minecraft 26.1.2 and Sodium `0.9.2+mc26.1.2`.
+The addon code-source assertion identified the actual distributable JAR; its
+shaderc/SPIRV-Cross modules came from nested dependencies, with their loose
+development classpath entries removed.
+
+The final session additionally drove normal forward input while flying and
+rotated the camera across chunk/section boundaries, with sampled positions
+changing from x=160 to x=125, then x=320 to x=263. Captured frames were inspected
+for opaque/cutout geometry, overlapping glass/water, breaking cracks, GUI/text,
+entities/block entities/particles, a lit Nether alcove, and End terrain,
+endermen/crystals and boss bar. Both sessions asserted actual Nether → End →
+Overworld transitions, resource reload, renderer rebuild, resize/fullscreen,
+and world unload/reopen. Each process exited with status zero.
+
+| Packaged session | Final Metal allocated bytes | Final bridge owners |
+| --- | ---: | --- |
+| First asserted lifecycle | 247,939,072 | buffers/borrowed/programs/pipelines/time views all zero |
+| Continuous movement repetition | 245,727,232 | buffers/borrowed/programs/pipelines/time views all zero |
+
+In the final run, terrain pipeline count stayed at three in the Overworld and
+two in the Nether, and world allocations decreased after rebuild/reload rather
+than growing with each region. These numbers are `MTLDevice.currentAllocatedSize`
+after a real completion fence, not process RSS or a promise of zero global atlas,
+framebuffer or upload-ring storage. The earlier timestamp regression checks
+actual pixels and bounded native allocation across repeated storage replacement.
+
+The packaged addon without Sodium also reached a nonblank Metal title frame and
+exited normally. Sodium with the Metal opt-in absent initialized the real Apple
+OpenGL device and passed the disabled-backend startup assertion. The complete
+project build passed 162 main-mod tests and 17 addon tests; artifact separation
+verification passed. No release/tag or push was performed.
+
+Local evidence (ignored/generated, not shipped):
+`/tmp/eviemetal-sodium-launch-16.log`, `/tmp/eviemetal-sodium-launch-17.log`,
+`/tmp/eviemetal-sodium-off.log`, `/tmp/eviemetal-vanilla-metal.log`, and screenshots
+under `metal-addon/run/distribution/sodium-*.png`. The validated JAR SHA-256 is
+`58967169a609cca9bb96d9f7fb296524781d095e931d2e28383b26ea3476533c`.
 
 ## Limits and reproduction
 
