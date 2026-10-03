@@ -16,7 +16,7 @@ public final class MetalSupport {
             if (Integer.parseInt(osVersion.split("\\.")[0]) < 14) return "requires macOS 14 or newer";
         } catch (NumberFormatException e) { return "unknown macOS version"; }
         // These replace rendering or call OpenGL directly. Expand only for verified conflicts.
-        for (String mod : Set.of("sodium", "iris", "vulkanmod", "metallum", "metalcraft", "metalrender")) {
+        for (String mod : Set.of("iris", "vulkanmod", "metallum", "metalcraft", "metalrender")) {
             if (mods.contains(mod)) return "unsupported renderer installed: " + mod;
         }
         return null;

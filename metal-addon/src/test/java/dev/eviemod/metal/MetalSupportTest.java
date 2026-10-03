@@ -17,7 +17,7 @@ class MetalSupportTest {
         assertNull(MetalSupport.unavailableReason(true, "Mac OS X", "arm64", "27.0", Set.of("eviemod")));
     }
     @Test void knownRendererConflictsFallBackBeforeLoadingNatives() {
-        for (String mod : Set.of("sodium", "iris", "vulkanmod", "metallum", "metalcraft", "metalrender")) {
+        for (String mod : Set.of("iris", "vulkanmod", "metallum", "metalcraft", "metalrender")) {
             assertTrue(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of(mod)).contains(mod));
         }
     }
