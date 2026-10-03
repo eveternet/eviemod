@@ -29,7 +29,7 @@ require an OpenGL context.
 
 Platform/conflict checks run before loading native code. Disabled/unsupported
 launches keep vanilla behavior. Missing libraries, shader-toolchain failures,
-or native initialization failures log the reason and let Minecraft close the
+or native initialization failures without Sodium log the reason and let Minecraft close the
 Metal window and retry with a fresh OpenGL window. Native preflight completes
 before attaching the Cocoa view's layer.
 
@@ -38,10 +38,14 @@ not supported. Pipeline compilation failures throw a clear error; asynchronous
 Metal command-buffer errors are surfaced at the frame boundary. Disable the
 argument and restart. JVM/native driver crashes cannot be caught by Java.
 
-Initial support is vanilla Blaze3D plus eviemod. Sodium, Iris, VulkanMod,
-Metallum, MetalCraft, and MetalRender cause startup fallback. Other mods using
-raw OpenGL are unsupported. This is experimental: full gameplay, resource
-packs, dimension changes, fullscreen, and resize still need physical Mac validation.
+Support includes vanilla Blaze3D and the pinned Sodium **0.9.2+mc26.1.2** terrain
+frontend. With Sodium and the Metal opt-in, unsupported Sodium versions and
+Metal initialization failures stop with a clear error instead of silently
+retrying OpenGL. The log identifies both the active Metal backend and Sodium's
+Metal terrain endpoint. Iris, VulkanMod, Metallum, MetalCraft, and MetalRender
+retain their existing startup conflict checks. Other mods using raw OpenGL
+are unsupported. The compatibility design, physical Mac runtime evidence,
+and remaining limits are in [Sodium compatibility](metal-sodium-compat.md).
 No FPS improvement is promised without measurements on the target hardware.
 
 Memory-lifetime findings and the 0.1.0.1 regression results are in the
@@ -79,10 +83,10 @@ Before calling the renderer verified, test on Apple Silicon with Metal API
 validation (`MTL_DEBUG_LAYER=1`): menus, a local world (opaque/cutout/translucent
 terrain), entities, particles, text/items, Nether/End, screenshots, resource
 reload, resize/fullscreen, vsync changes, and exit. Repeat with eviemod and test
-startup fallback with the opt-in absent and with Sodium installed.
+startup fallback with the opt-in absent, including Sodium installed.
 
 The implementation is a pinned port of MetalCraft's core; see
-[the addon notice](../metal-addon/NOTICE.md) and its GPL license. The sole mixin
+[the addon notice](../metal-addon/NOTICE.md) and its GPL license. The backend mixin
 prepends a `GpuBackend` to Minecraft's ordered backend candidates in 26.1.2.
 The backend uses vanilla's window cleanup/retry loop; its `createDevice` bridge
 preserves `BackendCreationException` despite the interface omitting a checked

@@ -73,7 +73,7 @@ abstract class SodiumWorldSmokeMixin {
                         for (int x = -1; x <= 0; x++) for (int z = -1; z <= 0; z++)
                             mc.getSingleplayerServer().overworld().getChunk(x, z);
                     });
-                    commands(mc, "gamemode creative @a", "time set noon", "weather clear", "tp @a 0 124 10 180 20",
+                    commands(mc, "gamemode creative @a", "time set noon", "weather clear", "execute in minecraft:overworld run tp @a 0 124 10 180 20",
                             "fill -12 119 -12 12 119 12 stone", "fill -12 120 -12 12 128 12 air",
                             "fill -11 120 -5 -4 120 5 stone", "fill -10 120 -4 -5 120 4 water",
                             "fill 4 120 -5 4 123 5 glass", "fill 6 120 -5 6 123 5 red_stained_glass",
