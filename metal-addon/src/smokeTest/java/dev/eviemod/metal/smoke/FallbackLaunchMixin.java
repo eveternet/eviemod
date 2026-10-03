@@ -1,6 +1,8 @@
 package dev.eviemod.metal.smoke;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.eviemod.metal.fixture.LegacyGuiStateProbe;
+import dev.eviemod.metal.fixture.OptionalGuiProbe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -34,12 +36,13 @@ abstract class FallbackLaunchMixin {
             throw new AssertionError("Disabled or unsupported Metal addon must preserve OpenGL");
         }
         System.out.println("EVIEMOD_METAL_FALLBACK_OK");
+        if (System.getProperty("eviemod.metal.guiSmokeScreen") != null) return;
         ci.cancel();
     }
 
     @Inject(method = "runTick", at = @At("TAIL"))
     private void verifyMetalFrame(boolean renderLevel, CallbackInfo ci) {
-        if (!Boolean.getBoolean("eviemod.metal.smokeExpected")) return;
+        if (!Boolean.getBoolean("eviemod.metal.smokeExpected") && System.getProperty("eviemod.metal.guiSmokeScreen") == null) return;
         if (Boolean.getBoolean("eviemod.metal.worldSmoke")) return;
         var mc = (Minecraft) (Object) this;
         if (System.nanoTime() - smokeStart > 180_000_000_000L) throw new AssertionError("Metal launch/readback timed out");
@@ -48,7 +51,7 @@ abstract class FallbackLaunchMixin {
             mc.setScreen(new TitleScreen());
             return;
         }
-        if (requestedScreenshot || mc.getOverlay() != null || !(mc.screen instanceof TitleScreen) || ++readyFrames < 10) return;
+        if (requestedScreenshot || mc.getOverlay() != null || !OptionalGuiProbe.prepare(mc) || ++readyFrames < 10) return;
         requestedScreenshot = true;
         Screenshot.takeScreenshot(mc.getMainRenderTarget(), image -> {
             try (image) {

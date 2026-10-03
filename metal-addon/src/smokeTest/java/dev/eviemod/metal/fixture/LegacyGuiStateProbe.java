@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-package dev.eviemod.metal.smoke;
+package dev.eviemod.metal.fixture;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
 import dev.eviemod.metal.MetalBootstrap;
@@ -14,10 +14,10 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 
 /** Runs through the real transformed Minecraft classes, including on CI's OpenGL fallback. */
-final class LegacyGuiStateProbe {
+public final class LegacyGuiStateProbe {
     private LegacyGuiStateProbe() {}
 
-    static void verify() {
+    public static void verify() {
         if (MetalBootstrap.isActive()) {
             check(GLFW.glfwGetCurrentContext() == 0, "Metal unexpectedly has an OpenGL context");
             Map<String, Object> before = snapshot();
