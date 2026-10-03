@@ -21,4 +21,9 @@ class MetalSupportTest {
             assertTrue(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of(mod)).contains(mod));
         }
     }
+    @Test void sodiumIsAllowedOnlyWithTheExistingExplicitMetalOptIn() {
+        assertNull(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
+        assertNotNull(MetalSupport.unavailableReason(false, "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
+        assertNotNull(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of("sodium", "iris")));
+    }
 }

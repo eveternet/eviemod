@@ -30,7 +30,11 @@ abstract class GlProgramBuilderMixin {
 
     @Redirect(method = "bindFragmentData", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL30C;glBindFragDataLocation(IILjava/lang/CharSequence;)V"))
     private void eviemetal$bindFragData(int program, int index, CharSequence name) {
-        if (!MetalBootstrap.isActive()) { org.lwjgl.opengl.GL30C.glBindFragDataLocation(program, index, name); return; }}
+        if (!MetalBootstrap.isActive()) { org.lwjgl.opengl.GL30C.glBindFragDataLocation(program, index, name); return; }
+        // The pinned terrain shaders have one color output; the translator assigns it location zero.
+        if (index != 0 || !name.toString().equals("fragColor"))
+            throw new UnsupportedOperationException("Unexpected Sodium terrain fragment output: " + name + " at " + index);
+    }
 
     @Redirect(method = "link", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL20C;glLinkProgram(I)V"))
     private void eviemetal$link(int program) {
