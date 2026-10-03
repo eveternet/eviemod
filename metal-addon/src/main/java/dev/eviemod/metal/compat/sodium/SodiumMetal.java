@@ -112,6 +112,7 @@ public final class SodiumMetal {
     }
 
     public static ByteBuffer map(int id, long offset, long length) {
+        suspendPass();
         return RenderSystem.getDevice().createCommandEncoder().mapBuffer(buffer(id).slice(offset, length), false, true).data();
     }
 
@@ -340,40 +341,57 @@ public final class SodiumMetal {
 
     private static @Nullable RenderPass pass;
     private static @Nullable RenderPipeline pipeline;
+    private static @Nullable RenderTarget target;
     private static int colorFormat, depthFormat;
     private static long boundPso;
 
     private static long noDepthState;
 
     /** Replaces Sodium binding the target's GL framebuffer and applying the pipeline's GL state. */
-    public static void beginPass(RenderTarget target, RenderPipeline renderPipeline) {
-        GpuTextureView color = target.getColorTextureView();
-        GpuTextureView depth = target.getDepthTextureView();
-        pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sodium terrain " + renderPipeline.getLocation().getPath(), color, OptionalInt.empty(), depth, OptionalDouble.empty());
+    public static void beginPass(RenderTarget renderTarget, RenderPipeline renderPipeline) {
+        if (pipeline != null) throw new IllegalStateException("Nested Sodium terrain pass");
+        target = renderTarget;
         pipeline = renderPipeline;
-        colorFormat = color.texture().getFormat().ordinal();
+        colorFormat = target.getColorTextureView().texture().getFormat().ordinal();
+        var depth = target.getDepthTextureView();
         depthFormat = depth != null ? depth.texture().getFormat().ordinal() : -1;
         boundPso = 0;
     }
 
+    private static void resumePass() {
+        if (pass != null) return;
+        if (target == null || pipeline == null) throw new IllegalStateException("No Sodium terrain target");
+        var color = target.getColorTextureView();
+        pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sodium terrain " + pipeline.getLocation(),
+                color, OptionalInt.empty(), target.getDepthTextureView(), OptionalDouble.empty());
+        // Native encoders can merge across ordinary Blaze3D passes; reset inherited scissors explicitly.
+        Mtl.setScissor(0, 0, color.getWidth(0), color.getHeight(0));
+        boundPso = 0;
+    }
+
+    private static void suspendPass() {
+        // Sodium can grow/map its shared index buffer between region draws. Preserve command ordering by ending
+        // the current encoder, doing the upload/map, then reopening the same attachments with load actions.
+        if (pass != null) { pass.close(); pass = null; }
+        boundPso = 0;
+    }
+
     public static void endPass() {
-        try { if (pass != null) pass.close(); }
+        try { suspendPass(); }
         finally {
-            pass = null; pipeline = null; current = null;
+            target = null; pipeline = null; current = null;
             java.util.Arrays.fill(UNIFORM_BUFFERS, null);
             java.util.Arrays.fill(UNIT_VIEWS, 0);
             java.util.Arrays.fill(UNIT_SAMPLERS, 0);
         }
     }
 
-    private static void requireNoPass(String what) {
-        if (pass != null) throw new IllegalStateException(what + " inside Sodium's terrain pass can't be ordered on Metal");
-    }
+    private static void requireNoPass(String what) { suspendPass(); }
 
     public static void multiDraw(GlPrimitiveType primitiveType, TessellationBinding[] bindings, MultiDrawBatch batch, GlIndexType indexType) {
         Program p = current;
         if (batch.size == 0) return;
-        if (p == null || p.vsFn == 0 || pass == null) throw new IllegalStateException("Missing Sodium Metal terrain pass/program");
+        if (p == null || p.vsFn == 0 || pipeline == null) throw new IllegalStateException("Missing Sodium Metal terrain pass/program");
         if (indexType == GlIndexType.UNSIGNED_BYTE) throw new UnsupportedOperationException("Metal has no 8-bit index buffers");
 
         GpuBuffer vertices = null, indices = null;
@@ -388,6 +406,7 @@ public final class SodiumMetal {
         }
         if (vertices == null || indices == null) throw new IllegalStateException("Missing Sodium terrain geometry");
 
+        resumePass();
         long pso = p.pipelines.computeIfAbsent(new PsoKey(pipeline, colorFormat, depthFormat, java.util.Arrays.stream(attributes).map(a -> new Attribute(a.getIndex(), vertexFormat(a), a.getPointer(), a.getStride())).toList()), SodiumMetal::buildPipeline);
         if (pso == 0) return;
         if (pso != boundPso) {
