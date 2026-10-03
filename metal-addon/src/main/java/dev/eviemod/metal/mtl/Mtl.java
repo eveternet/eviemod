@@ -31,6 +31,8 @@ public final class Mtl {
     public static native long newBuffer(long size);
     public static native long bufferContents(long buffer);
     public static native void copyBuffer(long src, long srcOffset, long dst, long dstOffset, long length);
+    /** Sodium terrain timestamps require R32Sint, absent from Blaze3D TextureFormat. */
+    public static native long newTerrainTimeView(long buffer, long length);
     public static native long newTextureBuffer(long buffer, int format, long length, int pixelSize);
 
     public static native long newTexture(int format, int width, int height, int mips, boolean cube, boolean renderTarget, String label);

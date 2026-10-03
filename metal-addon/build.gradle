@@ -6,9 +6,14 @@ group = 'dev.eviemod'
 version = '0.1.0.1'
 base.archivesName = 'eviemod-metal'
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    maven { url = 'https://api.modrinth.com/maven' }
+}
 dependencies {
     minecraft 'com.mojang:minecraft:26.1.2'
+    compileOnly 'maven.modrinth:sodium:mc26.1.2-0.9.2'
+    testRuntimeOnly 'maven.modrinth:sodium:mc26.1.2-0.9.2'
     implementation 'net.fabricmc:fabric-loader:0.19.5'
     // Match the LWJGL ABI shipped by Minecraft 26.1.2.
     ['lwjgl-shaderc', 'lwjgl-spvc'].each { module ->

@@ -13,6 +13,8 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public final class MetalBootstrap {
     private MetalBootstrap() {}
+    private static boolean active;
+    public static boolean isActive() { return active; }
 
     /** Policy runs before window creation or native loading; vanilla's candidates remain available for retry. */
     public static GpuBackend[] selectBackends(GpuBackend[] defaults) {
@@ -46,9 +48,13 @@ public final class MetalBootstrap {
                     ShaderTranslator.Stage.VERTEX, Map.of());
             Mtl.release(Mtl.newLibrary(test.msl()));
             device.attach(window);
+            active = true;
             EvieMetal.LOGGER.info("Experimental Metal backend active: {}", device.getRenderer());
             return new GpuDevice(device);
         } catch (Exception | LinkageError e) {
+            if (loader.isModLoaded("sodium")) {
+                throw new IllegalStateException("Sodium/Metal startup failed; refusing hidden OpenGL fallback", e);
+            }
             EvieMetal.LOGGER.error("Metal startup failed; falling back to OpenGL", e);
             try {
                 if (device != null) device.close();

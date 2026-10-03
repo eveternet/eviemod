@@ -377,6 +377,15 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureBuffer(JNIEnv*,
     }
 }
 
+// Terrain-specific signed 32-bit timestamps; returned view has independent retained ownership.
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTerrainTimeView(JNIEnv*, jclass, jlong buffer, jlong length) {
+    @autoreleasepool {
+        MTLTextureDescriptor* d = [MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:MTLPixelFormatR32Sint width:(NSUInteger)length / 4
+                resourceOptions:MTLResourceStorageModeShared usage:MTLTextureUsageShaderRead];
+        return RETAIN([OBJ(id<MTLBuffer>, buffer) newTextureWithDescriptor:d offset:0 bytesPerRow:(NSUInteger)length]);
+    }
+}
+
 // ---- Textures ---------------------------------------------------------------
 
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTexture(JNIEnv* env, jclass, jint format, jint width, jint height, jint mips, jboolean cube, jboolean renderTarget, jstring label) {
