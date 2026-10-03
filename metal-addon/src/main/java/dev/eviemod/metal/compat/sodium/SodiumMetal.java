@@ -21,7 +21,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -299,19 +298,36 @@ public final class SodiumMetal {
         UNIFORM_BUFFERS[binding] = slice;
     }
 
-    private static final Int2LongOpenHashMap TIME_VIEWS = new Int2LongOpenHashMap();
+    private static final class TimeView {
+        final GpuBuffer source;
+        long storage, view;
+        TimeView(GpuBuffer source) { this.source = source; refresh(); }
+        void refresh() {
+            long nextStorage = MetalTerrainResources.handle(source);
+            if (nextStorage == storage) return;
+            long nextView = MetalTerrainResources.sectionTimesView(source);
+            if (nextView == 0) throw new IllegalStateException("Sodium section time texture allocation failed");
+            Mtl.release(view);
+            view = nextView; storage = nextStorage;
+        }
+    }
+    private static final Int2ObjectOpenHashMap<TimeView> TIME_VIEWS = new Int2ObjectOpenHashMap<>();
     public static int createTimeView(GpuBuffer buffer) {
+        TimeView view = new TimeView(buffer);
         int id = newHandle();
-        long view = MetalTerrainResources.sectionTimesView(buffer);
-        if (view == 0) throw new IllegalStateException("Sodium section time texture allocation failed");
         TIME_VIEWS.put(id, view);
         return id;
     }
-    public static void deleteTimeView(int id) { Mtl.release(TIME_VIEWS.remove(id)); }
+    public static void deleteTimeView(int id) {
+        TimeView view = TIME_VIEWS.remove(id);
+        if (view != null) Mtl.release(view.view);
+    }
     public static void bindTimeView(int unit, int id) {
-        long view = TIME_VIEWS.get(id);
-        if (view == 0) throw new IllegalStateException("Unknown Sodium section time view");
-        UNIT_VIEWS[unit] = view;
+        TimeView view = TIME_VIEWS.get(id);
+        if (view == null) throw new IllegalStateException("Unknown Sodium section time view");
+        // Small ordered writes can orphan MetalBuffer storage. The independently retained texture view must follow it.
+        view.refresh();
+        UNIT_VIEWS[unit] = view.view;
         UNIT_SAMPLERS[unit] = 0;
     }
 

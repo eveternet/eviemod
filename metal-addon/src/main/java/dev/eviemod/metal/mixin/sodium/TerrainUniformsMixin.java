@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 final class TerrainUniformsMixin {
     @Mixin(value = GlUniformInt.class, remap = false)
     abstract static class Int {
-        @Redirect(method="set", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform1i(II)V"))
+        @Redirect(method="setInt", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform1i(II)V"))
         private void set(int index, int value) {
             if (MetalBootstrap.isActive()) SodiumMetal.uniformInt(index, value);
             else org.lwjgl.opengl.GL30C.glUniform1i(index, value);
