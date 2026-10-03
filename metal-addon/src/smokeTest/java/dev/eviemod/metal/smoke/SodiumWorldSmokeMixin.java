@@ -117,9 +117,17 @@ abstract class SodiumWorldSmokeMixin {
                 case 11 -> mc.reloadResourcePacks();
                 case 12 -> mc.getWindow().setWindowed(1280, 720);
                 case 13, 14 -> mc.getWindow().toggleFullScreen();
-                case 15 -> commands(mc, "execute in minecraft:the_nether run tp @a 0 90 0 90 20");
-                case 16 -> { assertDimension(mc, net.minecraft.world.level.Level.NETHER); commands(mc, "execute in minecraft:the_end run tp @a 0 90 0 90 20"); }
-                case 17 -> { assertDimension(mc, net.minecraft.world.level.Level.END); commands(mc, "execute in minecraft:overworld run tp @a 0 124 10 180 20"); }
+                case 15 -> {
+                    mc.getSingleplayerServer().execute(() -> {
+                        for (int x = -1; x <= 0; x++) for (int z = -1; z <= 0; z++)
+                            mc.getSingleplayerServer().getLevel(net.minecraft.world.level.Level.NETHER).getChunk(x, z);
+                    });
+                    commands(mc, "execute in minecraft:the_nether run fill -8 80 -8 8 94 8 air",
+                            "execute in minecraft:the_nether run fill -8 79 -8 8 79 8 glowstone",
+                            "execute in minecraft:the_nether run tp @a 0 83 6 180 20");
+                }
+                case 16 -> { assertDimension(mc, net.minecraft.world.level.Level.NETHER); capture(mc, "nether"); commands(mc, "execute in minecraft:the_end run tp @a 0 90 0 90 20"); }
+                case 17 -> { assertDimension(mc, net.minecraft.world.level.Level.END); capture(mc, "end"); commands(mc, "execute in minecraft:overworld run tp @a 0 124 10 180 20"); }
                 case 18 -> { assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD); reopen = true; mc.disconnect(new TitleScreen(), false); }
                 case 20 -> { stopping = true; mc.disconnect(new TitleScreen(), false); }
             }
