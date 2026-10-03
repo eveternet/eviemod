@@ -12,7 +12,7 @@ final class TerrainUniformsMixin {
     @Mixin(value = GlUniformInt.class, remap = false)
     abstract static class Int {
         @Redirect(method="setInt", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform1i(II)V"))
-        private void set(int index, int value) {
+        private void eviemetal$set(int index, int value) {
             if (MetalBootstrap.isActive()) SodiumMetal.uniformInt(index, value);
             else org.lwjgl.opengl.GL30C.glUniform1i(index, value);
         }
@@ -20,20 +20,20 @@ final class TerrainUniformsMixin {
     @Mixin(value = GlUniformUnsignedInt.class, remap = false)
     abstract static class UInt {
         @Redirect(method="setInt", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform1ui(II)V"))
-        private void set(int index, int value) {
+        private void eviemetal$set(int index, int value) {
             if (MetalBootstrap.isActive()) SodiumMetal.uniformInt(index, value);
             else org.lwjgl.opengl.GL30C.glUniform1ui(index, value);
         }
     }
     @Mixin(value = GlUniformFloat3v.class, remap = false)
     abstract static class Float3 {
-        @Redirect(method="set", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform3f(IFFF)V"))
-        private void set(int index, float x, float y, float z) {
+        @Redirect(method="set(FFF)V", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform3f(IFFF)V"))
+        private void eviemetal$set(int index, float x, float y, float z) {
             if (MetalBootstrap.isActive()) SodiumMetal.uniformFloats(index, x, y, z);
             else org.lwjgl.opengl.GL30C.glUniform3f(index, x, y, z);
         }
-        @Redirect(method="set", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform3fv(I[F)V"))
-        private void set(int index, float[] values) {
+        @Redirect(method="set([F)V", at=@At(value="INVOKE", target="Lorg/lwjgl/opengl/GL30C;glUniform3fv(I[F)V"))
+        private void eviemetal$set(int index, float[] values) {
             if (MetalBootstrap.isActive()) SodiumMetal.uniformFloats(index, values);
             else org.lwjgl.opengl.GL30C.glUniform3fv(index, values);
         }
@@ -42,7 +42,7 @@ final class TerrainUniformsMixin {
     abstract static class Block {
         @Shadow @Final private int binding;
         @Inject(method="bindBufferRange", at=@At("HEAD"), cancellable=true)
-        private void bind(GpuBufferSlice slice, CallbackInfo ci) {
+        private void eviemetal$bind(GpuBufferSlice slice, CallbackInfo ci) {
             if (!MetalBootstrap.isActive()) return;
             SodiumMetal.bindUniformRange(binding, slice);
             ci.cancel();
