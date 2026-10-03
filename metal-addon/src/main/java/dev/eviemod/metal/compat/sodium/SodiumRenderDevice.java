@@ -15,6 +15,9 @@ import org.lwjgl.system.MemoryUtil;
 
 /** Sodium arenas, staging, batching and sorting retained behind its supported command-list boundary. */
 public final class SodiumRenderDevice implements RenderDevice {
+    public static RenderDevice create() {
+        return dev.eviemod.metal.MetalBootstrap.isActive() ? new SodiumRenderDevice() : new GLRenderDevice();
+    }
     private boolean active;
     private final Commands commands = new Commands();
     @Override public CommandList createCommandList() {

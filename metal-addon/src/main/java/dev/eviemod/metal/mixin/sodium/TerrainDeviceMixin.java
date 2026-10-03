@@ -11,12 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 final class TerrainDeviceMixin {
     @Mixin(value = RenderDevice.class, remap = false)
-    interface Device {
-        @Redirect(method = "<clinit>", at = @At(value = "NEW", target = "net/caffeinemc/mods/sodium/client/gl/device/GLRenderDevice"))
-        private static RenderDevice create() {
-            return MetalBootstrap.isActive() ? new SodiumRenderDevice() : new GLRenderDevice();
-        }
-    }
+    interface Device {}
     @Mixin(value = MappedStagingBuffer.class, remap = false)
     abstract static class Staging {
         @Inject(method = "isSupported", at = @At("HEAD"), cancellable = true)

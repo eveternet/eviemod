@@ -23,6 +23,24 @@ public final class SodiumMixinPlugin implements IMixinConfigPlugin {
     @Override public void postApply(String target, ClassNode node, String mixin, IMixinInfo info) {
         // Mixin cannot inject into another mixin's private handlers before those handlers are merged.
         // These priority-500 anchors run after Sodium. Match exact owner/name/descriptor and fail on drift.
+        if (mixin.endsWith("TerrainDeviceMixin$Device")) {
+            int changed = 0;
+            for (MethodNode method : node.methods) {
+                if (!method.name.equals("<clinit>")) continue;
+                for (AbstractInsnNode insn : method.instructions.toArray()) {
+                    if (!(insn instanceof TypeInsnNode type) || type.getOpcode() != Opcodes.NEW
+                            || !type.desc.equals("net/caffeinemc/mods/sodium/client/gl/device/GLRenderDevice")) continue;
+                    AbstractInsnNode dup = insn.getNext(), init = dup.getNext();
+                    if (dup.getOpcode() != Opcodes.DUP || !(init instanceof MethodInsnNode ctor) || !ctor.name.equals("<init>") || !ctor.desc.equals("()V"))
+                        throw new IllegalStateException("Sodium device factory changed");
+                    method.instructions.set(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "dev/eviemod/metal/compat/sodium/SodiumRenderDevice", "create",
+                            "()Lnet/caffeinemc/mods/sodium/client/gl/device/RenderDevice;", false));
+                    method.instructions.remove(dup); method.instructions.remove(init);
+                    changed++;
+                }
+            }
+            if (changed != 1) throw new IllegalStateException("Sodium device factory boundary changed: " + changed);
+        }
         if (mixin.endsWith("LifecycleAnchorsMixin$Minecraft")) {
             int changed = 0;
             for (MethodNode method : node.methods) for (AbstractInsnNode insn : method.instructions) {
