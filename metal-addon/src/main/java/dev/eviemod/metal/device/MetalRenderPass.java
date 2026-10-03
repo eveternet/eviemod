@@ -63,7 +63,13 @@ public class MetalRenderPass implements RenderPassBackend {
 
     @Override
     public void setPipeline(RenderPipeline pipeline) {
-        this.pipeline = encoder.device.getOrCompilePipeline(pipeline);
+        checkOpen();
+        try {
+            this.pipeline = encoder.device.getOrCompilePipeline(pipeline);
+        } catch (RuntimeException | Error e) {
+            abort(e);
+            throw e;
+        }
     }
 
     @Override
@@ -206,7 +212,13 @@ public class MetalRenderPass implements RenderPassBackend {
     private boolean setup() {
         if (pipeline == null || !pipeline.isValid()) return false;
         if (pipeline != boundPipeline) {
-            long pso = pipeline.state(colorFormat, depthFormat);
+            long pso;
+            try {
+                pso = pipeline.state(colorFormat, depthFormat);
+            } catch (RuntimeException | Error e) {
+                abort(e);
+                throw e;
+            }
             if (pso == 0) return false;
             RenderPipeline info = pipeline.info;
             Mtl.setPipelineState(pso, depthFormat >= 0 ? pipeline.depthState : encoder.noDepthState(), pipeline.cull,
@@ -291,11 +303,18 @@ public class MetalRenderPass implements RenderPassBackend {
 
     @Override public boolean isClosed() { return closed; }
 
+    /** A caller may catch a shader error without closing its pass. Release backend ownership immediately. */
+    private void abort(Throwable failure) {
+        debugGroups = 0;
+        try { close(); }
+        catch (RuntimeException | Error cleanup) { failure.addSuppressed(cleanup); }
+    }
+
     @Override
     public void close() {
         if (closed) return;
-        if (debugGroups > 0) throw new IllegalStateException("Render pass had debug groups left open!");
         closed = true;
         encoder.finishRenderPass();
+        if (debugGroups > 0) throw new IllegalStateException("Render pass had debug groups left open!");
     }
 }

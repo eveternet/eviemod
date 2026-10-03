@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * On-disk cache of GLSL -> MSL translations. Translating every shader takes ~2 s per launch; Metal already caches the
- * MSL compilation itself. Keys include the translator's own bytecode, so changing the translation invalidates entries.
+ * MSL compilation itself. Keys include the translator and compatibility adapter bytecode.
  */
 final class ShaderCache {
     private static @Nullable Path directory;
@@ -113,8 +113,15 @@ final class ShaderCache {
     }
 
     private static byte[] translatorVersion() {
-        try (InputStream in = ShaderTranslator.class.getResourceAsStream("ShaderTranslator.class")) {
-            return in != null ? MessageDigest.getInstance("SHA-256").digest(in.readAllBytes()) : new byte[0];
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            for (Class<?> type : new Class<?>[]{ShaderTranslator.class, GlslCompatibility.class}) {
+                try (InputStream in = type.getResourceAsStream(type.getSimpleName() + ".class")) {
+                    if (in == null) throw new IOException("Missing translator bytecode: " + type.getName());
+                    sha.update(in.readAllBytes());
+                }
+            }
+            return sha.digest();
         } catch (IOException | NoSuchAlgorithmException e) {
             return new byte[0];
         }

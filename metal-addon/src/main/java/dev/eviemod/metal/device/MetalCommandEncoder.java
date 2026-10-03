@@ -59,17 +59,18 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         if (color.isClosed()) throw new IllegalStateException("Color texture is closed");
         if ((color.texture().usage() & GpuTexture.USAGE_RENDER_ATTACHMENT) == 0) throw new IllegalStateException("Color texture must have USAGE_RENDER_ATTACHMENT");
         if (depth != null && depth.isClosed()) throw new IllegalStateException("Depth texture is closed");
+        MetalRenderPass pass = new MetalRenderPass(this, color, depth);
         int c = clearColor.orElse(0);
         if (Mtl.GPU_PROFILING) Mtl.setPassLabel(label.get());
         Mtl.beginPass(((MetalTextureView) color).handle, clearColor.isPresent(), ARGB.redFloat(c), ARGB.greenFloat(c), ARGB.blueFloat(c), ARGB.alphaFloat(c),
                 depth != null ? ((MetalTextureView) depth).handle : 0, depth != null && clearDepth.isPresent(), clearDepth.orElse(1.0));
         inRenderPass = true;
-        return new MetalRenderPass(this, color, depth);
+        return pass;
     }
 
     void finishRenderPass() {
-        Mtl.endPass();
-        inRenderPass = false;
+        try { Mtl.endPass(); }
+        finally { inRenderPass = false; }
     }
 
     @Override

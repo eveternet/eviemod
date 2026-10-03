@@ -8,24 +8,21 @@ import static org.lwjgl.util.spvc.Spvc.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.spvc.SpvcReflectedResource;
 
 /**
- * Translates Minecraft's GLSL 330 shaders into Metal Shading Language.
+ * Translates Minecraft's desktop GLSL shaders into Metal Shading Language.
  *
  * GLSL -> SPIR-V (shaderc, OpenGL semantics) -> MSL (SPIRV-Cross). Clip space is fixed up in the vertex
  * stage (Y flipped so render targets keep GL's bottom-up memory layout, Z remapped from [-1,1] to [0,1]).
- * Resources are looked up by name afterwards, so nothing in the GLSL source needs rewriting.
+ * Legacy syntax and loose uniforms are normalized before SPIR-V compilation; resources retain their names.
  */
 public final class ShaderTranslator {
     /** Metal buffer index used for the vertex stream; stays clear of the automatically assigned UBO indices. */
     public static final int VERTEX_BUFFER_INDEX = 30;
 
-    private static final Pattern MSL_RESERVED = Pattern.compile("\\b(sampler)\\b");
     private static final int SPV_DECORATION_LOCATION = 30;
     private static final int MSL_VERSION_2_4 = 20400;
 
@@ -49,13 +46,14 @@ public final class ShaderTranslator {
 
     /** Loose uniforms (`uniform vec3 foo;`) have no Metal equivalent; they're gathered into this std140 block. */
     public static final String DEFAULT_BLOCK = "EvieMetalDefaults";
-    private static final Pattern LOOSE_UNIFORM = Pattern.compile(
-            "^\\s*uniform\\s+((?:[biu]?vec[234])|(?:mat[234])|bool|int|uint|float)\\s+(\\w+)\\s*;.*$", Pattern.MULTILINE);
-    private static final Pattern VERSION = Pattern.compile("^#version[^\\n]*\\n", Pattern.MULTILINE);
 
     public static final class TranslationException extends Exception {
         public TranslationException(String message) {
             super(message);
+        }
+
+        public TranslationException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 
@@ -67,7 +65,12 @@ public final class ShaderTranslator {
         String key = ShaderCache.key(glsl, stage, inputLocations);
         Result cached = ShaderCache.load(key);
         if (cached != null) return cached;
-        Result result = translateUncached(name, glsl, stage, inputLocations);
+        Result result;
+        try {
+            result = translateUncached(name, glsl, stage, inputLocations);
+        } catch (TranslationException e) {
+            throw new TranslationException(name + " [" + stage.name().toLowerCase(java.util.Locale.ROOT) + "]: " + e.getMessage(), e);
+        }
         ShaderCache.store(key, result);
         return result;
     }
@@ -78,8 +81,7 @@ public final class ShaderTranslator {
     }
 
     private static Result translateUncached(String name, String glsl, Stage stage, Map<String, Integer> inputLocations) throws TranslationException {
-        // ponytail: `sampler` is a legal GLSL identifier but a type in MSL, and SPIRV-Cross keeps the name. Extend if other clashes show up.
-        ByteBuffer spirv = compileSpirv(name, gatherLooseUniforms(MSL_RESERVED.matcher(glsl).replaceAll("$1_")), stage);
+        ByteBuffer spirv = compileSpirv(name, glsl, stage);
         try {
             return toMsl(name, spirv, stage, inputLocations);
         } finally {
@@ -87,30 +89,27 @@ public final class ShaderTranslator {
         }
     }
 
-    /** Moves loose uniforms into a {@link #DEFAULT_BLOCK} uniform block; members keep their names, so shader code is unchanged. */
-    static String gatherLooseUniforms(String glsl) {
-        Matcher m = LOOSE_UNIFORM.matcher(glsl);
-        StringBuilder members = new StringBuilder();
-        StringBuilder rest = new StringBuilder();
-        while (m.find()) {
-            members.append("    ").append(m.group(1)).append(' ').append(m.group(2)).append(";\n");
-            m.appendReplacement(rest, "");
-        }
-        if (members.isEmpty()) return glsl;
-        m.appendTail(rest);
-        String block = "layout(std140) uniform " + DEFAULT_BLOCK + " {\n" + members + "};\n";
-        Matcher v = VERSION.matcher(rest);
-        return v.find() ? rest.insert(v.end(), block).toString() : block + rest;
-    }
-
     private static ByteBuffer compileSpirv(String name, String glsl, Stage stage) throws TranslationException {
         long compiler = shaderc_compiler_initialize();
         long options = shaderc_compile_options_initialize();
         try {
+            shaderc_compile_options_set_source_language(options, shaderc_source_language_glsl);
             shaderc_compile_options_set_target_env(options, shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+            shaderc_compile_options_set_target_spirv(options, shaderc_spirv_version_1_0);
             shaderc_compile_options_set_auto_bind_uniforms(options, true);
             shaderc_compile_options_set_auto_map_locations(options, true);
             int kind = stage == Stage.VERTEX ? shaderc_glsl_vertex_shader : shaderc_glsl_fragment_shader;
+            // shaderc's preprocessor also enforces SPIR-V's GLSL minimum. Prepare the dialect first,
+            // then expand macros/conditionals before inspecting declarations and legacy built-ins.
+            long preprocessed = shaderc_compile_into_preprocessed_text(compiler, GlslCompatibility.prepareVersion(glsl), kind, name, "main", options);
+            try {
+                if (shaderc_result_get_compilation_status(preprocessed) != shaderc_compilation_status_success) {
+                    throw new TranslationException("GLSL preprocessing: " + shaderc_result_get_error_message(preprocessed));
+                }
+                glsl = GlslCompatibility.normalize(org.lwjgl.system.MemoryUtil.memUTF8(shaderc_result_get_bytes(preprocessed)), stage);
+            } finally {
+                shaderc_result_release(preprocessed);
+            }
             long result = shaderc_compile_into_spv(compiler, glsl, kind, name, "main", options);
             try {
                 if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status_success) {
@@ -165,6 +164,16 @@ public final class ShaderTranslator {
                 forEach(resources, SPVC_RESOURCE_TYPE_STAGE_OUTPUT, stack,
                         r -> outputs.put(r.nameString(), spvc_compiler_get_decoration(compiler, r.id(), SPV_DECORATION_LOCATION)));
 
+                // `sampler` is a GLSL identifier but an MSL type. Rename only the IR symbol;
+                // reflected resource names must still match Minecraft's bindings. Avoid source-level collisions.
+                int idBound = spvc_compiler_get_current_id_bound(compiler);
+                java.util.Set<String> names = new java.util.HashSet<>();
+                for (int id = 1; id < idBound; id++) names.add(spvc_compiler_get_name(compiler, id));
+                String samplerName = "EvieMetalSampler";
+                while (names.contains(samplerName)) samplerName += "_";
+                for (int id = 1; id < idBound; id++) {
+                    if ("sampler".equals(spvc_compiler_get_name(compiler, id))) spvc_compiler_set_name(compiler, id, samplerName);
+                }
                 check(spvc_compiler_compile(compiler, pp), ctx, name);
                 String msl = org.lwjgl.system.MemoryUtil.memUTF8(pp.get(0));
 

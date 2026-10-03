@@ -53,18 +53,16 @@ public class MetalPipeline implements CompiledRenderPipeline {
         try {
             String vsh = source.get(info.getVertexShader(), ShaderType.VERTEX);
             String fsh = source.get(info.getFragmentShader(), ShaderType.FRAGMENT);
-            if (vsh == null || fsh == null) {
-                EvieMetal.LOGGER.error("Couldn't find shader source for pipeline {}", name);
-                throw new IllegalStateException("Missing Metal pipeline shader: " + name);
-            }
+            if (vsh == null) throw new IllegalStateException("Missing vertex shader " + info.getVertexShader() + ".vsh");
+            if (fsh == null) throw new IllegalStateException("Missing fragment shader " + info.getFragmentShader() + ".fsh");
             var vs = ShaderTranslator.translate(info.getVertexShader() + ".vsh", GlslPreprocessor.injectDefines(vsh, info.getShaderDefines()),
                     ShaderTranslator.Stage.VERTEX, Map.of());
             var fs = ShaderTranslator.translate(info.getFragmentShader() + ".fsh", GlslPreprocessor.injectDefines(fsh, info.getShaderDefines()),
                     ShaderTranslator.Stage.FRAGMENT, vs.outputs());
-            long vertexFn = function(vs);
+            long vertexFn = function(vs, info.getVertexShader() + ".vsh", "vertex");
             long fragmentFn = 0;
             try {
-                fragmentFn = function(fs);
+                fragmentFn = function(fs, info.getFragmentShader() + ".fsh", "fragment");
                 return new MetalPipeline(info, vs, fs, vertexFn, fragmentFn);
             } catch (RuntimeException | Error e) {
                 Mtl.release(vertexFn);
@@ -73,15 +71,23 @@ public class MetalPipeline implements CompiledRenderPipeline {
             }
         } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
             EvieMetal.LOGGER.error("Couldn't compile pipeline {}: {}", name, e.getMessage());
-            throw new IllegalStateException("Metal shader compilation failed for " + name + "; disable -Deviemod.metal and restart", e);
+            throw new IllegalStateException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
+                    + "; disable -Deviemod.metal and restart", e);
         }
     }
 
     // ponytail: one MTLLibrary per stage; a disk cache of compiled libraries (MTLBinaryArchive) is the upgrade if startup time matters.
-    private static long function(ShaderTranslator.Result r) {
-        long library = Mtl.newLibrary(r.msl());
-        try { return Mtl.newFunction(library, r.entryPoint()); }
-        finally { Mtl.release(library); }
+    private static long function(ShaderTranslator.Result r, String shader, String stage) {
+        try {
+            long library = Mtl.newLibrary(r.msl());
+            try {
+                long function = Mtl.newFunction(library, r.entryPoint());
+                if (function == 0) throw new IllegalStateException("Missing MSL entry point " + r.entryPoint());
+                return function;
+            } finally { Mtl.release(library); }
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException(shader + " [" + stage + "]: " + e.getMessage(), e);
+        }
     }
 
     @Override
