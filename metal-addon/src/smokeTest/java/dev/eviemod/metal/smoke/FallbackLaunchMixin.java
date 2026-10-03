@@ -20,6 +20,7 @@ abstract class FallbackLaunchMixin {
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
     private void verifyFallback(CallbackInfo ci) {
+        LegacyGuiStateProbe.verify();
         if (Boolean.getBoolean("eviemod.metal.distributionExpected")) {
             String source = dev.eviemod.metal.EvieMetal.class.getProtectionDomain().getCodeSource().getLocation().toString();
             if (!source.endsWith(".jar")) throw new AssertionError("Expected packaged addon JAR, loaded " + source);

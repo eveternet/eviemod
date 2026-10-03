@@ -43,8 +43,10 @@ frontend. With Sodium and the Metal opt-in, unsupported Sodium versions and
 Metal initialization failures stop with a clear error instead of silently
 retrying OpenGL. The log identifies both the active Metal backend and Sodium's
 Metal terrain endpoint. Iris, VulkanMod, Metallum, MetalCraft, and MetalRender
-retain their existing startup conflict checks. Other mods using raw OpenGL
-are unsupported. The compatibility design, physical Mac runtime evidence,
+retain their existing startup conflict checks. Legacy GUI state surrounding
+Blaze3D submissions is guarded; direct raw OpenGL drawing remains unsupported.
+The [GUI compatibility audit](metal-gui-compatibility.md) describes the boundary,
+state ownership and remaining direct-LWJGL limits. The compatibility design, physical Mac runtime evidence,
 and remaining limits are in [Sodium compatibility](metal-sodium-compat.md).
 No FPS improvement is promised without measurements on the target hardware.
 
