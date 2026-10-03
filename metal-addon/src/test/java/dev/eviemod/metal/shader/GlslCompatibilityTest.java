@@ -65,7 +65,7 @@ class GlslCompatibilityTest {
         String source = """
                   /* #version 999 */ # version 150 core
                 #define DECLARE(T, N) uniform T N;
-                #if __VERSION__ == 150
+                #if defined(__VERSION__) && __VERSION__ == 150
                 DECLARE(vec4, Tint)
                 #else
                 uniform UndefinedType WrongBranch;
@@ -84,7 +84,8 @@ class GlslCompatibilityTest {
         assertTrue(fs.buffers().containsKey("Settings"));
         String prepared = GlslCompatibility.prepareVersion(source);
         assertTrue(prepared.contains("/* #version 999 */"));
-        assertTrue(prepared.contains("#if 150 == 150"));
+        assertTrue(prepared.contains("#define EvieMetalSourceVersion 150"));
+        assertTrue(prepared.contains("defined(EvieMetalSourceVersion) && EvieMetalSourceVersion == 150"));
         var error = assertThrows(ShaderTranslator.TranslationException.class,
                 () -> ShaderTranslator.translate("fixture:broken.fsh", source.replace("Tint * Factor", "missingSymbol"), ShaderTranslator.Stage.FRAGMENT, Map.of()));
         assertTrue(error.getMessage().contains("fixture:broken.fsh [fragment]"), error.getMessage());

@@ -49,8 +49,17 @@ final class GlslCompatibility {
         if (!DESKTOP_VERSIONS.contains(version)) throw unsupported("GLSL version " + version);
         if (version >= 330) return source;
         List<Edit> edits = new ArrayList<>();
-        for (Token t : tokens) {
-            if (t.text.equals("__VERSION__")) edits.add(new Edit(t.start, t.end, Integer.toString(version)));
+        String sourceVersion = uniqueName(tokens, "EvieMetalSourceVersion");
+        boolean usesVersion = false;
+        for (int i = 0; i < tokens.size(); i++) {
+            Token t = tokens.get(i);
+            if (t.text.equals("__VERSION__")) {
+                if (i > 0 && tokens.get(i - 1).directive && Set.of("define", "undef").contains(tokens.get(i - 1).text)) {
+                    throw unsupported("redefinition of __VERSION__");
+                }
+                usesVersion = true;
+                edits.add(new Edit(t.start, t.end, sourceVersion));
+            }
             // Upgrading pre-profile GLSL would otherwise change #ifdef/defined decisions.
             if (version < 150 && (t.text.equals("GL_core_profile") || t.text.equals("GL_compatibility_profile"))) {
                 throw unsupported("profile-dependent preprocessing in pre-150 GLSL");
@@ -58,7 +67,15 @@ final class GlslCompatibility {
         }
         if (versionStart >= 0) edits.add(new Edit(versionStart, versionEnd, "#version 330 core"));
         String result = apply(source, edits);
-        return versionStart >= 0 ? result : "#version 330 core\n#line 1\n" + result;
+        String define = usesVersion ? "#define " + sourceVersion + " " + version + "\n" : "";
+        if (versionStart < 0) return "#version 330 core\n" + define + "#line 1\n" + result;
+        if (!usesVersion) return result;
+        // A macro alias also preserves #ifdef and defined(__VERSION__), unlike replacing it with a literal.
+        int headerEnd = result.indexOf('\n', versionStart);
+        if (headerEnd < 0) return result + "\n" + define;
+        int line = 1;
+        for (int i = 0; i <= headerEnd; i++) if (result.charAt(i) == '\n') line++;
+        return result.substring(0, headerEnd + 1) + define + "#line " + line + "\n" + result.substring(headerEnd + 1);
     }
 
     /** Input is macro-expanded: inactive declarations and macro-generated syntax must not affect rewriting. */
