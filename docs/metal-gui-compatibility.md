@@ -8,7 +8,9 @@ LWJGL native dispatch can abort the JVM before Java can throw or write a normal
 Minecraft crash report. Catching an exception around GUI drawing cannot fix it.
 
 The audit uses Minecraft **26.1.2**, the installed **Devonian 1.31.9** artifact,
-and its nested **Talium b81bb9d087c938e0cb2c5465454a8adf057f0b62** JAR. The JAR's
+and its nested **Talium b81bb9d087c938e0cb2c5465454a8adf057f0b62** JAR. Devonian's
+installed JAR SHA-256 is `558b1b96c5ad8c8ce423641f9465d4f6591648ffa9ad32981c46f4bf920e5dee`.
+The JAR's
 bytecode confirms the source path below, rather than assuming current upstream
 has identical APIs. Upstream Talium has since changed Minecraft versions.
 
@@ -86,8 +88,52 @@ The existing launch fixture runs `LegacyGuiStateProbe` through actual applied mi
 * The existing Metal frame render/readback then checks the renderer still produces
   a nonblank Minecraft image. Linux and macOS CI already execute these launch fixtures.
 
-Runtime/build results and actual mod-screen validation are recorded after running
-the final checks. Local fixtures are distinct from live Hypixel gameplay.
+## Local validation, 2026-10-03
+
+On the physical Apple M3 Pro with ARM64 Java 25:
+
+* `./gradlew build :metal-addon:verifyDistribution :metal-addon:smokeTestClasses -PmetalSmokeTest`
+  passed. Main tests: **162**, addon tests: **35**, no failures/errors/skips.
+  The added inventory regression covers all **78** public static GL wrappers.
+  `python3 .github/scripts/verify-metal-artifacts.py` passed, confirming the main
+  artifact neither contains nor requires the addon.
+* `MTL_DEBUG_LAYER=1 ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal -PexpectMetal`
+  passed with the pinned Sodium present. The transformed Metal state probe passed
+  1,000 cycles and every unsupported wrapper test with **no current GL context**;
+  all legacy caches/counters stayed unchanged. Title rendering/readback passed.
+* `./gradlew :metal-addon:runClient -PmetalSmokeTest` passed on real OpenGL with
+  Metal disabled. The probe verified native state changes and texture allocation,
+  binding and deletion. The production mixin's inactive branch stayed transparent.
+* The **packaged addon JAR**, installed Devonian JAR, its nested Talium, Fabric API,
+  Fabric Language Kotlin and Hypixel Mod API were loaded in separate fresh game
+  directories. No normal modpack settings or worlds were changed. The optional
+  screen fixture selects `com.github.synnerz.devonian.config.ui.talium.ConfigGui`
+  with `-Deviemod.metal.guiSmokeScreen=...` and opens/closes it **20** times before
+  taking the ordinary frame screenshot. Both Metal and OpenGL runs exited **0**.
+  Settings text, category/subcategory tabs, switches and clipping rendered correctly.
+  The 1708x960 base GUI captures differed in only **27 of 1,639,680 pixels**.
+* A separate local fixture compiled against the actual installed JARs exercised
+  Talium's normal event propagation and Devonian's Screen key/character handlers:
+  toggle/restore a switch, select Dungeons/Global, type a search, scroll results,
+  select Dungeon Colors, open/render/close a color picker. All assertions passed
+  with Metal validation enabled. Input tests synthesize the same component events;
+  they do not substitute for testing physical mouse/keyboard input in the modpack.
+  `Mtl.allocatedBytes()` after each of the 20 screen closes was **132,431,872**
+  bytes in this run, with no accumulation. This bounds the tested screen lifecycle,
+  not all modpack/game resource lifetimes.
+
+The reusable probes are in the existing development smoke-test source set and do
+not ship in the production JAR. The mod-specific local event fixture was temporary,
+outside the addon; production compatibility contains no Devonian/Talium names or
+dependency. Live Hypixel gameplay and the full normal modpack were not tested here.
+
+Local build/launch logs are `/tmp/eviemetal-gui-build-2.log`,
+`/tmp/eviemetal-gui-metal-launch-2.log`, `/tmp/eviemetal-gui-opengl-launch-1.log`,
+`/tmp/eviemetal-devonian-metal-launch-1.log`, `/tmp/eviemetal-devonian-opengl-launch.log`,
+and `/tmp/eviemetal-devonian-metal-events-6.log`. Base screenshots are under
+`metal-addon/run/devonian-gui-{metal,opengl}/metal-smoke.png`; game data/output is ignored
+and excluded from commits. Linux fallback and macOS launch probes are already part
+of CI; their new markers also make a failure fatal to the existing jobs.
 
 ## Manual modpack checks
 
