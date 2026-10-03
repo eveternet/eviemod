@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package dev.eviemod.metal.device;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -15,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.lwjgl.system.MemoryUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
@@ -29,7 +31,11 @@ class MetalPipelineFailureTest {
                         : "#version 150\nout vec4 color;void main(){color=vec4(1);}";
             });
             try (var texture = device.createTexture("target", GpuTexture.USAGE_RENDER_ATTACHMENT, TextureFormat.RGBA8, 1, 1, 1, 1);
-                 var view = device.createTextureView(texture)) {
+                 var view = device.createTextureView(texture);
+                 var vertices = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 36);
+                 var readback = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 256)) {
+                float[] positions = {-1, -1, 0, 3, -1, 0, -1, 3, 0};
+                for (int i = 0; i < positions.length; i++) MemoryUtil.memPutFloat(vertices.address() + i * 4L, positions[i]);
                 var backend = device.createCommandEncoder();
                 var encoder = new CommandEncoder(device, backend);
                 var bad = pipeline("fixture:broken", "fixture:bad");
@@ -47,10 +53,13 @@ class MetalPipelineFailureTest {
                     assertTrue(backend.isInRenderPass());
                     assertThrows(IllegalStateException.class, () -> failedPass.setPipeline(pipeline("fixture:good", "fixture:good")));
                     next.setPipeline(pipeline("fixture:good", "fixture:good"));
-                    next.draw(0, 0);
+                    next.setVertexBuffer(0, vertices);
+                    next.draw(0, 3);
                 }
                 assertFalse(backend.isInRenderPass());
+                Mtl.copyTextureToBuffer(((MetalTexture) texture).handle, 0, 0, 0, 1, 1, readback.handle, 0, 256);
                 assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+                for (int i = 0; i < 4; i++) assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address() + i)));
                 Mtl.checkError();
             } finally { device.close(); }
         }
