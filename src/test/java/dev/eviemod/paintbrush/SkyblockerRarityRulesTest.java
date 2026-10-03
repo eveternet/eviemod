@@ -54,10 +54,28 @@ class SkyblockerRarityRulesTest {
         }
     }
     @Test void releaseScopeExcludesLobbiesOtherGamesSingleplayerAndNoWorld() {
-        assertTrue(SkyBlockSession.allowed(true, false, false));
-        assertFalse(SkyBlockSession.allowed(false, false, false));
-        assertFalse(SkyBlockSession.allowed(false, false, true));
-        assertFalse(SkyBlockSession.allowed(false, true, false));
-        assertTrue(SkyBlockSession.allowed(false, true, true));
+        assertTrue(SkyBlockSession.allowed(true, true, false, false));
+        assertFalse(SkyBlockSession.allowed(true, false, false, false)); // forged HM API location
+        assertFalse(SkyBlockSession.allowed(true, false, true, false)); // remote development server
+        assertFalse(SkyBlockSession.allowed(false, true, false, false)); // Hypixel lobby
+        assertFalse(SkyBlockSession.allowed(false, false, false, true));
+        assertFalse(SkyBlockSession.allowed(true, true, false, true)); // no world / singleplayer
+        assertTrue(SkyBlockSession.allowed(false, false, true, true)); // existing local fixtures
+    }
+
+    @Test void petMetadataLimitAllowsLargeValidRecordsButRejectsOversizedOnes() {
+        String prefix = "{\"type\":\"SHEEP\",\"tier\":\"RARE\",\"skin\":\"";
+        String atLimit = prefix + "a".repeat(ItemRarity.MAX_PET_INFO_LENGTH - prefix.length() - 2) + "\"}";
+        assertEquals(ItemRarity.RARE, ItemRarity.read(pet(atLimit)));
+        var oversized = pet(atLimit + " ");
+        assertNull(ItemRarity.read(oversized));
+        assertFalse(ItemRarity.missingMetadata(oversized)); // must not revive remembered rarity
+        assertNull(ItemRarity.read(pet("x".repeat(ItemRarity.MAX_PET_INFO_LENGTH + 1))));
+    }
+
+    @Test void malformedAndNestedPetMetadataFailSafely() {
+        for (String input : List.of("[]", "{\"type\":{},\"tier\":\"RARE\"}",
+                "{\"type\":\"SHEEP\",\"tier\":[]}", "[".repeat(2000) + "0" + "]".repeat(2000)))
+            assertNull(ItemRarity.read(pet(input)));
     }
 }

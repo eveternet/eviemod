@@ -11,13 +11,20 @@ import java.util.regex.Pattern;
 /** Pure parsing and output selection, independent of Minecraft and configuration storage. */
 public final class AnnounceCrit {
     public static final String DEFAULT_TEMPLATE = "Explosive Shot did {damage} damage to enemies.";
+    // 128 decimal digits is vastly beyond gameplay values, without imposing a
+    // numeric damage cap. The whole-line limit also bounds regex work beforehand.
+    static final int MAX_NUMBER_DIGITS = 128;
+    private static final int MAX_MESSAGE_LENGTH = 512;
     private static final Pattern SUMMARY = Pattern.compile(
         "^Your Explosive Shot hit (\\d+) (?:enemy|enemies) for ([\\d,.]+) damage\\.$");
     private static final Pattern DAMAGE = Pattern.compile("(?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:\\.\\d+)?");
 
     public static String render(String text, String template) {
+        if (text.length() > MAX_MESSAGE_LENGTH) return null;
         var match = SUMMARY.matcher(text);
-        if (!match.matches() || !DAMAGE.matcher(match.group(2)).matches()) return null;
+        if (!match.matches() || match.group(1).length() > MAX_NUMBER_DIGITS
+            || match.group(2).chars().filter(Character::isDigit).count() > MAX_NUMBER_DIGITS
+            || !DAMAGE.matcher(match.group(2)).matches()) return null;
         try {
             var enemies = new BigInteger(match.group(1));
             if (enemies.signum() <= 0) return null;

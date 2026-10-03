@@ -1,6 +1,8 @@
 package dev.eviemod.features.skyblock;
 
 import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
@@ -15,6 +17,9 @@ public final class SkyblockContext {
    private static boolean skyblock;
    private static boolean rift;
    private static int ticksUntilScoreboardScan;
+   private static final Pattern HYPIXEL_HOST = Pattern.compile("(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*hypixel\\.net\\.?");
+   private static String checkedAddress;
+   private static boolean checkedHypixel;
 
    private SkyblockContext() {
    }
@@ -61,23 +66,32 @@ public final class SkyblockContext {
       return hypixel;
    }
 
-   private static boolean isHypixelServer(Minecraft client) {
+   /** Check the current connection, not a server-provided brand or location packet. */
+   public static boolean isHypixelServer(Minecraft client) {
+      if (client.getConnection() == null || client.isLocalServer()) return false;
       ServerData server = client.getCurrentServer();
-      if (server != null && server.ip != null) {
-         String host = server.ip.trim().toLowerCase(Locale.ROOT);
-         int portStart = host.indexOf(58);
-         if (portStart >= 0) {
-            host = host.substring(0, portStart);
-         }
-
-         while (host.endsWith(".")) {
-            host = host.substring(0, host.length() - 1);
-         }
-
-         return host.equals("hypixel.net") || host.endsWith(".hypixel.net");
-      } else {
-         return false;
+      String address = server == null ? null : server.ip;
+      // This is also used during rendering; normalize only when the address changes.
+      if (!Objects.equals(address, checkedAddress)) {
+         checkedAddress = address;
+         checkedHypixel = isHypixelAddress(address);
       }
+      return checkedHypixel;
+   }
+
+   public static boolean isHypixelAddress(String address) {
+      if (address == null) return false;
+      String host = address.trim().toLowerCase(Locale.ROOT);
+      if (host.length() > 260) return false; // DNS name, optional root dot and port.
+      int colon = host.indexOf(':');
+      if (colon >= 0) {
+         String port = host.substring(colon + 1);
+         if (!port.matches("[0-9]{1,5}")) return false;
+         int number = Integer.parseInt(port);
+         if (number < 1 || number > 65535) return false;
+         host = host.substring(0, colon);
+      }
+      return host.length() <= (host.endsWith(".") ? 254 : 253) && HYPIXEL_HOST.matcher(host).matches();
    }
 
    private static void refreshScoreboardState(Minecraft client) {
