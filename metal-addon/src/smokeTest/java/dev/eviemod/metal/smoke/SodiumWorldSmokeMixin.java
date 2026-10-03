@@ -127,7 +127,14 @@ abstract class SodiumWorldSmokeMixin {
         server.execute(() -> {
             for (String command : commands) {
                 try { server.getCommands().getDispatcher().execute(command, server.createCommandSourceStack().withSuppressedOutput()); }
-                catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) { throw new AssertionError("Fixture command failed: " + command, e); }
+                catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
+                    // Reopening the fixture may leave an identical fill/setblock already in place.
+                    if (e.getRawMessage() instanceof net.minecraft.network.chat.Component message
+                            && message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
+                            && ((command.startsWith("fill ") && contents.getKey().equals("commands.fill.failed"))
+                            || (command.startsWith("setblock ") && contents.getKey().equals("commands.setblock.failed")))) continue;
+                    throw new AssertionError("Fixture command failed: " + command, e);
+                }
             }
         });
     }
