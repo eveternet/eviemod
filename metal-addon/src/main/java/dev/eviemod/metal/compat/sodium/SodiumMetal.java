@@ -323,13 +323,14 @@ public final class SodiumMetal {
         TimeView view = TIME_VIEWS.remove(id);
         if (view != null) Mtl.release(view.view);
     }
-    public static void bindTimeView(int unit, int id) {
+    public static long bindTimeView(int unit, int id) {
         TimeView view = TIME_VIEWS.get(id);
         if (view == null) throw new IllegalStateException("Unknown Sodium section time view");
         // Small ordered writes can orphan MetalBuffer storage. The independently retained texture view must follow it.
         view.refresh();
         UNIT_VIEWS[unit] = view.view;
         UNIT_SAMPLERS[unit] = 0;
+        return view.view; // borrowed native view; ownership stays in TIME_VIEWS
     }
 
     public static void bindTexture(int unit, GpuTextureView view, GpuSampler sampler) {
