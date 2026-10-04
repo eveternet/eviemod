@@ -2,8 +2,8 @@
 
 Eviemetal accepts a bounded subset of legacy **desktop GLSL** supplied through
 Minecraft's `ShaderSource`/`RenderPipeline` abstractions. There are no resource
-ID, namespace, or mod-specific branches. The existing Metal opt-in and startup
-fallback rules are unchanged; the addon version remains `0.1.0.1`.
+ID, namespace, or mod-specific branches. Metal's platform/conflict checks and startup
+fallback rules remain in place; the addon version remains `0.1.0.1`.
 
 ## Why OpenGL succeeds and translation failed
 

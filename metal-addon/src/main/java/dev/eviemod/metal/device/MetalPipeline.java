@@ -72,7 +72,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
         } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
             EvieMetal.LOGGER.error("Couldn't compile pipeline {}: {}", name, e.getMessage());
             throw new IllegalStateException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
-                    + "; disable -Deviemod.metal and restart", e);
+                    + "; set -Deviemod.metal=false and restart", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
             pso = build(colorFormat, depthFormat);
         } catch (IllegalStateException e) {
             EvieMetal.LOGGER.error("Couldn't create Metal pipeline state for {}: {}", info.getLocation(), e.getMessage());
-            throw new IllegalStateException("Metal pipeline state failed for " + info.getLocation() + "; disable -Deviemod.metal and restart", e);
+            throw new IllegalStateException("Metal pipeline state failed for " + info.getLocation() + "; set -Deviemod.metal=false and restart", e);
         }
         variants.put(key, pso);
         return pso;

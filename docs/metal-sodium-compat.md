@@ -147,8 +147,9 @@ framebuffer or upload-ring storage. The earlier timestamp regression checks
 actual pixels and bounded native allocation across repeated storage replacement.
 
 The packaged addon without Sodium also reached a nonblank Metal title frame and
-exited normally. Sodium with Metal disabled under the previous startup policy initialized the real Apple
-OpenGL device and passed the disabled-backend startup assertion. The complete
+exited normally. Sodium with Metal disabled under the previous startup policy
+initialized the real Apple OpenGL device and passed the disabled-backend startup
+assertion. The complete
 project build passed 162 main-mod tests and 17 addon tests; artifact separation
 verification passed. No release/tag or push was performed.
 

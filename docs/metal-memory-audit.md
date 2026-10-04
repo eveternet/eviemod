@@ -1,6 +1,6 @@
 # Metal memory audit — 0.1.0.1
 
-Audit of the separate addon at baseline `3c763e6`, following catastrophic process-memory growth reported during gameplay without the FPS mod. The main eviemod artifact is unchanged. Metal remains opt-in.
+Audit of the separate addon at baseline `3c763e6`, following catastrophic process-memory growth reported during gameplay without the FPS mod. The main eviemod artifact is unchanged. At this baseline, Metal required a JVM opt-in.
 
 ## Reproduced leak
 
