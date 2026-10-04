@@ -38,4 +38,25 @@ class AnnounceCritTest {
         AnnounceCrit.receive(input, false, true, "Crit {damage}", true, local::add, commands::add);
         assertTrue(local.isEmpty()); assertEquals(java.util.List.of("pc Crit 400,000"), commands);
     }
+
+    @Test void acceptsNumbersFarBeyondGameplayValuesIncludingGroupingAndDecimals() {
+        String digits = "9".repeat(AnnounceCrit.MAX_NUMBER_DIGITS);
+        String rendered = AnnounceCrit.render(summary("1 enemy", digits), "{damage}");
+        assertNotNull(rendered);
+        assertEquals(digits, rendered.replace(",", ""));
+        assertEquals(rendered, AnnounceCrit.render(summary("1 enemy", rendered), "{damage}"));
+        assertEquals("1", AnnounceCrit.render(summary(digits + " enemies", digits), "{damage}"));
+        assertEquals("1", AnnounceCrit.render(summary("1 enemy", "1." + "0".repeat(127)), "{damage}"));
+    }
+
+    @Test void rejectsOversizedNumericInputsBeforeTheyCanProduceAnnouncements() {
+        String digits = "9".repeat(AnnounceCrit.MAX_NUMBER_DIGITS + 1);
+        assertNull(AnnounceCrit.render(summary(digits + " enemies", "1"), "{damage}"));
+        assertNull(AnnounceCrit.render(summary("1 enemy", digits), "{damage}"));
+        assertNull(AnnounceCrit.render(summary("1 enemy", "1." + "0".repeat(128)), "{damage}"));
+        var local = new ArrayList<String>(); var commands = new ArrayList<String>();
+        AnnounceCrit.receive(summary("1 enemy", "9".repeat(100_000)), false, true,
+            "{damage}", true, local::add, commands::add);
+        assertTrue(local.isEmpty()); assertTrue(commands.isEmpty());
+    }
 }

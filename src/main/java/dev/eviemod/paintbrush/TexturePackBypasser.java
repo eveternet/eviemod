@@ -134,8 +134,7 @@ public final class TexturePackBypasser {
     }
     static boolean matches(String serverAddress, String url, String hash, HypixelPackStore.Pack pack) {
         if (serverAddress == null || pack == null) return false;
-        String host = serverAddress.toLowerCase(java.util.Locale.ROOT).split(":", 2)[0];
-        return (host.equals("hypixel.net") || host.endsWith(".hypixel.net"))
+        return dev.eviemod.features.skyblock.SkyblockContext.isHypixelAddress(serverAddress)
             && pack.url().equals(url) && pack.hash().equalsIgnoreCase(hash);
     }
     private static void notifyUser(String message) {

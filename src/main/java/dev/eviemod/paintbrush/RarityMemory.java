@@ -36,7 +36,7 @@ final class RarityMemory {
     ItemRarity resolve(ItemStack stack, ItemRarity fresh) {
         return resolve(stack, fresh, tag(stack));
     }
-    private ItemRarity resolve(ItemStack stack, ItemRarity fresh, CompoundTag tag) {
+    ItemRarity resolve(ItemStack stack, ItemRarity fresh, CompoundTag tag) {
         UUID uuid = uuid(tag);
         String id = id(tag);
         if (uuid != null) {
@@ -71,9 +71,5 @@ final class RarityMemory {
         if (previous != null && previous.matches(stack, id) && ItemRarity.missingMetadata(stack, tag)) return previous.rarity();
         slots.remove(slot);
         return rarity;
-    }
-    void refreshKnown(int slot) {
-        Known known = slots.get(slot);
-        if (known != null && known.uuid() != null) identities.put(known.uuid(), known);
     }
 }

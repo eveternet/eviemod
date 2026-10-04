@@ -18,6 +18,9 @@ public enum ItemRarity {
     SPECIAL(0xff5555), VERY_SPECIAL(0xff5555), ULTIMATE(0xaa0000), ADMIN(0xaa0000);
     public final int rgb;
     ItemRarity(int rgb) { this.rgb = rgb; }
+    // Pet metadata is a small record of type/tier/experience/IDs. 64 Ki characters
+    // leaves ample room for future fields while bounding work before JSON parsing.
+    static final int MAX_PET_INFO_LENGTH = 64 * 1024;
 
     private static Optional<String> containsName(String text) {
         String match = null;
@@ -40,6 +43,7 @@ public enum ItemRarity {
             // A malformed pet is UNKNOWN; Skyblocker does not fall through to lore/style.
             try {
                 String raw = tag.getStringOr("petInfo", "");
+                if (raw.length() > MAX_PET_INFO_LENGTH) return null;
                 Pet pet = Pet.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(raw)).result().orElse(null);
                 if (pet == null) return null;
                 ItemRarity tier = known(pet.tier());
