@@ -84,7 +84,9 @@ A macOS launch fixture also requires an active Metal backend with no JVM overrid
 and a nonblank title-screen screenshot;
 that frame includes the 3D panorama, UI textures, and text. GitHub's Mac runner
 uses Apple's paravirtual Metal device, rather than a physical Mac's GPU.
-A second macOS launch checks that the explicit disable override still uses OpenGL.
+A second Linux launch checks that the explicit disable override selects OpenGL
+and completes startup. The hosted Mac runner cannot create vanilla OpenGL's
+required pixel format; unit tests cover disabling Metal on a supported Mac.
 These checks are not live gameplay or a performance benchmark.
 
 Before calling the renderer verified, test on Apple Silicon with Metal API
