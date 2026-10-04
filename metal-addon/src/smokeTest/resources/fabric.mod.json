@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "eviemod_metal_smoke",
+  "version": "1.0.0.0",
+  "environment": "client",
+  "mixins": ["eviemod-metal-smoke.mixins.json"]
+}

@@ -10,3 +10,7 @@ A client-side Fabric mod for Hypixel SkyBlock on Minecraft 26.1.2, with item cus
 - **Dungeons:** Noamm score sync and customizable Explosive Shot damage announcements, locally or in party chat.
 - **Chat commands:** warp, coordinates, invite, kick, party transfer, ping, TPS, and FPS, individually configurable for party, guild, and co-op chat.
 - **Command hotkeys:** custom key bindings for commands.
+
+An optional [experimental Apple Silicon Metal addon](docs/metal-addon.md) is
+built as a separate `eviemod-metal` JAR. It defaults to off and is not bundled
+with the main mod.

@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "package": "dev.eviemod.metal.mixin.sodium",
+  "plugin": "dev.eviemod.metal.mixin.sodium.SodiumMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "GlShaderMixin",
+    "GlProgramMixin",
+    "GlProgramBuilderMixin",
+    "GlObjectHandlesMixin",
+    "TerrainDeviceMixin$Device",
+    "TerrainDeviceMixin$Staging",
+    "TerrainRendererMixin",
+    "TerrainShaderInterfaceMixin",
+    "TerrainUniformsMixin$Int",
+    "TerrainUniformsMixin$UInt",
+    "TerrainUniformsMixin$Float3",
+    "TerrainUniformsMixin$Block",
+    "MetalBufferSodiumMixin",
+    "TerrainTimeViewMixin",
+    "MetalDeviceCloseMixin",
+    "LifecycleAnchorsMixin$Minecraft",
+    "LifecycleAnchorsMixin$RenderSystem",
+    "LifecycleAnchorsMixin$Options",
+    "SectionTimeUploadsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
