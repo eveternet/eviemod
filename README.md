@@ -12,5 +12,5 @@ A client-side Fabric mod for Hypixel SkyBlock on Minecraft 26.1.2, with item cus
 - **Command hotkeys:** custom key bindings for commands.
 
 An optional [experimental Apple Silicon Metal addon](docs/metal-addon.md) is
-built as a separate `eviemod-metal` JAR. It defaults to off and is not bundled
-with the main mod.
+built as a separate `eviemod-metal` JAR. Installing it enables Metal on supported
+Macs without a custom JVM argument. It is not bundled with the main mod.

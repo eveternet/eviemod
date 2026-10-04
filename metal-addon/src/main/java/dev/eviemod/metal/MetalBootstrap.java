@@ -19,7 +19,7 @@ public final class MetalBootstrap {
     /** Policy runs before window creation or native loading; vanilla's candidates remain available for retry. */
     public static GpuBackend[] selectBackends(GpuBackend[] defaults) {
         var loader = FabricLoader.getInstance();
-        String reason = MetalSupport.unavailableReason(Boolean.getBoolean("eviemod.metal"),
+        String reason = MetalSupport.unavailableReason(MetalSupport.isEnabled(System.getProperty("eviemod.metal")),
                 System.getProperty("os.name", ""), System.getProperty("os.arch", ""),
                 System.getProperty("os.version", ""),
                 loader.getAllMods().stream().map(m -> m.getMetadata().getId()).collect(Collectors.toSet()));

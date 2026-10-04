@@ -5,8 +5,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MetalSupportTest {
-    @Test void disabledByDefault() {
-        assertNotNull(MetalSupport.unavailableReason(false, "Mac OS X", "aarch64", "27.0", Set.of()));
+    @Test void defaultsToEnabledAndPreservesJvmOverride() {
+        assertTrue(MetalSupport.isEnabled(null));
+        assertTrue(MetalSupport.isEnabled("true"));
+        assertTrue(MetalSupport.isEnabled("TRUE"));
+        assertFalse(MetalSupport.isEnabled("false"));
+        assertFalse(MetalSupport.isEnabled("FALSE"));
+        assertFalse(MetalSupport.isEnabled(""));
+        assertFalse(MetalSupport.isEnabled("invalid"));
+        assertNull(MetalSupport.unavailableReason(MetalSupport.isEnabled(null),
+                "Mac OS X", "aarch64", "27.0", Set.of()));
+        assertNotNull(MetalSupport.unavailableReason(MetalSupport.isEnabled("false"),
+                "Mac OS X", "aarch64", "27.0", Set.of()));
     }
     @Test void requiresSupportedHostAndNativeJvm() {
         assertNotNull(MetalSupport.unavailableReason(true, "Linux", "aarch64", "27.0", Set.of()));
@@ -21,9 +31,9 @@ class MetalSupportTest {
             assertTrue(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of(mod)).contains(mod));
         }
     }
-    @Test void sodiumIsAllowedOnlyWithTheExistingExplicitMetalOptIn() {
-        assertNull(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
-        assertNotNull(MetalSupport.unavailableReason(false, "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
+    @Test void sodiumIsAllowedWithDefaultMetalAndCanBeDisabled() {
+        assertNull(MetalSupport.unavailableReason(MetalSupport.isEnabled(null), "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
+        assertNotNull(MetalSupport.unavailableReason(MetalSupport.isEnabled("false"), "Mac OS X", "aarch64", "27.0", Set.of("sodium")));
         assertNotNull(MetalSupport.unavailableReason(true, "Mac OS X", "aarch64", "27.0", Set.of("sodium", "iris")));
     }
 }

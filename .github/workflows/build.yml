@@ -28,7 +28,7 @@ jobs:
       - name: Verify addon launches with OpenGL on an unsupported host
         run: |
           set -o pipefail
-          xvfb-run -a ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal 2>&1 | tee metal-smoke.log
+          xvfb-run -a ./gradlew :metal-addon:runClient -PmetalSmokeTest 2>&1 | tee metal-smoke.log
           grep -q EVIEMOD_METAL_FALLBACK_OK metal-smoke.log
       - name: Upload mod JAR
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -60,8 +60,13 @@ jobs:
       - name: Render and read back a Minecraft frame using Metal
         run: |
           set -o pipefail
-          ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal -PexpectMetal 2>&1 | tee metal-launch.log
+          ./gradlew :metal-addon:runClient -PmetalSmokeTest -PexpectMetal 2>&1 | tee metal-launch.log
           grep -q EVIEMOD_METAL_FRAME_OK metal-launch.log
+      - name: Verify explicit disable override launches with OpenGL
+        run: |
+          set -o pipefail
+          ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal=false 2>&1 | tee metal-disabled-launch.log
+          grep -q EVIEMOD_METAL_FALLBACK_OK metal-disabled-launch.log
       - name: Upload Metal launch evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -69,6 +74,7 @@ jobs:
           name: metal-launch-evidence
           path: |
             metal-launch.log
+            metal-disabled-launch.log
             metal-addon/run/metal-smoke.png
             metal-addon/build/test-results/test/*.xml
       - name: Upload Metal addon
