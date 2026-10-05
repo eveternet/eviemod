@@ -34,11 +34,21 @@ public final class SodiumRenderDevice implements RenderDevice {
     @Override public int getSubTexelPrecisionBits() { return 8; }
 
     private static final class TerrainTessellation extends GlAbstractTessellation {
-        TerrainTessellation(GlPrimitiveType primitive, TessellationBinding[] bindings) { super(primitive, bindings); }
+        private final TerrainLayout layout;
+        private boolean deleted;
+        TerrainTessellation(GlPrimitiveType primitive, TessellationBinding[] bindings) {
+            super(primitive, bindings);
+            layout = SodiumMetal.acquireLayout(bindings);
+        }
         @Override public void bind(CommandList commands) {}
         @Override public void unbind(CommandList commands) {}
-        @Override public void delete(CommandList commands) {} // owns references, never owns the arena buffers
-        void draw(MultiDrawBatch batch, GlIndexType type) { SodiumMetal.multiDraw(primitiveType, bindings, batch, type); }
+        @Override public void delete(CommandList commands) {
+            if (!deleted) { deleted = true; SodiumMetal.releaseLayout(layout); }
+        } // owns the layout reference, never owns the arena buffers
+        void draw(MultiDrawBatch batch, GlIndexType type) {
+            if (deleted) throw new IllegalStateException("Deleted Sodium tessellation");
+            SodiumMetal.multiDraw(primitiveType, bindings, layout, batch, type);
+        }
     }
 
     private static final class Commands implements CommandList, DrawCommandList {

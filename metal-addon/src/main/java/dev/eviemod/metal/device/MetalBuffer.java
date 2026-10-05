@@ -14,6 +14,7 @@ public class MetalBuffer extends GpuBuffer {
     private static final long ORPHAN_LIMIT = 256 * 1024;
 
     long handle;
+    private long storageGeneration;
     private long contents;
     private long texelView;
     private long lastGpuWrite;
@@ -30,6 +31,7 @@ public class MetalBuffer extends GpuBuffer {
         if (next == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Could not allocate buffer of " + size());
         handle = next;
         contents = Mtl.bufferContents(handle);
+        storageGeneration++;
     }
 
     /** Records that queued GPU work writes into this buffer, so the CPU-side contents are stale until it completes. */
@@ -61,6 +63,8 @@ public class MetalBuffer extends GpuBuffer {
     long address() {
         return contents;
     }
+
+    long storageGeneration() { return storageGeneration; }
 
     /** Texture view used when this buffer is bound as a samplerBuffer (texel buffer). */
     long texelView(TextureFormat format) {

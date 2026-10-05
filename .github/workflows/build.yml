@@ -68,6 +68,20 @@ jobs:
           set -o pipefail
           ./gradlew :metal-addon:runClient -PmetalSmokeTest -PexpectMetal 2>&1 | tee metal-launch.log
           grep -q EVIEMOD_METAL_FRAME_OK metal-launch.log
+      - name: Verify Sodium terrain reuse, binding savings and world cleanup
+        run: |
+          mkdir -p metal-addon/run/mods
+          python3 - <<'PY'
+          import pathlib, shutil
+          cache = pathlib.Path.home() / '.gradle/caches/modules-2/files-2.1/maven.modrinth/sodium/mc26.1.2-0.9.2-fabric'
+          jars = list(cache.glob('*/*.jar'))
+          assert len(jars) == 1, jars
+          shutil.copy2(jars[0], 'metal-addon/run/mods/sodium.jar')
+          PY
+          set -o pipefail
+          ./gradlew :metal-addon:runClient -PmetalSmokeTest -PexpectMetal -PmetalWorldTest -PterrainProfile 2>&1 | tee metal-sodium-launch.log
+          grep -q EVIEMETAL_SODIUM_TIER1_OK metal-sodium-launch.log
+          grep -q EVIEMETAL_SODIUM_LIFECYCLE_OK metal-sodium-launch.log
       - name: Upload Metal launch evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -75,6 +89,8 @@ jobs:
           name: metal-launch-evidence
           path: |
             metal-launch.log
+            metal-sodium-launch.log
+            metal-addon/run/sodium-*.png
             metal-addon/run/metal-smoke.png
             metal-addon/build/test-results/test/*.xml
       - name: Upload Metal addon

@@ -41,6 +41,13 @@ abstract class SodiumWorldSmokeMixin {
             if (!Mtl.fenceWait(Mtl.fence(), 5000)) throw new AssertionError("Final GPU fence timed out");
             dev.eviemod.metal.compat.sodium.SodiumMetal.assertWorldReleased();
             System.out.println("EVIEMETAL_SODIUM_RESOURCES " + dev.eviemod.metal.compat.sodium.SodiumMetal.resourceSummary());
+            if (Boolean.getBoolean("eviemod-metal.terrainProfile")) {
+                var counters = dev.eviemod.metal.compat.sodium.SodiumMetal.performanceCounters();
+                if (counters.layoutSnapshots() == 0 || counters.batches() <= counters.layoutSnapshots()
+                        || counters.bindingCalls() >= counters.bindingAttempts())
+                    throw new AssertionError("Expected layout reuse and fewer native bindings: " + counters);
+                System.out.println("EVIEMETAL_SODIUM_TIER1_OK " + counters);
+            }
             System.out.println("EVIEMETAL_SODIUM_LIFECYCLE_OK metalBytesAfterUnload=" + Mtl.allocatedBytes());
             mc.stop(); return;
         }

@@ -13,7 +13,7 @@ repositories {
 dependencies {
     minecraft 'com.mojang:minecraft:26.1.2'
     compileOnly 'maven.modrinth:sodium:mc26.1.2-0.9.2-fabric'
-    testRuntimeOnly 'maven.modrinth:sodium:mc26.1.2-0.9.2-fabric'
+    testImplementation 'maven.modrinth:sodium:mc26.1.2-0.9.2-fabric'
     implementation 'net.fabricmc:fabric-loader:0.19.5'
     // Match the LWJGL ABI shipped by Minecraft 26.1.2.
     ['lwjgl-shaderc', 'lwjgl-spvc'].each { module ->
@@ -62,6 +62,7 @@ loom {
             property 'eviemod.metal', providers.gradleProperty('metal').get() == 'false' ? 'false' : 'true'
         }
         if (providers.gradleProperty('metalWorldTest').isPresent()) property 'eviemod.metal.worldSmoke', 'true'
+        if (providers.gradleProperty('terrainProfile').isPresent()) property 'eviemod-metal.terrainProfile', 'true'
         if (providers.gradleProperty('expectMetal').isPresent()) property 'eviemod.metal.smokeExpected', 'true'
     }
 }

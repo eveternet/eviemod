@@ -23,7 +23,6 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,19 +135,33 @@ public final class SodiumMetal {
         SHADER_TYPES.remove(shader);
     }
 
-    private record Attribute(int index, int format, int offset, int stride) {}
-    private record PsoKey(RenderPipeline pipeline, int colorFormat, int depthFormat, List<Attribute> attributes) {}
+    private record PassKey(RenderPipeline pipeline, int colorFormat, int depthFormat) {}
+    private static final TerrainLayout.Pool LAYOUTS = new TerrainLayout.Pool();
+    private static final boolean PROFILE = Boolean.getBoolean("eviemod-metal.terrainProfile");
+    private static final TerrainBindingCache BINDINGS = new TerrainBindingCache(TerrainBindingCache.NATIVE, PROFILE);
+    private static long layoutSnapshots, batches, pipelineMisses;
+
+    static TerrainLayout acquireLayout(TessellationBinding[] bindings) {
+        // Match the existing last vertex binding selection; geometry/storage still resolves at each draw.
+        GlVertexAttributeBinding[] attributes = null;
+        for (var binding : bindings)
+            if (binding.target() != GlBufferTarget.ELEMENT_BUFFER) attributes = binding.attributeBindings();
+        if (attributes == null) throw new IllegalStateException("Missing Sodium terrain layout");
+        if (PROFILE) layoutSnapshots++;
+        return LAYOUTS.acquire(attributes);
+    }
+    static void releaseLayout(TerrainLayout layout) { LAYOUTS.release(layout); }
 
     private static final class Program {
         final IntArrayList shaders = new IntArrayList();
         final Map<String, Integer> attributes = new HashMap<>();
         final List<String> uniformNames = new ArrayList<>();  // GL uniform location -> name
         final List<String> blockNames = new ArrayList<>();    // GL block index -> name
-        final Object2IntOpenHashMap<String> blockBindings = new Object2IntOpenHashMap<>();
-        final Object2IntOpenHashMap<String> samplerUnits = new Object2IntOpenHashMap<>();
-        final Map<PsoKey, Long> pipelines = new HashMap<>();
+        final Map<PassKey, Map<TerrainLayout, Long>> pipelines = new HashMap<>();
         final Map<RenderPipeline, Long> depths = new HashMap<>();
         ShaderTranslator.Result vs, fs;
+        TerrainBindingPlan vsPlan, fsPlan;
+        long vsGeneration, fsGeneration;
         long vsFn, fsFn, vsDefaults, fsDefaults;
         String log = "";
     }
@@ -185,6 +198,8 @@ public final class SodiumMetal {
             p.fsFn = function(p.fs);
             p.vsDefaults = MemoryUtil.nmemCalloc(1, Math.max(16, p.vs.defaultsSize()));
             p.fsDefaults = MemoryUtil.nmemCalloc(1, Math.max(16, p.fs.defaultsSize()));
+            p.vsPlan = new TerrainBindingPlan(p.vs);
+            p.fsPlan = new TerrainBindingPlan(p.fs);
         } catch (ShaderTranslator.TranslationException | RuntimeException | Error e) {
             deleteProgram(handle);
             throw new IllegalStateException("Sodium terrain shader translation failed", e);
@@ -206,14 +221,19 @@ public final class SodiumMetal {
     }
 
     public static void useProgram(int program) {
-        current = program == 0 ? null : PROGRAMS.get(program);
+        Program next = program == 0 ? null : PROGRAMS.get(program);
+        if (next != current) { BINDINGS.invalidate(); boundPso = 0; }
+        current = next;
     }
 
     public static void deleteProgram(int handle) {
         Program p = PROGRAMS.remove(handle);
         if (p == null) return;
-        if (current == p) current = null;
-        p.pipelines.values().forEach(Mtl::release);
+        if (current == p) { current = null; BINDINGS.invalidate(); boundPso = 0; }
+        p.pipelines.values().forEach(variants -> {
+            variants.values().forEach(Mtl::release);
+            variants.keySet().forEach(LAYOUTS::release);
+        });
         p.depths.values().forEach(Mtl::release);
         Mtl.release(p.vsFn);
         Mtl.release(p.fsFn);
@@ -248,7 +268,9 @@ public final class SodiumMetal {
 
     public static void uniformBlockBinding(int program, int blockIndex, int binding) {
         Program p = PROGRAMS.get(program);
-        p.blockBindings.put(p.blockNames.get(blockIndex), binding);
+        String name = p.blockNames.get(blockIndex);
+        p.vsPlan.block(name, binding);
+        p.fsPlan.block(name, binding);
     }
 
     // ---- Uniform values (apply to the current program, like glUniform*) ------------------------
@@ -258,7 +280,8 @@ public final class SodiumMetal {
         if (p == null || location < 0) return;
         String name = p.uniformNames.get(location);
         if (p.vs.textures().containsKey(name) || p.fs.textures().containsKey(name)) {
-            p.samplerUnits.put(name, value);  // Sampler uniforms hold texture units.
+            p.vsPlan.sampler(name, value); // Sampler uniforms hold texture units.
+            p.fsPlan.sampler(name, value);
             return;
         }
         write(p, name, addr -> MemoryUtil.memPutInt(addr, value));
@@ -274,9 +297,9 @@ public final class SodiumMetal {
 
     private static void write(Program p, String name, java.util.function.LongConsumer writer) {
         Integer vsOffset = p.vs.defaults().get(name);
-        if (vsOffset != null) writer.accept(p.vsDefaults + vsOffset);
+        if (vsOffset != null) { writer.accept(p.vsDefaults + vsOffset); p.vsGeneration++; }
         Integer fsOffset = p.fs.defaults().get(name);
-        if (fsOffset != null) writer.accept(p.fsDefaults + fsOffset);
+        if (fsOffset != null) { writer.accept(p.fsDefaults + fsOffset); p.fsGeneration++; }
     }
 
     // ---- Global binding points ---------------------------------------------------------------
@@ -284,6 +307,12 @@ public final class SodiumMetal {
     private static final GpuBufferSlice[] UNIFORM_BUFFERS = new GpuBufferSlice[16];
     private static final long[] UNIT_VIEWS = new long[16];
     private static final long[] UNIT_SAMPLERS = new long[16];
+    private static final long[] UNIT_GENERATIONS = new long[16];
+    private static final MetalTextureView[] UNIT_TEXTURES = new MetalTextureView[16];
+    private static final MetalSampler[] UNIT_SAMPLER_OBJECTS = new MetalSampler[16];
+    private static final TimeView[] UNIT_TIMES = new TimeView[16];
+    private static final long[] UNIT_TIME_GENERATIONS = new long[16];
+    private static long nextUnitGeneration;
 
     public static void bindUniformRange(int binding, GpuBufferSlice slice) {
         UNIFORM_BUFFERS[binding] = slice;
@@ -291,15 +320,16 @@ public final class SodiumMetal {
 
     private static final class TimeView {
         final GpuBuffer source;
-        long storage, view;
+        long storage, storageGeneration, view;
         TimeView(GpuBuffer source) { this.source = source; refresh(); }
         void refresh() {
             long nextStorage = MetalTerrainResources.handle(source);
-            if (nextStorage == storage) return;
+            long generation = MetalTerrainResources.storageGeneration(source);
+            if (nextStorage == storage && generation == storageGeneration) return;
             long nextView = MetalTerrainResources.sectionTimesView(source);
             if (nextView == 0) throw new IllegalStateException("Sodium section time texture allocation failed");
             Mtl.release(view);
-            view = nextView; storage = nextStorage;
+            view = nextView; storage = nextStorage; storageGeneration = generation;
         }
     }
     private static final Int2ObjectOpenHashMap<TimeView> TIME_VIEWS = new Int2ObjectOpenHashMap<>();
@@ -312,20 +342,51 @@ public final class SodiumMetal {
     public static void deleteTimeView(int id) {
         TimeView view = TIME_VIEWS.remove(id);
         if (view != null) Mtl.release(view.view);
+        for (int unit = 0; unit < UNIT_TIMES.length; unit++)
+            if (view != null && UNIT_TIMES[unit] == view) clearUnit(unit);
     }
     public static long bindTimeView(int unit, int id) {
         TimeView view = TIME_VIEWS.get(id);
         if (view == null) throw new IllegalStateException("Unknown Sodium section time view");
         // Small ordered writes can orphan MetalBuffer storage. The independently retained texture view must follow it.
         view.refresh();
+        if (UNIT_TIMES[unit] != view || UNIT_TIME_GENERATIONS[unit] != view.storageGeneration)
+            UNIT_GENERATIONS[unit] = ++nextUnitGeneration;
+        UNIT_TIME_GENERATIONS[unit] = view.storageGeneration;
+        UNIT_TIMES[unit] = view; UNIT_TEXTURES[unit] = null; UNIT_SAMPLER_OBJECTS[unit] = null;
         UNIT_VIEWS[unit] = view.view;
         UNIT_SAMPLERS[unit] = 0;
         return view.view; // borrowed native view; ownership stays in TIME_VIEWS
     }
 
     public static void bindTexture(int unit, GpuTextureView view, GpuSampler sampler) {
+        if (UNIT_TEXTURES[unit] != view || UNIT_SAMPLER_OBJECTS[unit] != sampler)
+            UNIT_GENERATIONS[unit] = ++nextUnitGeneration;
+        UNIT_TEXTURES[unit] = (MetalTextureView) view;
+        UNIT_SAMPLER_OBJECTS[unit] = (MetalSampler) sampler;
+        UNIT_TIMES[unit] = null;
         UNIT_VIEWS[unit] = ((MetalTextureView) view).handle();
         UNIT_SAMPLERS[unit] = ((MetalSampler) sampler).handle();
+    }
+
+    private static void clearUnit(int unit) {
+        UNIT_TEXTURES[unit] = null; UNIT_SAMPLER_OBJECTS[unit] = null; UNIT_TIMES[unit] = null;
+        UNIT_VIEWS[unit] = 0; UNIT_SAMPLERS[unit] = 0; UNIT_TIME_GENERATIONS[unit] = 0;
+        UNIT_GENERATIONS[unit] = ++nextUnitGeneration;
+    }
+
+    private static void refreshUnit(int unit) {
+        TimeView times = UNIT_TIMES[unit];
+        if (times != null) {
+            times.refresh();
+            if (UNIT_TIME_GENERATIONS[unit] != times.storageGeneration) {
+                UNIT_TIME_GENERATIONS[unit] = times.storageGeneration;
+                UNIT_VIEWS[unit] = times.view;
+                UNIT_GENERATIONS[unit] = ++nextUnitGeneration;
+            }
+        } else if (UNIT_TEXTURES[unit] != null && (UNIT_TEXTURES[unit].isClosed() || UNIT_SAMPLER_OBJECTS[unit].isClosed())) {
+            throw new IllegalStateException("Closed terrain texture/sampler");
+        }
     }
 
     // ---- Render pass & draws -------------------------------------------------------------------
@@ -334,6 +395,7 @@ public final class SodiumMetal {
     private static @Nullable RenderPipeline pipeline;
     private static @Nullable RenderTarget target;
     private static int colorFormat, depthFormat;
+    private static @Nullable PassKey passKey;
     private static long boundPso;
 
     private static long noDepthState;
@@ -346,7 +408,9 @@ public final class SodiumMetal {
         colorFormat = target.getColorTextureView().texture().getFormat().ordinal();
         var depth = target.getDepthTextureView();
         depthFormat = depth != null ? depth.texture().getFormat().ordinal() : -1;
+        passKey = new PassKey(pipeline, colorFormat, depthFormat);
         boundPso = 0;
+        BINDINGS.invalidate();
     }
 
     private static void resumePass() {
@@ -358,6 +422,7 @@ public final class SodiumMetal {
         // Native encoders can merge across ordinary Blaze3D passes; reset inherited scissors explicitly.
         Mtl.setScissor(0, 0, color.getWidth(0), color.getHeight(0));
         boundPso = 0;
+        BINDINGS.invalidate(); // Ordinary passes may have changed a merged native encoder's slots.
     }
 
     private static void suspendPass() {
@@ -365,65 +430,83 @@ public final class SodiumMetal {
         // the current encoder, doing the upload/map, then reopening the same attachments with load actions.
         if (pass != null) { pass.close(); pass = null; }
         boundPso = 0;
+        BINDINGS.invalidate();
     }
 
     public static void endPass() {
         try { suspendPass(); }
         finally {
-            target = null; pipeline = null; current = null;
+            target = null; pipeline = null; passKey = null; current = null;
             java.util.Arrays.fill(UNIFORM_BUFFERS, null);
-            java.util.Arrays.fill(UNIT_VIEWS, 0);
-            java.util.Arrays.fill(UNIT_SAMPLERS, 0);
+            for (int unit = 0; unit < UNIT_VIEWS.length; unit++) clearUnit(unit);
         }
     }
 
-    public static void multiDraw(GlPrimitiveType primitiveType, TessellationBinding[] bindings, MultiDrawBatch batch, GlIndexType indexType) {
+    static void multiDraw(GlPrimitiveType primitiveType, TessellationBinding[] bindings, TerrainLayout layout, MultiDrawBatch batch, GlIndexType indexType) {
         Program p = current;
         if (batch.size == 0) return;
         if (p == null || p.vsFn == 0 || pipeline == null) throw new IllegalStateException("Missing Sodium Metal terrain pass/program");
         if (indexType == GlIndexType.UNSIGNED_BYTE) throw new UnsupportedOperationException("Metal has no 8-bit index buffers");
 
         GpuBuffer vertices = null, indices = null;
-        GlVertexAttributeBinding[] attributes = null;
         for (TessellationBinding binding : bindings) {
             if (binding.target() == GlBufferTarget.ELEMENT_BUFFER) {
                 indices = buffer(binding.buffer().handle());
             } else {
                 vertices = buffer(binding.buffer().handle());
-                attributes = binding.attributeBindings();
             }
         }
         if (vertices == null || indices == null) throw new IllegalStateException("Missing Sodium terrain geometry");
 
-        resumePass();
-        long pso = p.pipelines.computeIfAbsent(new PsoKey(pipeline, colorFormat, depthFormat, java.util.Arrays.stream(attributes).map(a -> new Attribute(a.getIndex(), vertexFormat(a), a.getPointer(), a.getStride())).toList()), SodiumMetal::buildPipeline);
-        if (pso == 0) return;
-        if (pso != boundPso) {
-            Mtl.setPipelineState(pso, depthState(), pipeline.isCull() ? Mtl.CULL_BACK : Mtl.CULL_NONE,
-                    pipeline.getPolygonMode() == PolygonMode.WIREFRAME, (pipeline.getDepthStencilState() == null ? 0 : pipeline.getDepthStencilState().depthBiasConstant()), (pipeline.getDepthStencilState() == null ? 0 : pipeline.getDepthStencilState().depthBiasScaleFactor()));
-            boundPso = pso;
+        try {
+            resumePass();
+            if (PROFILE) batches++;
+            if (BINDINGS.context(p, Mtl.renderEncoderGeneration())) boundPso = 0;
+            var variants = p.pipelines.get(passKey);
+            if (variants == null) { variants = new HashMap<>(); p.pipelines.put(passKey, variants); }
+            Long cached = variants.get(layout);
+            long pso;
+            if (cached == null) {
+                if (PROFILE) pipelineMisses++;
+                pso = buildPipeline(p, passKey, layout);
+                variants.put(layout, pso);
+                LAYOUTS.retain(layout);
+            } else pso = cached;
+            if (pso == 0) return;
+            if (pso != boundPso) {
+                Mtl.setPipelineState(pso, depthState(), pipeline.isCull() ? Mtl.CULL_BACK : Mtl.CULL_NONE,
+                        pipeline.getPolygonMode() == PolygonMode.WIREFRAME, (pipeline.getDepthStencilState() == null ? 0 : pipeline.getDepthStencilState().depthBiasConstant()), (pipeline.getDepthStencilState() == null ? 0 : pipeline.getDepthStencilState().depthBiasScaleFactor()));
+                boundPso = pso;
+            }
+            BINDINGS.buffer(false, ShaderTranslator.VERTEX_BUFFER_INDEX, vertices, MetalTerrainResources.handle(vertices), 0,
+                    MetalTerrainResources.storageGeneration(vertices));
+            bindStage(p, p.vsPlan, p.vsDefaults, p.vsGeneration, false);
+            bindStage(p, p.fsPlan, p.fsDefaults, p.fsGeneration, true);
+            Mtl.multiDrawIndexed(primitive(primitiveType), indexType == GlIndexType.UNSIGNED_INT, MetalTerrainResources.handle(indices),
+                    batch.pElementCount, batch.pElementPointer, batch.pBaseVertex, batch.size);
+        } catch (RuntimeException | Error failure) {
+            // Binding validation/compilation may fail after taking logical ownership.
+            // Keep the target configured so a caller can resume after correcting the resource.
+            try { suspendPass(); }
+            catch (RuntimeException | Error cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
         }
-        Mtl.setBuffer(false, ShaderTranslator.VERTEX_BUFFER_INDEX, MetalTerrainResources.handle(vertices), 0);
-        bindStage(p, p.vs, p.vsDefaults, false);
-        bindStage(p, p.fs, p.fsDefaults, true);
-        Mtl.multiDrawIndexed(primitive(primitiveType), indexType == GlIndexType.UNSIGNED_INT, MetalTerrainResources.handle(indices),
-                batch.pElementCount, batch.pElementPointer, batch.pBaseVertex, batch.size);
     }
 
-    private static void bindStage(Program p, ShaderTranslator.Result stage, long defaults, boolean fragment) {
-        for (var e : stage.buffers().entrySet()) {
-            if (e.getKey().equals(ShaderTranslator.DEFAULT_BLOCK)) {
-                Mtl.setBytes(fragment, e.getValue(), defaults, stage.defaultsSize());
-            } else if (p.blockBindings.containsKey(e.getKey())) {
-                GpuBufferSlice b = UNIFORM_BUFFERS[p.blockBindings.getInt(e.getKey())];
-                if (b == null) throw new IllegalStateException("Missing terrain uniform " + e.getKey());
-                Mtl.setBuffer(fragment, e.getValue(), MetalTerrainResources.handle(b.buffer()), b.offset());
-            }
+    private static void bindStage(Program p, TerrainBindingPlan plan, long defaults, long generation, boolean fragment) {
+        if (plan.defaultsIndex >= 0) BINDINGS.bytes(fragment, plan.defaultsIndex, p, defaults, plan.defaultsSize, generation);
+        for (var binding : plan.buffers) {
+            if (binding.binding < 0) continue;
+            GpuBufferSlice b = UNIFORM_BUFFERS[binding.binding];
+            if (b == null) throw new IllegalStateException("Missing terrain uniform " + binding.name);
+            BINDINGS.buffer(fragment, binding.index, b.buffer(), MetalTerrainResources.handle(b.buffer()), b.offset(),
+                    MetalTerrainResources.storageGeneration(b.buffer()));
         }
-        for (var e : stage.textures().entrySet()) {
-            if (!p.samplerUnits.containsKey(e.getKey())) continue;
-            int unit = p.samplerUnits.getInt(e.getKey());
-            Mtl.setTexture(fragment, e.getValue(), UNIT_VIEWS[unit], stage.samplers().getOrDefault(e.getKey(), -1), UNIT_SAMPLERS[unit]);
+        for (var binding : plan.textures) {
+            if (binding.unit < 0) continue;
+            int unit = binding.unit;
+            refreshUnit(unit);
+            BINDINGS.texture(fragment, binding.index, UNIT_VIEWS[unit], binding.samplerIndex, UNIT_SAMPLERS[unit], UNIT_GENERATIONS[unit]);
         }
     }
 
@@ -438,11 +521,10 @@ public final class SodiumMetal {
         });
     }
 
-    private static long buildPipeline(PsoKey key) {
-        Program p = current;
+    private static long buildPipeline(Program p, PassKey key, TerrainLayout layout) {
         IntArrayList attribs = new IntArrayList();
         int stride = 0;
-        for (Attribute a : key.attributes()) {
+        for (TerrainLayout.Attribute a : layout.attributes) {
             if (!p.vs.inputs().containsValue(a.index())) continue;
             attribs.add(a.index());
             attribs.add(a.format());
@@ -467,14 +549,28 @@ public final class SodiumMetal {
         long bytes = 0;
         for (GpuBuffer buffer : BUFFERS.values()) bytes += buffer.size();
         int variants = 0;
-        for (Program program : PROGRAMS.values()) variants += program.pipelines.size();
+        for (Program program : PROGRAMS.values())
+            for (var layouts : program.pipelines.values()) variants += layouts.size();
         return "buffers=" + BUFFER_IDS.size() + " bytes=" + bytes + " borrowed=" + BORROWED.size()
-                + " programs=" + PROGRAMS.size() + " pipelines=" + variants + " timeViews=" + TIME_VIEWS.size();
+                + " programs=" + PROGRAMS.size() + " pipelines=" + variants + " timeViews=" + TIME_VIEWS.size() + " layouts=" + LAYOUTS.size();
+    }
+
+    public record PerformanceCounters(long layoutSnapshots, long batches, long pipelineMisses,
+                                      long bindingAttempts, long bindingCalls, long copiedDefaultBytes) {}
+    public static PerformanceCounters performanceCounters() {
+        return new PerformanceCounters(layoutSnapshots, batches, pipelineMisses, BINDINGS.attempted, BINDINGS.applied, BINDINGS.copiedBytes);
+    }
+
+    /** Aggregate counters only; opt in with -Deviemod-metal.terrainProfile=true. No per-draw history or logging. */
+    public static String performanceSummary() {
+        return "enabled=" + PROFILE + " layoutSnapshots=" + layoutSnapshots + " batches=" + batches + " pipelineMisses=" + pipelineMisses
+                + " bindingAttempts=" + BINDINGS.attempted + " bindingCalls=" + BINDINGS.applied
+                + " bindingSkips=" + (BINDINGS.attempted - BINDINGS.applied) + " copiedDefaultBytes=" + BINDINGS.copiedBytes;
     }
 
     public static void assertWorldReleased() {
         if (!BUFFER_IDS.isEmpty() || !BUFFERS.isEmpty() || !BORROWED.isEmpty() || !PROGRAMS.isEmpty() || !TIME_VIEWS.isEmpty()
-                || !SHADER_SOURCES.isEmpty() || !SHADER_TYPES.isEmpty() || pass != null || pipeline != null)
+                || !SHADER_SOURCES.isEmpty() || !SHADER_TYPES.isEmpty() || LAYOUTS.size() != 0 || pass != null || pipeline != null)
             throw new IllegalStateException("Sodium world retained GPU owners: " + resourceSummary());
     }
 
@@ -484,6 +580,7 @@ public final class SodiumMetal {
         for (int id : new java.util.ArrayList<>(BUFFER_IDS)) deleteBuffer(id);
         for (int id : TIME_VIEWS.keySet().toIntArray()) deleteTimeView(id);
         SHADER_SOURCES.clear(); SHADER_TYPES.clear(); BORROWED.clear();
+        LAYOUTS.clear();
         Mtl.release(noDepthState); noDepthState = 0;
     }
 
@@ -497,7 +594,7 @@ public final class SodiumMetal {
     }
 
     /** GL vertex attribute (type, count, normalized, integer) -> MTLVertexFormat. */
-    private static int vertexFormat(GlVertexAttributeBinding a) {
+    static int vertexFormat(GlVertexAttributeBinding a) {
         int n = a.getCount() - 1;
         boolean integer = a.isIntType(), normalized = a.isNormalized();
         return switch (a.getFormat()) {

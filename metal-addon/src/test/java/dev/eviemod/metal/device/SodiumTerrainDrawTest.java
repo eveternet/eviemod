@@ -22,6 +22,32 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class SodiumTerrainDrawTest {
+    @Test void nativeEncoderGenerationDistinguishesMergesFromUploadSplits() {
+        NativeLoader.load();
+        var device = new MetalDevice(0, (id, type) -> "");
+        long buffer = Mtl.newBuffer(256);
+        try (var texture = (MetalTexture) device.createTexture("generation target",
+                GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC, TextureFormat.RGBA8, 1, 1, 1, 1)) {
+            Mtl.beginPass(texture.handle, true, 0, 0, 0, 1, 0, false, 1);
+            long first = Mtl.renderEncoderGeneration();
+            assertTrue(first > 0);
+            Mtl.endPass();
+            Mtl.beginPass(texture.handle, false, 0, 0, 0, 1, 0, false, 1);
+            assertEquals(first, Mtl.renderEncoderGeneration(), "Logical passes can reuse the native encoder");
+            Mtl.endPass();
+            Mtl.copyTextureToBuffer(texture.handle, 0, 0, 0, 1, 1, buffer, 0, 256);
+            assertEquals(0, Mtl.renderEncoderGeneration());
+            Mtl.beginPass(texture.handle, false, 0, 0, 0, 1, 0, false, 1);
+            assertTrue(Mtl.renderEncoderGeneration() > first);
+            Mtl.endPass();
+            assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+            Mtl.checkError();
+        } finally {
+            Mtl.release(buffer);
+            device.close();
+        }
+    }
+
     @Test void multiDrawOffsetsBaseVerticesAndSignedTimesFollowOrphanedStorage() {
         NativeLoader.load();
         var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX
@@ -52,7 +78,9 @@ class SodiumTerrainDrawTest {
                 var value = stack.ints(-1234567);
                 long baseline = 0;
                 for (int i = 0; i < 40; i++) {
+                    long generation = MetalTerrainResources.storageGeneration(times);
                     assertTrue(times.tryOrphanWrite(4, MemoryUtil.memAddress(value), 4));
+                    assertEquals(generation + 1, MetalTerrainResources.storageGeneration(times));
                     long view = SodiumMetal.bindTimeView(2, timeView);
                     Mtl.beginPass(texture.handle, true, 0, 0, 0, 1, 0, false, 1);
                     Mtl.setPipelineState(pipeline.state(0, -1), pipeline.depthState, Mtl.CULL_NONE, false, 0, 0);
