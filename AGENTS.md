@@ -25,13 +25,21 @@ These instructions apply throughout eviemod.
 
 - After every build, commit any uncommitted changes made for the current task. Include the build outcome in the commit message; clearly label failed builds as work in progress.
 - Review the staged diff before committing. Keep unrelated changes, generated build output, local game data, and secrets out of the commit.
-- If there are no changes to commit, do not create an empty commit. Commit locally without asking for confirmation; push only when requested.
+- If there are no changes to commit, do not create an empty commit. Commit locally without asking for confirmation; push when requested or required by the local task completion workflow below.
+
+## Local task completion
+
+- When a task performed in a local checkout or local environment changes tracked repository files, finish the work by performing appropriate verification, committing the task's changes, pushing a task branch, and opening a pull request. This also applies to documentation-only tasks; do not stop at a local commit or build.
+- Completing the task authorizes the routine branch push and pull request creation without asking for separate confirmation. Follow any explicit user instruction to keep work local, not push, or not open a PR.
+- If the task already has a pull request, push the completed changes to its branch and update that PR instead of opening a duplicate. Report the PR link and verification results when finished.
+- Do not create an empty commit or pull request for a task that makes no repository changes.
 
 ## Pull request review
 
-- After opening a pull request, comment `@coderabbit review` on that PR to request CodeRabbit review.
+- After opening a pull request, inspect the actual changed lines before requesting CodeRabbit review. If the changes are only documentation writing (including `AGENTS.md`, READMEs, research documents, prose, comments, or docstrings), do not trigger a CodeRabbit review. Classify the diff by what changed, not just file names or extensions: implementation, tests, scripts, build/CI configuration, or runtime-resource changes require review, even in a PR that also writes documentation. For those non-documentation changes, comment `@coderabbit review` on the PR only after satisfying the CI gate below.
+- Before any initial or follow-up CodeRabbit review request, wait for all applicable CI workflows and checks for the latest pushed PR revision to finish successfully. Queued, running, failed, or cancelled CI does not satisfy this gate; fix failures and push corrections or rerun CI as appropriate, then wait again. Confirm that applicable CI has actually run; an empty check list immediately after a push does not count as passing CI. A new push invalidates earlier CI results. Intentionally skipped jobs do not block review, and CodeRabbit's own review/status checks are excluded from this CI gate to avoid a circular wait.
 - After triggering a review, estimate its processing time from the PR's size and depth, usually 5–15 minutes. Wait that long before checking CodeRabbit's status instead of polling repeatedly; a delayed wait such as `sleep 300` is fine when appropriate. Remain available for user messages while waiting.
-- Check the review and its status checks. Address actionable findings and push fixes to the same PR. Request another review only when new commits have been pushed since the last completed review and those commits still need review; CodeRabbit does not re-review already reviewed commits. Respect its review limit, and do not retrigger a completed review just to clear advisory warnings. Explain any finding that cannot be resolved instead of silently dismissing it.
+- Check the review and its status checks. Address actionable findings and push fixes to the same PR. Request another review only when new commits have been pushed since the last completed review and those commits include non-documentation changes that still need review; skip another review when the new changes are only documentation writing. CodeRabbit does not re-review already reviewed commits. Respect its review limit, and do not retrigger a completed review just to clear advisory warnings. Explain any finding that cannot be resolved instead of silently dismissing it.
 
 ## Build on established UI
 
