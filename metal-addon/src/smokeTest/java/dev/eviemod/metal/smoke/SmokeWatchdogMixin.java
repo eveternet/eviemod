@@ -11,11 +11,10 @@ abstract class SmokeWatchdogMixin {
     /** Start before Minecraft construction so native hangs and blocking startup dialogs also fail CI. */
     @Inject(method = "main", at = @At("HEAD"))
     private static void startWatchdog(String[] args, CallbackInfo ci) {
-        if (!Boolean.getBoolean("eviemod.metal.smokeExpected")) return;
         Thread.ofPlatform().daemon().name("metal-smoke-watchdog").start(() -> {
             try { Thread.sleep(Boolean.getBoolean("eviemod.metal.worldSmoke") ? 900_000 : 180_000); }
             catch (InterruptedException e) { return; }
-            System.err.println("Metal launch/readback watchdog timed out");
+            System.err.println("Addon launch/readback watchdog timed out");
             Thread.getAllStackTraces().forEach((thread, trace) -> {
                 System.err.println(thread);
                 for (var frame : trace) System.err.println("    at " + frame);

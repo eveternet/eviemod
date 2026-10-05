@@ -3,9 +3,11 @@
 ## Supported boundary
 
 Minecraft 26.1.2, Fabric Loader 0.19.5, Sodium `0.9.2+mc26.1.2`, Apple Silicon,
-ARM64 Java 25, macOS 14+. The existing `-Deviemod.metal=true` remains the only
-opt-in; missing/false stays OpenGL. Sodium is optional and is not bundled.
-When Metal is requested on a supported host with Sodium, a mismatched Sodium
+ARM64 Java 25, macOS 14+. Installing the separate addon enables Metal on a
+supported host without a JVM argument. `-Deviemod.metal=false` explicitly keeps
+OpenGL; the legacy `true` override remains supported. Sodium is optional and is
+not bundled.
+When Metal is enabled on a supported host with Sodium, a mismatched Sodium
 version or failed Metal initialization is a fatal, descriptive error. Other
 renderer conflicts retain their existing policy. Logs distinguish `Using
 OpenGL`, `Experimental Metal backend active`, and `Sodium terrain GPU endpoint
@@ -145,8 +147,9 @@ framebuffer or upload-ring storage. The earlier timestamp regression checks
 actual pixels and bounded native allocation across repeated storage replacement.
 
 The packaged addon without Sodium also reached a nonblank Metal title frame and
-exited normally. Sodium with the Metal opt-in absent initialized the real Apple
-OpenGL device and passed the disabled-backend startup assertion. The complete
+exited normally. Sodium with Metal disabled under the previous startup policy
+initialized the real Apple OpenGL device and passed the disabled-backend startup
+assertion. The complete
 project build passed 162 main-mod tests and 17 addon tests; artifact separation
 verification passed. No release/tag or push was performed.
 
@@ -176,7 +179,7 @@ Build on ARM64 macOS with Java 25 and Xcode tools:
 ```sh
 MTL_DEBUG_LAYER=1 ./gradlew :metal-addon:build :metal-addon:verifyDistribution
 # Put sodium-fabric-0.9.2+mc26.1.2.jar alone in metal-addon/run/mods/.
-MTL_DEBUG_LAYER=1 ./gradlew :metal-addon:runClient -Pmetal -PmetalSmokeTest -PexpectMetal -PmetalWorldTest
+MTL_DEBUG_LAYER=1 ./gradlew :metal-addon:runClient -PmetalSmokeTest -PexpectMetal -PmetalWorldTest
 ```
 
 The fixture logs phases, bounded pipeline counts, bridge owners, and native

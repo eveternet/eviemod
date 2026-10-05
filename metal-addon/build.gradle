@@ -58,7 +58,9 @@ test {
 }
 loom {
     runs.client {
-        if (providers.gradleProperty('metal').isPresent()) property 'eviemod.metal', 'true'
+        if (providers.gradleProperty('metal').isPresent()) {
+            property 'eviemod.metal', providers.gradleProperty('metal').get() == 'false' ? 'false' : 'true'
+        }
         if (providers.gradleProperty('metalWorldTest').isPresent()) property 'eviemod.metal.worldSmoke', 'true'
         if (providers.gradleProperty('expectMetal').isPresent()) property 'eviemod.metal.smokeExpected', 'true'
     }

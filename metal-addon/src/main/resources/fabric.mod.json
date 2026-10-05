@@ -3,7 +3,7 @@
   "id": "eviemod_metal",
   "version": "${version}",
   "name": "eviemod Metal (experimental)",
-  "description": "Opt-in Apple Silicon Metal backend. Enable with -Deviemod.metal=true and restart.",
+  "description": "Experimental Apple Silicon Metal backend. Installing this addon enables Metal on supported Macs.",
   "environment": "client",
   "license": "GPL-3.0-only",
   "mixins": ["eviemod-metal.mixins.json", "eviemod-metal-sodium.mixins.json"],
