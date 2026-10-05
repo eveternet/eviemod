@@ -73,6 +73,30 @@ physical-Mac performance or live Hypixel/modpack compatibility. SkyHanni, SBPV,
 Devonian/Talium screens and a matched JFR/Metal trace still need physical testing.
 Compare allocation stacks and counters with profiling disabled for throughput runs.
 
+### Cloud evidence, 2026-10-05
+
+Implementation `931b39f` passed [Linux and macOS CI](https://github.com/eveternet/eviemod/actions/runs/37328833564),
+including the full build, artifact/OpenGL fallback checks, all 48 Metal tests
+(no failures, errors or skips), native distribution and Metal frame readback.
+The Sodium fixture recorded 147 layout snapshots, 34,014 batches and 19 PSO misses.
+Of 238,098 binding attempts, 78,932 reached native setters: 159,166 were skipped
+(66.8%). This counts binding setters; the encoder-generation query adds one JNI
+call per batch. Default uniform copies still totalled 1,088,448 bytes (32 per batch).
+Final unload reported zero Sodium buffers, borrowed buffers, programs, PSOs,
+time views and layouts.
+
+The runner reports **Apple Paravirtual device**, rather than a physical Apple GPU.
+Screenshot inspection found most terrain absent while entities and inventory render.
+A [separate baseline run](https://github.com/eveternet/eviemod/actions/runs/37330452585)
+using original `100806d` production code and the same fixture reproduced that failure
+in the initial/final overworld and End captures. Only the fixture's fresh-profile
+onboarding handoff and diagnostic workflow differed from baseline. The cause is
+unresolved; this does not establish that the failure is limited to virtual GPUs.
+Lifecycle/counter markers and the native pixel tests therefore do **not** establish
+full terrain image correctness or visual equivalence. Investigate that existing
+rendering failure separately and validate terrain on physical Apple Silicon before
+claiming visual compatibility or FPS gains from these changes.
+
 T1.3 and all Tier-2 work are excluded. T1.4 is deferred without measured first-use
 format/compile data. T1.5 is left separate to keep this PR about terrain setup.
 No user-facing feature, default, dependency version or release version changes.
