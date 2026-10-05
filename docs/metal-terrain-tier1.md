@@ -34,12 +34,14 @@ Binding-cache invalidation is deliberately conservative:
 | Texture/view/sampler replacement | Resource identity and unit generation; closed resources fail validation |
 | Section-time storage change | Refresh retained view before binding; track storage generation separately for each unit |
 | Buffer versus bytes in the same slot; shared sampler slots | Track binding kind and actual stage/slot sampler state |
+| Reflected slots outside the bounded cache | Use the existing direct native setter and discard cached state, including any shared sampler slot it may overwrite |
 
 Storage generations are observation metadata for existing orphan allocation. This
 does not implement T1.3 storage reuse, GPU-use tracking, renaming pools or allocation
 policy changes. Native resources retain the existing command-buffer ownership.
 Binding/compilation failures release logical pass ownership before rethrowing, so
-a caller can recover and resume the configured target.
+a caller can recover and resume the configured target. Pass close invalidates cached
+state in a `finally` block, including when cleanup itself fails.
 
 ## Validation and diagnostics
 
@@ -49,7 +51,8 @@ ownership, cleanup/recreation, and reflection plans that continue working after
 their input maps reject further traversal. A fake native sink verifies 40,000
 binding attempts become four calls when unchanged; tests also cover dirty bytes,
 resource/storage/offset changes, encoder/program/resume invalidation, stage isolation,
-shared sampler slots, zero-sampler semantics and retry after a failing setter.
+shared sampler slots, zero-sampler semantics, direct-binding fallback for unusual
+slots and retry after a failing setter.
 
 macOS native tests distinguish logical encoder merges from upload splits and assert
 storage generations advance on existing timestamp orphan writes, alongside the

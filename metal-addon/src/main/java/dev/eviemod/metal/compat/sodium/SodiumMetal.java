@@ -428,9 +428,10 @@ public final class SodiumMetal {
     private static void suspendPass() {
         // Sodium can grow/map its shared index buffer between region draws. Preserve command ordering by ending
         // the current encoder, doing the upload/map, then reopening the same attachments with load actions.
-        if (pass != null) { pass.close(); pass = null; }
-        boundPso = 0;
-        BINDINGS.invalidate();
+        RenderPass closing = pass;
+        pass = null;
+        try { if (closing != null) closing.close(); }
+        finally { boundPso = 0; BINDINGS.invalidate(); }
     }
 
     public static void endPass() {

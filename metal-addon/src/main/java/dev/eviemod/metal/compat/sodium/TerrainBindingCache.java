@@ -53,6 +53,12 @@ final class TerrainBindingCache {
     void buffer(boolean fragment, int index, Object owner, long handle, long offset, long generation) {
         int s = fragment ? 1 : 0;
         if (profile) attempted++;
+        if (index < 0 || index >= owners[s].length) {
+            sink.buffer(fragment, index, handle, offset);
+            invalidate();
+            if (profile) applied++;
+            return;
+        }
         if (kinds[s][index] == 1 && owners[s][index] == owner && buffers[s][index] == handle
                 && offsets[s][index] == offset && generations[s][index] == generation) return;
         sink.buffer(fragment, index, handle, offset);
@@ -64,6 +70,12 @@ final class TerrainBindingCache {
     void bytes(boolean fragment, int index, Object owner, long address, int length, long generation) {
         int s = fragment ? 1 : 0;
         if (profile) attempted++;
+        if (index < 0 || index >= owners[s].length) {
+            sink.bytes(fragment, index, address, length);
+            invalidate();
+            if (profile) { applied++; copiedBytes += length; }
+            return;
+        }
         if (kinds[s][index] == 2 && owners[s][index] == owner && buffers[s][index] == address
                 && offsets[s][index] == length && generations[s][index] == generation) return;
         sink.bytes(fragment, index, address, length);
@@ -77,6 +89,13 @@ final class TerrainBindingCache {
         // The native setter does not touch a sampler when its handle is zero or there is no sampler slot.
         boolean hasSampler = samplerIndex >= 0 && sampler != 0;
         if (profile) attempted++;
+        if (index < 0 || index >= textures[s].length || samplerIndex >= samplers[s].length) {
+            // Unusual translated shaders keep the original direct-binding behavior instead of a new slot limit.
+            sink.texture(fragment, index, handle, samplerIndex, sampler);
+            invalidate(); // The setter may also overwrite a sampler slot inside the cached range.
+            if (profile) applied++;
+            return;
+        }
         if (textureSet[s][index] && textures[s][index] == handle && textureGenerations[s][index] == generation
                 && (!hasSampler || samplerSet[s][samplerIndex] && samplers[s][samplerIndex] == sampler
                 && samplerGenerations[s][samplerIndex] == generation)) return;

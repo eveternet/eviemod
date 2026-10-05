@@ -75,6 +75,19 @@ class TerrainBindingCacheTest {
         assertEquals(4, calls.textures);
     }
 
+    @Test void slotsOutsideTheCacheKeepDirectBindingAndInvalidateSharedState() {
+        var calls = new Calls(); var cache = new TerrainBindingCache(calls, true);
+        cache.texture(true, 0, 100, 3, 200, 1);
+        cache.texture(true, 64, 101, 3, 201, 2);
+        cache.texture(true, 0, 100, 3, 200, 1);
+        cache.texture(true, 0, 100, 40, 201, 2);
+        cache.buffer(false, 32, this, 300, 0, 1);
+        cache.buffer(false, 32, this, 300, 0, 1);
+        cache.bytes(false, 32, this, 400, 16, 1);
+        cache.bytes(false, 32, this, 400, 16, 1);
+        assertEquals(4, calls.textures); assertEquals(2, calls.buffers); assertEquals(2, calls.bytes);
+    }
+
     @Test void diagnosticsAreOffByDefaultAndFailedSettersAreRetried() {
         var calls = new Calls(); var cache = new TerrainBindingCache(calls, false);
         cache.buffer(false, 0, this, 1, 0, 1);
