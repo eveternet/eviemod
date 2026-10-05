@@ -99,4 +99,6 @@ claiming visual compatibility or FPS gains from these changes.
 
 T1.3 and all Tier-2 work are excluded. T1.4 is deferred without measured first-use
 format/compile data. T1.5 is left separate to keep this PR about terrain setup.
-No user-facing feature, default, dependency version or release version changes.
+No user-facing feature, default or dependency version changes. The release is
+eviemod `1.3.1.0` with Metal addon `0.1.1.0`. The user approved release after live
+testing; this does not resolve the separate CI rendering limitation described above.

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.eviemod'
-version = '0.1.0.1'
+version = '0.1.1.0'
 base.archivesName = 'eviemod-metal'
 
 repositories {
