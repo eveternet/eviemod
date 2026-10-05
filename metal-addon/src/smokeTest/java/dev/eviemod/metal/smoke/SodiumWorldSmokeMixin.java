@@ -2,6 +2,7 @@ package dev.eviemod.metal.smoke;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.LevelSettings;
@@ -32,6 +33,11 @@ abstract class SodiumWorldSmokeMixin {
     private void world(boolean tick, CallbackInfo ci) {
         if (!Boolean.getBoolean("eviemod.metal.worldSmoke")) return;
         Minecraft mc = (Minecraft) (Object) this;
+        // A fresh CI profile may still show onboarding on a second launch; match the frame fixture's handoff.
+        if (mc.getOverlay() == null && mc.screen instanceof AccessibilityOnboardingScreen) {
+            mc.setScreen(new TitleScreen());
+            return;
+        }
         if (java.nio.file.Files.exists(mc.gameDirectory.toPath().resolve(".metal-world-stop"))) { mc.stop(); return; }
         if (reopen && mc.screen instanceof TitleScreen && mc.getOverlay() == null) {
             reopen = false;
