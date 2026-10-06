@@ -82,6 +82,49 @@ class Metal26RenderTest {
         } finally { device.close(); }
     }
 
+    @Test void texelSliceAndNumericBindingPlanFollowStorageChangesWithoutRecompiling() {
+        NativeLoader.load();
+        var device=new MetalDevice(0,(id,type)->type==ShaderType.VERTEX
+                ? "#version 330\nin vec3 Position;void main(){gl_Position=vec4(Position,1);}"
+                : "#version 330\nuniform isamplerBuffer Times;uniform vec3 Arbitrary;uniform int Other;out vec4 color;void main(){color=vec4(float(texelFetch(Times,0).r)/255.,Arbitrary.y,float(Other)/255.,1);}");
+        try(var vertices=new MetalBuffer(GpuBuffer.USAGE_VERTEX,36);
+            var times=new MetalBuffer(GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER|GpuBuffer.USAGE_MAP_WRITE,512);
+            var target=(MetalTexture)device.createTexture("texel",GpuTexture.USAGE_RENDER_ATTACHMENT|GpuTexture.USAGE_COPY_SRC,GpuFormat.RGBA8_UNORM,4,2,1,1);
+            var view=device.createTextureView(target);
+            var readback=new MetalBuffer(GpuBuffer.USAGE_COPY_DST,512)) {
+            float[] triangle={-1,-1,0,3,-1,0,-1,3,0};
+            for(int i=0;i<triangle.length;i++) MemoryUtil.memPutFloat(vertices.address()+i*4L,triangle[i]);
+            try(var map=times.map(256,256,false,true)){map.data().putInt(64);}
+            var layout=BindGroupLayout.builder().withUniform("Times",UniformType.TEXEL_BUFFER,GpuFormat.R32_SINT).build();
+            var pipeline=RenderPipeline.builder().withLocation(Identifier.parse("fixture:texel"))
+                    .withVertexShader(Identifier.parse("fixture:texel")).withFragmentShader(Identifier.parse("fixture:texel"))
+                    .withVertexBinding(0,DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+                    .withBindGroupLayout(layout).withColorTargetState(ColorTargetState.DEFAULT).withCull(false).build();
+            var compiled=device.getOrCompilePipeline(pipeline);
+            long state=compiled.state(MetalFormats.texture(GpuFormat.RGBA8_UNORM),-1);
+            var encoder=device.createCommandEncoder(); encoder.clearColorTexture(target,new Vector4f(0,0,0,1));
+            try(var pass=(MetalRenderPass)encoder.createRenderPass(RenderPassDescriptor.create(()->"texel").withColorAttachment(view))) {
+                pass.setPipeline(pipeline);pass.setVertexBuffer(0,vertices.slice());pass.setUniform("Times",times.slice(256,256));
+                pass.setDefaultFloat3("Arbitrary",0,.5f,0);pass.setDefaultInt("Other",128);pass.enableScissor(0,0,2,2);pass.draw(3,1,0,0);
+                // Same Java buffer and uniform binding, fresh native storage; earlier draws retain the original view.
+                try(var map=times.map(256,256,false,true)){map.data().putInt(192);}
+                pass.setDefaultFloat3("Arbitrary",0,1,0);pass.setDefaultInt("Other",64);pass.enableScissor(2,0,2,2);pass.draw(3,1,0,0);
+            }
+            Mtl.copyTextureToBuffer(target.handle,0,0,0,4,2,readback.handle,0,256);
+            assertTrue(Mtl.fenceWait(Mtl.fence(),5000));
+            assertEquals(64,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address())),1);
+            assertEquals(128,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+1)),1);
+            assertEquals(128,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+2)),1);
+            assertEquals(192,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+8)),1);
+            assertEquals(255,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+9)),1);
+            assertEquals(64,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+10)),1);
+            assertSame(compiled,device.getOrCompilePipeline(pipeline));
+            assertEquals(state,compiled.state(MetalFormats.texture(GpuFormat.RGBA8_UNORM),-1));
+            assertThrows(IllegalStateException.class,()->times.texelView(GpuFormat.R32_SINT,1,256));
+            Mtl.checkError();
+        }finally{device.close();}
+    }
+
     @Test void textureCopyUsesSliceSourceOriginStrideAndDestinationOrigin() {
         NativeLoader.load(); var device=new MetalDevice(0,(id,type)->null);
         try (var source=new MetalBuffer(GpuBuffer.USAGE_COPY_SRC,128);

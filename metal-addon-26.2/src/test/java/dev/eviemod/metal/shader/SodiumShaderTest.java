@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercise the actual pinned Sodium shader assets, including compact integers and R32Sint times. */
 class SodiumShaderTest {
-    @Test void compilesOpaqueAndCutoutTerrainInterfaces() throws Exception {
+    @Test void compilesOpaqueCutoutAndTranslucentTerrainInterfaces() throws Exception {
         boolean mac = System.getProperty("os.name").startsWith("Mac");
         if (mac) NativeLoader.load();
-        for (boolean cutout : new boolean[]{false, true}) {
-            String defines = "#define USE_VERTEX_COMPRESSION\n#define USE_FOG\n" + (cutout ? "#define USE_FRAGMENT_DISCARD\n" : "");
+        for (String cutout : new String[]{"", "#define ALPHA_CUTOUT 0.5\n", "#define ALPHA_CUTOUT 0.01\n"}) {
+            String defines = "#define USE_VERTEX_COMPRESSION\n#define USE_FOG\n" + cutout;
             var vs = ShaderTranslator.translate("sodium-terrain.vsh", source("blocks/block_layer_opaque.vsh", defines),
                     ShaderTranslator.Stage.VERTEX, Map.of("a_Position", 0, "a_Color", 1, "a_TexCoord", 2, "a_LightAndData", 3));
             var fs = ShaderTranslator.translate("sodium-terrain.fsh", source("blocks/block_layer_opaque.fsh", defines),
