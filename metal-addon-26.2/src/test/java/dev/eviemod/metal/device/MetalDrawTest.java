@@ -6,7 +6,11 @@ import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.blaze3d.shaders.ShaderSource;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.IndexType;
+import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.blaze3d.systems.RenderPassDescriptor;
+import org.joml.Vector4f;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.eviemod.metal.NativeLoader;
@@ -59,22 +63,22 @@ class MetalDrawTest {
             var id = Identifier.fromNamespaceAndPath("eviemod_metal", "smoke");
             var pipeline = RenderPipeline.builder().withLocation(id)
                     .withVertexShader(id).withFragmentShader(id)
-                    .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
+                    .withVertexBinding(0, DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
                     .withCull(false).withDepthStencilState(Optional.empty()).build();
             // UI preload supplies shaders on a different pipeline while the default provider is empty.
             var preload = RenderPipeline.builder().withLocation(Identifier.fromNamespaceAndPath("eviemod_metal", "preload"))
                     .withVertexShader(id).withFragmentShader(id)
-                    .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
+                    .withVertexBinding(0, DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
                     .withCull(false).withDepthStencilState(Optional.empty()).build();
             device.precompilePipeline(preload, startupSource);
             try (var vb = device.createBuffer(() -> "vertices", GpuBuffer.USAGE_VERTEX, vertices);
                  var ib = device.createBuffer(() -> "indices", GpuBuffer.USAGE_INDEX, indices);
                  var texture = device.createTexture("smoke", GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC,
-                         TextureFormat.RGBA8, 1, 1, 1, 1);
+                         GpuFormat.RGBA8_UNORM, 1, 1, 1, 1);
                  var view = device.createTextureView(texture)) {
-                try (var pass = device.createCommandEncoder().createRenderPass(() -> "smoke", view, OptionalInt.of(0xFF000000))) {
+                try (var pass = (MetalRenderPass) device.createCommandEncoder().createRenderPass(RenderPassDescriptor.create(() -> "smoke").withColorAttachment(view, Optional.of(new Vector4f(0,0,0,1))))) {
                     pass.setPipeline(pipeline);
-                    pass.drawMultipleIndexed(List.of(new RenderPass.Draw<Void>(0, vb, ib, VertexFormat.IndexType.INT, 0, 3, 3)),
+                    pass.drawMultipleIndexed(List.of(new RenderPass.Draw<Void>(0, vb, ib, IndexType.INT, 0, 3, 3)),
                             null, null, List.of(), null);
                 }
                 readback = Mtl.newBuffer(256);

@@ -33,7 +33,7 @@ class SodiumShaderTest {
 
     private static String source(String path, String defines) throws IOException {
         String s = read(path);
-        var matches = Pattern.compile("#import <sodium:([^>]+)>").matcher(s);
+        var matches = Pattern.compile("#moj_import <sodium:([^>]+)>").matcher(s);
         StringBuilder resolved = new StringBuilder();
         while (matches.find()) matches.appendReplacement(resolved, java.util.regex.Matcher.quoteReplacement(source(matches.group(1), "")));
         matches.appendTail(resolved);

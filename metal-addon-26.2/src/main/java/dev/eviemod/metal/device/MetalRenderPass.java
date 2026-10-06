@@ -27,7 +27,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.MemoryStack;
 
 /** GL-style render pass state (uniforms/samplers bound by name, persisting across pipeline changes) replayed onto a Metal render encoder. */
-public class MetalRenderPass implements RenderPassBackend {
+public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     private final MetalCommandEncoder encoder;
     private final int colorFormat, depthFormat, width, height;
     private @Nullable MetalPipeline pipeline, boundPipeline;

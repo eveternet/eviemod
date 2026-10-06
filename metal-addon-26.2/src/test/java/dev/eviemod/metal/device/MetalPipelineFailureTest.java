@@ -6,7 +6,11 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.blaze3d.systems.RenderPassDescriptor;
+import java.util.Optional;
+import org.joml.Vector4f;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.eviemod.metal.NativeLoader;
@@ -30,16 +34,16 @@ class MetalPipelineFailureTest {
                         ? "#version 150\nin vec3 Position;void main(){gl_Position=vec4(Position,1);}"
                         : "#version 150\nout vec4 color;void main(){color=vec4(1);}";
             });
-            try (var texture = device.createTexture("target", GpuTexture.USAGE_RENDER_ATTACHMENT, TextureFormat.RGBA8, 1, 1, 1, 1);
+            try (var texture = device.createTexture("target", GpuTexture.USAGE_RENDER_ATTACHMENT, GpuFormat.RGBA8_UNORM, 1, 1, 1, 1);
                  var view = device.createTextureView(texture);
                  var vertices = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 36);
                  var readback = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 256)) {
                 float[] positions = {-1, -1, 0, 3, -1, 0, -1, 3, 0};
                 for (int i = 0; i < positions.length; i++) MemoryUtil.memPutFloat(vertices.address() + i * 4L, positions[i]);
-                var backend = device.createCommandEncoder();
-                var encoder = new CommandEncoder(device, backend);
+                var backend = (MetalCommandEncoder) device.createCommandEncoder();
+                var encoder = backend;
                 var bad = pipeline("fixture:broken", "fixture:bad");
-                var failedPass = encoder.createRenderPass(() -> "bad", view, OptionalInt.of(0));
+                var failedPass = (MetalRenderPass) encoder.createRenderPass(RenderPassDescriptor.create(() -> "bad").withColorAttachment(view, Optional.of(new Vector4f())));
                 failedPass.pushDebugGroup(() -> "open at failure");
                 var error = assertThrows(IllegalStateException.class, () -> failedPass.setPipeline(bad));
                 assertTrue(error.getMessage().contains("pipeline fixture:broken"), error.getMessage());
@@ -47,14 +51,14 @@ class MetalPipelineFailureTest {
                 assertTrue(error.getMessage().contains(failingStage == ShaderType.VERTEX ? "[vertex]" : "[fragment]"), error.getMessage());
                 assertNotNull(error.getCause());
                 assertFalse(backend.isInRenderPass());
-                try (var next = encoder.createRenderPass(() -> "recovery", view, OptionalInt.empty())) {
+                try (var next = (MetalRenderPass) encoder.createRenderPass(RenderPassDescriptor.create(() -> "recovery").withColorAttachment(view))) {
                     // Late cleanup must not end the new pass, and the old pipeline must not be reused.
                     failedPass.close();
                     assertTrue(backend.isInRenderPass());
                     assertThrows(IllegalStateException.class, () -> failedPass.setPipeline(pipeline("fixture:good", "fixture:good")));
                     next.setPipeline(pipeline("fixture:good", "fixture:good"));
-                    next.setVertexBuffer(0, vertices);
-                    next.draw(0, 3);
+                    next.setVertexBuffer(0, vertices.slice());
+                    next.draw(3, 1, 0, 0);
                 }
                 assertFalse(backend.isInRenderPass());
                 Mtl.copyTextureToBuffer(((MetalTexture) texture).handle, 0, 0, 0, 1, 1, readback.handle, 0, 256);
@@ -67,6 +71,6 @@ class MetalPipelineFailureTest {
 
     private static RenderPipeline pipeline(String id, String shader) {
         return RenderPipeline.builder().withLocation(Identifier.parse(id)).withVertexShader(Identifier.parse(shader)).withFragmentShader(Identifier.parse(shader))
-                .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES).withCull(false).build();
+                .withVertexBinding(0, DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES).withCull(false).build();
     }
 }

@@ -127,10 +127,10 @@ public class MetalPipeline implements CompiledRenderPipeline {
         IntArrayList attribs = new IntArrayList(), layouts = new IntArrayList(), missing = new IntArrayList();
         var found = new java.util.HashSet<String>();
         var bindings = info.getVertexFormatBindings();
-        if (bindings.length > 4) throw new UnsupportedOperationException("Metal supports at most four vertex buffer bindings");
         for (int slot = 0; slot < bindings.length; slot++) {
             VertexFormat format = bindings[slot];
             if (format == null) continue;
+            if (slot >= 4) throw new UnsupportedOperationException("Metal supports vertex binding slots 0–3; requested " + slot);
             int nativeSlot = ShaderTranslator.VERTEX_BUFFER_INDEX - slot;
             layouts.add(nativeSlot); layouts.add(format.getVertexSize()); layouts.add(format.getStepRate());
             for (var e : format.getElements()) {
