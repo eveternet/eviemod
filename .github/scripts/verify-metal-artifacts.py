@@ -1,4 +1,4 @@
-"""Verify both main-mod targets and the standalone Metal artifact."""
+"""Verify independently loadable main mods and fixed Minecraft Metal distributions."""
 import glob
 import json
 import zipfile
@@ -47,14 +47,30 @@ for directory, target, dandelion in (
                     nested_mods[metadata["id"]] = metadata
         assert nested_mods["dandelion"]["version"] == dandelion
 
-with artifact("metal-addon/build/libs/eviemod-metal-*.jar") as addon:
-    mod = json.loads(addon.read("fabric.mod.json"))
-    assert mod["id"] == "eviemod_metal"
-    assert mod["depends"]["minecraft"] == "26.1.2"
-    assert "eviemod" not in mod["depends"]
-    assert mod["license"] == "GPL-3.0-only"
-    assert any(n.startswith("dev/eviemod/metal/") for n in addon.namelist())
-    assert not any(n.startswith("dev/eviemod/paintbrush/") for n in addon.namelist())
-    assert "LICENSE" in addon.namelist() and "NOTICE.md" in addon.namelist()
-
-print("26.1.2 and 26.2 main mods and standalone 26.1.2 Metal addon verified")
+versions = set()
+for target in ("26.1.2", "26.2"):
+    with artifact(f"build/distributions/metal/eviemod-metal-mc{target}-*.jar") as addon:
+        mod = json.loads(addon.read("fabric.mod.json"))
+        versions.add(mod["version"])
+        assert mod["id"] == "eviemod_metal"
+        assert mod["depends"]["minecraft"] == target
+        assert "eviemod" not in mod["depends"]
+        assert mod["license"] == "GPL-3.0-only"
+        assert addon.filename.endswith(f"mc{target}-{mod['version']}.jar")
+        assert "${" not in addon.read("fabric.mod.json").decode()
+        assert "dev/eviemod/metal/mtl/Mtl.class" in addon.namelist()
+        assert "dev/eviemod/metal/shader/ShaderTranslator.class" in addon.namelist()
+        assert ("dev/eviemod/metal/device/MetalSurface.class" in addon.namelist()) == (target == "26.2")
+        assert not any(n.startswith("dev/eviemod/paintbrush/") for n in addon.namelist())
+        assert "LICENSE" in addon.namelist() and "NOTICE.md" in addon.namelist()
+        nested = [entry["file"] for entry in mod["jars"]]
+        assert len(nested) == 4, nested
+        assert all("3.4.1" in name for name in nested), nested
+        assert not any("sodium" in name for name in nested)
+        if "natives/libeviemod_metal.dylib" in addon.namelist():
+            import struct
+            magic, cpu = struct.unpack_from("<II", addon.read("natives/libeviemod_metal.dylib"))
+            assert magic == 0xfeedfacf and cpu == 0x0100000c, "Expected thin arm64 Mach-O native bridge"
+assert len(versions) == 1, versions
+assert len(glob.glob("build/distributions/metal/*.jar")) == 2
+print("26.1.2 and 26.2 main mods and separately versioned Metal addons verified")
