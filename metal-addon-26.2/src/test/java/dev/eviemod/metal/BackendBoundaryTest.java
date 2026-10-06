@@ -25,7 +25,7 @@ class BackendBoundaryTest {
     }
     @Test void actualMinecraftAndSodiumFactoryAnchorsRemainUnique() throws Exception {
         assertEquals(1,count("net/minecraft/client/Minecraft","<init>","net/minecraft/client/PreferredGraphicsApi","getBackendsToTry","()[Lcom/mojang/blaze3d/systems/GpuBackend;"));
-        assertEquals(1,count("net/caffeinemc/mods/sodium/client/render/chunk/DrawContext","create","net/caffeinemc/mods/sodium/client/render/chunk/GLDrawContext","<init>","()V"));
+        assertEquals(1,count("net/caffeinemc/mods/sodium/client/gpu/device/context/DrawContext","create","net/caffeinemc/mods/sodium/client/gpu/device/context/GLDrawContext","<init>","()V"));
     }
     private static long count(String target,String method,String owner,String name,String descriptor)throws Exception {
         try(var in=BackendBoundaryTest.class.getClassLoader().getResourceAsStream(target+".class")) {
