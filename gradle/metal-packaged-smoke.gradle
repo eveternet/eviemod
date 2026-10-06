@@ -4,17 +4,20 @@ import groovy.json.JsonSlurper
 def target = minecraftVersion.toString()
 def isMacHost = System.getProperty('os.name').toLowerCase(Locale.ROOT).startsWith('mac')
 def packagedClasspath = sourceSets.smokeTest.runtimeClasspath - sourceSets.main.output
+def clientClasspath = packagedClasspath.filter { !it.name.startsWith('lwjgl-shaderc-') && !it.name.startsWith('lwjgl-spvc-') }
 def jarProvider = tasks.named('jar', Jar).flatMap { it.archiveFile }
 def assets = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/assets')
 def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/mojang_minecraft_info.json")
 def sodiumFiles = configurations.testRuntimeClasspath
-['Vanilla', 'Sodium', 'Disabled', 'Fallback'].each { flavor ->
+def flavors = ['Vanilla', 'Sodium', 'Disabled', 'Fallback', 'Title']
+if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback']
+flavors.each { flavor ->
     tasks.register("packaged${flavor}Smoke", JavaExec) {
         group = 'verification'
         description = "Launch the packaged Minecraft ${target} Metal addon (${flavor.toLowerCase(Locale.ROOT)})"
         notCompatibleWithConfigurationCache('Fixture staging reads the resolved Sodium dependency and Mojang asset manifest at launch')
         dependsOn 'smokeTestClasses', 'jar', 'downloadAssets'
-        classpath = packagedClasspath
+        classpath = clientClasspath
         javaLauncher = javaToolchains.launcherFor(java.toolchain)
         mainClass = 'net.fabricmc.loader.impl.launch.knot.KnotClient'
         maxHeapSize = '2G'
@@ -27,12 +30,24 @@ def sodiumFiles = configurations.testRuntimeClasspath
         systemProperty 'fabric.defaultMixinRemapType', 'static'
         systemProperty 'fabric.classPathGroups', sourceSets.smokeTest.output.files.collect { it.absolutePath }.join(File.pathSeparator)
         systemProperty 'eviemod.metal.distributionExpected', 'true'
+        if (flavor in ['Vanilla', 'Sodium', 'Title']) {
+            systemProperty 'eviemod.metal.smokeExpected', 'true'
+        }
         if (flavor in ['Vanilla', 'Sodium']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
             systemProperty 'eviemod.metal.worldSmoke', 'true'
             systemProperty 'eviemod-metal.terrainProfile', 'true'
         }
-        if (flavor == 'Disabled') systemProperty 'eviemod.metal', 'false'
+        if (flavor in ['Disabled', 'DisabledVulkan']) systemProperty 'eviemod.metal', 'false'
+        if (flavor == 'DisabledVulkan') {
+            args '--graphicsBackend', 'vulkan'
+            systemProperty 'eviemod.metal.expectedPreference', 'vulkan'
+        }
+        if (flavor == 'PreflightFallback') {
+            systemProperty 'eviemod.metal.fixturePreflightFailure', 'true'
+            systemProperty 'eviemod.metal.expectedPreference', 'opengl'
+            args '--graphicsBackend', 'opengl'
+        }
         doFirst {
             game.mkdirs()
             def mods = new File(game, 'mods'); mods.mkdirs()

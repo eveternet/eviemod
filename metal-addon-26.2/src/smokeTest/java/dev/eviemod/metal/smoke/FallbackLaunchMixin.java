@@ -27,12 +27,19 @@ abstract class FallbackLaunchMixin {
             String source = dev.eviemod.metal.EvieMetal.class.getProtectionDomain().getCodeSource().getLocation().toString();
             if (!source.endsWith(".jar")) throw new AssertionError("Expected packaged addon JAR, loaded " + source);
             System.out.println("EVIEMETAL_DISTRIBUTION_SOURCE " + source);
+            for (Class<?> tool : new Class<?>[]{org.lwjgl.util.shaderc.Shaderc.class, org.lwjgl.util.spvc.Spvc.class}) {
+                String packaged = tool.getProtectionDomain().getCodeSource().getLocation().toString();
+                if (packaged.contains("modules-2/files-2.1")) throw new AssertionError("Shader tool loaded from loose development dependency: " + packaged);
+                System.out.println("EVIEMETAL_SHADER_TOOL_SOURCE " + packaged);
+            }
         }
         if (Boolean.getBoolean("eviemod.metal.smokeExpected")) {
             if (!RenderSystem.getDevice().getDeviceInfo().backendName().equals("Metal")) throw new AssertionError("Expected active Metal backend");
             return;
         }
         String selected = RenderSystem.getDevice().getDeviceInfo().backendName();
+        if (Boolean.getBoolean("eviemod.metal.fixturePreflightFailure") && !dev.eviemod.metal.fixture.PreflightProbe.cleaned)
+            throw new AssertionError("Native preflight failure did not clean up before vanilla retry");
         if (selected.equals("Metal")) throw new AssertionError("Expected Minecraft's preferred backend with Metal disabled/unsupported");
         System.out.println("EVIEMOD_METAL_FALLBACK_OK backend=" + selected);
         if (System.getProperty("eviemod.metal.guiSmokeScreen") != null) return;

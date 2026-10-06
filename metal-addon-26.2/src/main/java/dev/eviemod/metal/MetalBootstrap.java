@@ -28,14 +28,16 @@ public final class MetalBootstrap {
             return defaults;
         }
         var sodium = loader.getModContainer("sodium");
-        if (sodium.isPresent() && !sodium.get().getMetadata().getVersion().getFriendlyString().equals("0.9.2+mc26.2")) {
-            throw new IllegalStateException("Metal terrain compatibility requires Sodium 0.9.2+mc26.2; installed "
-                    + sodium.get().getMetadata().getVersion() + "; refusing vanilla fallback");
-        }
+        sodium.ifPresent(mod -> requireSodiumVersion(mod.getMetadata().getVersion().getFriendlyString()));
         GpuBackend[] backends = new GpuBackend[defaults.length + 1];
         backends[0] = new MetalBackend();
         System.arraycopy(defaults, 0, backends, 1, defaults.length);
         return backends;
+    }
+
+    static void requireSodiumVersion(String installed) {
+        if (!installed.equals("0.9.2+mc26.2")) throw new IllegalStateException("Metal terrain compatibility requires Sodium 0.9.2+mc26.2; installed "
+                + installed + "; refusing vanilla fallback");
     }
 
     /** Null asks MetalBackend to enter vanilla's window cleanup and backend retry path. */
