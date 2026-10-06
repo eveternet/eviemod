@@ -52,6 +52,12 @@ final class VersionSmokeTest {
                     throw new AssertionError("Shared settings screen did not open");
                 ClientUi.screen(client).onClose();
                 if (ClientUi.screen(client) != parent) throw new AssertionError("Settings did not return to parent");
+                // Without joining a server, vanilla has not bound item defaults
+                // from the registry lookup yet. Use the same offline binding as
+                // the item/model unit fixtures before constructing a test stack.
+                net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
+                    .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
+                    .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
                 var item = net.minecraft.world.item.Items.GOLDEN_CHESTPLATE.getDefaultInstance();
                 var tag = new net.minecraft.nbt.CompoundTag();
                 tag.putString("id", "TEST_ITEM");
