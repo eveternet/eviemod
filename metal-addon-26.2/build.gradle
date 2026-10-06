@@ -81,7 +81,7 @@ processResources {
     if (isMac) from(nativeLibrary) { into 'natives' }
 }
 jar { from('LICENSE'); from('NOTICE.md') }
-sourcesJar { from(rootProject.file('metal-shared/src/main/java'));  from(rootProject.file('metal-shared/src/main/native')) { into 'native' }; from('LICENSE'); from('NOTICE.md') }
+sourcesJar { from(rootProject.file('metal-shared/src/main/native')) { into 'native' }; from('LICENSE'); from('NOTICE.md') }
 // Distribution builds must contain the arm64 library; Linux builds exercise Java and fallback only.
 tasks.register('verifyDistribution') {
     dependsOn jar
