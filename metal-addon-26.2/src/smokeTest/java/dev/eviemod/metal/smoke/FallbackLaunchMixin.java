@@ -1,7 +1,6 @@
 package dev.eviemod.metal.smoke;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.eviemod.metal.fixture.LegacyGuiStateProbe;
 import dev.eviemod.metal.fixture.OptionalGuiProbe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -52,7 +51,7 @@ abstract class FallbackLaunchMixin {
         }
         if (requestedScreenshot || mc.gui.overlay() != null || !OptionalGuiProbe.prepare(mc) || ++readyFrames < 10) return;
         requestedScreenshot = true;
-        Screenshot.takeScreenshot(mc.getMainRenderTarget(), image -> {
+        Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), image -> {
             try (image) {
                 int first = image.getPixel(0, 0);
                 boolean varied = false;

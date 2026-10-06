@@ -104,12 +104,12 @@ abstract class SodiumWorldSmokeMixin {
                 }
                 case 19 -> capture(mc, "mixed-" + phase);
                 case 2 -> {
-                    mc.levelRenderer.destroyBlockProgress(12345, new net.minecraft.core.BlockPos(4, 122, 0), 6);
+                    mc.level.destroyBlockProgress(12345, new net.minecraft.core.BlockPos(4, 122, 0), 6);
                     capture(mc, "breaking");
                 }
                 case 3 -> {
                     capture(mc, "breaking");
-                    mc.levelRenderer.destroyBlockProgress(12345, new net.minecraft.core.BlockPos(4, 122, 0), -1);
+                    mc.level.destroyBlockProgress(12345, new net.minecraft.core.BlockPos(4, 122, 0), -1);
                     commands(mc, "setblock 4 120 0 oak_leaves", "particle campfire_cosy_smoke -2 121 0 0.2 0.5 0.2 0.01 60 force @a");
                 }
                 case 4 -> commands(mc, "setblock 4 120 0 glass", "tp @a 0 124 8 140 30");
@@ -118,7 +118,7 @@ abstract class SodiumWorldSmokeMixin {
                 case 7 -> commands(mc, "tp @a 160 140 0 90 20");
                 case 8 -> commands(mc, "tp @a 320 140 0 180 20");
                 case 9 -> commands(mc, "tp @a 0 124 10 180 20");
-                case 10 -> mc.levelRenderer.allChanged();
+                case 10 -> mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.getMainCamera(), mc.getBlockColors());
                 case 11 -> mc.reloadResourcePacks();
                 case 12 -> mc.getWindow().setWindowed(1280, 720);
                 case 13, 14 -> mc.getWindow().toggleFullScreen();
@@ -178,7 +178,7 @@ abstract class SodiumWorldSmokeMixin {
     }
 
     private static void capture(Minecraft mc, String label) {
-        Screenshot.takeScreenshot(mc.getMainRenderTarget(), image -> {
+        Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), image -> {
             try (image) { image.writeToFile(Path.of("sodium-" + label + ".png")); }
             catch (java.io.IOException e) { throw new AssertionError(e); }
         });
