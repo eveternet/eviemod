@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package dev.eviemod.metal.smoke;
 
+import dev.eviemod.metal.fixture.SodiumStress;
+
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import dev.eviemod.metal.device.MetalDevice;
 import java.nio.ByteBuffer;

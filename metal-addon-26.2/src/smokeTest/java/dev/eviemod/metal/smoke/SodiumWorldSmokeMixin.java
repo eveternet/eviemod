@@ -1,5 +1,7 @@
 package dev.eviemod.metal.smoke;
 
+import dev.eviemod.metal.fixture.SodiumStress;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;

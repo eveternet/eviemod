@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-package dev.eviemod.metal.smoke;
+package dev.eviemod.metal.fixture;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
