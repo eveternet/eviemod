@@ -35,7 +35,7 @@ class SodiumShaderTest {
         String s = read(path);
         var matches = Pattern.compile("#moj_import <sodium:([^>]+)>").matcher(s);
         StringBuilder resolved = new StringBuilder();
-        while (matches.find()) matches.appendReplacement(resolved, java.util.regex.Matcher.quoteReplacement(source(matches.group(1), "")));
+        while (matches.find()) matches.appendReplacement(resolved, java.util.regex.Matcher.quoteReplacement(source("include/" + matches.group(1), "")));
         matches.appendTail(resolved);
         return resolved.toString().replace("#version 330 core", "#version 330 core\n" + defines);
     }

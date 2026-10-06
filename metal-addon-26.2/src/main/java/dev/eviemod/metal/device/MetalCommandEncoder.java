@@ -145,6 +145,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
 
     @Override public void writeToTexture(GpuTexture texture, ByteBuffer data, int mip, int layer, int x, int y, int w, int h) {
         assertNoRenderPass(); checkTextureWrite(texture, mip, layer, x, y, w, h);
+        if (w == 0 || h == 0 || mip >= ((MetalTexture) texture).metalMips) return;
         int bytes = texture.getFormat().blockSize();
         if ((long) w * h * bytes > data.remaining()) throw new IllegalArgumentException("Texture upload exceeds source buffer");
         upload(texture, MemoryUtil.memAddress(data), (long) w * bytes, bytes, mip, layer, x, y, w, h);
@@ -152,6 +153,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     @Override public void copyBufferToTexture(GpuBufferSlice source, int rowLength, int imageHeight, int sourceX, int sourceY,
             GpuTexture texture, int mip, int layer, int x, int y, int w, int h) {
         assertNoRenderPass(); checkTextureWrite(texture, mip, layer, x, y, w, h);
+        if (w == 0 || h == 0 || mip >= ((MetalTexture) texture).metalMips) return;
         int bytes = texture.getFormat().blockSize();
         long offset = ((long) sourceY * rowLength + sourceX) * bytes;
         long end = offset + ((long) (h - 1) * rowLength + w) * bytes;
@@ -161,6 +163,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     }
 
     private static void checkTextureWrite(GpuTexture texture, int mip, int layer, int x, int y, int w, int h) {
+        if (x < 0 || y < 0 || w < 0 || h < 0 || layer < 0) throw new IllegalArgumentException("Negative texture copy range");
         if (mip < 0 || mip >= texture.getMipLevels()) throw new IllegalArgumentException("Invalid mipLevel " + mip + ", must be >= 0 and < " + texture.getMipLevels());
         if (x + w > texture.getWidth(mip) || y + h > texture.getHeight(mip)) {
             throw new IllegalArgumentException("Dest texture (" + texture.getWidth(mip) + "x" + texture.getHeight(mip) + ") is not large enough to write a rectangle of " + w + "x" + h + " at " + x + "x" + y);
