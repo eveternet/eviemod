@@ -84,7 +84,7 @@ def buildNative = tasks.register('buildNative', Exec) {
     def source = rootProject.file('metal-shared/src/main/native/eviemod_metal.mm')
     doFirst {
         output.parentFile.mkdirs()
-        commandLine 'xcrun', 'clang++', '-std=c++20', '-fobjc-arc', '-O2',
+        commandLine 'xcrun', '--no-cache', '--sdk', 'macosx', 'clang++', '-std=c++20', '-fobjc-arc', '-O2',
             '-arch', 'arm64', '-mmacosx-version-min=14.0', '-dynamiclib',
             '-framework', 'Metal', '-framework', 'QuartzCore', '-framework', 'Cocoa',
             "-I${compilerHome.get()}/include", "-I${compilerHome.get()}/include/darwin",
