@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** 26.1.2 adapter, shared by configuration and play listeners. Vanilla keeps all unknown packs. */
+/** Shared by configuration and play listeners on both targets. Vanilla keeps all unknown packs. */
 @Mixin(ClientCommonPacketListenerImpl.class)
 abstract class HypixelServerPackMixin {
     @Shadow @Final protected ServerData serverData;

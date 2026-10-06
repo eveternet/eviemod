@@ -3,6 +3,7 @@ package dev.eviemod.paintbrush;
 import dev.eviemod.compat.ClientUi;
 import net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,11 @@ final class VersionSmokeTest {
     private Screen parent;
 
     void start() {
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            // Fresh CI game directories otherwise wait for the onboarding button.
+            client.options.onboardAccessibility = false;
+            ClientUi.setScreen(client, new TitleScreen());
+        });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (parent == null) {
                 if (!(ClientUi.screen(client) instanceof TitleScreen) || ClientUi.overlay(client) != null) return;
@@ -48,6 +54,7 @@ final class VersionSmokeTest {
                 if (ClientUi.screen(client) != parent) throw new AssertionError("Settings did not return to parent");
                 var item = net.minecraft.world.item.Items.GOLDEN_CHESTPLATE.getDefaultInstance();
                 var tag = new net.minecraft.nbt.CompoundTag();
+                tag.putString("id", "TEST_ITEM");
                 tag.putString("uuid", "eb11aa00-052d-48fa-bf56-09c2e1a4a12d");
                 item.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
                     net.minecraft.world.item.component.CustomData.of(tag));
