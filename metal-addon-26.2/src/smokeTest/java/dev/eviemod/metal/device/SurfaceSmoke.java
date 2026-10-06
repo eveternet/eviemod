@@ -23,7 +23,8 @@ public final class SurfaceSmoke {
         long window = GLFW.glfwCreateWindow(320, 240, "Eviemetal surface fixture", 0, 0);
         if (window == 0) throw new IllegalStateException("Surface fixture window creation failed");
         NativeLoader.load();
-        try (var device = new MetalDevice(window, (id, type) -> null)) {
+        var device = new MetalDevice(window, (id, type) -> null);
+        try {
             var translated = ShaderTranslator.translate("surface-preflight", "#version 330\nvoid main(){gl_Position=vec4(0,0,0,1);}", ShaderTranslator.Stage.VERTEX, Map.of());
             Mtl.release(Mtl.newLibrary(translated.msl()));
             device.prepareSurface(window);
@@ -53,6 +54,7 @@ public final class SurfaceSmoke {
             }
             System.out.println("EVIEMETAL_SURFACE_OK mc=26.2 backend=" + device.getBackendName());
         } finally {
+            device.close();
             GLFW.glfwDestroyWindow(window);
             GLFW.glfwTerminate();
         }
