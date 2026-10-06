@@ -40,6 +40,9 @@ abstract class FallbackLaunchMixin {
         String selected = RenderSystem.getDevice().getDeviceInfo().backendName();
         if (Boolean.getBoolean("eviemod.metal.fixturePreflightFailure") && !dev.eviemod.metal.fixture.PreflightProbe.cleaned)
             throw new AssertionError("Native preflight failure did not clean up before vanilla retry");
+        if (System.getProperty("eviemod.metal.expectedPreference") != null && (dev.eviemod.metal.fixture.PreflightProbe.vanillaCandidates == null
+                || java.util.Arrays.stream(dev.eviemod.metal.fixture.PreflightProbe.vanillaCandidates).noneMatch(selected::equals)))
+            throw new AssertionError("Selected backend outside vanilla candidate list: " + selected);
         if (selected.equals("Metal")) throw new AssertionError("Expected Minecraft's preferred backend with Metal disabled/unsupported");
         System.out.println("EVIEMOD_METAL_FALLBACK_OK backend=" + selected);
         if (System.getProperty("eviemod.metal.guiSmokeScreen") != null) return;

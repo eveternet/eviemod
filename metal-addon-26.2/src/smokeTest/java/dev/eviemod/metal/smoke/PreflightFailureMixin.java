@@ -19,7 +19,7 @@ abstract class PreflightFailureMixin {
     @Inject(method="close",at=@At("RETURN"))
     private void closed(CallbackInfo ci) {
         if (!PreflightProbe.failed) return;
-        if (!Mtl.deviceName().equals("none")) throw new AssertionError("Native device survived failed startup cleanup");
+        if (Mtl.allocatedBytes() != 0 || Mtl.completedFence() != 0) throw new AssertionError("Native device survived failed startup cleanup");
         PreflightProbe.cleaned=true;
         System.out.println("EVIEMETAL_PREFLIGHT_CLEANUP_OK");
     }
