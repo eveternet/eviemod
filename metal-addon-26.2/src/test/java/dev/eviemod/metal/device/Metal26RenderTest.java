@@ -105,7 +105,7 @@ class Metal26RenderTest {
         MetalBuffer buffer=new MetalBuffer(GpuBuffer.USAGE_COPY_SRC|GpuBuffer.USAGE_COPY_DST|GpuBuffer.USAGE_MAP_WRITE|GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER,1024);
         try {
             for(int run=0;run<12;run++) {
-                try(var mapping=buffer.map(false,true)) {mapping.data().putInt(0,100+run);}
+                try(var mapping=buffer.map(false,true)) {mapping.data().putInt(100+run);}
                 long view=buffer.texelView(GpuFormat.R32_SINT,0,buffer.size());
                 long generation=buffer.storageGeneration();
                 var bigger=new MetalBuffer(buffer.usage(),buffer.size()+1024);
