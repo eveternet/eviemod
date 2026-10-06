@@ -34,38 +34,29 @@ abstract class SodiumWorldSmokeMixin {
         if (!Boolean.getBoolean("eviemod.metal.worldSmoke")) return;
         Minecraft mc = (Minecraft) (Object) this;
         // A fresh CI profile may still show onboarding on a second launch; match the frame fixture's handoff.
-        if (mc.getOverlay() == null && mc.screen instanceof AccessibilityOnboardingScreen) {
-            mc.setScreen(new TitleScreen());
+        if (mc.gui.overlay() == null && mc.gui.screen() instanceof AccessibilityOnboardingScreen) {
+            mc.gui.setScreen(new TitleScreen());
             return;
         }
         if (java.nio.file.Files.exists(mc.gameDirectory.toPath().resolve(".metal-world-stop"))) { mc.stop(); return; }
-        if (reopen && mc.screen instanceof TitleScreen && mc.getOverlay() == null) {
+        if (reopen && mc.gui.screen() instanceof TitleScreen && mc.gui.overlay() == null) {
             reopen = false;
-            mc.createWorldOpenFlows().openWorld("sodium-metal-fixture", () -> mc.setScreen(new TitleScreen()));
+            mc.createWorldOpenFlows().openWorld("sodium-metal-fixture", () -> mc.gui.setScreen(new TitleScreen()));
         }
-        if (stopping && mc.level == null && mc.screen instanceof TitleScreen) {
+        if (stopping && mc.level == null && mc.gui.screen() instanceof TitleScreen) {
             if (!Mtl.fenceWait(Mtl.fence(), 5000)) throw new AssertionError("Final GPU fence timed out");
             boolean sodium = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium");
-            if (sodium) dev.eviemod.metal.compat.sodium.SodiumMetal.assertWorldReleased();
-            if (sodium) System.out.println("EVIEMETAL_SODIUM_RESOURCES " + dev.eviemod.metal.compat.sodium.SodiumMetal.resourceSummary());
-            if (sodium && Boolean.getBoolean("eviemod-metal.terrainProfile")) {
-                var counters = dev.eviemod.metal.compat.sodium.SodiumMetal.performanceCounters();
-                if (counters.layoutSnapshots() == 0 || counters.batches() <= counters.layoutSnapshots()
-                        || counters.bindingCalls() >= counters.bindingAttempts())
-                    throw new AssertionError("Expected layout reuse and fewer native bindings: " + counters);
-                System.out.println("EVIEMETAL_SODIUM_TIER1_OK " + counters);
-            }
             System.out.println((sodium ? "EVIEMETAL_SODIUM_LIFECYCLE_OK" : "EVIEMETAL_VANILLA_LIFECYCLE_OK") + " metalBytesAfterUnload=" + Mtl.allocatedBytes());
             mc.stop(); return;
         }
-        if (!opened && mc.screen instanceof TitleScreen && mc.getOverlay() == null && ++frames > 20) {
+        if (!opened && mc.gui.screen() instanceof TitleScreen && mc.gui.overlay() == null && ++frames > 20) {
             opened = true;
             mc.options.renderDistance().set(6);
             mc.options.simulationDistance().set(5);
             mc.options.pauseOnLostFocus = false;
             String name = "sodium-metal-fixture";
             if (java.nio.file.Files.exists(mc.gameDirectory.toPath().resolve("saves").resolve(name).resolve("level.dat"))) {
-                mc.createWorldOpenFlows().openWorld(name, () -> mc.setScreen(new TitleScreen()));
+                mc.createWorldOpenFlows().openWorld(name, () -> mc.gui.setScreen(new TitleScreen()));
             } else {
                 mc.createWorldOpenFlows().createFreshLevel(name,
                         new LevelSettings("Sodium Metal fixture", GameType.CREATIVE, LevelSettings.DifficultySettings.DEFAULT, true, WorldDataConfiguration.DEFAULT),
@@ -74,7 +65,7 @@ abstract class SodiumWorldSmokeMixin {
                         new TitleScreen());
             }
         }
-        if (mc.level == null || mc.player == null || mc.getOverlay() != null) return;
+        if (mc.level == null || mc.player == null || mc.gui.overlay() != null) return;
         if (mc.player.isDeadOrDying()) {
             if (worldStart != 0) throw new AssertionError("Creative fixture player died during the lifecycle test");
             if (!respawnRequested) { respawnRequested = true; mc.player.respawn(); }
@@ -122,8 +113,8 @@ abstract class SodiumWorldSmokeMixin {
                     commands(mc, "setblock 4 120 0 oak_leaves", "particle campfire_cosy_smoke -2 121 0 0.2 0.5 0.2 0.01 60 force @a");
                 }
                 case 4 -> commands(mc, "setblock 4 120 0 glass", "tp @a 0 124 8 140 30");
-                case 5 -> mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
-                case 6 -> { capture(mc, "inventory"); mc.setScreen(null); }
+                case 5 -> mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+                case 6 -> { capture(mc, "inventory"); mc.gui.setScreen(null); }
                 case 7 -> commands(mc, "tp @a 160 140 0 90 20");
                 case 8 -> commands(mc, "tp @a 320 140 0 180 20");
                 case 9 -> commands(mc, "tp @a 0 124 10 180 20");

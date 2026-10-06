@@ -973,7 +973,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_writeTimestamp(JNIEnv* env
         MTLBlitPassDescriptor* d = [MTLBlitPassDescriptor blitPassDescriptor]; d.sampleBufferAttachments[0].sampleBuffer = OBJ(id<MTLCounterSampleBuffer>, pool);
         d.sampleBufferAttachments[0].startOfEncoderSampleIndex = index; d.sampleBufferAttachments[0].endOfEncoderSampleIndex = MTLCounterDontSample;
         id<MTLBlitCommandEncoder> enc = [cmd() blitCommandEncoderWithDescriptor:d]; [enc endEncoding];
-        if (resume) Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, clazz, (__bridge jlong)color, false, 0, 0, 0, 0, (__bridge jlong)depth, false, 1);
+        if (resume) Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, clazz, (jlong)(__bridge void*)color, false, 0, 0, 0, 0, (jlong)(__bridge void*)depth, false, 1);
     }
 }
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_timestampValue(JNIEnv*, jclass, jlong pool, jint index) {

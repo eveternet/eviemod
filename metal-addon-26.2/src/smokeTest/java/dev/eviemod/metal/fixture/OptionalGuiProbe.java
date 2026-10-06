@@ -14,20 +14,20 @@ public final class OptionalGuiProbe {
 
     public static boolean prepare(Minecraft mc) {
         String name = System.getProperty("eviemod.metal.guiSmokeScreen");
-        if (name == null) return mc.screen instanceof TitleScreen;
+        if (name == null) return mc.gui.screen() instanceof TitleScreen;
         if (screen == null) {
-            if (!(mc.screen instanceof TitleScreen)) return false;
+            if (!(mc.gui.screen() instanceof TitleScreen)) return false;
             try { screen = (Screen) Class.forName(name).getField("INSTANCE").get(null); }
             catch (ReflectiveOperationException e) { throw new AssertionError("Cannot load fixture screen " + name, e); }
         }
-        if (mc.screen != screen) {
-            mc.setScreen(screen);
+        if (mc.gui.screen() != screen) {
+            mc.gui.setScreen(screen);
             frames = 0;
             return false;
         }
         if (closes < 20) {
             if (++frames >= 12) {
-                mc.setScreen(new TitleScreen());
+                mc.gui.setScreen(new TitleScreen());
                 closes++;
                 if (closes == 20) System.out.println("EVIEMETAL_MOD_GUI_CYCLES_OK: " + name + " opened/closed 20 times");
             }

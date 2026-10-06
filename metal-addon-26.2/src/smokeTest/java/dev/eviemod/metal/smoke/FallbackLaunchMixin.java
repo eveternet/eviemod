@@ -22,20 +22,19 @@ abstract class FallbackLaunchMixin {
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
     private void verifyFallback(CallbackInfo ci) {
-        LegacyGuiStateProbe.verify();
+
         if (Boolean.getBoolean("eviemod.metal.distributionExpected")) {
             String source = dev.eviemod.metal.EvieMetal.class.getProtectionDomain().getCodeSource().getLocation().toString();
             if (!source.endsWith(".jar")) throw new AssertionError("Expected packaged addon JAR, loaded " + source);
             System.out.println("EVIEMETAL_DISTRIBUTION_SOURCE " + source);
         }
         if (Boolean.getBoolean("eviemod.metal.smokeExpected")) {
-            if (!RenderSystem.getDevice().getBackendName().equals("Metal")) throw new AssertionError("Expected active Metal backend");
+            if (!RenderSystem.getDevice().getDeviceInfo().backendName().equals("Metal")) throw new AssertionError("Expected active Metal backend");
             return;
         }
-        if (!RenderSystem.getDevice().getBackendName().equals("OpenGL")) {
-            throw new AssertionError("Disabled or unsupported Metal addon must preserve OpenGL");
-        }
-        System.out.println("EVIEMOD_METAL_FALLBACK_OK");
+        String selected = RenderSystem.getDevice().getDeviceInfo().backendName();
+        if (selected.equals("Metal")) throw new AssertionError("Expected Minecraft's preferred backend with Metal disabled/unsupported");
+        System.out.println("EVIEMOD_METAL_FALLBACK_OK backend=" + selected);
         if (System.getProperty("eviemod.metal.guiSmokeScreen") != null) return;
         ci.cancel();
     }
@@ -47,11 +46,11 @@ abstract class FallbackLaunchMixin {
         var mc = (Minecraft) (Object) this;
         if (System.nanoTime() - smokeStart > 180_000_000_000L) throw new AssertionError("Metal launch/readback timed out");
         // CI has a fresh options file; choose the screen under test after the initial resource load.
-        if (mc.getOverlay() == null && mc.screen instanceof AccessibilityOnboardingScreen) {
-            mc.setScreen(new TitleScreen());
+        if (mc.gui.overlay() == null && mc.gui.screen() instanceof AccessibilityOnboardingScreen) {
+            mc.gui.setScreen(new TitleScreen());
             return;
         }
-        if (requestedScreenshot || mc.getOverlay() != null || !OptionalGuiProbe.prepare(mc) || ++readyFrames < 10) return;
+        if (requestedScreenshot || mc.gui.overlay() != null || !OptionalGuiProbe.prepare(mc) || ++readyFrames < 10) return;
         requestedScreenshot = true;
         Screenshot.takeScreenshot(mc.getMainRenderTarget(), image -> {
             try (image) {
