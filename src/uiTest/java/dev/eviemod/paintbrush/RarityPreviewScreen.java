@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -30,12 +31,12 @@ final class RarityPreviewScreen extends Screen {
     @Override protected void init() {
         slots = new SlotRenderer();
         slots.init(width, height);
-        addRenderableWidget(Button.builder(Component.literal("Settings"), b -> minecraft.setScreen(EviemodSettings.screen(this)))
+        addRenderableWidget(Button.builder(Component.literal("Settings"), b -> ClientUi.setScreen(minecraft, EviemodSettings.screen(this)))
             .bounds(width / 2 - 100, height - 40, 95, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
             .bounds(width / 2 + 5, height - 40, 95, 20).build());
     }
-    @Override public void onClose() { minecraft.setScreen(new TitleScreen()); }
+    @Override public void onClose() { ClientUi.setScreen(minecraft, new TitleScreen()); }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         g.fill(0, 0, width, height, 0xff25262b);
         g.centeredText(font, "eviemod • rarity backgrounds", width / 2, 18, 0xffffffff);

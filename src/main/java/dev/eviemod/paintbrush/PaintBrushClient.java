@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import java.io.IOException;
 import net.fabricmc.api.ClientModInitializer;
@@ -101,12 +102,12 @@ public final class PaintBrushClient implements ClientModInitializer {
             RarityBackgrounds.tick(client);
             EviemodSettings.tick(client);
             TexturePackBypasser.tick(client);
-            if (openSettings) { openSettings = false; client.setScreen(EviemodSettings.screen(null)); }
+            if (openSettings) { openSettings = false; ClientUi.setScreen(client, EviemodSettings.screen(null)); }
             if (client.player != null) for (var slot : ARMOR_SLOTS)
                 equipmentColors.observe(slot, client.player.getItemBySlot(slot));
             if (openEditor) {
                 openEditor = false;
-                if (client.player != null) client.setScreen(new PaintBrushScreen());
+                if (client.player != null) ClientUi.setScreen(client, new PaintBrushScreen());
             }
         });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) -> {

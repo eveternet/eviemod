@@ -36,15 +36,41 @@ jobs:
           xvfb-run -a ./gradlew :metal-addon:runClient -PmetalSmokeTest -Pmetal=false 2>&1 | tee metal-disabled-launch.log
           grep -Fq 'Using OpenGL: disabled by -Deviemod.metal override' metal-disabled-launch.log
           grep -q EVIEMOD_METAL_FALLBACK_OK metal-disabled-launch.log
-      - name: Upload mod JAR
+      - name: Verify 26.1.2 mixins and settings navigation
+        run: |
+          set -o pipefail
+          timeout 180s xvfb-run -a ./gradlew :runClient -PuiSmokeTest -PversionSmokeTest 2>&1 | tee eviemod-26.1.2-smoke.log
+          grep -q EVIEMOD_VERSION_SMOKE_OK eviemod-26.1.2-smoke.log
+      - name: Verify 26.2 mixins and settings navigation
+        run: |
+          set -o pipefail
+          timeout 180s xvfb-run -a ./gradlew :eviemod-26.2:runClient -PuiSmokeTest -PversionSmokeTest 2>&1 | tee eviemod-26.2-smoke.log
+          grep -q EVIEMOD_VERSION_SMOKE_OK eviemod-26.2-smoke.log
+      - name: Upload main mod launch evidence
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: eviemod
+          name: eviemod-launch-evidence
+          path: |
+            eviemod-*-smoke.log
+            build/test-results/test/*.xml
+            eviemod-26.2/build/test-results/test/*.xml
+      - name: Upload 26.1.2 mod JAR
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: eviemod-mc26.1.2
           path: |
             build/libs/eviemod-*.jar
             !build/libs/*-sources.jar
             !build/libs/*-dev.jar
             !build/libs/*-shadow.jar
+          if-no-files-found: error
+      - name: Upload 26.2 mod JAR
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: eviemod-mc26.2
+          path: |
+            eviemod-26.2/build/libs/eviemod-*-mc26.2.jar
           if-no-files-found: error
 
   metal:
@@ -111,7 +137,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: eviemod
+          pattern: eviemod-mc*
+          merge-multiple: true
           path: dist
       - uses: actions/download-artifact@v8
         with:
@@ -124,10 +151,13 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           jars=(dist/*.jar)
-          test "${#jars[@]}" -eq 1
+          test "${#jars[@]}" -eq 2
           test -f "${jars[0]}"
+          test -f "${jars[1]}"
+          test -f dist/*-mc26.1.2.jar
+          test -f dist/*-mc26.2.jar
           metal_jars=(metal-dist/*.jar)
           test "${#metal_jars[@]}" -eq 1
           test -f "${metal_jars[0]}"
-          gh release create "$RELEASE_TAG" "${jars[0]}" "${metal_jars[0]}" \
+          gh release create "$RELEASE_TAG" "${jars[@]}" "${metal_jars[0]}" \
             --verify-tag --title "$RELEASE_TAG" --generate-notes

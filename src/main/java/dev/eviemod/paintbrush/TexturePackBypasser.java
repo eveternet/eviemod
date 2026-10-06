@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.*;
@@ -138,7 +139,7 @@ public final class TexturePackBypasser {
             && pack.url().equals(url) && pack.hash().equalsIgnoreCase(hash);
     }
     private static void notifyUser(String message) {
-        SystemToast.addOrUpdate(Minecraft.getInstance().getToastManager(), TOAST,
+        SystemToast.addOrUpdate(ClientUi.toasts(Minecraft.getInstance()), TOAST,
             Component.literal("Hypixel Pack"), Component.literal(message));
     }
 }

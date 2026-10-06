@@ -1,5 +1,6 @@
 package dev.eviemod.features.skyblock;
 
+import dev.eviemod.compat.ClientUi;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public final class CustomCommandHotkeys {
    }
 
    public static void tick(Minecraft client) {
-      sampleKeys(client, FeatureSettings.isCommandHotkeysEnabled() && client.screen == null && client.getConnection() != null);
+      sampleKeys(client, FeatureSettings.isCommandHotkeysEnabled() && ClientUi.screen(client) == null && client.getConnection() != null);
    }
 
    private static void sampleKeys(Minecraft client, boolean active) {

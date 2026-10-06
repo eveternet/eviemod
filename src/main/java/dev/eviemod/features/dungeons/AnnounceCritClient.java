@@ -1,5 +1,6 @@
 package dev.eviemod.features.dungeons;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.features.skyblock.PartyCommandController;
 import dev.eviemod.paintbrush.EviemodSettings;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
@@ -15,7 +16,7 @@ public final class AnnounceCritClient {
             var settings = EviemodSettings.features().dungeons;
             AnnounceCrit.receive(message.getString(), overlay, settings.announceCrit, settings.announceCritTemplate,
                 settings.announceCritPartyChat,
-                text -> client.gui.getChat().addClientSystemMessage(Component.literal(text)),
+                text -> ClientUi.getChat(client).addClientSystemMessage(Component.literal(text)),
                 PartyCommandController::sendCommand);
         });
     }

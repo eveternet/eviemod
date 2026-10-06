@@ -1,5 +1,6 @@
 package dev.eviemod.features.garden;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.paintbrush.EviemodSettings;
 import dev.eviemod.paintbrush.PaintBrushClient;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -29,7 +30,7 @@ public final class GardenToolsClient {
 
    private static boolean shouldLockMouse(Minecraft client) {
       return EviemodSettings.features().garden.mouseLock
-          && client.screen == null
+          && ClientUi.screen(client) == null
           && client.player != null
           && client.player.onGround()
           && inGarden

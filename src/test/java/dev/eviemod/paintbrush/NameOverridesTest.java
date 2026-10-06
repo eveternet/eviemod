@@ -3,7 +3,7 @@ package dev.eviemod.paintbrush;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Style;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ class NameOverridesTest {
         tag.putString("id", "JUJU_SHORTBOW");
         if (uuid != null) tag.putString("uuid", uuid);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        stack.set(DataComponents.CUSTOM_NAME, Component.literal("Original Juju").withStyle(ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal("Original Juju").withStyle(Style.EMPTY.withColor(0xffaa00)));
         return stack;
     }
 

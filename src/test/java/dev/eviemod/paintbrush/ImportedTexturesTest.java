@@ -44,7 +44,12 @@ class ImportedTexturesTest {
             }
             assertEquals(id, imports.importPng(png(64, 64), preset));
         }
-        assertTrue(Files.isRegularFile(directory.resolve(ImportedTextures.PACK_FOLDER).resolve("pack.mcmeta")));
+        var pack = JsonParser.parseString(Files.readString(directory.resolve(ImportedTextures.PACK_FOLDER)
+            .resolve("pack.mcmeta"))).getAsJsonObject().getAsJsonObject("pack");
+        int format = net.minecraft.SharedConstants.getCurrentVersion()
+            .packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES).major();
+        assertEquals(format, pack.get("min_format").getAsInt());
+        assertEquals(format, pack.get("max_format").getAsInt());
     }
     @Test void legacySkinUvCanvasIsExpandedAndAlphaPreserved() throws Exception {
         var bytes = ImportedTextures.validatedPng(png(64, 32), ImportedTextures.Preset.HELMET);

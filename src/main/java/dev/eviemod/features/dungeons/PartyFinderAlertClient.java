@@ -1,5 +1,6 @@
 package dev.eviemod.features.dungeons;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.features.skyblock.SkyblockContext;
 import dev.eviemod.paintbrush.EviemodSettings;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
@@ -19,10 +20,10 @@ public final class PartyFinderAlertClient {
             PartyFinderAlert.receive(message.getString(), overlay, settings.partyFinderAlert,
                 settings.partyFinderSubtitle, settings.partyFinderSound, settings.partyFinderSoundId,
                 settings.partyFinderSoundVolume, settings.partyFinderSoundPitch, text -> {
-                    client.gui.setTimes(0, 60, 10);
-                    client.gui.setSubtitle(Component.literal(text));
+                    ClientUi.setTimes(client, 0, 60, 10);
+                    ClientUi.setSubtitle(client, Component.literal(text));
                     // Vanilla only starts the title/subtitle timer when a title is set.
-                    client.gui.setTitle(Component.empty());
+                    ClientUi.setTitle(client, Component.empty());
                 }, sound -> {
                     var id = Identifier.tryParse(sound.id());
                     if (id == null) return;
