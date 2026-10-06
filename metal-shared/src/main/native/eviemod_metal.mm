@@ -964,12 +964,16 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTimestampPool(JNIEnv* 
         if (!pool) { throwJava(env, error.localizedDescription); return 0; } return RETAIN(pool);
     }
 }
-JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_writeTimestamp(JNIEnv*, jclass, jlong pool, jint index) {
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_writeTimestamp(JNIEnv* env, jclass clazz, jlong pool, jint index) {
     @autoreleasepool {
+        // Apple samples at encoder boundaries. Resume attached render targets without clearing afterward.
+        id<MTLTexture> color = gPassColor, depth = gPassDepth;
+        bool resume = gInPass;
         endRender(); endBlit();
         MTLBlitPassDescriptor* d = [MTLBlitPassDescriptor blitPassDescriptor]; d.sampleBufferAttachments[0].sampleBuffer = OBJ(id<MTLCounterSampleBuffer>, pool);
         d.sampleBufferAttachments[0].startOfEncoderSampleIndex = index; d.sampleBufferAttachments[0].endOfEncoderSampleIndex = MTLCounterDontSample;
         id<MTLBlitCommandEncoder> enc = [cmd() blitCommandEncoderWithDescriptor:d]; [enc endEncoding];
+        if (resume) Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, clazz, (__bridge jlong)color, false, 0, 0, 0, 0, (__bridge jlong)depth, false, 1);
     }
 }
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_timestampValue(JNIEnv*, jclass, jlong pool, jint index) {

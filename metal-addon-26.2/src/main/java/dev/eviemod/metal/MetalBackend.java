@@ -18,12 +18,12 @@ final class MetalBackend implements GpuBackend {
     }
 
     @Override public void handleWindowCreationErrors(GLFWErrorCapture.Error error) throws BackendCreationException {
-        throw new BackendCreationException("Metal window creation failed: " + (error == null ? "unknown GLFW error" : error));
+        throw new BackendCreationException("Metal window creation failed: " + (error == null ? "unknown GLFW error" : error), BackendCreationException.Reason.OTHER);
     }
 
     @Override public GpuDevice createDevice(long window, ShaderSource shaders, GpuDebugOptions debug, Runnable criticalShaderLoader) throws BackendCreationException {
         GpuDevice device = MetalBootstrap.tryCreate(window, shaders, criticalShaderLoader);
-        if (device == null) throw new BackendCreationException("Metal startup failed; see the log for the cause. Retrying Minecraft\'s preferred backends.");
+        if (device == null) throw new BackendCreationException("Metal startup failed; see the log for the cause. Retrying Minecraft\'s preferred backends.", BackendCreationException.Reason.OTHER);
         return device;
     }
 

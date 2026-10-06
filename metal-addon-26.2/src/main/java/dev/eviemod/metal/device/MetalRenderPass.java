@@ -46,7 +46,7 @@ public class MetalRenderPass implements RenderPassBackend {
 
     private record Binding(MetalTextureView view, MetalSampler sampler) {}
 
-    MetalRenderPass(MetalCommandEncoder encoder, GpuTextureView color, @Nullable GpuTextureView depth, @Nullable RenderPass.RenderArea area) {
+    MetalRenderPass(MetalCommandEncoder encoder, GpuTextureView color, @Nullable GpuTextureView depth, RenderPass.@Nullable RenderArea area) {
         this.encoder = encoder;
         this.renderArea = area;
         this.colorFormat = MetalFormats.texture(color.texture().getFormat());
@@ -182,7 +182,9 @@ public class MetalRenderPass implements RenderPassBackend {
     @Override public void multiDraw(IntBuffer parameters, int instances, int firstInstance, int count) { throw new UnsupportedOperationException("Metal does not advertise interleaved direct multidraw"); }
     @Override public void drawIndexedIndirect(GpuBufferSlice commands, int count) { throw new UnsupportedOperationException("Metal does not advertise indirect draws"); }
     @Override public void drawIndirect(GpuBufferSlice commands, int count) { throw new UnsupportedOperationException("Metal does not advertise indirect draws"); }
-    @Override public void writeTimestamp(com.mojang.blaze3d.systems.GpuQueryPool pool, int index) { ((MetalQueryPool) pool).write(index); boundPipeline = null; }
+    @Override public void writeTimestamp(com.mojang.blaze3d.systems.GpuQueryPool pool, int index) { ((MetalQueryPool) pool).write(index); boundPipeline = null; boundScissor = -1;
+        java.util.Arrays.fill(vertexHandles, 0);
+        for (int stage = 0; stage < 2; stage++) { java.util.Arrays.fill(boundBuffers[stage], 0); java.util.Arrays.fill(boundTextures[stage], 0); java.util.Arrays.fill(boundSamplers[stage], 0); } }
 
     private final Map<String, Number[]> defaults = new HashMap<>();
     public void setDefaultUniform(String name, Number... values) { checkOpen(); defaults.put(name, values.clone()); }
