@@ -18,3 +18,7 @@ apply from: 'gradle/eviemod.gradle'
 
 // An explicit root build also builds the second supported Minecraft target.
 tasks.named('build') { dependsOn ':eviemod-26.2:build' }
+
+// Both fixed Minecraft adapters are first-class build targets.
+tasks.named('build') { dependsOn ':metal-addon:build', ':metal-addon-26.2:build' }
+tasks.register('verifyMetalDistributions') { dependsOn ':metal-addon:verifyDistribution', ':metal-addon-26.2:verifyDistribution' }

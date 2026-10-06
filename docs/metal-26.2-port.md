@@ -68,3 +68,19 @@ boundary. Arena ownership/recycling and section timestamp buffers now use
 `GpuBuffer` and command copies; tests must cover their replacement and relocation.
 
 These are local vanilla/Sodium fixture checks. No live SkyBlock validation is claimed.
+
+## Baseline rerun
+
+With the redirected-fill fixture correction, the packaged 26.1.2 Sodium route
+completed Nether/End travel, unload/reopen and final shutdown. It reported
+`EVIEMETAL_SODIUM_LIFECYCLE_OK`, with zero bridge buffers, bytes, borrowed
+resources, programs, pipelines, timestamp views and layouts after unload.
+Driver-reported Metal memory after the final GPU fence was 239,058,944 bytes;
+this includes retained title-screen/game resources, not just terrain.
+
+## Implementation checkpoints
+
+The initial split shares Java utility sources and one native build between fixed
+Loom projects. The first adapter compilation found three 26.2 API differences
+(two BackendCreationException constructors and one nested type annotation).
+This is a work-in-progress checkpoint; tests/fixtures for 26.2 are still being adapted.

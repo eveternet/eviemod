@@ -2,7 +2,7 @@ plugins {
     id 'net.fabricmc.fabric-loom'
 }
 
-ext.minecraftVersion = '26.1.2'
+ext.minecraftVersion = '26.2'
 
 group = 'dev.eviemod'
 version = '0.1.1.0'
@@ -51,9 +51,7 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
 }
-def headers = layout.buildDirectory.dir('generated/jni')
 tasks.withType(JavaCompile).configureEach { options.release = 25 }
-compileJava { options.headerOutputDirectory = headers }
 test {
     useJUnitPlatform()
     jvmArgs '--enable-native-access=ALL-UNNAMED'
@@ -70,27 +68,11 @@ loom {
     }
 }
 
+
 def isMac = System.getProperty('os.name').toLowerCase(Locale.ROOT).startsWith('mac')
-def nativeLibrary = layout.buildDirectory.file('native/libeviemod_metal.dylib')
-def compilerHome = javaToolchains.compilerFor(java.toolchain).map { it.metadata.installationPath }
-def buildNative = tasks.register('buildNative', Exec) {
-    dependsOn compileJava
-    onlyIf { isMac }
-    inputs.files(fileTree(rootProject.file('metal-shared/src/main/native')), headers)
-    inputs.property 'compilerHome', compilerHome.map { it.asFile.absolutePath }
-    outputs.file nativeLibrary
-    def output = nativeLibrary.get().asFile
-    def headerDir = headers.get().asFile
-    def source = rootProject.file('metal-shared/src/main/native/eviemod_metal.mm')
-    doFirst {
-        output.parentFile.mkdirs()
-        commandLine 'xcrun', 'clang++', '-std=c++20', '-fobjc-arc', '-O2',
-            '-arch', 'arm64', '-mmacosx-version-min=14.0', '-dynamiclib',
-            '-framework', 'Metal', '-framework', 'QuartzCore', '-framework', 'Cocoa',
-            "-I${compilerHome.get()}/include", "-I${compilerHome.get()}/include/darwin",
-            "-I${headerDir}", '-o', output.absolutePath, source.absolutePath
-    }
-}
+def baseline = project(':metal-addon')
+def nativeLibrary = baseline.layout.buildDirectory.file('native/libeviemod_metal.dylib')
+def buildNative = ':metal-addon:buildNative'
 processResources {
     dependsOn buildNative
     def addonVersion = project.version
