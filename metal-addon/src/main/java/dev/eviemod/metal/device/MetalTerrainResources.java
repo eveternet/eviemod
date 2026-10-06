@@ -13,6 +13,11 @@ public final class MetalTerrainResources {
         return ((MetalBuffer) buffer).handle;
     }
 
+    public static long storageGeneration(GpuBuffer buffer) {
+        if (buffer.isClosed()) throw new IllegalStateException("Closed terrain buffer");
+        return ((MetalBuffer) buffer).storageGeneration();
+    }
+
     /** A separately owned R32Sint view for Sodium's signed section timestamps. */
     public static long sectionTimesView(GpuBuffer buffer) {
         return Mtl.newTerrainTimeView(handle(buffer), buffer.size());

@@ -51,6 +51,8 @@ public final class Mtl {
 
     public static native void beginPass(long color, boolean clearColor, float r, float g, float b, float a, long depth, boolean clearDepth, double depthValue);
     public static native void endPass();
+    /** Monotonic native encoder identity; logical pass merges retain it. Render thread only. */
+    public static native long renderEncoderGeneration();
     public static native void clearRegion(long color, int colorFormat, long depth, float r, float g, float b, float a, float depthValue, int x, int y, int w, int h);
     public static native void setPipelineState(long pso, long depthState, int cull, boolean wireframe, float depthBiasConstant, float depthBiasSlope);
     public static native void setScissor(int x, int y, int w, int h);

@@ -87,6 +87,7 @@ static void endBlit() {
 // Render encoders outlive Blaze3D render passes: a following pass on the same attachments without clears reuses the
 // open encoder instead of storing and reloading the whole target (expensive on Apple's tile-based GPUs).
 static bool gInPass;
+static uint64_t gRenderGeneration;
 static id<MTLTexture> gPassColor, gPassDepth;
 
 // Dev-only GPU profiling: every render encoder records GPU timestamps at the start of its vertex stage and the end of
@@ -595,6 +596,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_beginPass(JNIEnv*, jclass,
         }
         profilePass(d, gNextLabel);
         gRender = [cmd() renderCommandEncoderWithDescriptor:d];
+        ++gRenderGeneration;
         // Front faces are counter-clockwise in GL; the Y flip in the vertex stage mirrors them to clockwise.
         [gRender setFrontFacingWinding:MTLWindingClockwise];
     }
@@ -604,6 +606,10 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_endPass(JNIEnv*, jclass) {
     @autoreleasepool {
         gInPass = false;  // The encoder stays open for a possible merge; endRender() closes it when anything else needs the command buffer.
     }
+}
+
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_renderEncoderGeneration(JNIEnv*, jclass) {
+    return gRender ? (jlong)gRenderGeneration : 0;
 }
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setPipelineState(JNIEnv*, jclass, jlong pso, jlong depthState, jint cull, jboolean wireframe, jfloat depthBiasConstant, jfloat depthBiasSlope) {

@@ -32,7 +32,7 @@ public class MetalSampler extends GpuSampler {
         return handle;
     }
 
-    boolean isClosed() {
+    public boolean isClosed() {
         return closed;
     }
 
