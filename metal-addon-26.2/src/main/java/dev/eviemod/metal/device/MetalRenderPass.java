@@ -82,11 +82,12 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     public void bindTexture(String name, @Nullable GpuTextureView view, @Nullable GpuSampler sampler) {
         if (sampler == null || view == null) samplers.remove(name);
         else samplers.put(name, new Binding((MetalTextureView) view, (MetalSampler) sampler));
+        resourceRevision++;
     }
 
     @Override
     public void setUniform(String name, GpuBuffer buffer) {
-        uniforms.put(name, buffer.slice());
+        setUniform(name, buffer.slice());
     }
 
     @Override
@@ -95,6 +96,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             throw new IllegalArgumentException("Uniform buffer offset must be aligned to " + encoder.device.getUniformOffsetAlignment());
         }
         uniforms.put(name, slice);
+        resourceRevision++;
     }
 
     @Override
@@ -134,7 +136,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
         IndexType fallbackType = defaultIndexType != null ? defaultIndexType : IndexType.SHORT;
         for (Draw<T> draw : draws) {
             setVertexBuffer(draw.slot(), draw.vertexBuffer().slice());
-            if (draw.uniformUploaderConsumer() != null) draw.uniformUploaderConsumer().accept(context, uniforms::put);
+            if (draw.uniformUploaderConsumer() != null) draw.uniformUploaderConsumer().accept(context, this::setUniform);
             if (!setup()) return;
             GpuBuffer ib = draw.indexBuffer() != null ? draw.indexBuffer() : defaultIndexBuffer;
             drawIndexed(ib, draw.indexType() != null ? draw.indexType() : fallbackType, draw.baseVertex(), draw.firstIndex(), draw.indexCount(), 1, 0);
@@ -186,22 +188,78 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
         java.util.Arrays.fill(vertexHandles, 0);
         for (int stage = 0; stage < 2; stage++) { java.util.Arrays.fill(boundBuffers[stage], 0); java.util.Arrays.fill(boundTextures[stage], 0); java.util.Arrays.fill(boundSamplers[stage], 0); } }
 
-    private final Map<String, Number[]> defaults = new HashMap<>();
-    public void setDefaultUniform(String name, Number... values) { checkOpen(); defaults.put(name, values.clone()); }
-    private void bindDefaults(ShaderTranslator.Result stage, boolean fragment) {
-        if (stage.defaultsSize() == 0) return;
-        try (var stack = MemoryStack.stackPush()) {
-            var data = stack.calloc(stage.defaultsSize());
-            for (var entry : defaults.entrySet()) {
-                Integer offset = stage.defaults().get(entry.getKey());
-                if (offset == null) continue;
-                for (int i = 0; i < entry.getValue().length; i++) {
-                    Number value = entry.getValue()[i];
-                    if (value instanceof Float || value instanceof Double) data.putFloat(offset + i * 4, value.floatValue());
-                    else data.putInt(offset + i * 4, value.intValue());
+    private final Map<String, int[]> defaults = new HashMap<>();
+    private long resourceRevision, defaultRevision;
+    private final Map<MetalPipeline, ResolvedStage[]> bindingPlans = new java.util.IdentityHashMap<>();
+    private ResolvedStage[] resolved;
+    public void setDefaultFloat3(String name, float x, float y, float z) {
+        setDefault(name, Float.floatToRawIntBits(x), Float.floatToRawIntBits(y), Float.floatToRawIntBits(z));
+    }
+    public void setDefaultInt(String name, int value) { setDefault(name, value, 0, 0); }
+    private void setDefault(String name, int x, int y, int z) {
+        checkOpen();
+        var bits = defaults.computeIfAbsent(name, ignored -> new int[3]);
+        if (bits[0] == x && bits[1] == y && bits[2] == z) return;
+        bits[0] = x; bits[1] = y; bits[2] = z; defaultRevision++;
+    }
+    private final class ResolvedStage {
+        final MetalPipeline.BindingPlan plan;
+        final boolean fragment;
+        final GpuBufferSlice[] buffers;
+        final Binding[] textures;
+        final GpuBufferSlice[] texels;
+        final long[] texelHandles, texelGenerations;
+        final int[][] defaultBits;
+        long resources = -1, values = -1;
+        ResolvedStage(MetalPipeline.BindingPlan plan, boolean fragment) {
+            this.plan = plan; this.fragment = fragment;
+            buffers = new GpuBufferSlice[plan.buffers().length];
+            textures = new Binding[plan.textures().length]; texels = new GpuBufferSlice[textures.length];
+            texelHandles = new long[textures.length]; texelGenerations = new long[textures.length];
+            defaultBits = new int[plan.defaults().length][];
+            for (int i = 0; i < defaultBits.length; i++) defaultBits[i] = defaults.computeIfAbsent(plan.defaults()[i].name(), ignored -> new int[3]);
+        }
+        void bind(boolean force) {
+            if (resources != resourceRevision) {
+                for (int i=0; i<buffers.length; i++) buffers[i] = uniforms.get(plan.buffers()[i].name());
+                for (int i=0; i<textures.length; i++) {
+                    var slot = plan.textures()[i];
+                    textures[i] = samplers.get(slot.name()); texels[i] = uniforms.get(slot.name());
+                    texelHandles[i] = 0;
                 }
+                resources = resourceRevision;
             }
-            Mtl.setBytes(fragment, stage.buffers().get(ShaderTranslator.DEFAULT_BLOCK), MemoryUtil.memAddress(data), data.remaining());
+            for (int i=0; i<buffers.length; i++) {
+                var slice = buffers[i];
+                if (slice == null || slice.buffer().isClosed()) throw new IllegalStateException("Missing/closed Metal uniform " + plan.buffers()[i].name());
+                bindBuffer(fragment, plan.buffers()[i].index(), ((MetalBuffer)slice.buffer()).handle, slice.offset());
+            }
+            for (int i=0; i<textures.length; i++) {
+                var slot = plan.textures()[i]; var binding = textures[i];
+                if (binding != null && !binding.view.isClosed() && !binding.sampler.isClosed()) {
+                    bindTexture(fragment, slot.index(), binding.view.handle, slot.samplerIndex(), binding.sampler.handle);
+                } else if (slot.texelFormat() != null && texels[i] != null && !texels[i].buffer().isClosed()) {
+                    var slice = texels[i]; var buffer = (MetalBuffer)slice.buffer();
+                    if (texelHandles[i] == 0 || texelGenerations[i] != buffer.storageGeneration()) {
+                        texelHandles[i] = buffer.texelView(slot.texelFormat(), slice.offset(), slice.length());
+                        texelGenerations[i] = buffer.storageGeneration();
+                    }
+                    bindTexture(fragment, slot.index(), texelHandles[i], -1, 0);
+                } else throw new IllegalStateException("Missing/closed Metal texture " + slot.name());
+            }
+            if (plan.defaultSize() > 0 && (force || values != defaultRevision)) {
+                try (var stack = MemoryStack.stackPush()) {
+                    var bytes = stack.calloc(plan.defaultSize());
+                    for (int i=0;i<defaultBits.length;i++) {
+                        int offset = plan.defaults()[i].offset();
+                        // Loose region vec3 uses three words; scalar defaults occupy one word.
+                        int words = plan.defaults()[i].name().equals("u_RegionOffset") ? 3 : 1;
+                        for (int word=0;word<words;word++) bytes.putInt(offset+word*4,defaultBits[i][word]);
+                    }
+                    Mtl.setBytes(fragment, plan.defaultIndex(), MemoryUtil.memAddress(bytes), bytes.remaining());
+                }
+                values = defaultRevision;
+            }
         }
     }
 
@@ -257,7 +315,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     /** Binds pipeline state and every resource the pipeline's shaders reference. Returns false (skip the draw) for invalid pipelines, like GL does. */
     private boolean setup() {
         if (pipeline == null || !pipeline.isValid()) return false;
-        if (pipeline != boundPipeline) {
+        boolean force = pipeline != boundPipeline;
+        if (force) {
             long pso;
             try {
                 pso = pipeline.state(colorFormat, depthFormat);
@@ -276,6 +335,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                             MemoryUtil.memAddress(stack.calloc(16)), 16);
                 }
             }
+            resolved = bindingPlans.computeIfAbsent(pipeline, p -> new ResolvedStage[]{new ResolvedStage(p.vertexPlan, false), new ResolvedStage(p.fragmentPlan, true)});
             boundPipeline = pipeline;
         }
 
@@ -289,11 +349,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                 vertexHandles[slot] = buffer.handle; vertexOffsets[slot] = slice.offset();
             }
         }
-        bindDefaults(pipeline.vertex, false);
-        bindDefaults(pipeline.fragment, true);
-
-        bindStage(pipeline.vertex, false);
-        bindStage(pipeline.fragment, true);
+        resolved[0].bind(force);
+        resolved[1].bind(force);
 
         int x = renderArea == null ? 0 : renderArea.x(), y = renderArea == null ? 0 : renderArea.y();
         int w = renderArea == null ? width : renderArea.width(), h = renderArea == null ? height : renderArea.height();
@@ -311,25 +368,6 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             boundScissor = key;
         }
         return true;
-    }
-
-    private void bindStage(ShaderTranslator.Result stage, boolean fragment) {
-        for (var e : stage.buffers().entrySet()) {
-            GpuBufferSlice slice = uniforms.get(e.getKey());
-            // Stale bindings to buffers Minecraft has since closed are harmless in GL but dangling pointers in Metal.
-            if (slice != null && !slice.buffer().isClosed()) bindBuffer(fragment, e.getValue(), ((MetalBuffer) slice.buffer()).handle, slice.offset());
-        }
-        for (var e : stage.textures().entrySet()) {
-            String name = e.getKey();
-            Binding binding = samplers.get(name);
-            if (binding != null && !binding.view.isClosed() && !binding.sampler.isClosed()) {
-                bindTexture(fragment, e.getValue(), binding.view.handle, stage.samplers().getOrDefault(name, -1), binding.sampler.handle);
-                continue;
-            }
-            GpuBufferSlice texel = uniforms.get(name);
-            GpuFormat format = texel != null ? pipeline.texelFormat(name) : null;
-            if (format != null && !texel.buffer().isClosed()) bindTexture(fragment, e.getValue(), ((MetalBuffer) texel.buffer()).texelView(format, texel.offset(), texel.length()), -1, 0);
-        }
     }
 
     // What this pass has bound per [stage][index], so unchanged resources skip the JNI call. A merged encoder may

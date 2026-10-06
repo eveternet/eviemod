@@ -18,10 +18,10 @@ public final class MetalDrawContext extends DrawContext {
     }
     @Override public void updateData(RenderRegion region, CameraTransform camera) {
         if (metal == null) throw new IllegalStateException("Sodium Metal terrain has no active pass");
-        metal.setDefaultUniform("u_RegionOffset", getCameraTranslation(region.getOriginX(), camera.intX, camera.fracX),
+        metal.setDefaultFloat3("u_RegionOffset", getCameraTranslation(region.getOriginX(), camera.intX, camera.fracX),
                 getCameraTranslation(region.getOriginY(), camera.intY, camera.fracY), getCameraTranslation(region.getOriginZ(), camera.intZ, camera.fracZ));
-        metal.setDefaultUniform("u_CurrentTime", Math.toIntExact(System.currentTimeMillis() - region.getCreationTime()));
-        metal.setDefaultUniform("u_RegionID", region.getId());
+        metal.setDefaultInt("u_CurrentTime", Math.toIntExact(System.currentTimeMillis() - region.getCreationTime()));
+        metal.setDefaultInt("u_RegionID", region.getId());
     }
     @Override public void rotate() {}
     @Override public void delete() { metal = null; pass = null; }

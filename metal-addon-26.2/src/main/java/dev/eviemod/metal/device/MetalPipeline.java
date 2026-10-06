@@ -34,6 +34,19 @@ public class MetalPipeline implements CompiledRenderPipeline {
     final int primitive;
     final int cull;
     boolean hasMissingAttributes;
+    record BufferSlot(String name, int index) {}
+    record TextureSlot(String name, int index, int samplerIndex, GpuFormat texelFormat) {}
+    record DefaultSlot(String name, int offset) {}
+    record BindingPlan(BufferSlot[] buffers, TextureSlot[] textures, DefaultSlot[] defaults, int defaultSize, int defaultIndex) {}
+    final BindingPlan vertexPlan, fragmentPlan;
+    private BindingPlan bindingPlan(ShaderTranslator.Result stage) {
+        var buffers = stage.buffers().entrySet().stream().filter(e -> !e.getKey().equals(ShaderTranslator.DEFAULT_BLOCK))
+                .map(e -> new BufferSlot(e.getKey(), e.getValue())).toArray(BufferSlot[]::new);
+        var textures = stage.textures().entrySet().stream().map(e -> new TextureSlot(e.getKey(), e.getValue(),
+                stage.samplers().getOrDefault(e.getKey(), -1), texelFormat(e.getKey()))).toArray(TextureSlot[]::new);
+        var defaults = stage.defaults().entrySet().stream().map(e -> new DefaultSlot(e.getKey(), e.getValue())).toArray(DefaultSlot[]::new);
+        return new BindingPlan(buffers, textures, defaults, stage.defaultsSize(), stage.buffers().getOrDefault(ShaderTranslator.DEFAULT_BLOCK, -1));
+    }
     private record Attachments(int color, int depth) {}
     private final java.util.Map<Attachments, Long> variants = new java.util.HashMap<>();
 
@@ -41,6 +54,9 @@ public class MetalPipeline implements CompiledRenderPipeline {
         this.info = info;
         this.vertex = vertex;
         this.fragment = fragment;
+        BindGroupLayout.ensureCompatible(info.getBindGroupLayouts());
+        this.vertexPlan = bindingPlan(vertex);
+        this.fragmentPlan = bindingPlan(fragment);
         this.vertexFn = vertexFn;
         this.fragmentFn = fragmentFn;
         this.primitive = primitive(info.getPrimitiveTopology());
@@ -98,7 +114,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
         return !closed && vertexFn != 0;
     }
 
-    /** Pipeline state for a pass with the given color format ordinal and depth format ordinal (-1 = no depth). */
+    /** Pipeline state for a pass with the given explicit native color and depth formats (-1 = no depth). */
     long state(int colorFormat, int depthFormat) {
         var key = new Attachments(colorFormat, depthFormat);
         if (variants.containsKey(key)) return variants.get(key);
