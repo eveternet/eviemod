@@ -94,8 +94,10 @@ def buildNative = tasks.register('buildNative', Exec) {
 processResources {
     dependsOn buildNative
     def addonVersion = project.version
+    def targetMinecraftVersion = project.minecraftVersion
     inputs.property 'version', addonVersion
-    filesMatching('fabric.mod.json') { expand version: addonVersion, minecraftVersion: minecraftVersion }
+    inputs.property 'minecraftVersion', targetMinecraftVersion
+    filesMatching('fabric.mod.json') { expand version: addonVersion, minecraftVersion: targetMinecraftVersion }
     if (isMac) from(nativeLibrary) { into 'natives' }
 }
 jar { from('LICENSE'); from('NOTICE.md') }
