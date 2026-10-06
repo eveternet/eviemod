@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 abstract class FallbackLaunchMixin {
     private int readyFrames;
+    private long readySince;
     private boolean requestedScreenshot;
     private final long smokeStart = System.nanoTime();
 
@@ -49,7 +50,10 @@ abstract class FallbackLaunchMixin {
             mc.gui.setScreen(new TitleScreen());
             return;
         }
-        if (requestedScreenshot || mc.gui.overlay() != null || !OptionalGuiProbe.prepare(mc) || ++readyFrames < 10) return;
+        if (requestedScreenshot || mc.gui.overlay() != null || !OptionalGuiProbe.prepare(mc)) return;
+        if (readySince == 0) readySince = System.nanoTime();
+        // The 26.2 title transition can still be entirely black immediately after loading ends.
+        if (++readyFrames < 10 || System.nanoTime() - readySince < 5_000_000_000L) return;
         requestedScreenshot = true;
         Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), image -> {
             try (image) {
@@ -58,8 +62,8 @@ abstract class FallbackLaunchMixin {
                 for (int y = 0; y < image.getHeight(); y += 20) {
                     for (int x = 0; x < image.getWidth(); x += 20) varied |= image.getPixel(x, y) != first;
                 }
-                if (!varied) throw new AssertionError("Metal rendered a blank frame");
                 image.writeToFile(Path.of("metal-smoke.png"));
+                if (!varied) throw new AssertionError("Metal rendered a blank frame; saved metal-smoke.png");
                 System.out.println("EVIEMOD_METAL_FRAME_OK");
                 mc.stop();
             } catch (IOException e) { throw new AssertionError("Could not save Metal smoke frame", e); }
