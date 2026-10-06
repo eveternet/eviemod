@@ -150,8 +150,8 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         if ((long) w * h * bytes > data.remaining()) throw new IllegalArgumentException("Texture upload exceeds source buffer");
         upload(texture, MemoryUtil.memAddress(data), (long) w * bytes, bytes, mip, layer, x, y, w, h);
     }
-    @Override public void copyBufferToTexture(GpuBufferSlice source, int rowLength, int imageHeight, int sourceX, int sourceY,
-            GpuTexture texture, int mip, int layer, int x, int y, int w, int h) {
+    @Override public void copyBufferToTexture(GpuBufferSlice source, int sourceX, int sourceY, int rowLength, int imageHeight,
+            GpuTexture texture, int x, int y, int w, int h, int mip, int layer) {
         assertNoRenderPass(); checkTextureWrite(texture, mip, layer, x, y, w, h);
         if (w == 0 || h == 0 || mip >= ((MetalTexture) texture).metalMips) return;
         int bytes = texture.getFormat().blockSize();
