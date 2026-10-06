@@ -28,8 +28,23 @@ for directory, target, dandelion in (
         nested_mods = {}
         for entry in mod.get("jars", []):
             with zipfile.ZipFile(io.BytesIO(main.read(entry["file"]))) as nested:
-                metadata = json.loads(nested.read("fabric.mod.json"))
-                nested_mods[metadata["id"]] = metadata
+                # The pinned backport has repeated central-directory entries and
+                # shaded LibNinePatch metadata. Try the directory aliases for each
+                # physical entry, retaining ZipFile's overlap and CRC checks.
+                metadata_entries = {}
+                for info in nested.infolist():
+                    if info.filename == "fabric.mod.json":
+                        metadata_entries.setdefault(info.header_offset, []).append(info)
+                for candidates in metadata_entries.values():
+                    for info in candidates:
+                        try:
+                            content = nested.read(info)
+                            break
+                        except zipfile.BadZipFile:
+                            if info is candidates[-1]:
+                                raise
+                    metadata = json.loads(content)
+                    nested_mods[metadata["id"]] = metadata
         assert nested_mods["dandelion"]["version"] == dandelion
 
 with artifact("metal-addon/build/libs/eviemod-metal-*.jar") as addon:
