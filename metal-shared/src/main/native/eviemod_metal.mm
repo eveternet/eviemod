@@ -989,8 +989,13 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_timestampNow(JNIEnv*, jcl
     @autoreleasepool { MTLTimestamp cpu, gpu; [gDevice sampleTimestamps:&cpu gpuTimestamp:&gpu]; return (jlong)gpu; }
 }
 
-JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureBufferSlice(JNIEnv*, jclass, jlong buffer, jint format, jlong offset, jlong length, jint pixelSize) {
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureBufferSlice(JNIEnv* env, jclass, jlong buffer, jint format, jlong offset, jlong length, jint pixelSize) {
     @autoreleasepool {
+        NSUInteger alignment = [gDevice minimumTextureBufferAlignmentForPixelFormat:pixelFormat(format)];
+        if (offset < 0 || (NSUInteger)offset % alignment != 0) {
+            throwJava(env, [NSString stringWithFormat:@"Metal texel-buffer offset must be aligned to %lu bytes", (unsigned long)alignment]);
+            return 0;
+        }
         MTLTextureDescriptor* d = [MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:pixelFormat(format) width:(NSUInteger)(length / pixelSize)
             resourceOptions:MTLResourceStorageModeShared usage:MTLTextureUsageShaderRead];
         return RETAIN([OBJ(id<MTLBuffer>, buffer) newTextureWithDescriptor:d offset:offset bytesPerRow:(NSUInteger)length]);

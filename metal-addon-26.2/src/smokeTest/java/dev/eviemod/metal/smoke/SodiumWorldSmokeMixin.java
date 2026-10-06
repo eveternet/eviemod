@@ -97,6 +97,7 @@ abstract class SodiumWorldSmokeMixin {
                             "summon armor_stand 2 120 -1 {NoGravity:1b}");
                 }
                 case 1 -> {
+                    SodiumStress.run();
                     assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD);
                     mc.player.getAbilities().flying = true; mc.player.onUpdateAbilities();
                     commands(mc, "particle flame 0 121 0 0.3 0.3 0.3 0.01 80 force @a");
@@ -133,8 +134,8 @@ abstract class SodiumWorldSmokeMixin {
                 }
                 case 16 -> { assertDimension(mc, net.minecraft.world.level.Level.NETHER); capture(mc, "nether"); commands(mc, "execute in minecraft:the_end run tp @a 0 90 0 90 20"); }
                 case 17 -> { assertDimension(mc, net.minecraft.world.level.Level.END); capture(mc, "end"); commands(mc, "execute in minecraft:overworld run tp @a 0 124 10 180 20"); }
-                case 18 -> { assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD); reopen = true; mc.disconnect(new TitleScreen(), false); }
-                case 20 -> { stopping = true; mc.disconnect(new TitleScreen(), false); }
+                case 18 -> { assertDimension(mc, net.minecraft.world.level.Level.OVERWORLD); reopen = true; mc.disconnect(new TitleScreen(), false); SodiumStress.assertUnloaded(); }
+                case 20 -> { stopping = true; mc.disconnect(new TitleScreen(), false); SodiumStress.assertUnloaded(); }
             }
         }
         if (mc.level == null || mc.player == null) return;
