@@ -118,7 +118,7 @@ abstract class SodiumWorldSmokeMixin {
                 case 7 -> commands(mc, "tp @a 160 140 0 90 20");
                 case 8 -> commands(mc, "tp @a 320 140 0 180 20");
                 case 9 -> commands(mc, "tp @a 0 124 10 180 20");
-                case 10 -> mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.getMainCamera(), mc.getBlockColors());
+                case 10 -> mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.mainCamera(), mc.getBlockColors());
                 case 11 -> mc.reloadResourcePacks();
                 case 12 -> mc.getWindow().setWindowed(1280, 720);
                 case 13, 14 -> mc.getWindow().toggleFullScreen();
