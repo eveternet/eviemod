@@ -24,7 +24,9 @@ dependencies {
     implementation 'net.fabricmc:fabric-loader:0.19.5'
     implementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
     include implementation("maven.modrinth:yacl:${yaclVersion}-fabric")
-    include implementation(dandelionCoordinate)
+    // Dandelion shades MoulConfig; its other runtime dependencies are explicitly
+    // pinned below/above. Avoid loading a second YACL from its Maven POM.
+    include implementation(dandelionCoordinate) { transitive = false }
     include implementation('net.fabricmc:fabric-language-kotlin:1.14.1+kotlin.2.4.20')
     include implementation("net.azureaaron:hm-api:${hmApiVersion}")
     compileOnly "maven.modrinth:modmenu:${modMenuVersion}"
