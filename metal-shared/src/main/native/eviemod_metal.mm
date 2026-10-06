@@ -21,6 +21,8 @@
 static id<MTLDevice> gDevice;
 static id<MTLCommandQueue> gQueue;
 static CAMetalLayer* gLayer;
+static id<CAMetalDrawable> gSurfaceDrawable;
+static bool gSurfaceAcquired, gSurfaceBlitted;
 static BOOL gVsync = YES;  // Minecraft sets vsync before the layer exists.
 // Vsync off: drawables are prefetched on a GCD queue so the render thread never blocks on the compositor.
 static dispatch_queue_t gDrawableQueue;
@@ -307,6 +309,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_shutdown(JNIEnv*, jclass) 
             gView.wantsLayer = gPreviousWantsLayer;
         }
         gView = nil; gPreviousLayer = nil; gLayer = nil;
+        gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
         gQueue = nil; gEvent = nil; gDevice = nil; gDrawableQueue = nil;
         gLastCommand = nil; gBuiltins = nil; gPresentPipeline = nil;
         gPresentSampler = nil; gClearDepthState = nil;
@@ -895,8 +898,6 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newRenderPipelineBindings
         return RETAIN(pso);
     }
 }
-static id<CAMetalDrawable> gSurfaceDrawable;
-static bool gSurfaceAcquired, gSurfaceBlitted;
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_configureSurface(JNIEnv* env, jclass, jint width, jint height, jboolean vsync) {
     @autoreleasepool {
         if (!gLayer || gSurfaceAcquired) return throwJava(env, @"Cannot configure absent or acquired Metal surface");
@@ -952,6 +953,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_closeSurface(JNIEnv*, jcla
         gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
         if (gView) { gView.layer = gPreviousLayer; gView.wantsLayer = gPreviousWantsLayer; }
         gView = nil; gPreviousLayer = nil; gLayer = nil;
+        gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
     }
 }
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTimestampPool(JNIEnv* env, jclass, jint size) {

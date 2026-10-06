@@ -193,14 +193,14 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     private final Map<MetalPipeline, ResolvedStage[]> bindingPlans = new java.util.IdentityHashMap<>();
     private ResolvedStage[] resolved;
     public void setDefaultFloat3(String name, float x, float y, float z) {
-        setDefault(name, Float.floatToRawIntBits(x), Float.floatToRawIntBits(y), Float.floatToRawIntBits(z));
+        setDefault(name, Float.floatToRawIntBits(x), Float.floatToRawIntBits(y), Float.floatToRawIntBits(z), 3);
     }
-    public void setDefaultInt(String name, int value) { setDefault(name, value, 0, 0); }
-    private void setDefault(String name, int x, int y, int z) {
+    public void setDefaultInt(String name, int value) { setDefault(name, value, 0, 0, 1); }
+    private void setDefault(String name, int x, int y, int z, int words) {
         checkOpen();
-        var bits = defaults.computeIfAbsent(name, ignored -> new int[3]);
-        if (bits[0] == x && bits[1] == y && bits[2] == z) return;
-        bits[0] = x; bits[1] = y; bits[2] = z; defaultRevision++;
+        var bits = defaults.computeIfAbsent(name, ignored -> new int[4]);
+        if (bits[0] == x && bits[1] == y && bits[2] == z && bits[3] == words) return;
+        bits[0] = x; bits[1] = y; bits[2] = z; bits[3] = words; defaultRevision++;
     }
     private final class ResolvedStage {
         final MetalPipeline.BindingPlan plan;
@@ -217,7 +217,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             textures = new Binding[plan.textures().length]; texels = new GpuBufferSlice[textures.length];
             texelHandles = new long[textures.length]; texelGenerations = new long[textures.length];
             defaultBits = new int[plan.defaults().length][];
-            for (int i = 0; i < defaultBits.length; i++) defaultBits[i] = defaults.computeIfAbsent(plan.defaults()[i].name(), ignored -> new int[3]);
+            for (int i = 0; i < defaultBits.length; i++) defaultBits[i] = defaults.computeIfAbsent(plan.defaults()[i].name(), ignored -> new int[4]);
         }
         void bind(boolean force) {
             if (resources != resourceRevision) {
@@ -252,8 +252,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                     var bytes = stack.calloc(plan.defaultSize());
                     for (int i=0;i<defaultBits.length;i++) {
                         int offset = plan.defaults()[i].offset();
-                        // Loose region vec3 uses three words; scalar defaults occupy one word.
-                        int words = plan.defaults()[i].name().equals("u_RegionOffset") ? 3 : 1;
+                        // Typed updates record their width; scalar and vector values never depend on variable names.
+                        int words = defaultBits[i][3];
                         for (int word=0;word<words;word++) bytes.putInt(offset+word*4,defaultBits[i][word]);
                     }
                     Mtl.setBytes(fragment, plan.defaultIndex(), MemoryUtil.memAddress(bytes), bytes.remaining());

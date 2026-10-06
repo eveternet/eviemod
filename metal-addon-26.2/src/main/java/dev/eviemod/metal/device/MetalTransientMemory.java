@@ -16,7 +16,7 @@ import org.lwjgl.system.MemoryUtil;
 final class MetalTransientMemory implements TransientMemory, AutoCloseable {
     private static final int ALL_USAGE = GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_INDEX | GpuBuffer.USAGE_UNIFORM
             | GpuBuffer.USAGE_COPY_SRC | GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_WRITE | GpuBuffer.USAGE_MAP_READ;
-    private final TransientBlockAllocator<MetalBuffer> gpu = new TransientBlockAllocator<>(524288, 65536,
+    private final TransientBlockAllocator<MetalBuffer> gpu = new TransientBlockAllocator<>(524288, Long.highestOneBit(Long.MAX_VALUE),
             TransientBlockAllocator.Allocator.create(size -> new MetalBuffer(ALL_USAGE, size), MetalBuffer::close));
     private final TransientBlockAllocator<Long> cpu = new TransientBlockAllocator<>(524288, 16,
             TransientBlockAllocator.Allocator.create(MemoryUtil::nmemAlloc, MemoryUtil::nmemFree));
@@ -52,8 +52,8 @@ final class MetalTransientMemory implements TransientMemory, AutoCloseable {
         var slice = allocateGpu(size, alignment, usage, minimum, elementSize);
         long offset = 0;
         for (ByteBuffer bytes : data) {
-            if (offset + bytes.remaining() > slice.length()) throw new IllegalArgumentException("Partial transient allocation cannot fit upload");
-            MemoryUtil.memCopy(MemoryUtil.memAddress(bytes), ((MetalBuffer) slice.buffer()).address() + slice.offset() + offset, bytes.remaining());
+            if (offset >= slice.length()) break;
+            MemoryUtil.memCopy(MemoryUtil.memAddress(bytes), ((MetalBuffer) slice.buffer()).address() + slice.offset() + offset, Math.min(bytes.remaining(), slice.length() - offset));
             offset = align(offset + bytes.remaining(), alignment);
         }
         return slice;

@@ -58,7 +58,7 @@ public class MetalBuffer extends GpuBuffer {
     }
 
     ByteBuffer view(long offset, long length) {
-        return MemoryUtil.memByteBuffer(contents + offset, (int) length);
+        return MemoryUtil.memByteBuffer(contents + offset, Math.toIntExact(length));
     }
 
     long address() {
@@ -83,6 +83,7 @@ public class MetalBuffer extends GpuBuffer {
         if (closed) throw new IllegalStateException("Buffer already closed");
         if (!read && !write) throw new IllegalArgumentException("At least read or write must be true");
         if (offset < 0 || length < 0 || offset > size() - length) throw new IllegalArgumentException("Mapping outside buffer");
+        if (read && lastGpuWrite > Mtl.completedFence() && !Mtl.fenceWait(lastGpuWrite, 5000)) throw new IllegalStateException("Buffer read mapping fence timed out");
         var slice = slice(offset, length);
         if (!write) return new com.mojang.blaze3d.buffers.GpuBufferSlice.MappedView(slice, view(offset, length), () -> {});
         // Non-persistent writes use ordered staging: existing commands retain the previous storage.
@@ -96,6 +97,8 @@ public class MetalBuffer extends GpuBuffer {
         MemoryUtil.memCopy(contents + offset, stagingAddress, length);
         return new com.mojang.blaze3d.buffers.GpuBufferSlice.MappedView(slice, staging, () -> {
             try {
+                if (closed) throw new IllegalStateException("Buffer closed while mapped");
+                if (length == 0) return;
                 // Builders advance ByteBuffer.position(); mapping ownership still covers the original full range.
                 if (!tryOrphanWrite(offset, stagingAddress, length)) {
                     var upload = UploadRing.reserve(length);

@@ -184,9 +184,16 @@ public class MetalDevice implements GpuDeviceBackend {
     }
 
     private MetalSurface surface;
-    public void prepareSurface(long window) { surface = new MetalSurface(window); }
+    private long surfaceWindow;
+    private boolean surfaceDelivered;
+    public void prepareSurface(long window) {
+        if (closed || surface != null || window == 0) throw new IllegalStateException("Metal requires one live window surface");
+        surface = new MetalSurface(window); surfaceWindow = window;
+    }
     @Override public com.mojang.blaze3d.systems.GpuSurfaceBackend createSurface(long window) {
         if (surface == null) prepareSurface(window);
+        if (surfaceDelivered || surfaceWindow != window || closed) throw new IllegalStateException("Metal surface already delivered or window does not match");
+        surfaceDelivered = true;
         return surface;
     }
     @Override public com.mojang.blaze3d.systems.DeviceInfo getDeviceInfo() {
@@ -203,11 +210,13 @@ public class MetalDevice implements GpuDeviceBackend {
     public void close() {
         if (closed) return;
         closed = true;
-        if (surface != null) surface.close();
-        clearPipelineCache();
-        encoder.close();
-        MetalRenderPass.closeSharedBuffers();
-        UploadRing.close();
-        Mtl.shutdown();
+        Throwable failure = null;
+        for (Runnable cleanup : new Runnable[]{() -> { if (surface != null) surface.close(); }, this::clearPipelineCache,
+                encoder::close, MetalRenderPass::closeSharedBuffers, UploadRing::close, Mtl::shutdown}) {
+            try { cleanup.run(); }
+            catch (RuntimeException | Error error) { if (failure == null) failure = error; else failure.addSuppressed(error); }
+        }
+        if (failure instanceof RuntimeException error) throw error;
+        if (failure instanceof Error error) throw error;
     }
 }

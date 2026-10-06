@@ -5,7 +5,7 @@ plugins {
 ext.minecraftVersion = '26.2'
 
 group = 'dev.eviemod'
-version = '0.1.1.0'
+version = '0.2.0.0'
 base.archivesName = "eviemod-metal-mc${minecraftVersion}"
 sourceSets.main.java.srcDir rootProject.file('metal-shared/src/main/java')
 
@@ -18,7 +18,7 @@ dependencies {
     compileOnly "maven.modrinth:sodium:mc${minecraftVersion}-0.9.2-fabric"
     testImplementation "maven.modrinth:sodium:mc${minecraftVersion}-0.9.2-fabric"
     implementation 'net.fabricmc:fabric-loader:0.19.5'
-    // Match the LWJGL ABI shipped by Minecraft 26.1.2.
+    // Match the LWJGL ABI shipped by Minecraft 26.2 (verified from its manifest).
     ['lwjgl-shaderc', 'lwjgl-spvc'].each { module ->
         include implementation("org.lwjgl:${module}:3.4.1")
         include runtimeOnly("org.lwjgl:${module}:3.4.1:natives-macos-arm64")
@@ -30,13 +30,13 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-if (providers.gradleProperty('metalSmokeTest').isPresent()) {
-    sourceSets {
-        smokeTest {
-            compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-        }
+sourceSets {
+    smokeTest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
     }
+}
+if (providers.gradleProperty('metalSmokeTest').isPresent()) {
     loom.mods {
         eviemod_metal { sourceSet sourceSets.main }
         eviemod_metal_smoke { sourceSet sourceSets.smokeTest }
@@ -97,3 +97,5 @@ tasks.register('verifyDistribution') {
         } finally { zip.close() }
     }
 }
+
+apply from: rootProject.file('gradle/metal-packaged-smoke.gradle')
