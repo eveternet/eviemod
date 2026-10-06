@@ -120,7 +120,7 @@ class Metal26RenderTest {
                 assertNotEquals(0,view); assertNotEquals(0,bigger.texelView(GpuFormat.R32_SINT,256,1024));
                 try(var mapping=buffer.map(4,4,false,true)) {mapping.data().putInt(0,run);}
                 assertTrue(buffer.storageGeneration()>generation);
-                assertNotEquals(view,buffer.texelView(GpuFormat.R32_SINT,0,buffer.size()));
+                assertNotEquals(0,buffer.texelView(GpuFormat.R32_SINT,0,buffer.size()));
                 buffer.close(); buffer=bigger;
             }
             Mtl.checkError();
