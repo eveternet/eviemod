@@ -50,6 +50,9 @@ public final class MetalBootstrap {
             nativeLoaded = true;
             ShaderTranslator.enableCache(loader.getGameDir().resolve("eviemod-metal/shader-cache"));
             device = new MetalDevice(window, shaders);
+            // Minecraft 26.2 constructs TimerQuery unconditionally; its interface has no optional timestamp flag.
+            if (!Mtl.supportsTimestampSampling()) throw new IllegalStateException(
+                    "Metal 26.2 requires stage-boundary timestamp sampling; device=" + device.getRenderer());
             // Exercise both translator natives and Apple's compiler before touching the Cocoa view.
             var test = ShaderTranslator.translate("startup", "#version 330\nvoid main(){gl_Position=vec4(0,0,0,1);}",
                     ShaderTranslator.Stage.VERTEX, Map.of());

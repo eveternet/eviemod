@@ -17,6 +17,10 @@ required = [
     "com/mojang/blaze3d/systems/TransientMemory.java",
     "com/mojang/blaze3d/buffers/GpuBufferSlice.java",
     "net/minecraft/client/PreferredGraphicsApi.java",
+    "com/mojang/blaze3d/util/TransientBlockAllocator.java",
+    "com/mojang/blaze3d/pipeline/RenderPipeline.java",
+    "com/mojang/blaze3d/pipeline/BindGroupLayout.java",
+    "com/mojang/blaze3d/vertex/VertexFormat.java",
 ]
 extra = [
     "com/mojang/blaze3d/systems/GpuDevice.java",
@@ -42,20 +46,21 @@ output.mkdir(parents=True, exist_ok=True)
 print(f"EVIEMETAL_UPSTREAM_SOURCE mc=26.2 clientSha1={manifest['downloads']['client']['sha1']} "
       f"sourceSha256={hashlib.sha256(path.read_bytes()).hexdigest()} path={path}")
 with zipfile.ZipFile(path) as source:
-    for name in required + extra:
+    implementations = [name for name in source.namelist() if name.endswith("TransientMemory.java") and name not in required]
+    for name in dict.fromkeys(required + extra + implementations):
         text = source.read(name).decode("utf-8")
         destination = output / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(text)
         print(f"UPSTREAM_FILE {name}")
-        if name in required:
+        if name in required or name in implementations:
             print(text)
         else:
             lines = text.splitlines()
             needles = ("getBackendsToTry", "createDevice(", "createSurface(", "loadSpvc",
                        "getDeviceInfo(", "DeviceFeatures(", "DeviceLimits(", "drawIndexed(",
                        "draw(", "multiDraw", "writeTimestamp", "uploadGpu", "ensureCompatible",
-                       "getVertexFormatBindings", "acquireNextTexture", "blitFromTexture", "present()")
+                       "getVertexFormatBindings", "TimerQuery", "acquireNextTexture", "blitFromTexture", "present()")
             selected = set()
             for index, line in enumerate(lines):
                 if any(needle in line for needle in needles):

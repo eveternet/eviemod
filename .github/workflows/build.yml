@@ -27,7 +27,7 @@ jobs:
         run: python3 .github/scripts/verify-metal-artifacts.py
       - name: Resolve actual Minecraft 26.2 sources for the final port review
         run: |
-          ./gradlew :metal-addon-26.2:genSources
+          ./gradlew :metal-addon-26.2:genSources --no-daemon
           python3 .github/scripts/report-metal-upstream.py
       - name: Verify both packaged addons preserve vanilla backends on unsupported hosts and explicit disable
         run: |
@@ -90,7 +90,7 @@ jobs:
   metal:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -120,27 +120,16 @@ jobs:
         env:
           METAL_MODULE: ${{ matrix.module }}
         run: |
-          set -o pipefail
-          for flavor in Title SodiumTitle; do
-            ./gradlew ":$METAL_MODULE:packaged${flavor}Smoke" --no-configuration-cache 2>&1 | tee "metal-${flavor}.log"
-            grep -q EVIEMOD_METAL_FRAME_OK "metal-${flavor}.log"
-            test -s "$METAL_MODULE/build/packagedSmoke/$(echo "$flavor" | tr '[:upper:]' '[:lower:]')/metal-smoke.png"
-          done
+          python3 .github/scripts/verify-metal-fixture.py "$METAL_MODULE" Title
+          python3 .github/scripts/verify-metal-fixture.py "$METAL_MODULE" SodiumTitle
       - name: Verify packaged vanilla lifecycle
         env:
           METAL_MODULE: ${{ matrix.module }}
-        run: |
-          set -o pipefail
-          ./gradlew ":$METAL_MODULE:packagedVanillaSmoke" --no-configuration-cache 2>&1 | tee metal-vanilla.log
-          grep -q EVIEMETAL_VANILLA_LIFECYCLE_OK metal-vanilla.log
+        run: python3 .github/scripts/verify-metal-fixture.py "$METAL_MODULE" Vanilla
       - name: Verify packaged pinned Sodium terrain and lifecycle
         env:
           METAL_MODULE: ${{ matrix.module }}
-        run: |
-          set -o pipefail
-          ./gradlew ":$METAL_MODULE:packagedSodiumSmoke" --no-configuration-cache 2>&1 | tee metal-sodium.log
-          grep -q EVIEMETAL_SODIUM_LIFECYCLE_OK metal-sodium.log
-          if [ "$METAL_MODULE" = metal-addon ]; then grep -q EVIEMETAL_SODIUM_TIER1_OK metal-sodium.log; fi
+        run: python3 .github/scripts/verify-metal-fixture.py "$METAL_MODULE" Sodium
       - name: Verify packaged 26.2 unsupported Sodium and native preflight retry
         if: matrix.minecraft == '26.2'
         run: python3 .github/scripts/verify-metal-compatibility.py

@@ -18,9 +18,9 @@ abstract class PreflightFailureMixin {
     }
     @Inject(method="close",at=@At("RETURN"))
     private void closed(CallbackInfo ci) {
-        if (!PreflightProbe.failed) return;
+        if (!PreflightProbe.failed && !Boolean.getBoolean("eviemod.metal.fixturePreflightFailure")) return;
         if (Mtl.allocatedBytes() != 0 || Mtl.completedFence() != 0) throw new AssertionError("Native device survived failed startup cleanup");
         PreflightProbe.cleaned=true;
-        System.out.println("EVIEMETAL_PREFLIGHT_CLEANUP_OK");
+        System.out.println("EVIEMETAL_PREFLIGHT_CLEANUP_OK injected=" + PreflightProbe.failed);
     }
 }

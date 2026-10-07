@@ -35,3 +35,11 @@ tasks.register('verifyPackagedMetal') {
     dependsOn ':metal-addon:packagedVanillaSmoke', ':metal-addon:packagedSodiumSmoke',
             ':metal-addon-26.2:packagedSurfaceSmoke', ':metal-addon-26.2:packagedVanillaSmoke', ':metal-addon-26.2:packagedSodiumSmoke'
 }
+
+// Graphical fixtures share one display even when both addon projects are requested together.
+gradle.projectsEvaluated {
+    def fixtures = allprojects.collectMany { project ->
+        project.tasks.matching { it.name.startsWith("packaged") && it.name.endsWith("Smoke") }.toList()
+    }.sort { it.path }
+    fixtures.eachWithIndex { fixture, index -> fixture.mustRunAfter(fixtures.take(index)) }
+}

@@ -28,6 +28,9 @@ abstract class SodiumWorldSmokeMixin {
     private int phase;
     private boolean reopen;
     private boolean stopping;
+    private boolean settlingMemory;
+    private long memorySettledSince;
+    private int memoryWidth, memoryHeight;
     private boolean respawnRequested;
     private final int[] atSeconds = {3, 8, 12, 16, 20, 25, 28, 32, 40, 48, 58, 65, 80, 88, 93, 100, 112, 124, 138, 160, 178};
 
@@ -46,9 +49,20 @@ abstract class SodiumWorldSmokeMixin {
             mc.createWorldOpenFlows().openWorld("sodium-metal-fixture", () -> mc.gui.setScreen(new TitleScreen()));
         }
         if (stopping && mc.level == null && mc.gui.screen() instanceof TitleScreen) {
+            if (!settlingMemory) {
+                settlingMemory = true;
+                mc.getWindow().setWindowed(960, 540);
+            }
+            int width = mc.getWindow().getWidth(), height = mc.getWindow().getHeight();
+            if (width != memoryWidth || height != memoryHeight) {
+                memoryWidth = width; memoryHeight = height; memorySettledSince = System.nanoTime();
+            }
+            if (width <= 0 || height <= 0 || System.nanoTime() - memorySettledSince < 5_000_000_000L) return;
             if (!Mtl.fenceWait(Mtl.fence(), 5000)) throw new AssertionError("Final GPU fence timed out");
             boolean sodium = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium");
-            System.out.println((sodium ? "EVIEMETAL_SODIUM_LIFECYCLE_OK" : "EVIEMETAL_VANILLA_LIFECYCLE_OK") + " metalBytesAfterUnload=" + Mtl.allocatedBytes());
+            System.out.println((sodium ? "EVIEMETAL_SODIUM_LIFECYCLE_OK" : "EVIEMETAL_VANILLA_LIFECYCLE_OK") + " metalBytesAfterUnload=" + Mtl.allocatedBytes()
+                    + " framebuffer=" + memoryWidth + "x" + memoryHeight + " completedFence=" + Mtl.completedFence()
+                    + " device=" + Mtl.deviceName());
             mc.stop(); return;
         }
         if (!opened && mc.gui.screen() instanceof TitleScreen && mc.gui.overlay() == null && ++frames > 20) {
