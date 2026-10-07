@@ -25,6 +25,10 @@ import org.jspecify.annotations.Nullable;
 
 /** A RenderPipeline compiled to Metal. The MTLRenderPipelineState depends on the attachment formats, so variants are built lazily. */
 public class MetalPipeline implements CompiledRenderPipeline {
+    /** Only source/translation/library failures may enter the optional resource-pack fallback. */
+    public static final class CompilationException extends IllegalStateException {
+        private CompilationException(String message, Throwable cause) { super(message, cause); }
+    }
     final RenderPipeline info;
     final ShaderTranslator.@Nullable Result vertex;
     final ShaderTranslator.@Nullable Result fragment;
@@ -109,7 +113,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
             }
         } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
             EvieMetal.LOGGER.error("Couldn't compile pipeline {}: {}", name, e.getMessage());
-            throw new IllegalStateException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
+            throw new CompilationException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
                     + "; set -Deviemod.metal=false and restart", e);
         }
     }

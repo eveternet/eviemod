@@ -98,6 +98,31 @@ as **not validated**, rather than accepting it as a rendered lifecycle. A passin
 hosted job does not satisfy those final physical-Mac completion criteria.
 Physical Apple Silicon evidence is recorded separately in [the 26.2 port report](metal-26.2-port.md).
 
+## Stop Unloading My Resourcepacks on 26.2
+
+SUMR Fabric **1.5.1+26.2** reports an unhandled-backend warning with Metal.
+This identifies missing SUMR integration, not failed Metal activation. Disable
+SUMR as an immediate workaround, or explicitly enable the bounded adapter with
+`-Deviemod.metal.sumr=true` in the launcher's Java arguments and restart.
+The adapter defaults to off and only applies to that exact SUMR version on 26.2;
+SUMR is neither bundled nor required. Unknown versions retain their own warning.
+
+The adapter implements SUMR's backend interface, reports Metal shader compilation
+errors through its normal diagnostics, recompiles vanilla sources on failure,
+and uses a no-output shader pair for mod-owned stages with no working vanilla
+replacement. SUMR's F3+R hot reload remains its own reload operation. Cache bypass
+closes replaced native pipelines, and recovery restores its flags even on failure.
+Structural pipeline, lazy attachment-state and GPU errors keep the normal failure
+behavior. This does not add general shader-pack or raw OpenGL support.
+
+The installed binary's backend guard, fallback provider and cache-bypass contract
+were inspected directly; implementation is independent of SUMR's licensed source.
+See [SUMR's upstream project](https://github.com/Enchanted-Games/stop-unloading-my-shaders).
+The packaged `SumrTitle`, `SumrDefaultTitle` and `SumrAbsentTitle` fixtures check
+the exact optional JAR, explicit activation, absent-mod class loading, default-off
+behavior, fallback/recovery pixels, native cache replacement, diagnostics and
+actual SUMR hot reload. These fixtures do not validate the entire SkyBlock modpack.
+
 The report records the baseline commit, actual game/Sodium interfaces inspected,
 rendering regressions, packaged lifecycle results and limits. These are local
 vanilla/Sodium fixture results, with no live SkyBlock or full-modpack claim.

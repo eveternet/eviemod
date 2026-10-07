@@ -132,6 +132,12 @@ jobs:
         env:
           METAL_MODULE: ${{ matrix.module }}
         run: python3 .github/scripts/verify-metal-fixture.py "$METAL_MODULE" Vanilla
+      - name: Verify optional SUMR recovery and default/absent guards
+        if: matrix.minecraft == '26.2'
+        run: |
+          python3 .github/scripts/verify-metal-fixture.py metal-addon-26.2 SumrTitle
+          python3 .github/scripts/verify-metal-fixture.py metal-addon-26.2 SumrDefaultTitle
+          python3 .github/scripts/verify-metal-fixture.py metal-addon-26.2 SumrAbsentTitle
       - name: Verify packaged pinned Sodium terrain and lifecycle
         env:
           METAL_MODULE: ${{ matrix.module }}

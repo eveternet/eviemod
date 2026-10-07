@@ -13,6 +13,7 @@ public final class OptionalGuiProbe {
     private OptionalGuiProbe() {}
 
     public static boolean prepare(Minecraft mc) {
+        if (System.getProperty("eviemod.metal.sumrSmoke") != null && !SumrProbe.prepare()) return false;
         String name = System.getProperty("eviemod.metal.guiSmokeScreen");
         if (name == null) return mc.gui.screen() instanceof TitleScreen;
         if (screen == null) {

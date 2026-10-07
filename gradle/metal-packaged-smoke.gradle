@@ -15,7 +15,8 @@ def assets = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/assets')
 def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/mojang_minecraft_info.json")
 def sodiumFiles = configurations.testRuntimeClasspath
 def flavors = ['Vanilla', 'Sodium', 'Disabled', 'DisabledSodium', 'Fallback', 'Title', 'SodiumTitle']
-if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback', 'PreflightVulkanFallback', 'UnsupportedSodium']
+if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback', 'PreflightVulkanFallback', 'UnsupportedSodium',
+                                'SumrTitle', 'SumrDefaultTitle', 'SumrAbsentTitle']
 flavors.each { flavor ->
     tasks.register("packaged${flavor}Smoke", JavaExec) {
         group = 'verification'
@@ -35,8 +36,12 @@ flavors.each { flavor ->
         systemProperty 'fabric.defaultMixinRemapType', 'static'
         systemProperty 'fabric.classPathGroups', sourceSets.smokeTest.output.files.collect { it.absolutePath }.join(File.pathSeparator)
         systemProperty 'eviemod.metal.distributionExpected', 'true'
-        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle']) {
+        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle', 'SumrTitle', 'SumrDefaultTitle', 'SumrAbsentTitle']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
+        }
+        if (flavor.startsWith('Sumr')) {
+            systemProperty 'eviemod.metal.sumrSmoke', flavor == 'SumrTitle' ? 'enabled' : flavor == 'SumrDefaultTitle' ? 'default' : 'absent'
+            if (flavor != 'SumrDefaultTitle') systemProperty 'eviemod.metal.sumr', 'true'
         }
         if (flavor in ['Vanilla', 'Sodium']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
@@ -76,6 +81,14 @@ flavors.each { flavor ->
             // Dedicated fixture directory; a version bump must never leave two copies of this mod installed.
             mods.listFiles().findAll { it.name.endsWith('.jar') }.each { it.delete() }
             java.nio.file.Files.copy(jarProvider.get().asFile.toPath(), new File(mods, jarProvider.get().asFile.name).toPath())
+            if (flavor in ['SumrTitle', 'SumrDefaultTitle']) {
+                def sumr = sodiumFiles.resolvedConfiguration.resolvedArtifacts.findAll {
+                    it.moduleVersion.id.group == 'maven.modrinth' && it.moduleVersion.id.name == 'awyrq9la'
+                            && it.moduleVersion.id.version == 'lvciRP6I'
+                }
+                if (sumr.size() != 1) throw new GradleException("Expected exact SUMR Fabric artifact: ${sumr}")
+                java.nio.file.Files.copy(sumr.first().file.toPath(), new File(mods, 'sumr.jar').toPath())
+            }
             if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium', 'UnsupportedSodium']) {
                 def pinned = sodiumFiles.files.findAll { it.name == "sodium-mc${target}-0.9.2-fabric.jar" }
                 if (pinned.size() != 1) throw new GradleException("Expected exact Sodium artifact for ${target}: ${pinned}")

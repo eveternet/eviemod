@@ -160,6 +160,12 @@ public class MetalDevice implements GpuDeviceBackend {
         return pipelines.computeIfAbsent(pipeline, p -> MetalPipeline.compile(p, remembering(defaultShaderSource)));
     }
 
+    /** Remove one cached pipeline before an explicitly requested shader-source retry. */
+    public void invalidatePipeline(RenderPipeline pipeline) {
+        MetalPipeline previous = pipelines.remove(pipeline);
+        if (previous != null) previous.close();
+    }
+
     // Minecraft preloads UI shaders through one pipeline before its default resource provider is ready.
     // Other pipelines (such as the loading logo) reuse those stages, like vanilla's shader-module cache.
     private ShaderSource remembering(ShaderSource preferred) {

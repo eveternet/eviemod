@@ -6,7 +6,7 @@
   "description": "Experimental Apple Silicon Metal backend. Installing this addon enables Metal on supported Macs.",
   "environment": "client",
   "license": "GPL-3.0-only",
-  "mixins": ["eviemod-metal.mixins.json", "eviemod-metal-sodium.mixins.json"],
+  "mixins": ["eviemod-metal.mixins.json", "eviemod-metal-sodium.mixins.json", "eviemod-metal-sumr.mixins.json"],
   "depends": {"fabricloader": ">=0.19.5", "minecraft": "${minecraftVersion}", "java": ">=25"},
   "suggests": {"eviemod": "*"}
 }

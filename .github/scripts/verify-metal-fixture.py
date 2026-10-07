@@ -13,13 +13,18 @@ with log.open("w") as output:
 text = log.read_text()
 print(text, flush=True)
 required = ["EVIEMETAL_DEVICE_CLOSED_OK"]
-if flavor in ("Title", "SodiumTitle"):
+if flavor.endswith("Title"):
     required.append("EVIEMOD_METAL_FRAME_OK")
     assert result.returncode != 0 or (Path(module) / "build/packagedSmoke" / flavor.lower() / "metal-smoke.png").stat().st_size > 0
 else:
     required.append(f"EVIEMETAL_{flavor.upper()}_LIFECYCLE_OK")
 if flavor.startswith("Sodium"):
     required.append("EVIEMETAL_PINNED_SODIUM_OK")
+if flavor == "SumrTitle":
+    required.append("EVIEMETAL_SUMR_RECOVERY_OK vanilla/modded/cache/pixels/diagnostics/hot-reload")
+    assert result.returncode != 0 or "not handled by SUMR" not in text
+elif flavor in ("SumrDefaultTitle", "SumrAbsentTitle"):
+    required.append("EVIEMETAL_SUMR_GUARD_OK mode=" + ("default" if flavor == "SumrDefaultTitle" else "absent"))
 if flavor == "Sodium":
     if module == "metal-addon":
         required.append("EVIEMETAL_SODIUM_TIER1_OK")
