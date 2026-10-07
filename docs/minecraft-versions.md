@@ -8,12 +8,13 @@ remain identical, so configuration files and commands are shared across targets.
 | --- | --- | --- |
 | Minecraft 26.1.2 | root | `build/libs/eviemod-<version>-mc26.1.2.jar` |
 | Minecraft 26.2 | `:eviemod-26.2` | `eviemod-26.2/build/libs/eviemod-<version>-mc26.2.jar` |
-| Standalone Metal addon, Minecraft 26.1.2 | `:metal-addon` | `metal-addon/build/libs/eviemod-metal-<addon-version>.jar` |
+| Standalone Metal addon, Minecraft 26.1.2 | `:metal-addon` | `build/distributions/metal/eviemod-metal-mc26.1.2-<addon-version>.jar` |
+| Standalone Metal addon, Minecraft 26.2 | `:metal-addon-26.2` | `build/distributions/metal/eviemod-metal-mc26.2-<addon-version>.jar` |
 
-`./gradlew build` builds and tests both main-mod targets and the existing addon.
-`:build` also depends on `:eviemod-26.2:build`. The addon is independent of both
-main-mod artifacts and has not been ported to the 26.2 rendering backend interfaces.
-Its native distribution still requires building on macOS.
+`./gradlew build` builds and tests both main mods and both fixed Metal adapters.
+The addons independently pin Minecraft and Sodium, share utilities/native code,
+and are independent of the main mod. Native distributions require macOS; see
+[the addon guide](metal-addon.md) and [port evidence](metal-26.2-port.md).
 
 ## Dependencies and source boundaries
 
@@ -57,9 +58,9 @@ Paint Brush screens, checking return navigation. These fixture mods are not
 included in distributable JARs.
 
 CI uploads `eviemod-mc26.1.2` and `eviemod-mc26.2` separately. Tagged releases
-download both and attach the two main-mod JARs plus the standalone 26.1.2 Metal
-addon. Existing Metal fallback, native-frame, Sodium terrain and lifecycle
-checks remain in place.
+download both main-mod artifacts and both versioned Metal artifacts. The macOS
+matrix verifies packaged vanilla and pinned Sodium lifecycles for each addon,
+with native validation, while Linux checks disable and unsupported-host fallback.
 
 Live Hypixel behavior and third-party modpack interaction require separate game
 testing; offline fixtures do not establish those. Initial local Gradle execution

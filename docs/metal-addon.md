@@ -1,104 +1,90 @@
 # Experimental Metal addon
 
-`eviemod-metal-0.1.1.0.jar` is a separately loadable Fabric addon for Minecraft
-26.1.2. The main eviemod JAR neither includes nor requires it. The addon also
-works without eviemod; Fabric Loader is its only mod dependency.
+Eviemetal is a separately loadable Fabric addon. Install exactly one addon JAR,
+matching Minecraft. The main eviemod JAR neither includes nor requires it; the
+addon also works without eviemod. Fabric Loader is its only required mod dependency.
 
-## Install and enable
+| Minecraft | Distributable | Optional supported Sodium |
+| --- | --- | --- |
+| 26.1.2 | `eviemod-metal-mc26.1.2-0.2.0.0.jar` | `0.9.2+mc26.1.2` |
+| 26.2 | `eviemod-metal-mc26.2-0.2.0.0.jar` | `0.9.2+mc26.2` |
 
-Use the **eviemod-metal** artifact from the macOS CI job or a macOS build. Place
-the JAR in `mods/` and restart the game. Installing the separate addon enables
-Metal automatically on supported Macs; no custom JVM argument is required.
-Requires Apple Silicon, an ARM64 Java 25 JVM, and macOS 14 or newer. Running an
-x86 JVM through Rosetta is unsupported.
+## Installation and activation
 
-To return to vanilla OpenGL, remove the addon JAR or add
-`-Deviemod.metal=false` in your launcher and restart. The existing
-`-Deviemod.metal=true` argument remains supported but is optional. An existing
-explicit `false` override remains disabled after updating; removing a former
-`true` argument now leaves Metal enabled while the addon is installed.
+Use the matching **eviemod-metal-mc26.1.2** or **eviemod-metal-mc26.2** macOS CI
+artifact, or build on an Apple Silicon Mac. Place the JAR in `mods/` and restart.
+Installing the separate addon preserves the existing activation policy: Metal
+starts automatically on supported Macs. Requires Apple Silicon, ARM64 Java 25
+and macOS 14 or newer; an x86 JVM under Rosetta is unsupported.
 
-## Scope and failure behavior
+Remove the addon or set `-Deviemod.metal=false` to use Minecraft's normal graphics
+backend. The explicit disable override survives updates. The optional existing
+`-Deviemod.metal=true` argument still works. On 26.2 the selected vanilla backend
+can be OpenGL or Vulkan; Eviemetal preserves Minecraft's preference and retry order.
+Do not install both addon variants in one instance, or use the other version's Sodium.
 
-The backend implements Blaze3D buffers, textures, samplers, render passes,
-pipelines, fences, timer queries, readback, and presentation through native
-Metal. Minecraft GLSL is translated through shaderc/SPIRV-Cross to MSL; resource
-pack core shaders use the same path. No per-frame OpenGL drawing or CPU image
-copy is involved. Metal uses a GLFW window with `GLFW_NO_API`; it does not
-require an OpenGL context.
+## Rendering and failures
 
-Platform/conflict checks run before loading native code. Disabled/unsupported
-launches keep vanilla behavior. Missing libraries, shader-toolchain failures,
-or native initialization failures without Sodium log the reason and let Minecraft close the
-Metal window and retry with a fresh OpenGL window. Native preflight completes
-before attaching the Cocoa view's layer.
+The version-specific adapters implement Blaze3D buffers, textures, samplers,
+pipelines, passes, fences, readback and presentation over the shared Metal bridge.
+26.2 uses a separate GPU surface, sliced vertex bindings, bind-group layouts,
+transient allocations and timestamp query pools. GLSL is translated through
+shaderc/SPIRV-Cross to MSL. Both variants bundle matching LWJGL 3.4.1 shader tools
+and macOS arm64 natives; Sodium is optional and is not bundled.
 
-After Metal resources exist, switching those resources to OpenGL mid-frame is
-not supported. Pipeline compilation failures throw a clear error; asynchronous
-Metal command-buffer errors are surfaced at the frame boundary. Remove the addon
-or set `-Deviemod.metal=false` and restart. JVM/native driver crashes cannot be
-caught by Java.
+Platform/conflict checks run before native loading. Native and shader preflight
+finish before modifying the Cocoa view. With vanilla, failed startup cleans up
+Metal before Minecraft closes the failed window and retries its own backend
+candidates. With active Sodium, unsupported Sodium versions or Metal startup
+failures stop descriptively under the existing compatibility policy. There is
+no supported switch between backends after Metal resources have been created.
+Runtime shader/pipeline failures and GPU errors surface clearly; disable Metal
+and restart to return to vanilla.
 
-Support includes vanilla Blaze3D and the pinned Sodium **0.9.2+mc26.1.2** terrain
-frontend. With Sodium and Metal enabled, unsupported Sodium versions and
-Metal initialization failures stop with a clear error instead of silently
-retrying OpenGL. The log identifies both the active Metal backend and Sodium's
-Metal terrain endpoint. Iris, VulkanMod, Metallum, MetalCraft, and MetalRender
-retain their existing startup conflict checks. Legacy GUI state surrounding
-Blaze3D submissions is guarded; direct raw OpenGL drawing remains unsupported.
-The [GUI compatibility audit](metal-gui-compatibility.md) describes the boundary,
-state ownership and remaining direct-LWJGL limits. The compatibility design, physical Mac runtime evidence,
-and remaining limits are in [Sodium compatibility](metal-sodium-compat.md).
-No FPS improvement is promised without measurements on the target hardware.
-
-Memory-lifetime findings and the 0.1.0.1 regression results are in the
-[Metal memory audit](metal-memory-audit.md).
-Legacy GLSL normalization, shader failure cleanup, validation and remaining
-unsupported forms are described in [shader compatibility](metal-shader-compatibility.md).
+Iris, VulkanMod, Metallum, MetalCraft and MetalRender retain their existing conflict
+checks. Guarded legacy GUI state can surround Blaze3D submissions, but direct raw
+OpenGL rendering and arbitrary modpack/shader-pack compatibility are unsupported.
+The 26.2 adapter supports one color attachment and vertex binding slots 0–3.
+Texture arrays/3D textures, additional color attachments, indirect draws and
+interleaved multidraw are rejected explicitly; the pinned vanilla and Sodium
+routes use the implemented forms. Timestamp queries require native stage-boundary
+counter support. No FPS gain or long-duration soak result is claimed.
 
 ## Build and verification
 
 ```sh
-./gradlew build                                  # main mod + addon Java/tests
-./gradlew :metal-addon:verifyDistribution         # requires macOS native
-./gradlew :metal-addon:runClient                  # Metal by default on supported Macs
-./gradlew :metal-addon:runClient -Pmetal=false    # explicit OpenGL override
+./gradlew build
+./gradlew verifyMetalDistributions
+python3 .github/scripts/verify-metal-artifacts.py
+MTL_DEBUG_LAYER=1 ./gradlew verifyPackagedMetal
 ```
 
-For development, `runClient` uses the same automatic startup policy as the
-installed addon. `-Pmetal=false` passes the explicit JVM disable override;
-the legacy `-Pmetal` flag still passes `true`. Xcode Command Line Tools
-are required on macOS. Gradle builds an arm64 dylib using the selected JDK's JNI
-headers. Linux builds deliberately produce a Java-only addon for compilation
-and fallback testing; CI only publishes the macOS addon as a distribution.
+A normal root build tests both main-mod targets and both addon targets, and places
+exactly two versioned addon JARs in `build/distributions/metal/`. Individual builds
+are `:metal-addon:build` and `:metal-addon-26.2:build`; each independently resolves
+its fixed Minecraft and Sodium dependencies. The native implementation is built
+once by `:metal-addon:buildNative` and packaged by both adapters. Xcode tools and
+Java 25 are required for native distributions. Linux builds are Java-only fixtures;
+`verifyMetalDistributions` requires the packaged arm64 library.
 
-CI runs Linux compilation/unit tests and a macOS native distribution build
-with Metal API validation enabled.
-Shader tests translate the actual 26.1.2 core/post shaders on both platforms
-and also compile the resulting MSL using Apple's compiler on macOS. Native
-smoke tests verify buffer/texture upload, indexed triangle rendering,
-clear/readback, fences, and teardown
-without a window. A launch fixture verifies that the mixin applies and the
-addon starts on vanilla OpenGL on an unsupported host with no JVM override.
-A macOS launch fixture also requires an active Metal backend with no JVM override
-and a nonblank title-screen screenshot;
-that frame includes the 3D panorama, UI textures, and text. GitHub's Mac runner
-uses Apple's paravirtual Metal device, rather than a physical Mac's GPU.
-A second Linux launch checks that the explicit disable override selects OpenGL
-and completes startup. The hosted Mac runner cannot create vanilla OpenGL's
-required pixel format; unit tests cover disabling Metal on a supported Mac.
-These checks are not live gameplay or a performance benchmark.
+For either module, `packagedTitleSmoke`, `packagedVanillaSmoke`,
+`packagedSodiumSmoke` and `packagedDisabledSmoke` stage its distributable JAR in
+an isolated fixture directory and exclude the addon's compiled classes and loose
+shader-tool JARs from the launch classpath. Sodium fixtures stage the exact pinned
+Sodium artifact. Development fixtures, worlds, logs and screenshots are not shipped.
+26.2 also has `packagedSurfaceSmoke`, `packagedDisabledVulkanSmoke` and
+`packagedPreflightFallbackSmoke` for surface/presentation and startup retry checks.
+Do not run graphical fixtures concurrently on the same display.
 
-Before calling the renderer verified, test on Apple Silicon with Metal API
-validation (`MTL_DEBUG_LAYER=1`): menus, a local world (opaque/cutout/translucent
-terrain), entities, particles, text/items, Nether/End, screenshots, resource
-reload, resize/fullscreen, vsync changes, and exit. Repeat with eviemod and test
-startup with `-Deviemod.metal=false`, including Sodium installed.
+Both CI targets run native tests and packaged vanilla/Sodium lifecycles under
+Metal validation; Linux checks fallback/disable and both main-mod UI routes.
+GitHub's hosted Mac GPU is paravirtual, so physical Apple Silicon evidence is
+recorded separately in [the 26.2 port report](metal-26.2-port.md).
 
-The implementation is a pinned port of MetalCraft's core; see
-[the addon notice](../metal-addon/NOTICE.md) and its GPL license. The backend mixin
-prepends a `GpuBackend` to Minecraft's ordered backend candidates in 26.1.2.
-The backend uses vanilla's window cleanup/retry loop; its `createDevice` bridge
-preserves `BackendCreationException` despite the interface omitting a checked
-throws declaration. Keep future API changes at that boundary and in the
-backend adapters.
+The report records the baseline commit, actual game/Sodium interfaces inspected,
+rendering regressions, packaged lifecycle results and limits. These are local
+vanilla/Sodium fixture results, with no live SkyBlock or full-modpack claim.
+Older implementation evidence remains in [Sodium compatibility](metal-sodium-compat.md),
+[terrain optimizations](metal-terrain-tier1.md), [memory audit](metal-memory-audit.md),
+[GUI compatibility](metal-gui-compatibility.md) and [shader compatibility](metal-shader-compatibility.md).
+Source attribution and GPL licensing are in each addon's `NOTICE.md` and `LICENSE`.
