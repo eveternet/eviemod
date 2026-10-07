@@ -33,6 +33,13 @@ abstract class FallbackLaunchMixin {
                 System.out.println("EVIEMETAL_SHADER_TOOL_SOURCE " + packaged);
             }
         }
+        if (Boolean.getBoolean("eviemod.metal.sodiumExpected")) {
+            var sodium = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("sodium").orElseThrow(
+                    () -> new AssertionError("Expected installed pinned Sodium in packaged fixture"));
+            String version = sodium.getMetadata().getVersion().getFriendlyString();
+            if (!version.equals("0.9.2+mc26.1.2")) throw new AssertionError("Unexpected fixture Sodium: " + version);
+            System.out.println("EVIEMETAL_PINNED_SODIUM_OK version=" + version);
+        }
         if (Boolean.getBoolean("eviemod.metal.smokeExpected")) {
             if (!RenderSystem.getDevice().getBackendName().equals("Metal")) throw new AssertionError("Expected active Metal backend");
             return;

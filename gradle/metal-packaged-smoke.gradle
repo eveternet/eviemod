@@ -14,8 +14,8 @@ def jarProvider = tasks.named('jar', Jar).flatMap { it.archiveFile }
 def assets = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/assets')
 def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/mojang_minecraft_info.json")
 def sodiumFiles = configurations.testRuntimeClasspath
-def flavors = ['Vanilla', 'Sodium', 'Disabled', 'Fallback', 'Title']
-if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback']
+def flavors = ['Vanilla', 'Sodium', 'Disabled', 'DisabledSodium', 'Fallback', 'Title', 'SodiumTitle']
+if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback', 'PreflightVulkanFallback', 'UnsupportedSodium']
 flavors.each { flavor ->
     tasks.register("packaged${flavor}Smoke", JavaExec) {
         group = 'verification'
@@ -35,7 +35,7 @@ flavors.each { flavor ->
         systemProperty 'fabric.defaultMixinRemapType', 'static'
         systemProperty 'fabric.classPathGroups', sourceSets.smokeTest.output.files.collect { it.absolutePath }.join(File.pathSeparator)
         systemProperty 'eviemod.metal.distributionExpected', 'true'
-        if (flavor in ['Vanilla', 'Sodium', 'Title']) {
+        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
         }
         if (flavor in ['Vanilla', 'Sodium']) {
@@ -43,15 +43,32 @@ flavors.each { flavor ->
             systemProperty 'eviemod.metal.worldSmoke', 'true'
             systemProperty 'eviemod-metal.terrainProfile', 'true'
         }
-        if (flavor in ['Disabled', 'DisabledVulkan']) systemProperty 'eviemod.metal', 'false'
+        if (flavor in ['Disabled', 'DisabledSodium', 'DisabledVulkan']) systemProperty 'eviemod.metal', 'false'
         if (flavor == 'DisabledVulkan') {
             args '--graphicsBackend', 'vulkan'
             systemProperty 'eviemod.metal.expectedPreference', 'vulkan'
         }
-        if (flavor == 'PreflightFallback') {
+        if (flavor in ['PreflightFallback', 'PreflightVulkanFallback']) {
             systemProperty 'eviemod.metal.fixturePreflightFailure', 'true'
-            systemProperty 'eviemod.metal.expectedPreference', 'opengl'
-            args '--graphicsBackend', 'opengl'
+            def preference = flavor == 'PreflightVulkanFallback' ? 'vulkan' : 'opengl'
+            systemProperty 'eviemod.metal.expectedPreference', preference
+            args '--graphicsBackend', preference
+        }
+        if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium'])
+            systemProperty 'eviemod.metal.sodiumExpected', 'true'
+        def rejectionOutput = flavor == 'UnsupportedSodium' ? new ByteArrayOutputStream() : null
+        if (rejectionOutput != null) {
+            ignoreExitValue = true
+            standardOutput = rejectionOutput
+            errorOutput = rejectionOutput
+            doLast {
+                def output = rejectionOutput.toString('UTF-8')
+                logger.lifecycle(output)
+                def expected = 'Metal terrain compatibility requires Sodium 0.9.2+mc26.2; installed 0.9.3+mc26.2; refusing vanilla fallback'
+                if (executionResult.get().exitValue == 0 || !output.contains(expected))
+                    throw new GradleException('Packaged unsupported Sodium launch did not fail at the exact version guard')
+                logger.lifecycle('EVIEMETAL_UNSUPPORTED_SODIUM_REJECTED metadataVersion=0.9.3+mc26.2')
+            }
         }
         doFirst {
             game.mkdirs()
@@ -59,13 +76,30 @@ flavors.each { flavor ->
             // Dedicated fixture directory; a version bump must never leave two copies of this mod installed.
             mods.listFiles().findAll { it.name.endsWith('.jar') }.each { it.delete() }
             java.nio.file.Files.copy(jarProvider.get().asFile.toPath(), new File(mods, jarProvider.get().asFile.name).toPath())
-            if (flavor == 'Sodium') {
+            if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium', 'UnsupportedSodium']) {
                 def pinned = sodiumFiles.files.findAll { it.name == "sodium-mc${target}-0.9.2-fabric.jar" }
                 if (pinned.size() != 1) throw new GradleException("Expected exact Sodium artifact for ${target}: ${pinned}")
-                java.nio.file.Files.copy(pinned.first().toPath(), new File(mods, 'sodium.jar').toPath())
+                def installed = new File(mods, 'sodium.jar')
+                if (flavor == 'UnsupportedSodium') {
+                    // Use the real pinned implementation, changing only its advertised version to exercise
+                    // the packaged startup guard. This is not evidence about an untested Sodium release.
+                    new java.util.zip.ZipFile(pinned.first()).withCloseable { original ->
+                        new java.util.zip.ZipOutputStream(new FileOutputStream(installed)).withCloseable { output ->
+                            original.entries().each { entry ->
+                                output.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                                if (entry.name == 'fabric.mod.json') {
+                                    def metadata = new JsonSlurper().parseText(original.getInputStream(entry).getText('UTF-8'))
+                                    metadata.version = '0.9.3+mc26.2'
+                                    output.write(groovy.json.JsonOutput.toJson(metadata).getBytes('UTF-8'))
+                                } else original.getInputStream(entry).withCloseable { input -> input.transferTo(output) }
+                                output.closeEntry()
+                            }
+                        }
+                    }
+                } else java.nio.file.Files.copy(pinned.first().toPath(), installed.toPath())
             }
             def index = new JsonSlurper().parse(manifest).assetIndex.id
-            args '--gameDir', game.absolutePath, '--assetIndex', "${target}-${index}", '--assetsDir', assets.absolutePath,
+            args '--width', '960', '--height', '540', '--gameDir', game.absolutePath, '--assetIndex', "${target}-${index}", '--assetsDir', assets.absolutePath,
                     '--version', target, '--username', 'MetalFixture', '--uuid', '00000000000000000000000000000008', '--accessToken', 'FabricMC'
         }
     }
