@@ -343,6 +343,10 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxBufferLength(JNIEnv*, 
     @autoreleasepool { return (jlong)gDevice.maxBufferLength; }
 }
 
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_isRenderPassOpen(JNIEnv*, jclass) {
+    @autoreleasepool { return gInPass ? JNI_TRUE : JNI_FALSE; }
+}
+
 JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_hasLiveContext(JNIEnv*, jclass) {
     @autoreleasepool {
         return (gDevice || gQueue || gEvent || gLayer || gView || gCmd || gLastCommand

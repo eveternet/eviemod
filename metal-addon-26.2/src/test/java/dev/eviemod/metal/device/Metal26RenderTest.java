@@ -76,6 +76,8 @@ class Metal26RenderTest {
                 assertThrows(IllegalArgumentException.class, () -> pass.draw(10, 1, 0, 0));
                 assertThrows(IllegalArgumentException.class, () -> pass.drawIndexed(3, 1, 15, 0, 0));
                 assertThrows(IllegalArgumentException.class, () -> pass.drawIndexed(3, 1, 3, 3, 4));
+                assertThrows(IllegalArgumentException.class, () -> pass.enableScissor(0, 0, -1, 1));
+                pass.enableScissor(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 pass.drawIndexed(3,1,3,3,1);
                 if (timestamps) pass.writeTimestamp(queries,0);
                 // Farther green geometry must fail reversed depth, after the timestamp encoder interruption.
@@ -108,6 +110,7 @@ class Metal26RenderTest {
                 : "#version 330\nuniform isamplerBuffer Times;uniform vec3 Arbitrary;uniform int Other;out vec4 color;void main(){color=vec4(float(texelFetch(Times,0).r)/255.,Arbitrary.y,float(Other)/255.,1);}");
         try(var vertices=new MetalBuffer(GpuBuffer.USAGE_VERTEX,36);
             var times=new MetalBuffer(GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER|GpuBuffer.USAGE_MAP_WRITE,512);
+            var staged=new MetalBuffer(GpuBuffer.USAGE_MAP_WRITE,512*1024);
             var target=(MetalTexture)device.createTexture("texel",GpuTexture.USAGE_RENDER_ATTACHMENT|GpuTexture.USAGE_COPY_SRC,GpuFormat.RGBA8_UNORM,4,2,1,1);
             var view=device.createTextureView(target);
             var readback=new MetalBuffer(GpuBuffer.USAGE_COPY_DST,512)) {
@@ -127,6 +130,11 @@ class Metal26RenderTest {
                 pass.setDefaultFloat3("Arbitrary",0,.5f,0);pass.setDefaultInt("Other",128);pass.enableScissor(0,0,2,2);pass.draw(3,1,0,0);
                 // Same Java buffer and uniform binding, fresh native storage; earlier draws retain the original view.
                 try(var map=times.map(256,256,false,true)){map.data().putInt(192);}
+                // Large mapped writes need a blit. Reject them before interrupting the live render encoder.
+                var unsupported = staged.map(0, 4, false, true);
+                unsupported.data().putInt(0, 42);
+                assertThrows(UnsupportedOperationException.class, unsupported::close);
+                assertDoesNotThrow(unsupported::close);
                 pass.setDefaultFloat3("Arbitrary",0,1,0);pass.setDefaultInt("Other",64);pass.enableScissor(2,0,2,2);pass.draw(3,1,0,0);
             }
             Mtl.copyTextureToBuffer(target.handle,0,0,0,4,2,readback.handle,0,256);

@@ -35,6 +35,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
     final int cull;
     boolean hasMissingAttributes;
     final boolean[] requiredVertexSlots = new boolean[4];
+    final int[] requiredVertexBytes = new int[4];
     record BufferSlot(String name, int index) {}
     record TextureSlot(String name, int index, int samplerIndex, GpuFormat texelFormat) {}
     record DefaultSlot(String name, int offset) {}
@@ -61,11 +62,16 @@ public class MetalPipeline implements CompiledRenderPipeline {
             var format = formats[slot];
             if (format == null) continue;
             if (slot >= requiredVertexSlots.length) throw new UnsupportedOperationException("Metal supports vertex binding slots 0–3; requested " + slot);
+            if (format.getVertexSize() < 0) throw new IllegalArgumentException("Negative vertex stride");
             if (format.getStepRate() < 0) throw new IllegalArgumentException("Negative vertex step rate");
             var names = new java.util.HashSet<String>();
             for (var element : format.getElements()) {
                 if (!names.add(element.name())) throw new UnsupportedOperationException("Metal matrix vertex attributes are not supported");
-                requiredVertexSlots[slot] |= vertex.inputs().containsKey(element.name());
+                if (element.offset() < 0) throw new IllegalArgumentException("Negative vertex attribute offset");
+                if (vertex.inputs().containsKey(element.name())) {
+                    requiredVertexSlots[slot] = true;
+                    requiredVertexBytes[slot] = Math.max(requiredVertexBytes[slot], Math.addExact(element.offset(), element.format().blockSize()));
+                }
             }
         }
         this.vertexPlan = bindingPlan(vertex);

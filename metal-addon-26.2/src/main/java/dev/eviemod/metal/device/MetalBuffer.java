@@ -87,6 +87,8 @@ public class MetalBuffer extends GpuBuffer {
         if (closed) throw new IllegalStateException("Buffer already closed");
         if (!read && !write) throw new IllegalArgumentException("At least read or write must be true");
         if (offset < 0 || length < 0 || offset > size() - length) throw new IllegalArgumentException("Mapping outside buffer");
+        if (lastGpuWrite > Mtl.completedFence() && Mtl.isRenderPassOpen())
+            throw new UnsupportedOperationException("Mapping pending GPU writes requires a closed render pass");
         if (read && lastGpuWrite > Mtl.completedFence() && !Mtl.fenceWait(lastGpuWrite, 5000)) throw new IllegalStateException("Buffer read mapping fence timed out");
         var slice = slice(offset, length);
         if (!write) return new com.mojang.blaze3d.buffers.GpuBufferSlice.MappedView(slice, view(offset, length), () -> {});
@@ -107,6 +109,7 @@ public class MetalBuffer extends GpuBuffer {
                 if (length == 0) return;
                 // Builders advance ByteBuffer.position(); mapping ownership still covers the original full range.
                 if (!tryOrphanWrite(offset, stagingAddress, length)) {
+                    if (Mtl.isRenderPassOpen()) throw new UnsupportedOperationException("Staged mapped writes require a closed render pass");
                     var upload = UploadRing.reserve(length);
                     MemoryUtil.memCopy(stagingAddress, upload.address(), length);
                     Mtl.copyBuffer(upload.buffer(), upload.offset(), handle, offset, length);

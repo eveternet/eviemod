@@ -103,6 +103,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
 
     @Override
     public void enableScissor(int x, int y, int w, int h) {
+        checkOpen();
+        if (w < 0 || h < 0) throw new IllegalArgumentException("Negative scissor extent");
         scissor = true;
         scissorX = x;
         scissorY = y;
@@ -222,7 +224,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             int rate = format.getStepRate();
             if (indexed && rate == 0) continue;
             long last = rate == 0 ? (long) first + count - 1 : ((long) firstInstance + instances - 1) / rate;
-            if (last >= 0 && (last + 1) * format.getVertexSize() > slice.length())
+            if (last >= 0 && last * format.getVertexSize() + pipeline.requiredVertexBytes[slot] > slice.length())
                 throw new IllegalArgumentException("Draw exceeds vertex slice at slot " + slot);
         }
     }
@@ -405,8 +407,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             int right = x + w, top = y + h;
             x = Math.clamp(scissorX, x, right);
             y = Math.clamp(scissorY, y, top);
-            w = Math.clamp(scissorX + scissorW, x, right) - x;
-            h = Math.clamp(scissorY + scissorH, y, top) - y;
+            w = (int) Math.clamp((long) scissorX + scissorW, (long) x, (long) right) - x;
+            h = (int) Math.clamp((long) scissorY + scissorH, (long) y, (long) top) - y;
         }
         long key = ((long) x << 48) | ((long) y << 32) | ((long) w << 16) | h;
         if (key != boundScissor) {

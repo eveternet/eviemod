@@ -63,6 +63,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         var color = attachment.textureView();
         var depth = descriptor.depthAttachment() == null ? null : descriptor.depthAttachment().textureView();
         var area = descriptor.renderArea;
+        if (area != null) MetalRanges.rectangle(area.x(), area.y(), area.width(), area.height(), color.getWidth(0), color.getHeight(0));
         if (color.isClosed() || (depth != null && depth.isClosed())) throw new IllegalStateException("Closed render attachment");
         var clear = attachment.clearValue();
         var depthClear = descriptor.depthAttachment() == null ? OptionalDouble.empty() : descriptor.depthAttachment().clearValue();

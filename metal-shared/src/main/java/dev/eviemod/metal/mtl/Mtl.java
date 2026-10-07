@@ -25,6 +25,7 @@ public final class Mtl {
     public static native int maxTextureSize();
     public static native long maxBufferLength();
     public static native boolean hasLiveContext();
+    public static native boolean isRenderPassOpen();
     public static native void release(long handle);
 
     /** Regression diagnostics: driver-reported resource bytes after submitted work completes. */
