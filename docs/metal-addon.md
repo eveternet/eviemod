@@ -114,6 +114,9 @@ replacement. SUMR's F3+R hot reload remains its own reload operation. Cache bypa
 closes replaced native pipelines, and recovery restores its flags even on failure.
 Structural pipeline, lazy attachment-state and GPU errors keep the normal failure
 behavior. This does not add general shader-pack or raw OpenGL support.
+Diagnostics use Minecraft's queued `schedule` API: SUMR measures error text and
+may upload glyphs immediately, which is unsafe during a lazy `setPipeline` call
+inside an open Metal pass. Shader recovery itself stays synchronous.
 
 The installed binary's backend guard, fallback provider and cache-bypass contract
 were inspected directly; implementation is independent of SUMR's licensed source.
@@ -122,6 +125,25 @@ The packaged `SumrTitle`, `SumrDefaultTitle` and `SumrAbsentTitle` fixtures chec
 the exact optional JAR, explicit activation, absent-mod class loading, default-off
 behavior, fallback/recovery pixels, native cache replacement, diagnostics and
 actual SUMR hot reload. These fixtures do not validate the entire SkyBlock modpack.
+
+Physical Apple M3 Pro / ARM64 Java 25.0.3 / macOS 27.0.1 validation on 2026-10-07,
+with `MTL_DEBUG_LAYER=1`: root build, both native distributions, artifact separation
+and all **444** tests pass (172 per main-mod target, 48 retained addon tests,
+52 26.2 addon tests), without skips. All three packaged SUMR fixtures pass with
+rendered title captures and verified native cleanup. The enabled fixture also
+checks missing-stage lazy recovery, both shader-stage failures, a structural
+layout rejection, fallback/recovery pixels and the actual SUMR hot reload. Its
+final title capture has no unsupported-backend warning. The default-off fixture
+retains SUMR's warning; the absent-mod fixture loads successfully with the opt-in
+property set and no SUMR classes present. These are isolated fixtures, not a live
+Hypixel or full-modpack run.
+
+The tested 26.2 addon SHA-256 is
+`8b2d2ea59c6e4698220c43664a53378dd2e01ad0616ab270506b735e87fe0bc9`.
+Local evidence: `/tmp/eviemetal-sumr-queued-build.log`,
+`/tmp/eviemetal-sumr-queued-enabled.log`,
+`/tmp/eviemetal-sumrdefaulttitle.log`, `/tmp/eviemetal-sumrabsenttitle.log`, and
+`metal-addon-26.2/build/packagedSmoke/sumr*/metal-smoke.png`.
 
 The report records the baseline commit, actual game/Sodium interfaces inspected,
 rendering regressions, packaged lifecycle results and limits. These are local
