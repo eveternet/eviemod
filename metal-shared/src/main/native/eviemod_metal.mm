@@ -687,14 +687,16 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
     @autoreleasepool {
         // ponytail: one cached pipeline per (color, depth) format pair; only a couple of combinations exist.
         if (!gClearPipelines) gClearPipelines = [NSMutableDictionary new];
-        NSNumber* key = @((color ? colorFormat : 15) * 16 + (depth ? 1 : 0));
+        MTLPixelFormat colorPixelFormat = color ? pixelFormat(colorFormat) : MTLPixelFormatInvalid;
+        MTLPixelFormat depthPixelFormat = depth ? OBJ(id<MTLTexture>, depth).pixelFormat : MTLPixelFormatInvalid;
+        NSNumber* key = @(((uint64_t)colorPixelFormat << 32) | (uint64_t)depthPixelFormat);
         id<MTLRenderPipelineState> pso = gClearPipelines[key];
         if (!pso) {
             MTLRenderPipelineDescriptor* d = [MTLRenderPipelineDescriptor new];
             d.vertexFunction = [gBuiltins newFunctionWithName:@"clear_vs"];
             d.fragmentFunction = [gBuiltins newFunctionWithName:@"clear_fs"];
-            if (color) d.colorAttachments[0].pixelFormat = pixelFormat(colorFormat);
-            if (depth) d.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+            if (color) d.colorAttachments[0].pixelFormat = colorPixelFormat;
+            if (depth) d.depthAttachmentPixelFormat = depthPixelFormat;
             NSError* error = nil;
             pso = gClearPipelines[key] = [gDevice newRenderPipelineStateWithDescriptor:d error:&error];
             if (!pso) return throwJava(env, error.localizedDescription);
@@ -706,7 +708,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
         [gRender setCullMode:MTLCullModeNone];
         [gRender setTriangleFillMode:MTLTriangleFillModeFill];
         [gRender setDepthBias:0 slopeScale:0 clamp:0];
-        if (depth) [gRender setDepthStencilState:gClearDepthState];
+        [gRender setDepthStencilState:depth ? gClearDepthState : nil];
         [gRender setScissorRect:(MTLScissorRect){(NSUInteger)x, (NSUInteger)y, (NSUInteger)w, (NSUInteger)h}];
         [gRender setVertexBytes:&params length:sizeof(params) atIndex:0];
         [gRender setFragmentBytes:&params length:sizeof(params) atIndex:0];

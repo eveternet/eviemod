@@ -221,6 +221,36 @@ class Metal26RenderTest {
         } finally {device.close();}
     }
 
+    @Test void partialClearPipelinesDistinguishDepthFormats() {
+        NativeLoader.load(); var device = new MetalDevice(0, (id, type) -> null);
+        try (var color = (MetalTexture) device.createTexture("clear-color", GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC,
+                GpuFormat.RGBA8_UNORM, 4, 4, 1, 1);
+             var colors = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 1024);
+             var depths = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 1024)) {
+            var encoder = device.createCommandEncoder();
+            for (var format : new GpuFormat[]{GpuFormat.D32_FLOAT, GpuFormat.D16_UNORM}) {
+                try (var depth = (MetalTexture) device.createTexture("clear-depth", GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC,
+                        format, 4, 4, 1, 1)) {
+                    encoder.clearColorAndDepthTextures(color, new Vector4f(1, 0, 0, 1), depth, 0);
+                    encoder.clearColorAndDepthTextures(color, new Vector4f(0, 0, 1, 1), depth, 1, 1, 1, 2, 2);
+                    Mtl.copyTextureToBuffer(color.handle, 0, 0, 0, 4, 4, colors.handle, 0, 256);
+                    Mtl.copyTextureToBuffer(depth.handle, 0, 0, 0, 4, 4, depths.handle, 0, 256);
+                    assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+                    assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(colors.address())));
+                    assertEquals(255, Byte.toUnsignedInt(MemoryUtil.memGetByte(colors.address() + 256 + 4 + 2)));
+                    if (format == GpuFormat.D32_FLOAT) {
+                        assertEquals(0, MemoryUtil.memGetFloat(depths.address()));
+                        assertEquals(1, MemoryUtil.memGetFloat(depths.address() + 256 + 4));
+                    } else {
+                        assertEquals(0, Short.toUnsignedInt(MemoryUtil.memGetShort(depths.address())));
+                        assertEquals(65535, Short.toUnsignedInt(MemoryUtil.memGetShort(depths.address() + 256 + 2)));
+                    }
+                    Mtl.checkError();
+                }
+            }
+        } finally { device.close(); }
+    }
+
     @Test void repeatedResizeCopiesPartialMapsRelocationAndTimestampViewReplacement() {
         NativeLoader.load(); var device=new MetalDevice(0,(id,type)->null);
         MetalBuffer buffer=new MetalBuffer(GpuBuffer.USAGE_COPY_SRC|GpuBuffer.USAGE_COPY_DST|GpuBuffer.USAGE_MAP_WRITE|GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER,1024);
