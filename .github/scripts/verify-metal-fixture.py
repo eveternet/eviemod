@@ -28,6 +28,8 @@ if flavor == "Sodium":
                      "EVIEMETAL_SODIUM_RESIZE_OK timestampResizes=3"]
         if result.returncode == 0:
             assert text.count("EVIEMETAL_SODIUM_OWNERSHIP_OK") == 2, "Missing both world unload checks"
+if result.returncode == 0 and "Shutdown failure" in text:
+    raise AssertionError(f"Client logged a shutdown failure; see {log}")
 if result.returncode == 0 and all(marker in text for marker in required):
     print(f"EVIEMETAL_PACKAGED_FIXTURE_OK module={module} flavor={flavor}", flush=True)
     sys.exit(0)

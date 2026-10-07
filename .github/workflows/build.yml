@@ -24,7 +24,9 @@ jobs:
       - name: Build
         run: ./gradlew build
       - name: Verify independently loadable artifacts
-        run: python3 .github/scripts/verify-metal-artifacts.py
+        run: |
+          python3 .github/scripts/verify-metal-artifacts.py
+          python3 .github/scripts/report-metal-tests.py
       - name: Resolve actual Minecraft 26.2 sources for the final port review
         run: |
           ./gradlew :metal-addon-26.2:genSources --no-daemon
