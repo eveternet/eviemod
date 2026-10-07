@@ -384,6 +384,9 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_bufferContents(JNIEnv*, j
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyBuffer(JNIEnv*, jclass, jlong src, jlong srcOffset, jlong dst, jlong dstOffset, jlong length) {
     @autoreleasepool {
+        // Empty Sodium arena ranges are valid no-ops; Metal rejects zero-byte blits.
+        // Return before blit() so an empty copy cannot interrupt a live render encoder.
+        if (length == 0) return;
         [blit() copyFromBuffer:OBJ(id<MTLBuffer>, src) sourceOffset:srcOffset toBuffer:OBJ(id<MTLBuffer>, dst) destinationOffset:dstOffset size:length];
     }
 }

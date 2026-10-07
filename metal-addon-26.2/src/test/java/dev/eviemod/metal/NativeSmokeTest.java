@@ -84,7 +84,13 @@ class NativeSmokeTest {
             assertNotEquals(0, texture);
             assertNotEquals(0, upload);
             assertNotEquals(0, readback);
+            MemoryUtil.memPutInt(Mtl.bufferContents(readback), 12345);
+            Mtl.copyBuffer(upload, 256, readback, 256, 0);
+            assertEquals(12345, MemoryUtil.memGetInt(Mtl.bufferContents(readback)));
             Mtl.beginPass(texture, true, 1, 0, 0, 1, 0, false, 1);
+            long generation = Mtl.renderEncoderGeneration();
+            Mtl.copyBuffer(upload, 0, readback, 0, 0);
+            assertEquals(generation, Mtl.renderEncoderGeneration(), "Empty copy interrupted the render pass");
             Mtl.endPass();
             Mtl.copyTextureToBuffer(texture, 0, 0, 0, 1, 1, readback, 0, 256);
             assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
