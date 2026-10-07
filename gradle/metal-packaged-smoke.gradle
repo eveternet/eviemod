@@ -88,6 +88,8 @@ flavors.each { flavor ->
                 }
                 if (sumr.size() != 1) throw new GradleException("Expected exact SUMR Fabric artifact: ${sumr}")
                 java.nio.file.Files.copy(sumr.first().file.toPath(), new File(mods, 'sumr.jar').toPath())
+                def fabricApi = configurations.sumrSmokeMods.singleFile
+                java.nio.file.Files.copy(fabricApi.toPath(), new File(mods, 'fabric-api.jar').toPath())
             }
             if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium', 'UnsupportedSodium']) {
                 def pinned = sodiumFiles.files.findAll { it.name == "sodium-mc${target}-0.9.2-fabric.jar" }

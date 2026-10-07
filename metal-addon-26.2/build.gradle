@@ -13,6 +13,7 @@ repositories {
     mavenCentral()
     maven { url = 'https://api.modrinth.com/maven' }
 }
+configurations { sumrSmokeMods { transitive = false } }
 dependencies {
     minecraft "com.mojang:minecraft:${minecraftVersion}"
     compileOnly "maven.modrinth:sodium:mc${minecraftVersion}-0.9.2-fabric"
@@ -20,6 +21,8 @@ dependencies {
     // Optional integration only; never bundle SUMR or add it to ordinary launches.
     compileOnly 'maven.modrinth:awyrq9la:lvciRP6I' // SUMR 1.5.1+26.2 Fabric
     testImplementation 'maven.modrinth:awyrq9la:lvciRP6I'
+    // SUMR's keybind entrypoint requires Fabric API even though its metadata does not declare it.
+    sumrSmokeMods 'net.fabricmc.fabric-api:fabric-api:0.161.0+26.2'
     implementation 'net.fabricmc:fabric-loader:0.19.5'
     // Match the LWJGL ABI shipped by Minecraft 26.2 (verified from its manifest).
     ['lwjgl-shaderc', 'lwjgl-spvc'].each { module ->
