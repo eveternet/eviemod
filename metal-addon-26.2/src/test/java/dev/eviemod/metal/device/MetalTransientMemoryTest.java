@@ -12,6 +12,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class MetalTransientMemoryTest {
+    @Test void multipleUploadSourcesKeepUpstreamAlignmentAndPartialAllocation() {
+        NativeLoader.load(); var device = new MetalDevice(0, (id, type) -> null);
+        var first = MemoryUtil.memAlloc(3); var second = MemoryUtil.memAlloc(17);
+        try (var memory = new MetalTransientMemory()) {
+            first.put(0, (byte) 11).put(1, (byte) 12).put(2, (byte) 13);
+            for (int i = 0; i < 17; i++) second.put(i, (byte) (21 + i));
+            var full = memory.uploadGpu(List.of(first, second), 16, GpuBuffer.USAGE_COPY_SRC);
+            assertEquals(48, full.length());
+            try (var map = full.map(true, false)) {
+                assertEquals(13, map.data().get(2)); assertEquals(21, map.data().get(16)); assertEquals(37, map.data().get(32));
+            }
+            memory.allocateGpu(524288 - 48 - 32, 16, GpuBuffer.USAGE_VERTEX);
+            var partial = memory.uploadStaging(List.of(first, second), 16, GpuBuffer.USAGE_COPY_SRC, 16, 1);
+            assertEquals(32, partial.length());
+            try (var map = partial.map(true, false)) {
+                assertEquals(13, map.data().get(2)); assertEquals(21, map.data().get(16)); assertEquals(36, map.data().get(31));
+            }
+            assertEquals(0, first.position()); assertEquals(0, second.position());
+            Mtl.checkError();
+        } finally { MemoryUtil.memFree(first); MemoryUtil.memFree(second); device.close(); }
+    }
+
     @Test void partialUploadAndRotationKeepSubmittedCopiesIntact() {
         NativeLoader.load(); var device=new MetalDevice(0,(id,type)->null);
         var source=MemoryUtil.memAlloc(256);

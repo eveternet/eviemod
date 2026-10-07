@@ -71,6 +71,11 @@ class Metal26RenderTest {
                     .withColorAttachment(view).withDepthAttachment(depthView).withRenderArea(new RenderPass.RenderArea(1,1,2,2)))) {
                 pass.setPipeline(pipeline); pass.setVertexBuffer(0,vb.slice(16,108)); pass.setVertexBuffer(1,colors.slice());
                 pass.setUniform("Tint",uniform.slice(256,16)); pass.setIndexBuffer(ib,IndexType.INT);
+                assertThrows(IllegalArgumentException.class, () -> pass.setVertexBuffer(0, new com.mojang.blaze3d.buffers.GpuBufferSlice(vb, 255, 16)));
+                assertThrows(IllegalArgumentException.class, () -> pass.draw(-1, 1, 0, 0));
+                assertThrows(IllegalArgumentException.class, () -> pass.draw(10, 1, 0, 0));
+                assertThrows(IllegalArgumentException.class, () -> pass.drawIndexed(3, 1, 15, 0, 0));
+                assertThrows(IllegalArgumentException.class, () -> pass.drawIndexed(3, 1, 3, 3, 4));
                 pass.drawIndexed(3,1,3,3,1);
                 if (timestamps) pass.writeTimestamp(queries,0);
                 // Farther green geometry must fail reversed depth, after the timestamp encoder interruption.
@@ -137,6 +142,57 @@ class Metal26RenderTest {
             assertThrows(IllegalStateException.class,()->times.texelView(GpuFormat.R32_SINT,1,256));
             Mtl.checkError();
         }finally{device.close();}
+    }
+
+    @Test void equalVertexFormatsWithDifferentStepRatesDoNotAliasPipelineLayouts() {
+        NativeLoader.load();
+        var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX
+                ? "#version 330\nin vec3 Position;in vec4 Color;out vec4 tint;void main(){gl_Position=vec4(Position,1);tint=Color;}"
+                : "#version 330\nin vec4 tint;out vec4 color;void main(){color=tint;}");
+        try {
+            var one = VertexFormat.builder(1).addAttribute("Color", GpuFormat.RGBA32_FLOAT).build();
+            var two = VertexFormat.builder(2).addAttribute("Color", GpuFormat.RGBA32_FLOAT).build();
+            assertEquals(one, two); // Upstream equals deliberately does not include step rate.
+            var a = layoutPipeline(one); var b = layoutPipeline(two);
+            var compiledA = device.getOrCompilePipeline(a); var compiledB = device.getOrCompilePipeline(b);
+            assertNotSame(compiledA, compiledB);
+            assertSame(compiledA, device.getOrCompilePipeline(a));
+            assertNotEquals(compiledA.state(MetalFormats.texture(GpuFormat.RGBA8_UNORM), -1),
+                    compiledB.state(MetalFormats.texture(GpuFormat.RGBA8_UNORM), -1));
+            var matrix = VertexFormat.builder(1).addAttribute("Color", GpuFormat.RGBA32_FLOAT, 2).build();
+            assertThrows(UnsupportedOperationException.class, () -> device.getOrCompilePipeline(layoutPipeline(matrix)));
+            Mtl.checkError();
+        } finally { device.close(); }
+    }
+
+    private static RenderPipeline layoutPipeline(VertexFormat color) {
+        return RenderPipeline.builder().withLocation(Identifier.parse("fixture:same-layout-location"))
+                .withVertexShader(Identifier.parse("fixture:layout")).withFragmentShader(Identifier.parse("fixture:layout"))
+                .withVertexBinding(0, DefaultVertexFormat.POSITION).withVertexBinding(1, color)
+                .withPrimitiveTopology(PrimitiveTopology.TRIANGLES).withColorTargetState(ColorTargetState.DEFAULT).withCull(false).build();
+    }
+
+    @Test void invalidCopySlicesAndHeapSourcesFailBeforeNativeAccessAndMappingsCloseOnce() {
+        NativeLoader.load(); var device = new MetalDevice(0, (id, type) -> null);
+        var bytes = MemoryUtil.memAlloc(8);
+        try (var source = new MetalBuffer(GpuBuffer.USAGE_COPY_SRC | GpuBuffer.USAGE_COPY_DST, 64);
+             var destination = new MetalBuffer(GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ | GpuBuffer.USAGE_MAP_WRITE, 64)) {
+            var encoder = device.createCommandEncoder();
+            bytes.putLong(0, 0x123456789abcdefL);
+            assertThrows(IllegalArgumentException.class, () -> encoder.writeToBuffer(new com.mojang.blaze3d.buffers.GpuBufferSlice(source, 63, 8), bytes));
+            assertThrows(IllegalArgumentException.class, () -> encoder.copyToBuffer(new com.mojang.blaze3d.buffers.GpuBufferSlice(source, Long.MAX_VALUE, 8), destination.slice(0, 8)));
+            assertThrows(IllegalArgumentException.class, () -> device.createBuffer(null, GpuBuffer.USAGE_VERTEX, java.nio.ByteBuffer.allocate(8)));
+            assertEquals(Math.min(Integer.MAX_VALUE, Mtl.maxBufferLength()), device.getDeviceInfo().limits().maxMemoryAllocationSize());
+            assertThrows(com.mojang.blaze3d.GpuOutOfMemoryException.class, () -> device.createBuffer(null, GpuBuffer.USAGE_VERTEX, device.getDeviceInfo().limits().maxMemoryAllocationSize() + 1));
+            encoder.writeToBuffer(source.slice(8, 8), bytes);
+            encoder.copyToBuffer(source.slice(8, 8), destination.slice(0, 8));
+            try (var read = destination.map(0, 8, true, false)) { assertEquals(bytes.getLong(0), read.data().getLong(0)); }
+            var write = destination.map(0, 8, false, true);
+            write.data().putLong(0, 42);
+            write.close(); write.close();
+            try (var read = destination.map(0, 8, true, false)) { assertEquals(42, read.data().getLong(0)); }
+            Mtl.checkError();
+        } finally { MemoryUtil.memFree(bytes); device.close(); }
     }
 
     @Test void textureCopyUsesSliceSourceOriginStrideAndDestinationOrigin() {

@@ -22,6 +22,14 @@ public final class SurfaceSmoke {
         GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API);
         long window = GLFW.glfwCreateWindow(320, 240, "Eviemetal surface fixture", 0, 0);
         if (window == 0) throw new IllegalStateException("Surface fixture window creation failed");
+        String addon = dev.eviemod.metal.EvieMetal.class.getProtectionDomain().getCodeSource().getLocation().toString();
+        if (!addon.endsWith(".jar")) throw new AssertionError("Surface fixture requires the distribution JAR: " + addon);
+        for (Class<?> tool : new Class<?>[]{org.lwjgl.util.shaderc.Shaderc.class, org.lwjgl.util.spvc.Spvc.class}) {
+            String source = tool.getProtectionDomain().getCodeSource().getLocation().toString();
+            if (!source.contains("/packagedSmoke/surface-tools/") || !source.endsWith(".jar"))
+                throw new AssertionError("Surface shader tool must be extracted from the packaged nested JAR: " + source);
+            System.out.println("EVIEMETAL_SURFACE_SHADER_TOOL_SOURCE " + source);
+        }
         NativeLoader.load();
         var device = new MetalDevice(window, (id, type) -> null);
         try {
@@ -55,6 +63,9 @@ public final class SurfaceSmoke {
             System.out.println("EVIEMETAL_SURFACE_OK mc=26.2 backend=" + device.getBackendName());
         } finally {
             device.close();
+            if (Mtl.hasLiveContext() || Mtl.allocatedBytes() != 0 || Mtl.completedFence() != 0)
+                throw new AssertionError("Surface fixture left native context alive");
+            System.out.println("EVIEMETAL_SURFACE_CLOSED_OK");
             GLFW.glfwDestroyWindow(window);
             GLFW.glfwTerminate();
         }

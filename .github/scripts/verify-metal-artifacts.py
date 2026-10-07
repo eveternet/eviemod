@@ -3,6 +3,7 @@ import glob
 import json
 import zipfile
 import io
+import hashlib
 
 
 def artifact(pattern):
@@ -19,6 +20,7 @@ for directory, target, dandelion in (
     with artifact(f"{directory}/libs/eviemod-*-mc{target}.jar") as main:
         mod = json.loads(main.read("fabric.mod.json"))
         assert mod["id"] == "eviemod"
+        assert mod["version"] == "1.3.1.0"
         assert mod["depends"]["minecraft"] == target
         assert mod["depends"]["dandelion"] == f">={dandelion}"
         assert "${" not in main.read("fabric.mod.json").decode()
@@ -48,6 +50,8 @@ for directory, target, dandelion in (
         assert nested_mods["dandelion"]["version"] == dandelion
 
 versions = set()
+native_digests = []
+bridge_class_digests = []
 for target in ("26.1.2", "26.2"):
     with artifact(f"build/distributions/metal/eviemod-metal-mc{target}-*.jar") as addon:
         mod = json.loads(addon.read("fabric.mod.json"))
@@ -59,6 +63,7 @@ for target in ("26.1.2", "26.2"):
         assert addon.filename.endswith(f"mc{target}-{mod['version']}.jar")
         assert "${" not in addon.read("fabric.mod.json").decode()
         assert "dev/eviemod/metal/mtl/Mtl.class" in addon.namelist()
+        bridge_class_digests.append(hashlib.sha256(addon.read("dev/eviemod/metal/mtl/Mtl.class")).hexdigest())
         assert "dev/eviemod/metal/shader/ShaderTranslator.class" in addon.namelist()
         assert ("dev/eviemod/metal/device/MetalSurface.class" in addon.namelist()) == (target == "26.2")
         assert not any(n.startswith("dev/eviemod/paintbrush/") for n in addon.namelist())
@@ -68,9 +73,12 @@ for target in ("26.1.2", "26.2"):
         assert all("3.4.1" in name for name in nested), nested
         assert not any("sodium" in name for name in nested)
         if "natives/libeviemod_metal.dylib" in addon.namelist():
+            native_digests.append(hashlib.sha256(addon.read("natives/libeviemod_metal.dylib")).hexdigest())
             import struct
             magic, cpu = struct.unpack_from("<II", addon.read("natives/libeviemod_metal.dylib"))
             assert magic == 0xfeedfacf and cpu == 0x0100000c, "Expected thin arm64 Mach-O native bridge"
-assert len(versions) == 1, versions
+assert versions == {"0.2.0.0"}, versions
+assert len(set(bridge_class_digests)) == 1, "Both adapters must use the same shared JNI interface"
+assert len(native_digests) in (0, 2) and len(set(native_digests)) <= 1, "Native bridge must be present in both addons and byte-identical"
 assert len(glob.glob("build/distributions/metal/*.jar")) == 2
 print("26.1.2 and 26.2 main mods and separately versioned Metal addons verified")

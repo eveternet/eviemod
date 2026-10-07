@@ -32,7 +32,9 @@ tasks.register('metalDistributions', Sync) {
 }
 tasks.named('build') { dependsOn 'metalDistributions' }
 tasks.register('verifyPackagedMetal') {
-    dependsOn ':metal-addon:packagedVanillaSmoke', ':metal-addon:packagedSodiumSmoke',
+    dependsOn ':metal-addon:packagedTitleSmoke', ':metal-addon:packagedSodiumTitleSmoke',
+            ':metal-addon-26.2:packagedTitleSmoke', ':metal-addon-26.2:packagedSodiumTitleSmoke',
+            ':metal-addon:packagedVanillaSmoke', ':metal-addon:packagedSodiumSmoke',
             ':metal-addon-26.2:packagedSurfaceSmoke', ':metal-addon-26.2:packagedVanillaSmoke', ':metal-addon-26.2:packagedSodiumSmoke'
 }
 

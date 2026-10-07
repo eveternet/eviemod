@@ -105,13 +105,23 @@ flavors.each { flavor ->
     }
 }
 if (target == '26.2') {
+    def surfaceTools = layout.buildDirectory.dir('packagedSmoke/surface-tools')
+    def stageSurfaceTools = tasks.register('stageSurfaceShaderTools', Sync) {
+        dependsOn 'jar'
+        from({ zipTree(jarProvider.get().asFile) }) {
+            include 'META-INF/jars/*shaderc*.jar', 'META-INF/jars/*spvc*.jar'
+            eachFile { path = name }
+        }
+        into surfaceTools
+        includeEmptyDirs = false
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
     tasks.register('packagedSurfaceSmoke', JavaExec) {
         group = 'verification'
-        dependsOn 'smokeTestClasses', 'jar'
-        classpath = packagedClasspath + files(jarProvider)
+        dependsOn 'smokeTestClasses', stageSurfaceTools
+        classpath = clientClasspath + files(jarProvider) + fileTree(surfaceTools)
         javaLauncher = javaToolchains.launcherFor(java.toolchain)
         mainClass = 'dev.eviemod.metal.device.SurfaceSmoke'
         jvmArgs '-XstartOnFirstThread', '--enable-native-access=ALL-UNNAMED', '--sun-misc-unsafe-memory-access=allow'
     }
 }
-

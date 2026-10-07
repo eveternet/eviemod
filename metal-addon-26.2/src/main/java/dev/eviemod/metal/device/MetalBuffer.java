@@ -28,7 +28,10 @@ public class MetalBuffer extends GpuBuffer {
 
     private void allocate() {
         // MSL rounds uniform structs up to their 16-byte alignment, while std140 sizes from Blaze3D are exact.
-        long next = Mtl.newBuffer((size() + 15) & ~15L);
+        long paddedSize = size() > 0 && size() <= Integer.MAX_VALUE ? (size() + 15) & ~15L : 0;
+        if (paddedSize == 0 || paddedSize > Mtl.maxBufferLength())
+            throw new com.mojang.blaze3d.GpuOutOfMemoryException("Buffer exceeds Metal allocation limit: " + size());
+        long next = Mtl.newBuffer(paddedSize);
         if (next == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Could not allocate buffer of " + size());
         handle = next;
         contents = Mtl.bufferContents(handle);
@@ -66,6 +69,7 @@ public class MetalBuffer extends GpuBuffer {
     }
 
     long storageGeneration() { return storageGeneration; }
+    boolean hasPendingGpuWrite() { return lastGpuWrite > Mtl.completedFence(); }
 
     /** Texture view used when this buffer is bound as a samplerBuffer (texel buffer). */
     long texelView(GpuFormat format, long offset, long length) {
@@ -95,7 +99,9 @@ public class MetalBuffer extends GpuBuffer {
             throw new IllegalStateException("Buffer mapping fence timed out");
         }
         MemoryUtil.memCopy(contents + offset, stagingAddress, length);
+        var mappedClosed = new java.util.concurrent.atomic.AtomicBoolean();
         return new com.mojang.blaze3d.buffers.GpuBufferSlice.MappedView(slice, staging, () -> {
+            if (!mappedClosed.compareAndSet(false, true)) return;
             try {
                 if (closed) throw new IllegalStateException("Buffer closed while mapped");
                 if (length == 0) return;

@@ -123,8 +123,10 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     @Override
     public void writeToBuffer(GpuBufferSlice slice, ByteBuffer data) {
         assertNoRenderPass();
+        MetalRanges.slice(slice, GpuBuffer.USAGE_COPY_DST);
         int length = data.remaining();
         if (length == 0) return;
+        if (!data.isDirect()) throw new IllegalArgumentException("Buffer upload source must be direct");
         if (length > slice.length()) throw new IllegalArgumentException("Cannot write more data than the slice allows (attempting to write " + length + " bytes into a slice of length " + slice.length() + ")");
         MetalBuffer buffer = (MetalBuffer) slice.buffer();
         // Orphaning keeps writes out of blit encoders, which would split the surrounding render passes.
@@ -138,7 +140,10 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     @Override
     public void copyToBuffer(GpuBufferSlice src, GpuBufferSlice dst) {
         assertNoRenderPass();
+        MetalRanges.slice(src, GpuBuffer.USAGE_COPY_SRC);
+        MetalRanges.slice(dst, GpuBuffer.USAGE_COPY_DST);
         if (src.length() != dst.length()) throw new IllegalArgumentException("Cannot copy from slice of size " + src.length() + " to slice of size " + dst.length() + ", they must be equal");
+        if (src.length() == 0) return;
         Mtl.copyBuffer(((MetalBuffer) src.buffer()).handle, src.offset(), ((MetalBuffer) dst.buffer()).handle, dst.offset(), src.length());
         ((MetalBuffer) dst.buffer()).markGpuWrite();
     }
@@ -147,6 +152,7 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         assertNoRenderPass(); checkTextureWrite(texture, mip, layer, x, y, w, h);
         if (w == 0 || h == 0 || mip >= ((MetalTexture) texture).metalMips) return;
         int bytes = texture.getFormat().blockSize();
+        if (!data.isDirect()) throw new IllegalArgumentException("Texture upload source must be direct");
         if ((long) w * h * bytes > data.remaining()) throw new IllegalArgumentException("Texture upload exceeds source buffer");
         upload(texture, MemoryUtil.memAddress(data), (long) w * bytes, bytes, mip, layer, x, y, w, h);
     }
@@ -155,17 +161,22 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         assertNoRenderPass(); checkTextureWrite(texture, mip, layer, x, y, w, h);
         if (w == 0 || h == 0 || mip >= ((MetalTexture) texture).metalMips) return;
         int bytes = texture.getFormat().blockSize();
-        long offset = ((long) sourceY * rowLength + sourceX) * bytes;
-        long end = offset + ((long) (h - 1) * rowLength + w) * bytes;
+        MetalRanges.slice(source, GpuBuffer.USAGE_COPY_SRC);
+        if (sourceX < 0 || sourceY < 0 || rowLength < 0 || imageHeight < 0
+                || sourceX > rowLength || w > rowLength - sourceX || sourceY > imageHeight || h > imageHeight - sourceY)
+            throw new IllegalArgumentException("Texture copy exceeds source image rectangle");
+        long offset = Math.multiplyExact(Math.addExact(Math.multiplyExact((long) sourceY, rowLength), sourceX), bytes);
+        long end = Math.addExact(offset, Math.multiplyExact(Math.addExact(Math.multiplyExact((long) (h - 1), rowLength), w), bytes));
         if (offset < 0 || end > source.length()) throw new IllegalArgumentException("Texture copy exceeds buffer slice");
-        Mtl.copyBufferToTexture(((MetalBuffer) source.buffer()).handle, source.offset() + offset, rowLength * bytes,
+        Mtl.copyBufferToTexture(((MetalBuffer) source.buffer()).handle, source.offset() + offset, Math.multiplyExact(rowLength, bytes),
                 handle(texture), layer, mip, x, y, w, h);
     }
 
     private static void checkTextureWrite(GpuTexture texture, int mip, int layer, int x, int y, int w, int h) {
         if (x < 0 || y < 0 || w < 0 || h < 0 || layer < 0) throw new IllegalArgumentException("Negative texture copy range");
         if (mip < 0 || mip >= texture.getMipLevels()) throw new IllegalArgumentException("Invalid mipLevel " + mip + ", must be >= 0 and < " + texture.getMipLevels());
-        if (x + w > texture.getWidth(mip) || y + h > texture.getHeight(mip)) {
+        if (x > texture.getWidth(mip) || y > texture.getHeight(mip)
+                || w > texture.getWidth(mip) - x || h > texture.getHeight(mip) - y) {
             throw new IllegalArgumentException("Dest texture (" + texture.getWidth(mip) + "x" + texture.getHeight(mip) + ") is not large enough to write a rectangle of " + w + "x" + h + " at " + x + "x" + y);
         }
         if (texture.isClosed()) throw new IllegalStateException("Destination texture is closed");
@@ -206,11 +217,11 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     public void copyTextureToBuffer(GpuTexture texture, GpuBuffer buffer, long offset, Runnable callback, int mip, int x, int y, int w, int h) {
         assertNoRenderPass();
         if (mip < 0 || mip >= texture.getMipLevels()) throw new IllegalArgumentException("Invalid mipLevel " + mip + ", must be >= 0 and < " + texture.getMipLevels());
-        if ((long) w * h * texture.getFormat().blockSize() + offset > buffer.size()) {
-            throw new IllegalArgumentException("Buffer of size " + buffer.size() + " is not large enough to hold " + w + "x" + h + " pixels (" + texture.getFormat().blockSize() + " bytes each) starting from offset " + offset);
-        }
+        MetalRanges.rectangle(x, y, w, h, texture.getWidth(mip), texture.getHeight(mip));
+        MetalRanges.buffer(buffer, offset, (long) w * h * texture.getFormat().blockSize(), GpuBuffer.USAGE_COPY_DST);
         if (texture.isClosed()) throw new IllegalStateException("Source texture is closed");
         if (buffer.isClosed()) throw new IllegalStateException("Destination buffer is closed");
+        if (w == 0 || h == 0) { RenderSystem.queueFencedTask(callback); return; }
         ((MetalBuffer) buffer).markGpuWrite();
         if (mip < ((MetalTexture) texture).metalMips) Mtl.copyTextureToBuffer(handle(texture), mip, x, y, w, h, ((MetalBuffer) buffer).handle, offset, w * texture.getFormat().blockSize());
         RenderSystem.queueFencedTask(callback);
@@ -221,6 +232,10 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
         assertNoRenderPass();
         if (src.isClosed()) throw new IllegalStateException("Source texture is closed");
         if (dst.isClosed()) throw new IllegalStateException("Destination texture is closed");
+        if (mip < 0 || mip >= src.getMipLevels() || mip >= dst.getMipLevels()) throw new IllegalArgumentException("Invalid mip level");
+        MetalRanges.rectangle(srcX, srcY, w, h, src.getWidth(mip), src.getHeight(mip));
+        MetalRanges.rectangle(dstX, dstY, w, h, dst.getWidth(mip), dst.getHeight(mip));
+        if (w == 0 || h == 0) return;
         if (mip < Math.min(((MetalTexture) src).metalMips, ((MetalTexture) dst).metalMips)) Mtl.copyTextureToTexture(handle(src), handle(dst), mip, dstX, dstY, srcX, srcY, w, h);
     }
 

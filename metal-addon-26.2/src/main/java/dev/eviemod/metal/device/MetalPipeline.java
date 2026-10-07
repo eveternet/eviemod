@@ -34,6 +34,7 @@ public class MetalPipeline implements CompiledRenderPipeline {
     final int primitive;
     final int cull;
     boolean hasMissingAttributes;
+    final boolean[] requiredVertexSlots = new boolean[4];
     record BufferSlot(String name, int index) {}
     record TextureSlot(String name, int index, int samplerIndex, GpuFormat texelFormat) {}
     record DefaultSlot(String name, int offset) {}
@@ -55,6 +56,18 @@ public class MetalPipeline implements CompiledRenderPipeline {
         this.vertex = vertex;
         this.fragment = fragment;
         BindGroupLayout.ensureCompatible(info.getBindGroupLayouts());
+        var formats = info.getVertexFormatBindings();
+        for (int slot = 0; slot < formats.length; slot++) {
+            var format = formats[slot];
+            if (format == null) continue;
+            if (slot >= requiredVertexSlots.length) throw new UnsupportedOperationException("Metal supports vertex binding slots 0–3; requested " + slot);
+            if (format.getStepRate() < 0) throw new IllegalArgumentException("Negative vertex step rate");
+            var names = new java.util.HashSet<String>();
+            for (var element : format.getElements()) {
+                if (!names.add(element.name())) throw new UnsupportedOperationException("Metal matrix vertex attributes are not supported");
+                requiredVertexSlots[slot] |= vertex.inputs().containsKey(element.name());
+            }
+        }
         this.vertexPlan = bindingPlan(vertex);
         this.fragmentPlan = bindingPlan(fragment);
         this.vertexFn = vertexFn;

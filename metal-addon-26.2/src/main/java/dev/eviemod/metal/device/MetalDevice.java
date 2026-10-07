@@ -67,6 +67,8 @@ public class MetalDevice implements GpuDeviceBackend {
 
     @Override
     public GpuTexture createTexture(@Nullable String label, int usage, GpuFormat format, int width, int height, int depthOrLayers, int mipLevels) {
+        if (width < 1 || height < 1 || width > getMaxTextureSize() || height > getMaxTextureSize())
+            throw new IllegalArgumentException("Texture dimensions exceed Metal limits");
         if (mipLevels < 1) throw new IllegalArgumentException("mipLevels must be at least 1");
         if (depthOrLayers < 1) throw new IllegalArgumentException("depthOrLayers must be at least 1");
         boolean cube = (usage & GpuTexture.USAGE_CUBEMAP_COMPATIBLE) != 0;
@@ -88,7 +90,7 @@ public class MetalDevice implements GpuDeviceBackend {
     @Override
     public GpuTextureView createTextureView(GpuTexture texture, int baseMip, int mipLevels) {
         if (texture.isClosed()) throw new IllegalArgumentException("Can't create texture view with closed texture");
-        if (baseMip < 0 || baseMip + mipLevels > texture.getMipLevels()) {
+        if (baseMip < 0 || mipLevels < 1 || baseMip > texture.getMipLevels() || mipLevels > texture.getMipLevels() - baseMip) {
             throw new IllegalArgumentException(mipLevels + " mip levels starting from " + baseMip + " would be out of range for texture with only " + texture.getMipLevels() + " mip levels");
         }
         return new MetalTextureView((MetalTexture) texture, baseMip, mipLevels);
@@ -103,6 +105,7 @@ public class MetalDevice implements GpuDeviceBackend {
     @Override
     public GpuBuffer createBuffer(@Nullable Supplier<String> label, int usage, ByteBuffer data) {
         if (!data.hasRemaining()) throw new IllegalArgumentException("Buffer source must not be empty");
+        if (!data.isDirect()) throw new IllegalArgumentException("Buffer source must be direct");
         MetalBuffer buffer = new MetalBuffer(usage, data.remaining());
         // A fresh buffer isn't referenced by any queued GPU work yet, so a direct CPU write is correctly ordered.
         MemoryUtil.memCopy(MemoryUtil.memAddress(data), buffer.address(), data.remaining());
@@ -198,7 +201,7 @@ public class MetalDevice implements GpuDeviceBackend {
     }
     @Override public com.mojang.blaze3d.systems.DeviceInfo getDeviceInfo() {
         return new com.mojang.blaze3d.systems.DeviceInfo(deviceName, "Apple", "Metal / MSL 2.4", false, "Metal", 1.0f,
-                new com.mojang.blaze3d.systems.DeviceLimits(16, 256, Mtl.maxTextureSize(), Integer.MAX_VALUE, 0, 1),
+                new com.mojang.blaze3d.systems.DeviceLimits(16, 256, Mtl.maxTextureSize(), Math.min(Integer.MAX_VALUE, Mtl.maxBufferLength()), 0, 1),
                 new com.mojang.blaze3d.systems.DeviceFeatures(false, false, true, false, false, true, false),
                 java.util.Set.of(), new com.mojang.blaze3d.systems.HintsAndWorkarounds(false, false),
                 com.mojang.blaze3d.systems.DeviceType.INTEGRATED);

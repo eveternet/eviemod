@@ -48,7 +48,10 @@ final class MetalTransientMemory implements TransientMemory, AutoCloseable {
     }
     @Override public GpuBufferSlice uploadGpu(List<ByteBuffer> data, long alignment, int usage, long minimum, long elementSize) {
         long size = 0;
-        for (ByteBuffer bytes : data) size = align(size + bytes.remaining(), alignment);
+        for (ByteBuffer bytes : data) {
+            if (!bytes.isDirect()) throw new IllegalArgumentException("Transient upload requires direct buffers");
+            size = align(Math.addExact(size, bytes.remaining()), alignment);
+        }
         var slice = allocateGpu(size, alignment, usage, minimum, elementSize);
         long offset = 0;
         for (ByteBuffer bytes : data) {

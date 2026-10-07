@@ -11,6 +11,7 @@ assert manifest["id"] == "26.2", manifest["id"]
 required = [
     "com/mojang/blaze3d/systems/DeviceFeatures.java",
     "com/mojang/blaze3d/systems/DeviceLimits.java",
+    "com/mojang/blaze3d/systems/DeviceInfo.java",
     "com/mojang/blaze3d/systems/GpuDeviceBackend.java",
     "com/mojang/blaze3d/systems/GpuSurfaceBackend.java",
     "com/mojang/blaze3d/systems/RenderPassBackend.java",

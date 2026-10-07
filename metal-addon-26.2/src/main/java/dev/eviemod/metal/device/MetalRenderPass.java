@@ -92,6 +92,8 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
 
     @Override
     public void setUniform(String name, GpuBufferSlice slice) {
+        checkOpen();
+        MetalRanges.slice(slice, 0);
         if (slice.offset() % encoder.device.getUniformOffsetAlignment() > 0) {
             throw new IllegalArgumentException("Uniform buffer offset must be aligned to " + encoder.device.getUniformOffsetAlignment());
         }
@@ -114,18 +116,24 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     }
 
     @Override public void setVertexBuffer(int slot, GpuBufferSlice slice) {
-        java.util.Objects.checkIndex(slot, vertexBuffers.length); vertexBuffers[slot] = slice;
+        checkOpen();
+        java.util.Objects.checkIndex(slot, vertexBuffers.length);
+        MetalRanges.slice(slice, GpuBuffer.USAGE_VERTEX);
+        vertexBuffers[slot] = slice;
     }
 
     @Override
     public void setIndexBuffer(@Nullable GpuBuffer buffer, IndexType type) {
+        checkOpen();
+        if (buffer != null) MetalRanges.buffer(buffer, 0, buffer.size(), GpuBuffer.USAGE_INDEX);
         indexBuffer = buffer;
-        indexType = type;
+        indexType = java.util.Objects.requireNonNull(type);
     }
 
     @Override
     public void drawIndexed(int count, int instances, int firstIndex, int baseVertex, int firstInstance) {
         checkOpen();
+        MetalRanges.draw(count, instances, firstIndex, firstInstance);
         if (setup()) drawIndexed(indexBuffer, indexType, baseVertex, firstIndex, count, instances, firstInstance);
     }
 
@@ -146,18 +154,26 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     @Override
     public void draw(int count, int instances, int first, int firstInstance) {
         checkOpen();
-        if (!setup()) return;
+        MetalRanges.draw(count, instances, first, firstInstance);
+        if (count == 0 || instances == 0 || !setup()) return;
+        validateVertexRanges(count, instances, first, firstInstance, false);
         if (pipeline.info.getPrimitiveTopology() == PrimitiveTopology.TRIANGLE_FAN) {
             if (firstInstance != 0) throw new UnsupportedOperationException("Nonzero first instance for triangle fans");
-            if (count >= 3) Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, (count - 2) * 3, true, sequentialFanIndices(count), 0, instances, first);
+            if (count >= 3) Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, Math.multiplyExact(count - 2, 3), true, sequentialFanIndices(count), 0, instances, first);
         } else {
             Mtl.drawInstanced(pipeline.primitive, first, count, instances, firstInstance);
         }
     }
 
     private void drawIndexed(@Nullable GpuBuffer ib, IndexType type, int baseVertex, int firstIndex, int count, int instances, int firstInstance) {
+        MetalRanges.draw(count, instances, firstIndex, firstInstance);
         if (ib == null) throw new IllegalStateException("Missing index buffer");
+        MetalRanges.buffer(ib, (long) firstIndex * type.bytes, (long) count * type.bytes, GpuBuffer.USAGE_INDEX);
+        if (count == 0 || instances == 0) return;
+        validateVertexRanges(count, instances, 0, firstInstance, true);
         if (pipeline.info.getPrimitiveTopology() == PrimitiveTopology.TRIANGLE_FAN) {
+            if (((MetalBuffer) ib).hasPendingGpuWrite())
+                throw new UnsupportedOperationException("CPU-expanded triangle fans require completed index-buffer writes");
             long base = ((MetalBuffer) ib).address() + (long) firstIndex * type.bytes;
             if (firstInstance != 0) throw new UnsupportedOperationException("Nonzero first instance for triangle fans");
             drawFan(type == IndexType.SHORT ? i -> Short.toUnsignedInt(MemoryUtil.memGetShort(base + 2L * i)) : i -> MemoryUtil.memGetInt(base + 4L * i),
@@ -173,6 +189,14 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
         if (indexBuffer == null || indexBuffer.isClosed()) throw new IllegalStateException("Missing or closed index buffer");
         if (pipeline.info.getPrimitiveTopology() == PrimitiveTopology.TRIANGLE_FAN) throw new UnsupportedOperationException("Triangle-fan multidraw");
         if (drawCount < 0 || drawCount > offsets.remaining() || drawCount > counts.remaining() || drawCount > baseVertices.remaining()) throw new IllegalArgumentException("Multidraw parameters exceed supplied arrays");
+        for (int i = 0; i < drawCount; i++) {
+            long offset = offsets.get(offsets.position() + i);
+            int count = counts.get(counts.position() + i);
+            if (count < 0 || offset % indexType.bytes != 0) throw new IllegalArgumentException("Invalid multidraw index range");
+            MetalRanges.buffer(indexBuffer, offset, (long) count * indexType.bytes, GpuBuffer.USAGE_INDEX);
+        }
+        if (drawCount == 0) return;
+        validateVertexRanges(0, 1, 0, 0, true);
         Mtl.multiDrawIndexed(pipeline.primitive, indexType == IndexType.INT, ((MetalBuffer) indexBuffer).handle,
                 MemoryUtil.memAddress(counts), MemoryUtil.memAddress(offsets), MemoryUtil.memAddress(baseVertices), drawCount);
     }
@@ -187,6 +211,21 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     @Override public void writeTimestamp(com.mojang.blaze3d.systems.GpuQueryPool pool, int index) { ((MetalQueryPool) pool).write(index); boundPipeline = null; boundScissor = -1;
         java.util.Arrays.fill(vertexHandles, 0);
         for (int stage = 0; stage < 2; stage++) { java.util.Arrays.fill(boundBuffers[stage], 0); java.util.Arrays.fill(boundTextures[stage], 0); java.util.Arrays.fill(boundSamplers[stage], 0); } }
+
+    // Indexed vertex contents remain GPU-owned; only their byte ranges and per-instance fetches can be checked here.
+    private void validateVertexRanges(int count, int instances, int first, int firstInstance, boolean indexed) {
+        var formats = pipeline.info.getVertexFormatBindings();
+        for (int slot = 0; slot < vertexBuffers.length && slot < formats.length; slot++) {
+            var format = formats[slot];
+            var slice = vertexBuffers[slot];
+            if (!pipeline.requiredVertexSlots[slot] || format == null || slice == null) continue;
+            int rate = format.getStepRate();
+            if (indexed && rate == 0) continue;
+            long last = rate == 0 ? (long) first + count - 1 : ((long) firstInstance + instances - 1) / rate;
+            if (last >= 0 && (last + 1) * format.getVertexSize() > slice.length())
+                throw new IllegalArgumentException("Draw exceeds vertex slice at slot " + slot);
+        }
+    }
 
     private final Map<String, int[]> defaults = new HashMap<>();
     private long resourceRevision, defaultRevision;
@@ -232,6 +271,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
             for (int i=0; i<buffers.length; i++) {
                 var slice = buffers[i];
                 if (slice == null || slice.buffer().isClosed()) throw new IllegalStateException("Missing/closed Metal uniform " + plan.buffers()[i].name());
+                MetalRanges.slice(slice, GpuBuffer.USAGE_UNIFORM);
                 bindBuffer(fragment, plan.buffers()[i].index(), ((MetalBuffer)slice.buffer()).handle, slice.offset());
             }
             for (int i=0; i<textures.length; i++) {
@@ -240,6 +280,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                     bindTexture(fragment, slot.index(), binding.view.handle, slot.samplerIndex(), binding.sampler.handle);
                 } else if (slot.texelFormat() != null && texels[i] != null && !texels[i].buffer().isClosed()) {
                     var slice = texels[i]; var buffer = (MetalBuffer)slice.buffer();
+                    MetalRanges.slice(slice, GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER);
                     if (texelHandles[i] == 0 || texelGenerations[i] != buffer.storageGeneration()) {
                         texelHandles[i] = buffer.texelView(slot.texelFormat(), slice.offset(), slice.length());
                         texelGenerations[i] = buffer.storageGeneration();
@@ -299,6 +340,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
     private void drawFan(java.util.function.IntUnaryOperator index, int baseVertex, int count, int instances) {
         if (count < 3) return;
         int triangles = count - 2;
+        int indexCount = Math.multiplyExact(triangles, 3);
         long buffer = Mtl.newBuffer(triangles * 12L);
         if (buffer == 0) throw new com.mojang.blaze3d.GpuOutOfMemoryException("Metal fan buffer allocation failed");
         try {
@@ -308,7 +350,7 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                 MemoryUtil.memPutInt(p + i * 12L + 4, index.applyAsInt(i + 1));
                 MemoryUtil.memPutInt(p + i * 12L + 8, index.applyAsInt(i + 2));
             }
-            Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, triangles * 3, true, buffer, 0, instances, baseVertex);
+            Mtl.drawIndexed(Mtl.PRIMITIVE_TRIANGLE, indexCount, true, buffer, 0, instances, baseVertex);
         } finally { Mtl.release(buffer); }
     }
 
@@ -341,7 +383,11 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
 
         for (int slot = 0; slot < vertexBuffers.length; slot++) {
             var slice = vertexBuffers[slot];
-            if (slice == null) continue;
+            if (slice == null) {
+                if (pipeline.requiredVertexSlots[slot]) throw new IllegalStateException("Missing vertex buffer at slot " + slot);
+                continue;
+            }
+            MetalRanges.slice(slice, GpuBuffer.USAGE_VERTEX);
             var buffer = (MetalBuffer) slice.buffer();
             if (buffer.isClosed()) throw new IllegalStateException("Closed vertex buffer at slot " + slot);
             if (vertexHandles[slot] != buffer.handle || vertexOffsets[slot] != slice.offset()) {

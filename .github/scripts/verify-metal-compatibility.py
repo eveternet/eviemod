@@ -14,6 +14,14 @@ def launch(flavor, required, allow_hosted_gl_limit=False):
     missing = [marker for marker in required if marker not in text]
     if result.returncode == 0 and not missing:
         print(f"EVIEMETAL_COMPATIBILITY_OK flavor={flavor}", flush=True)
+        if flavor == "PreflightFallback" and "NSGL: Failed to find a suitable pixel format" in text:
+            message = ("OpenGL pixel format unavailable on this runner; native preflight cleanup and successful "
+                       "vanilla Vulkan retry passed with the original OpenGL-first candidate order.")
+            print(f"::notice::{message}", flush=True)
+            summary = os.environ.get("GITHUB_STEP_SUMMARY")
+            if summary:
+                with open(summary, "a") as output:
+                    output.write(f"- {message}\n")
         return
     # The retry must first prove native cleanup and the untouched vanilla candidate order.
     # A renderer, shader, ownership, assertion or unrelated process failure is never accepted here.
