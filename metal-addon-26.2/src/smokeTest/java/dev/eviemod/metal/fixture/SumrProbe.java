@@ -61,6 +61,21 @@ public final class SumrProbe {
             ShaderSource green = (id, type) -> type == ShaderType.VERTEX
                     ? "#version 330\nin vec3 Position;void main(){gl_Position=vec4(Position,1.0);}"
                     : "#version 330\nout vec4 color;void main(){color=vec4(0,1,0,1);}";
+            var missing = Identifier.fromNamespaceAndPath("eviemetal_fixture", "sumr_missing");
+            var lazy = RenderPipeline.builder().withLocation(missing).withVertexShader(missing).withFragmentShader(missing)
+                    .withVertexBinding(0, DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+                    .withCull(false).build();
+            // No preload: setPipeline must recover missing stages through the lazy compilation boundary.
+            verifyPixel(device, lazy, false);
+            var invalid = RenderPipeline.builder().withLocation("eviemetal_fixture:sumr_invalid_layout")
+                    .withVertexShader(missing).withFragmentShader(missing).withVertexBinding(4, DefaultVertexFormat.POSITION)
+                    .withPrimitiveTopology(PrimitiveTopology.TRIANGLES).build();
+            try {
+                device.precompilePipeline(invalid, green);
+                throw new AssertionError("Structural pipeline error was swallowed by SUMR recovery");
+            } catch (UnsupportedOperationException expected) {
+                require(expected.getMessage().contains("vertex binding slots"), "Unexpected structural error");
+            }
             for (ShaderType failing : ShaderType.values()) {
                 var id = Identifier.fromNamespaceAndPath("eviemetal_fixture", "sumr_" + failing.getName());
                 var pipeline = RenderPipeline.builder().withLocation(id).withVertexShader(id).withFragmentShader(id)
