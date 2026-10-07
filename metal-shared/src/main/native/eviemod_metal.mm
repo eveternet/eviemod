@@ -708,7 +708,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
         [gRender setCullMode:MTLCullModeNone];
         [gRender setTriangleFillMode:MTLTriangleFillModeFill];
         [gRender setDepthBias:0 slopeScale:0 clamp:0];
-        [gRender setDepthStencilState:depth ? gClearDepthState : nil];
+        if (depth) [gRender setDepthStencilState:gClearDepthState];
         [gRender setScissorRect:(MTLScissorRect){(NSUInteger)x, (NSUInteger)y, (NSUInteger)w, (NSUInteger)h}];
         [gRender setVertexBytes:&params length:sizeof(params) atIndex:0];
         [gRender setFragmentBytes:&params length:sizeof(params) atIndex:0];
