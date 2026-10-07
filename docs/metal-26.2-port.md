@@ -59,6 +59,14 @@ are separate immutable objects; formats and blend operations changed.
 The Mojang 26.2 library manifest pins LWJGL **3.4.1**, including shaderc and
 SPIRV-Cross. Shader tool dependencies must match that ABI.
 
+Fresh Loom source resolution on 2026-10-07 confirmed client SHA-1
+`2dc72797acbc1b63fc16a11c4ac393605f453754`. The local source archive's SHA-256 was
+`42db4f840d3203566bb126b92a58fc07fd474b168c2f82f87514afd92470bc30`.
+CI resolves and reports the same client independently; archive hashes can differ
+between decompilation runs. `report-metal-upstream.py` saves the actual startup,
+surface, device, pipeline/layout, pass, buffer and transient-memory contracts as
+review evidence, rather than using copied interfaces as upgrade authority.
+
 Published [Sodium 0.9.2 for 26.2](https://github.com/CaffeineMC/sodium/releases/tag/mc26.2-0.9.2)
 source tag resolves to `6c26e7b7eded82ce5a1d27f9b147ce5d8de99b7a`.
 Its terrain shaders/pipelines/buffers now use Blaze3D. The old GL device and shader
@@ -115,24 +123,28 @@ Sodium `SingleOwnerBufferArena`, `SharedBufferArena`, `ArenaAggregator`, staging
 recycling, section-time initialization and world deletion. Unique startup/factory
 bytecode anchors and every pinned public legacy GL entry point have regression checks.
 
-## Local validation completed before handoff
+## Final physical-Mac validation
 
 Physical Apple M3 Pro / arm64 macOS 27.0.1 / Temurin 25.0.3, with
-`MTL_DEBUG_LAYER=1`. All results below are local; hosted CI has not yet been verified.
+`MTL_DEBUG_LAYER=1`, on 2026-10-07. The cloud continuation was reviewed against the
+actual Minecraft and pinned Sodium implementations, followed by fresh root builds
+and packaged runs. These physical-Mac results are separate from hosted CI below.
 
 | Check | Result |
 | --- | --- |
 | Root build, both native distributions, artifact separation | Passed |
 | Main-mod tests | 172 per Minecraft target, zero failures/errors/skips |
 | Retained 26.1.2 addon tests | 48, zero failures/errors/skips |
-| 26.2 addon tests | 42, zero failures/errors/skips |
+| 26.2 addon tests | 49, zero failures/errors/skips |
 | Packaged 26.2 surface checkpoint | FIFO/IMMEDIATE clear/readback/present/close passed |
-| Packaged 26.2 vanilla title | Nonblank panorama/buttons/text screenshot and clean close passed |
+| Packaged 26.2 vanilla and Sodium titles | Panorama/buttons/text screenshots and clean close passed |
 | Packaged 26.2 vanilla world route | All 21 phases passed |
-| Packaged 26.2 Sodium world route | All 21 phases passed; a later stress-enabled repetition also passed |
+| Packaged 26.2 Sodium world route | All 21 phases and arena/timestamp/ownership stress passed repeatedly |
 | Packaged 26.1.2 vanilla/Sodium final regression routes | Both passed after split, using nested shader tools |
-| 26.2 explicit disable | OpenGL selected for normal preference; Vulkan selected for forced Vulkan preference |
-| 26.2 injected preflight failure | Native allocation/fence cleanup checked before successful OpenGL retry |
+| 26.2 explicit disable with pinned Sodium | Normal vanilla OpenGL selected; Sodium remained installed |
+| 26.2 explicit disable with Vulkan preference | Vulkan selected; original candidate order checked |
+| 26.2 injected preflight failure | Native allocation/fence/context cleanup checked before successful OpenGL and Vulkan retries |
+| 26.2 unsupported Sodium | Actual packaged version guard rejected a pinned JAR advertising an unsupported version descriptively |
 
 The three-minute world route covers world entry, normal movement/camera travel,
 block changes and rebuild, inventory, particles, resource reload, resize,
@@ -143,11 +155,22 @@ ordering oracle, performance improvement or live SkyBlock compatibility.
 
 Focused 26.2 pixel tests check two vertex bindings, first index/base vertex/first
 instance, vertex/uniform slice offsets, blending, reversed depth, render-area clipping,
+partial color/depth clears with both D16 and D32 attachments,
 timestamp interruption/resumption, texture source origin/stride/destination offsets,
 texel-view replacement without rebinding/recompiling, and transient copies across
 retirement. Buffer tests repeat GPU resize copies and partial maps twelve times.
 Sodium shader tests translate/compile the actual opaque, cutout (`ALPHA_CUTOUT=0.5`)
 and translucent (`ALPHA_CUTOUT=0.01`) assets.
+
+The complete port review found a shared partial-clear cache that still keyed depth
+as a boolean and created only D32 pipelines. It now keys the actual color/depth
+format pair and creates attachment-compatible pipelines; the D16/D32 pixel test
+checks both color and depth readback. Hosted 26.1.2 Sodium travel also exposed a
+valid empty arena copy reaching Metal's zero-byte blit assertion. The shared JNI
+bridge treats an empty copy as a no-op before touching the encoder. Both adapters'
+native smoke tests check preserved buffer contents and encoder generation.
+These are targeted shared-native corrections; the retained 26.1.2 Minecraft and
+Sodium renderer implementations remain unchanged.
 
 The packaged Sodium stress helper uses real upstream arenas: twelve forced growth
 runs preserve uploaded segment data, a shared owner relocates with callbacks, and
@@ -157,26 +180,73 @@ forced section-time resizes preserve old timestamps and initialize new tails to
 buffers, all closed. Labels are fixture-only anchors checked against the pinned
 sources; they are not runtime renderer ownership heuristics.
 
-| Completed packaged lifecycle | Final fenced Metal allocated bytes |
-| --- | ---: |
-| 26.1.2 Sodium final regression | 218,021,888 |
-| 26.1.2 vanilla final regression | 212,893,696 |
-| 26.2 vanilla initial route | 663,666,688 |
-| 26.2 Sodium initial route | 246,841,344 |
-| 26.2 Sodium stress repetition | 226,525,184 |
+| Controlled 26.2 lifecycle repetition | Final fenced Metal allocated bytes | Framebuffer | Completed fence |
+| --- | ---: | --- | ---: |
+| Vanilla 1 | 599,474,176 | 1920x1080 | 32,505 |
+| Vanilla 2 | 599,523,328 | 1920x1080 | 37,857 |
+| Sodium 1 | 170,934,272 | 1920x1080 | 20,739 |
+| Sodium 2 | 164,413,440 | 1920x1080 | 32,757 |
 
 These measurements use `MTLDevice.currentAllocatedSize` after completed GPU work,
-include global/title/atlas/framebuffer resources, and are not comparable leak bounds
-without controlling window/framebuffer size and repeating the same route. In
-particular, the larger vanilla 26.2 number still needs a controlled repetition.
-The 26.1.2 final Sodium run also passed the existing Tier 1 assertions: 157 layout
-snapshots, 127,627 batches, 893,389 binding attempts and 296,934 actual binding calls.
+include global/title/atlas/framebuffer resources. The fixture restores a 960x540
+window, waits five seconds, and records the resulting 1920x1080 Retina framebuffer
+after the final fence. The comparable vanilla repetitions differ by 48 KiB; the
+Sodium repetition decreased. This is bounded local repetition evidence, not a
+long-duration leak guarantee or an FPS comparison. Both world ownership checks
+passed in each Sodium run, and each device shutdown verified zero allocations,
+zero fence state and no live native context.
 
-## Evidence locations and remaining work
+Those repetitions used implementation `0565d6a`; the subsequent empty-copy fix
+was rebuilt and revalidated as `2a849ec`. Its complete 26.2 vanilla/Sodium routes
+reported 593,231,872 and 155,910,144 bytes at the same 1920x1080 framebuffer,
+with completed fences 20,659 and 30,323 respectively. Both titles, the standalone
+surface, all five compatibility routes and native cleanup passed again.
+
+The final local packages tested at `2a849ec` were:
+
+| Package | SHA-256 |
+| --- | --- |
+| `eviemod-metal-mc26.1.2-0.2.0.0.jar` | `0a0c150262ebc6bc098d807709c9882ae379addb838540d639e9c6893df4fe04` |
+| `eviemod-metal-mc26.2-0.2.0.0.jar` | `f92275a8b0e072fefe213cb70edadcbf97bf2376983e7af4a1c0382d2b6322c7` |
+
+Both contain byte-identical arm64 native bridge SHA-256
+`bf063c0199d33182b09272b522cc0a98f65732e506171de073b9deb272b51d2a`.
+These identify the physical fixture packages; independently compiled CI packages
+need not have the same archive/native hashes.
+
+The final retained 26.1.2 vanilla and
+Sodium runs reported 259,424,256 and 254,050,304 bytes respectively; the older
+fixture does not normalize its final framebuffer for comparison with 26.2.
+The retained Sodium Tier 1 assertions passed: 174 layout snapshots, 202,086 batches,
+1,414,602 binding attempts and 423,646 actual binding calls.
+
+## Hosted CI
+
+[Implementation CI at 2a849ec](https://github.com/eveternet/eviemod/actions/runs/37600927935)
+passed all applicable Linux and macOS jobs. Both native distributions and their
+separation checks passed. Linux exercised both actual packaged disabled/unsupported
+host routes, including pinned Sodium, the 26.2 Vulkan preference route and both
+main-mod UI fixtures. macOS retained all 48 old addon tests and passed both 26.1.2
+title/world configurations, including the existing terrain optimization assertions.
+
+The hosted Apple Paravirtual GPU lacks stage-boundary timestamp counters.
+Minecraft 26.2 creates its timer pool unconditionally, so native preflight correctly
+rejects that device. The 26.2 job passes its independent surface checkpoint and
+compatibility matrix, but reports title/world routes as **NOT VALIDATED** with
+verified native cleanup. Its one timestamp-dependent pixel test is skipped;
+all 49 tests run without skips on the physical M3 Pro. Hosted green CI alone is
+not 26.2 lifecycle evidence; the successful physical routes above supply it.
+
+## Evidence locations
 
 Generated evidence stays local and is not distributed or committed:
 
-- `/tmp/eviemetal-packaging-build-5.log`: root build/native distributions and 42/48 addon tests.
+- `/tmp/eviemetal-final-empty-copy-build.log`: root build/native distributions and 49/48 addon tests.
+- `/tmp/eviemetal-final-upstream-contracts.log`: freshly resolved Minecraft source contracts.
+- `/tmp/eviemetal-final-route-evidence.jsonl`: repeated physical lifecycles and exact package/native hashes.
+- `/tmp/eviemetal-current-26.2-evidence.jsonl`: final shared-bridge packages, surface/titles/worlds and cleanup markers.
+- `/tmp/eviemetal-current-26.2-compatibility.log`: disable, unsupported Sodium and OpenGL/Vulkan preflight retry.
+- `/tmp/eviemetal-final-26.1.2-vanilla.log` and `/tmp/eviemetal-final-26.1.2-sodium.log`: final retained regression routes.
 - `/tmp/eviemetal-surface26.log`: first packaged surface checkpoint.
 - `/tmp/eviemetal-world26-vanilla.log`: initial 26.2 vanilla lifecycle.
 - `/tmp/eviemetal-packaged-sodium26-1.log`: initial versioned Sodium lifecycle.
@@ -185,13 +255,13 @@ Generated evidence stays local and is not distributed or committed:
   preflight retry, Vulkan disable preference and final 26.1.2 regression routes.
 - `<module>/build/packagedSmoke/<flavor>/`: screenshots, game logs and isolated worlds.
 
-The later fixtures exclude loose shaderc/SPIRV-Cross dependencies and assert
-nested dependency code sources. Final 26.1.2 routes and 26.2 title/retry checks
-passed with that stricter packaging path; the complete 26.2 world routes must be
-repeated with it on the final pushed revision. Earlier fixture/port failures were
-committed as WIP per project policy and subsequently corrected; their passing
+The final fixtures exclude loose shaderc/SPIRV-Cross dependencies and assert
+nested dependency code sources throughout titles and complete worlds on both
+targets. Earlier fixture/port failures were committed as WIP per project policy
+and subsequently corrected; their passing
 reruns above do not make the original failed attempts passing evidence.
 
-The draft PR is a handoff, not completion of the original port criteria.
-See [the handoff checklist](metal-26.2-handoff.md) for the remaining validation,
-CI and review gates. No release/tag has been created.
+See [the continuation record](metal-26.2-handoff.md) for the handoff checklist's
+outcome and reproducible commands. Known unsupported rendering forms and device
+requirements remain documented in [the addon guide](metal-addon.md). No live
+SkyBlock/full-modpack validation, release or tag is claimed.

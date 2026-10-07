@@ -59,10 +59,15 @@ included in distributable JARs.
 
 CI uploads `eviemod-mc26.1.2` and `eviemod-mc26.2` separately. Tagged releases
 download both main-mod artifacts and both versioned Metal artifacts. The macOS
-matrix verifies packaged vanilla and pinned Sodium lifecycles for each addon,
-with native validation, while Linux checks disable and unsupported-host fallback.
+matrix builds and tests both native addons, checks the 26.2 surface, and runs
+packaged vanilla/Sodium titles and lifecycles under Metal validation. Hosted
+26.1.2 rendering passes; the hosted virtual GPU lacks 26.2 timestamp counters,
+so 26.2 title/world results are explicitly reported as **not validated** there.
+Both 26.2 configurations pass on a physical Apple M3 Pro; exact evidence and
+limitations are in [the port report](metal-26.2-port.md). Linux checks both addons'
+disable and unsupported-host fallback, including pinned Sodium and 26.2 Vulkan
+preference preservation.
 
 Live Hypixel behavior and third-party modpack interaction require separate game
-testing; offline fixtures do not establish those. Initial local Gradle execution
-was blocked because the environment could not download Gradle or Java 25.
-Compilation and launch results are recorded by the PR's CI checks.
+testing; offline fixtures do not establish those. Current builds and fixture
+results are recorded by the PR's CI checks and the physical-Mac port report.
