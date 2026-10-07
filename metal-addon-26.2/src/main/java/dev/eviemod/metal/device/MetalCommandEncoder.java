@@ -109,6 +109,10 @@ public class MetalCommandEncoder implements CommandEncoderBackend {
     public void clearColorAndDepthTextures(GpuTexture color, Vector4fc c, GpuTexture depth, double depthValue, int x, int y, int w, int h) {
         if (Mtl.GPU_PROFILING) Mtl.setPassLabel("Clear region " + describe(color));
         assertNoRenderPass();
+        if (color.isClosed() || depth.isClosed()) throw new IllegalStateException("Closed clear target");
+        MetalRanges.rectangle(x, y, w, h, color.getWidth(0), color.getHeight(0));
+        MetalRanges.rectangle(x, y, w, h, depth.getWidth(0), depth.getHeight(0));
+        if (w == 0 || h == 0) return;
         Mtl.clearRegion(handle(color), MetalFormats.texture(color.getFormat()), handle(depth), c.x(), c.y(), c.z(), c.w(),
                 (float) depthValue, x, y, w, h);
     }

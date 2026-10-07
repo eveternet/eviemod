@@ -251,6 +251,46 @@ class Metal26RenderTest {
         } finally { device.close(); }
     }
 
+    @Test void regionalClearsRejectInvalidTargetsAndEmptyRegionsPreservePixels() {
+        NativeLoader.load(); var device = new MetalDevice(0, (id, type) -> null);
+        int usage = GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC;
+        try (var color = (MetalTexture) device.createTexture("clear-color", usage, GpuFormat.RGBA8_UNORM, 4, 4, 1, 1);
+             var depth = (MetalTexture) device.createTexture("clear-depth", usage, GpuFormat.D32_FLOAT, 4, 4, 1, 1);
+             var smallerDepth = device.createTexture("smaller-depth", usage, GpuFormat.D32_FLOAT, 2, 2, 1, 1);
+             var colors = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 1024);
+             var depths = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 1024)) {
+            var encoder = device.createCommandEncoder();
+            var blue = new Vector4f(0, 0, 1, 1);
+            encoder.clearColorAndDepthTextures(color, new Vector4f(1, 0, 0, 1), depth, 0);
+            long generation = Mtl.renderEncoderGeneration();
+            for (int[] rectangle : new int[][]{{-1, 0, 1, 1}, {0, -1, 1, 1}, {0, 0, -1, 1},
+                    {0, 0, 1, -1}, {0, 0, 5, 1}, {0, 0, 1, 5}, {Integer.MAX_VALUE, 0, 1, 1}}) {
+                assertThrows(IllegalArgumentException.class, () -> encoder.clearColorAndDepthTextures(
+                        color, blue, depth, 1, rectangle[0], rectangle[1], rectangle[2], rectangle[3]));
+            }
+            // These fit the color target but exceed the depth target on each axis.
+            assertThrows(IllegalArgumentException.class, () -> encoder.clearColorAndDepthTextures(color, blue, smallerDepth, 1, 2, 0, 1, 1));
+            assertThrows(IllegalArgumentException.class, () -> encoder.clearColorAndDepthTextures(color, blue, smallerDepth, 1, 0, 2, 1, 1));
+            encoder.clearColorAndDepthTextures(color, blue, depth, 1, 4, 0, 0, 1);
+            encoder.clearColorAndDepthTextures(color, blue, depth, 1, 0, 4, 1, 0);
+            assertEquals(generation, Mtl.renderEncoderGeneration());
+            assertFalse(Mtl.isRenderPassOpen());
+            Mtl.copyTextureToBuffer(color.handle, 0, 0, 0, 4, 4, colors.handle, 0, 256);
+            Mtl.copyTextureToBuffer(depth.handle, 0, 0, 0, 4, 4, depths.handle, 0, 256);
+            assertTrue(Mtl.fenceWait(Mtl.fence(), 5000));
+            for (int row = 0; row < 4; row++) for (int column = 0; column < 4; column++) {
+                long offset = row * 256L + column * 4L;
+                assertEquals(0xff0000ff, MemoryUtil.memGetInt(colors.address() + offset));
+                assertEquals(0, MemoryUtil.memGetFloat(depths.address() + offset));
+            }
+            depth.close();
+            assertThrows(IllegalStateException.class, () -> encoder.clearColorAndDepthTextures(color, blue, depth, 1, 0, 0, 1, 1));
+            color.close();
+            assertThrows(IllegalStateException.class, () -> encoder.clearColorAndDepthTextures(color, blue, smallerDepth, 1, 0, 0, 1, 1));
+            Mtl.checkError();
+        } finally { device.close(); }
+    }
+
     @Test void repeatedResizeCopiesPartialMapsRelocationAndTimestampViewReplacement() {
         NativeLoader.load(); var device=new MetalDevice(0,(id,type)->null);
         MetalBuffer buffer=new MetalBuffer(GpuBuffer.USAGE_COPY_SRC|GpuBuffer.USAGE_COPY_DST|GpuBuffer.USAGE_MAP_WRITE|GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER,1024);
