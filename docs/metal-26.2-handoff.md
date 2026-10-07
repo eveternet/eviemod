@@ -11,7 +11,7 @@ stacked on `codex/dual-minecraft-builds`, preserving that branch's main-mod port
 - Both fixed Minecraft adapters resolve independently and a normal root build
   produces both versioned addon JARs. One native bridge and shared Metal utilities
   serve both. Addon version is `0.2.0.0`; main-mod version remains `1.3.1.0`.
-- Fresh physical-Mac tests pass: 48 retained addon tests, 49 new adapter tests and
+- Fresh physical-Mac tests pass: 48 retained addon tests, 50 new adapter tests and
   172 main-mod tests for each target, with zero failures, errors or skips.
 - Complete packaged vanilla and pinned Sodium title/world routes pass on both
   versions under Metal validation, using nested shader-tool dependencies. Final
@@ -31,7 +31,11 @@ stacked on `codex/dual-minecraft-builds`, preserving that branch's main-mod port
   zero-byte arena copies in the shared native implementation, with pixel/native
   regression coverage in the relevant adapters.
 - Applicable implementation CI passed before CodeRabbit review was requested.
-  Review findings and the latest documentation revision's CI are tracked on PR 17.
+  Both initial findings were corrected in `49fc43f`: regional clear bounds,
+  closed-target checks and empty-region behavior now have pixel coverage, and
+  macOS checkout no longer persists credentials. Its root build passes all 442
+  tests and its packaged 26.2 surface/title/world/compatibility routes pass again.
+  Latest-revision CI and the follow-up review are tracked on PR 17.
   Follow `AGENTS.md` for the latest-revision CI gate before any further code review.
 
 The hosted Apple Paravirtual GPU does not expose Minecraft 26.2's required

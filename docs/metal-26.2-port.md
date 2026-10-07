@@ -135,7 +135,7 @@ and packaged runs. These physical-Mac results are separate from hosted CI below.
 | Root build, both native distributions, artifact separation | Passed |
 | Main-mod tests | 172 per Minecraft target, zero failures/errors/skips |
 | Retained 26.1.2 addon tests | 48, zero failures/errors/skips |
-| 26.2 addon tests | 49, zero failures/errors/skips |
+| 26.2 addon tests | 50, zero failures/errors/skips |
 | Packaged 26.2 surface checkpoint | FIFO/IMMEDIATE clear/readback/present/close passed |
 | Packaged 26.2 vanilla and Sodium titles | Panorama/buttons/text screenshots and clean close passed |
 | Packaged 26.2 vanilla world route | All 21 phases passed |
@@ -156,6 +156,7 @@ ordering oracle, performance improvement or live SkyBlock compatibility.
 Focused 26.2 pixel tests check two vertex bindings, first index/base vertex/first
 instance, vertex/uniform slice offsets, blending, reversed depth, render-area clipping,
 partial color/depth clears with both D16 and D32 attachments,
+invalid/closed regional-clear targets and empty-region no-ops,
 timestamp interruption/resumption, texture source origin/stride/destination offsets,
 texel-view replacement without rebinding/recompiling, and transient copies across
 retirement. Buffer tests repeat GPU resize copies and partial maps twelve times.
@@ -202,17 +203,34 @@ reported 593,231,872 and 155,910,144 bytes at the same 1920x1080 framebuffer,
 with completed fences 20,659 and 30,323 respectively. Both titles, the standalone
 surface, all five compatibility routes and native cleanup passed again.
 
-The final local packages tested at `2a849ec` were:
+CodeRabbit's two initial findings were corrected in `49fc43f`. Regional color/depth
+clears now check both attachments' bounds and closed state before reaching JNI;
+empty rectangles preserve pixels and encoder state. A focused pixel regression
+checks invalid/overflowing rectangles, mismatched attachment sizes, closed targets
+and empty regions. macOS checkout also disables persisted credentials, matching
+Linux. The resulting root build passes **442** tests (172 per main-mod target,
+48 retained addon tests and 50 new addon tests), with zero failures/errors/skips.
+
+The `49fc43f` packaged surface, both titles, both full 26.2 world routes and all
+five compatibility routes passed again under Metal validation. Final fenced
+vanilla/Sodium allocation readings were 607,698,944 and 155,910,144 bytes at
+1920x1080, with completed fences 20,321 and 19,099. Those runs spanned a pause in
+the local session, so their elapsed time is not comparable to the uninterrupted
+repetitions above. Both Sodium ownership checks and native close passed.
+
+The final local packages tested at `49fc43f` were:
 
 | Package | SHA-256 |
 | --- | --- |
 | `eviemod-metal-mc26.1.2-0.2.0.0.jar` | `0a0c150262ebc6bc098d807709c9882ae379addb838540d639e9c6893df4fe04` |
-| `eviemod-metal-mc26.2-0.2.0.0.jar` | `f92275a8b0e072fefe213cb70edadcbf97bf2376983e7af4a1c0382d2b6322c7` |
+| `eviemod-metal-mc26.2-0.2.0.0.jar` | `634ebaeaded583f7579fab49e65c9c4cd5bcc774e624d3375b3e74cfb3948049` |
 
 Both contain byte-identical arm64 native bridge SHA-256
 `bf063c0199d33182b09272b522cc0a98f65732e506171de073b9deb272b51d2a`.
 These identify the physical fixture packages; independently compiled CI packages
 need not have the same archive/native hashes.
+The 26.1.2 package and shared native bridge are unchanged from the passing
+`2a849ec` regression runs.
 
 The final retained 26.1.2 vanilla and
 Sodium runs reported 259,424,256 and 254,050,304 bytes respectively; the older
@@ -234,7 +252,7 @@ Minecraft 26.2 creates its timer pool unconditionally, so native preflight corre
 rejects that device. The 26.2 job passes its independent surface checkpoint and
 compatibility matrix, but reports title/world routes as **NOT VALIDATED** with
 verified native cleanup. Its one timestamp-dependent pixel test is skipped;
-all 49 tests run without skips on the physical M3 Pro. Hosted green CI alone is
+all 50 tests run without skips on the physical M3 Pro. Hosted green CI alone is
 not 26.2 lifecycle evidence; the successful physical routes above supply it.
 
 ## Evidence locations
@@ -244,8 +262,11 @@ Generated evidence stays local and is not distributed or committed:
 - `/tmp/eviemetal-final-empty-copy-build.log`: root build/native distributions and 49/48 addon tests.
 - `/tmp/eviemetal-final-upstream-contracts.log`: freshly resolved Minecraft source contracts.
 - `/tmp/eviemetal-final-route-evidence.jsonl`: repeated physical lifecycles and exact package/native hashes.
-- `/tmp/eviemetal-current-26.2-evidence.jsonl`: final shared-bridge packages, surface/titles/worlds and cleanup markers.
+- `/tmp/eviemetal-current-26.2-evidence.jsonl`: shared-bridge packages at `2a849ec`, surface/titles/worlds and cleanup markers.
 - `/tmp/eviemetal-current-26.2-compatibility.log`: disable, unsupported Sodium and OpenGL/Vulkan preflight retry.
+- `/tmp/eviemetal-review-fixes-build.log`: root build, native distributions and all 442 tests at `49fc43f`.
+- `/tmp/eviemetal-review-fixes-26.2-evidence.jsonl`: final review-fix package hashes and surface/title/world cleanup markers.
+- `/tmp/eviemetal-review-fixes-26.2-compatibility.log`: final review-fix disable, unsupported Sodium and OpenGL/Vulkan retry matrix.
 - `/tmp/eviemetal-final-26.1.2-vanilla.log` and `/tmp/eviemetal-final-26.1.2-sodium.log`: final retained regression routes.
 - `/tmp/eviemetal-surface26.log`: first packaged surface checkpoint.
 - `/tmp/eviemetal-world26-vanilla.log`: initial 26.2 vanilla lifecycle.
