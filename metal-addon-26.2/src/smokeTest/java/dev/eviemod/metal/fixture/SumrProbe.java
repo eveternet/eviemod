@@ -46,7 +46,7 @@ public final class SumrProbe {
     private static void require(boolean value, String message) { if (!value) throw new AssertionError(message); }
 
     private static final class Enabled {
-        private static boolean finished;
+        private static boolean reloadStarted, finished;
         static void verifyAndReload() {
             require(games.enchanted.eg_stop_unloading_my_shaders.common.ModConstants.isBackendHandled(), "SUMR rejects Metal");
             var device = (MetalDevice) ((games.enchanted.eg_stop_unloading_my_shaders.common.mixin.accessor.GpuDeviceAccessor)
@@ -67,7 +67,7 @@ public final class SumrProbe {
                     .withCull(false).build();
             // No preload: setPipeline must recover missing stages through the lazy compilation boundary.
             verifyPixel(device, lazy, false);
-            var invalid = RenderPipeline.builder().withLocation("eviemetal_fixture:sumr_invalid_layout")
+            var invalid = RenderPipeline.builder().withLocation(Identifier.parse("eviemetal_fixture:sumr_invalid_layout"))
                     .withVertexShader(missing).withFragmentShader(missing).withVertexBinding(4, DefaultVertexFormat.POSITION)
                     .withPrimitiveTopology(PrimitiveTopology.TRIANGLES).build();
             try {
@@ -89,13 +89,6 @@ public final class SumrProbe {
                 finally { additions.eg_sumr$setBypassPipelineCache(false); }
                 verifyPixel(device, pipeline, true);
             }
-            try {
-                var errors = games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager.class
-                        .getDeclaredField("knownErrorsThisReload");
-                errors.setAccessible(true);
-                require(!((List<?>) errors.get(null)).isEmpty(), "SUMR did not receive Metal diagnostics");
-            } catch (ReflectiveOperationException error) { throw new AssertionError(error); }
-            games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager.triggerReload();
         }
 
         private static void verifyPixel(MetalDevice device, RenderPipeline pipeline, boolean visible) {
@@ -127,6 +120,15 @@ public final class SumrProbe {
         static boolean reloadFinished() {
             if (finished) return true;
             try {
+                if (!reloadStarted) {
+                    var errors = games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager.class
+                            .getDeclaredField("knownErrorsThisReload");
+                    errors.setAccessible(true);
+                    if (((List<?>) errors.get(null)).isEmpty()) return false;
+                    games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager.triggerReload();
+                    reloadStarted = true;
+                    return false;
+                }
                 var field = games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager.class.getDeclaredField("isHotReloading");
                 field.setAccessible(true);
                 if (field.getBoolean(null)) return false;

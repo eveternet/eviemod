@@ -12,6 +12,7 @@ import dev.eviemod.metal.device.MetalPipeline;
 import games.enchanted.eg_stop_unloading_my_shaders.common.ModConstants;
 import games.enchanted.eg_stop_unloading_my_shaders.common.ShaderReloadManager;
 import games.enchanted.eg_stop_unloading_my_shaders.common.duck.GpuDeviceAdditions;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,8 +43,11 @@ abstract class MetalDeviceSumrMixin implements GpuDeviceAdditions {
 
     @Unique private MetalPipeline eviemetal$recover(RenderPipeline pipeline, MetalPipeline.CompilationException error) {
         if (eviemetal$recovering) throw error;
-        ShaderReloadManager.showShaderErrorMessage(Component.literal("Metal shader error: " + pipeline.getLocation()),
-                Component.literal(error.getCause().getMessage()));
+        // SUMR measures its text immediately, which can upload glyphs. Always queue diagnostics
+        // so a lazy compilation failure inside setPipeline cannot upload during an open pass.
+        Minecraft.getInstance().schedule(() -> ShaderReloadManager.showShaderErrorMessage(
+                Component.literal("Metal shader error: " + pipeline.getLocation()),
+                Component.literal(error.getCause().getMessage())));
         boolean previousBypass = eviemetal$bypassCache;
         eviemetal$recovering = true;
         eviemetal$bypassCache = true;

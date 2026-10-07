@@ -24,6 +24,7 @@ if flavor == "SumrTitle":
     required.append("EVIEMETAL_SUMR_RECOVERY_OK vanilla/modded/cache/pixels/diagnostics/hot-reload")
     assert result.returncode != 0 or "not handled by SUMR" not in text
     assert result.returncode != 0 or "Error while reloading shaders:" not in text
+    assert result.returncode != 0 or "Error executing task on Client" not in text
 elif flavor in ("SumrDefaultTitle", "SumrAbsentTitle"):
     required.append("EVIEMETAL_SUMR_GUARD_OK mode=" + ("default" if flavor == "SumrDefaultTitle" else "absent"))
 if flavor == "Sodium":
