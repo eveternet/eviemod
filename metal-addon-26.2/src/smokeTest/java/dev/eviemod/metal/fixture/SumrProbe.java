@@ -12,7 +12,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.eviemod.metal.device.MetalDevice;
-import dev.eviemod.metal.device.MetalBuffer;
 import dev.eviemod.metal.device.MetalRenderPass;
 import dev.eviemod.metal.mtl.Mtl;
 import java.util.Arrays;
@@ -92,7 +91,7 @@ public final class SumrProbe {
                     GpuFormat.RGBA8_UNORM, 1, 1, 1, 1);
                  var view = device.createTextureView(texture);
                  var vertexBuffer = device.createBuffer(() -> "SUMR vertices", GpuBuffer.USAGE_VERTEX, vertices);
-                 var readback = device.createBuffer(() -> "SUMR readback", GpuBuffer.USAGE_COPY_DST, 256)) {
+                 var readback = device.createBuffer(() -> "SUMR readback", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, 256)) {
                 var encoder = device.createCommandEncoder();
                 try (var pass = (MetalRenderPass) encoder.createRenderPass(RenderPassDescriptor.create(() -> "SUMR fallback")
                         .withColorAttachment(view, Optional.of(new Vector4f(1, 0, 0, 1))))) {
@@ -102,9 +101,10 @@ public final class SumrProbe {
                 }
                 encoder.copyTextureToBuffer(texture, readback, 0, () -> {}, 0);
                 require(Mtl.fenceWait(Mtl.fence(), 5000), "SUMR pixel fence timed out");
-                long data = ((MetalBuffer) readback).address();
-                require(Byte.toUnsignedInt(MemoryUtil.memGetByte(data)) == (visible ? 0 : 255)
-                        && Byte.toUnsignedInt(MemoryUtil.memGetByte(data + 1)) == (visible ? 255 : 0), "Wrong SUMR fallback/recovery pixel");
+                try (var mapped = readback.map(true, false)) {
+                    require(Byte.toUnsignedInt(mapped.data().get(0)) == (visible ? 0 : 255)
+                            && Byte.toUnsignedInt(mapped.data().get(1)) == (visible ? 255 : 0), "Wrong SUMR fallback/recovery pixel");
+                }
                 Mtl.checkError();
             } finally { MemoryUtil.memFree(vertices); }
         }
