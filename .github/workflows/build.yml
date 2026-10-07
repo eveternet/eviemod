@@ -113,7 +113,9 @@ jobs:
       - name: Build and test both Metal distributions
         run: ./gradlew build verifyMetalDistributions
       - name: Verify independently loadable versioned artifacts
-        run: python3 .github/scripts/verify-metal-artifacts.py
+        run: |
+          python3 .github/scripts/verify-metal-artifacts.py
+          python3 .github/scripts/report-metal-tests.py
       - name: Verify packaged 26.2 surface clear/present/close
         if: matrix.minecraft == '26.2'
         run: ./gradlew :metal-addon-26.2:packagedSurfaceSmoke

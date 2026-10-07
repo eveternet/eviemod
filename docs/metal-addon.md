@@ -48,7 +48,17 @@ The 26.2 adapter supports one color attachment and vertex binding slots 0–3.
 Texture arrays/3D textures, additional color attachments, indirect draws and
 interleaved multidraw are rejected explicitly; the pinned vanilla and Sodium
 routes use the implemented forms. Timestamp queries require native stage-boundary
-counter support. No FPS gain or long-duration soak result is claimed.
+counter support. Minecraft 26.2 constructs its timer query pool unconditionally, so
+the 26.2 addon rejects devices without those counters during preflight. Vanilla
+can retry its ordered backends; with active Sodium the existing descriptive
+startup-failure policy applies. The retained 26.1.2 adapter does not acquire this
+new requirement. No timestamp values are fabricated.
+
+26.2 allocation limits use the active device's native buffer limit, capped at
+Java's addressable buffer size. Matrix vertex attributes, CPU-expanded triangle
+fans with pending GPU index writes, and mapped writes requiring a GPU blit inside
+an open pass are explicitly unsupported. Small orphaned mapped updates remain
+supported. No FPS gain or long-duration soak result is claimed.
 
 ## Build and verification
 
@@ -67,19 +77,26 @@ once by `:metal-addon:buildNative` and packaged by both adapters. Xcode tools an
 Java 25 are required for native distributions. Linux builds are Java-only fixtures;
 `verifyMetalDistributions` requires the packaged arm64 library.
 
-For either module, `packagedTitleSmoke`, `packagedVanillaSmoke`,
-`packagedSodiumSmoke` and `packagedDisabledSmoke` stage its distributable JAR in
+For either module, `packagedTitleSmoke`, `packagedSodiumTitleSmoke`, `packagedVanillaSmoke`,
+`packagedSodiumSmoke`, `packagedDisabledSmoke` and `packagedDisabledSodiumSmoke` stage its distributable JAR in
 an isolated fixture directory and exclude the addon's compiled classes and loose
 shader-tool JARs from the launch classpath. Sodium fixtures stage the exact pinned
 Sodium artifact. Development fixtures, worlds, logs and screenshots are not shipped.
 26.2 also has `packagedSurfaceSmoke`, `packagedDisabledVulkanSmoke` and
-`packagedPreflightFallbackSmoke` for surface/presentation and startup retry checks.
+`packagedPreflightFallbackSmoke`, `packagedPreflightVulkanFallbackSmoke` and
+`packagedUnsupportedSodiumSmoke` for surface/presentation and compatibility checks.
+The unsupported-version fixture changes only the real pinned JAR's advertised
+version; it verifies the packaged guard, not compatibility with another release.
 Do not run graphical fixtures concurrently on the same display.
 
-Both CI targets run native tests and packaged vanilla/Sodium lifecycles under
-Metal validation; Linux checks fallback/disable and both main-mod UI routes.
-GitHub's hosted Mac GPU is paravirtual, so physical Apple Silicon evidence is
-recorded separately in [the 26.2 port report](metal-26.2-port.md).
+CI runs native tests, packaged surface checks, and serial title/world fixtures
+under Metal validation; Linux checks unsupported-host/disable routes, including
+Sodium, and both main-mod UI routes. The hosted Apple Paravirtual device lacks
+26.2's required timestamp counters. The strict 26.2 title/world tasks fail there;
+the CI wrapper identifies the exact capability rejection plus verified cleanup
+as **not validated**, rather than accepting it as a rendered lifecycle. A passing
+hosted job does not satisfy those final physical-Mac completion criteria.
+Physical Apple Silicon evidence is recorded separately in [the 26.2 port report](metal-26.2-port.md).
 
 The report records the baseline commit, actual game/Sodium interfaces inspected,
 rendering regressions, packaged lifecycle results and limits. These are local

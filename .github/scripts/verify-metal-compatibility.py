@@ -14,8 +14,9 @@ def launch(flavor, required, allow_hosted_gl_limit=False):
     missing = [marker for marker in required if marker not in text]
     if result.returncode == 0 and not missing:
         print(f"EVIEMETAL_COMPATIBILITY_OK flavor={flavor}", flush=True)
-        if flavor == "PreflightFallback" and "NSGL: Failed to find a suitable pixel format" in text:
-            message = ("OpenGL pixel format unavailable on this runner; native preflight cleanup and successful "
+        if flavor == "PreflightFallback" and ("NSGL: Failed to find a suitable pixel format" in text
+                or ("Failed to create backend OpenGL" in text and "BackendCreationException: GLFW_ERROR: 0x10009" in text)):
+            message = ("OpenGL window format unavailable on this runner (GLFW_FORMAT_UNAVAILABLE); native preflight cleanup and successful "
                        "vanilla Vulkan retry passed with the original OpenGL-first candidate order.")
             print(f"::notice::{message}", flush=True)
             summary = os.environ.get("GITHUB_STEP_SUMMARY")
