@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class MetalCloseMixin {
     @Inject(method = "close", at = @At("RETURN"))
     private void verifyNativeShutdown(CallbackInfo ci) {
-        if (Mtl.allocatedBytes() != 0 || Mtl.completedFence() != 0 || !Mtl.deviceName().equals("none"))
+        if (Mtl.allocatedBytes() != 0 || Mtl.completedFence() != 0 || Mtl.hasLiveContext())
             throw new AssertionError("Metal native state survived device close");
         System.out.println("EVIEMETAL_DEVICE_CLOSED_OK");
     }

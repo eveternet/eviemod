@@ -16,6 +16,8 @@ required = [
     "com/mojang/blaze3d/systems/RenderPassBackend.java",
     "com/mojang/blaze3d/systems/TransientMemory.java",
     "com/mojang/blaze3d/buffers/GpuBufferSlice.java",
+    "com/mojang/blaze3d/buffers/GpuBuffer.java",
+    "com/mojang/blaze3d/systems/CommandEncoderBackend.java",
     "net/minecraft/client/PreferredGraphicsApi.java",
     "com/mojang/blaze3d/util/TransientBlockAllocator.java",
     "com/mojang/blaze3d/pipeline/RenderPipeline.java",

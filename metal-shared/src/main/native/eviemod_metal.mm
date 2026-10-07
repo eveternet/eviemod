@@ -339,6 +339,17 @@ JNIEXPORT jint JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxTextureSize(JNIEnv*, jc
     }
 }
 
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxBufferLength(JNIEnv*, jclass) {
+    @autoreleasepool { return (jlong)gDevice.maxBufferLength; }
+}
+
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_hasLiveContext(JNIEnv*, jclass) {
+    @autoreleasepool {
+        return (gDevice || gQueue || gEvent || gLayer || gView || gCmd || gLastCommand
+                || gRender || gBlit || gDrawableQueue || gBuiltins) ? JNI_TRUE : JNI_FALSE;
+    }
+}
+
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_release(JNIEnv*, jclass, jlong handle) {
     @autoreleasepool {
         if (handle) CFRelease((CFTypeRef)(void*)handle);
