@@ -956,6 +956,14 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_closeSurface(JNIEnv*, jcla
         gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
     }
 }
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_supportsTimestampSampling(JNIEnv*, jclass) {
+    @autoreleasepool {
+        if (!gDevice || ![gDevice supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) return JNI_FALSE;
+        for (id<MTLCounterSet> set in gDevice.counterSets)
+            if ([set.name isEqualToString:MTLCommonCounterSetTimestamp]) return JNI_TRUE;
+        return JNI_FALSE;
+    }
+}
 JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTimestampPool(JNIEnv* env, jclass, jint size) {
     @autoreleasepool {
         id<MTLCounterSet> timestamps = nil;

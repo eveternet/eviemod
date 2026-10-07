@@ -4,7 +4,12 @@ import groovy.json.JsonSlurper
 def target = minecraftVersion.toString()
 def isMacHost = System.getProperty('os.name').toLowerCase(Locale.ROOT).startsWith('mac')
 def packagedClasspath = sourceSets.smokeTest.runtimeClasspath - sourceSets.main.output
-def clientClasspath = packagedClasspath.filter { !it.name.startsWith('lwjgl-shaderc-') && !it.name.startsWith('lwjgl-spvc-') }
+// Java shader tools must come from the nested distribution. Unsupported hosts still need
+// Minecraft's own platform natives: 26.2 loads SPIRV-Cross before selecting any backend.
+def clientClasspath = packagedClasspath.filter {
+    def shaderTool = it.name.startsWith('lwjgl-shaderc-') || it.name.startsWith('lwjgl-spvc-')
+    !shaderTool || (!isMacHost && it.name.contains('-natives-'))
+}
 def jarProvider = tasks.named('jar', Jar).flatMap { it.archiveFile }
 def assets = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/assets')
 def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/mojang_minecraft_info.json")

@@ -23,12 +23,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs(OS.MAC)
 class Metal26RenderTest {
-    @Test void slicedBindingsIndexedArgumentsBlendDepthAreaAndTimestampResume() {
+    @Test void slicedBindingsIndexedArgumentsBlendDepthAndArea() {
+        renderSlicedBindings(false);
+    }
+
+    @Test void timestampInterruptionRestoresSlicedBindingsBlendDepthAndArea() {
+        renderSlicedBindings(true);
+    }
+
+    private void renderSlicedBindings(boolean timestamps) {
         NativeLoader.load();
         var device = new MetalDevice(0, (id, stage) -> stage == ShaderType.VERTEX
                 ? "#version 330\nin vec3 Position;in vec4 Color;out vec4 tint;void main(){gl_Position=vec4(Position,1);tint=Color;}"
                 : "#version 330\nin vec4 tint;layout(std140)uniform Tint{vec4 multiplier;};out vec4 color;void main(){color=tint*multiplier;}");
         var encoder = device.createCommandEncoder();
+        try {
+        if (timestamps) org.junit.jupiter.api.Assumptions.assumeTrue(Mtl.supportsTimestampSampling(),
+                "Active Metal device has no stage-boundary timestamp counters; pixel coverage runs separately");
         try (var vb = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 256);
              var colors = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 64);
              var ib = new MetalBuffer(GpuBuffer.USAGE_INDEX, 64);
@@ -37,7 +48,7 @@ class Metal26RenderTest {
              var depth = device.createTexture("depth", GpuTexture.USAGE_RENDER_ATTACHMENT, GpuFormat.D32_FLOAT, 4, 4, 1, 1);
              var view = device.createTextureView(texture); var depthView = device.createTextureView(depth);
              var readback = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 1024);
-             var queries = device.createTimestampQueryPool(2)) {
+             var queries = timestamps ? device.createTimestampQueryPool(2) : null) {
             // Sliced vertex offset, then baseVertex=3 skips three degenerate vertices.
             float[] triangle = {-1,-1,.25f, 3,-1,.25f, -1,3,.25f, -1,-1,-.75f, 3,-1,-.75f, -1,3,-.75f};
             MemoryUtil.memSet(vb.address(), 0, vb.size());
@@ -61,10 +72,10 @@ class Metal26RenderTest {
                 pass.setPipeline(pipeline); pass.setVertexBuffer(0,vb.slice(16,108)); pass.setVertexBuffer(1,colors.slice());
                 pass.setUniform("Tint",uniform.slice(256,16)); pass.setIndexBuffer(ib,IndexType.INT);
                 pass.drawIndexed(3,1,3,3,1);
-                pass.writeTimestamp(queries,0);
+                if (timestamps) pass.writeTimestamp(queries,0);
                 // Farther green geometry must fail reversed depth, after the timestamp encoder interruption.
                 pass.drawIndexed(3,1,3,6,2);
-                pass.writeTimestamp(queries,1);
+                if (timestamps) pass.writeTimestamp(queries,1);
                 assertThrows(UnsupportedOperationException.class,()->pass.drawIndexedIndirect(ib.slice(),1));
             }
             Mtl.copyTextureToBuffer(texture.handle,0,0,0,4,4,readback.handle,0,256);
@@ -76,9 +87,12 @@ class Metal26RenderTest {
             assertEquals(255,Byte.toUnsignedInt(MemoryUtil.memGetByte(inside+3)));
             assertEquals(0,Byte.toUnsignedInt(MemoryUtil.memGetByte(outside)));
             assertEquals(255,Byte.toUnsignedInt(MemoryUtil.memGetByte(outside+2)));
-            assertTrue(queries.getValue(0).isPresent()); assertTrue(queries.getValue(1).isPresent());
-            assertTrue(queries.getValue(1).getAsLong()>=queries.getValue(0).getAsLong());
+            if (timestamps) {
+                assertTrue(queries.getValue(0).isPresent()); assertTrue(queries.getValue(1).isPresent());
+                assertTrue(queries.getValue(1).getAsLong()>=queries.getValue(0).getAsLong());
+            }
             Mtl.checkError();
+        }
         } finally { device.close(); }
     }
 

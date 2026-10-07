@@ -60,6 +60,8 @@ public final class Mtl {
     public static native void presentSurface();
     public static native void closeSurface();
     public static native void submit();
+    /** True only when the active device exposes stage-boundary timestamp counters. */
+    public static native boolean supportsTimestampSampling();
     public static native long newTimestampPool(int size);
     public static native void writeTimestamp(long pool, int index);
     public static native long timestampValue(long pool, int index);
