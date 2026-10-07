@@ -92,29 +92,31 @@ public class MetalPipeline implements CompiledRenderPipeline {
 
     static MetalPipeline compile(RenderPipeline info, ShaderSource source) {
         String name = info.getLocation().toString();
+        long vertexFn = 0, fragmentFn = 0;
         try {
-            String vsh = source.get(info.getVertexShader(), ShaderType.VERTEX);
-            String fsh = source.get(info.getFragmentShader(), ShaderType.FRAGMENT);
-            if (vsh == null) throw new IllegalStateException("Missing vertex shader " + info.getVertexShader() + ".vsh");
-            if (fsh == null) throw new IllegalStateException("Missing fragment shader " + info.getFragmentShader() + ".fsh");
-            var vs = ShaderTranslator.translate(info.getVertexShader() + ".vsh", GlslPreprocessor.injectDefines(vsh, info.getShaderDefines()),
-                    ShaderTranslator.Stage.VERTEX, Map.of());
-            var fs = ShaderTranslator.translate(info.getFragmentShader() + ".fsh", GlslPreprocessor.injectDefines(fsh, info.getShaderDefines()),
-                    ShaderTranslator.Stage.FRAGMENT, vs.outputs());
-            long vertexFn = function(vs, info.getVertexShader() + ".vsh", "vertex");
-            long fragmentFn = 0;
+            ShaderTranslator.Result vs, fs;
             try {
+                String vsh = source.get(info.getVertexShader(), ShaderType.VERTEX);
+                String fsh = source.get(info.getFragmentShader(), ShaderType.FRAGMENT);
+                if (vsh == null) throw new IllegalStateException("Missing vertex shader " + info.getVertexShader() + ".vsh");
+                if (fsh == null) throw new IllegalStateException("Missing fragment shader " + info.getFragmentShader() + ".fsh");
+                vs = ShaderTranslator.translate(info.getVertexShader() + ".vsh", GlslPreprocessor.injectDefines(vsh, info.getShaderDefines()),
+                        ShaderTranslator.Stage.VERTEX, Map.of());
+                fs = ShaderTranslator.translate(info.getFragmentShader() + ".fsh", GlslPreprocessor.injectDefines(fsh, info.getShaderDefines()),
+                        ShaderTranslator.Stage.FRAGMENT, vs.outputs());
+                vertexFn = function(vs, info.getVertexShader() + ".vsh", "vertex");
                 fragmentFn = function(fs, info.getFragmentShader() + ".fsh", "fragment");
-                return new MetalPipeline(info, vs, fs, vertexFn, fragmentFn);
-            } catch (RuntimeException | Error e) {
-                Mtl.release(vertexFn);
-                Mtl.release(fragmentFn);
-                throw e;
+            } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
+                EvieMetal.LOGGER.error("Couldn't compile pipeline {}: {}", name, e.getMessage());
+                throw new CompilationException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
+                        + "; set -Deviemod.metal=false and restart", e);
             }
-        } catch (ShaderTranslator.TranslationException | IllegalStateException e) {
-            EvieMetal.LOGGER.error("Couldn't compile pipeline {}: {}", name, e.getMessage());
-            throw new CompilationException("Metal shader compilation failed for pipeline " + name + ": " + e.getMessage()
-                    + "; set -Deviemod.metal=false and restart", e);
+            // Layout/depth-state failures are structural errors, not recoverable shader-source errors.
+            return new MetalPipeline(info, vs, fs, vertexFn, fragmentFn);
+        } catch (RuntimeException | Error e) {
+            Mtl.release(vertexFn);
+            Mtl.release(fragmentFn);
+            throw e;
         }
     }
 
