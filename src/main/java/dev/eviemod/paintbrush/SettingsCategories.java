@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.util.List;
 import net.azureaaron.dandelion.api.*;
 import net.azureaaron.dandelion.api.controllers.*;
@@ -56,7 +57,7 @@ final class SettingsCategories {
                     try { EviemodSettings.STORE.save(draft); TexturePackBypasser.manualCheck(); }
                     catch (java.io.IOException e) {
                         var client = net.minecraft.client.Minecraft.getInstance();
-                        client.setScreen(new net.minecraft.client.gui.screens.AlertScreen(() -> client.setScreen(parent),
+                        ClientUi.setScreen(client, new net.minecraft.client.gui.screens.AlertScreen(() -> ClientUi.setScreen(client, parent),
                             text("Settings could not be saved"), text(e.getMessage())));
                     }
                 }).build()).build();
@@ -70,9 +71,9 @@ final class SettingsCategories {
                 .prompt(text("Open editor"))
                 .action(parent -> {
                     var client = net.minecraft.client.Minecraft.getInstance();
-                    try { EviemodSettings.STORE.save(draft); client.setScreen(new PaintBrushScreen(parent, fixtures)); }
-                    catch (java.io.IOException e) { client.setScreen(new net.minecraft.client.gui.screens.AlertScreen(
-                        () -> client.setScreen(parent), text("Settings could not be saved"), text(e.getMessage()))); }
+                    try { EviemodSettings.STORE.save(draft); ClientUi.setScreen(client, new PaintBrushScreen(parent, fixtures)); }
+                    catch (java.io.IOException e) { ClientUi.setScreen(client, new net.minecraft.client.gui.screens.AlertScreen(
+                        () -> ClientUi.setScreen(client, parent), text("Settings could not be saved"), text(e.getMessage()))); }
                 })
                 .build()).build();
     }

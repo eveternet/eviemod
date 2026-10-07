@@ -7,3 +7,4 @@ pluginManagement {
 }
 rootProject.name = 'eviemod'
 include 'metal-addon'
+include 'eviemod-26.2'

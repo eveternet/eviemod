@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.features.skyblock.FeatureSettings;
 import net.azureaaron.dandelion.deps.moulconfig.gui.*;
 import net.azureaaron.dandelion.deps.moulconfig.platform.MoulConfigScreenComponent;
@@ -16,14 +17,14 @@ final class MergedFeaturesSmokeTest {
     void start() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (ticks == 0) {
-                if (!(client.screen instanceof TitleScreen) || client.getOverlay() != null) return;
+                if (!(ClientUi.screen(client) instanceof TitleScreen) || ClientUi.overlay(client) != null) return;
                 if (++startupTicks < 60) return;
-                parent = client.screen;
+                parent = ClientUi.screen(client);
                 for (String type : new String[]{"net.minecraft.client.multiplayer.ClientPacketListener", "net.minecraft.client.gui.Gui",
                         "net.minecraft.world.level.border.WorldBorder", "net.minecraft.client.renderer.ItemInHandRenderer", "net.minecraft.client.MouseHandler"}) {
                     try { Class.forName(type); } catch (ClassNotFoundException e) { throw new AssertionError(e); }
                 }
-                client.setScreen(EviemodSettings.screen(parent));
+                ClientUi.setScreen(client, EviemodSettings.screen(parent));
                 check(editor().getAllCategories().values().stream().map(category -> category.getDisplayName().getText()).toList()
                     .equals(java.util.List.of("Appearance", "Hypixel Pack", "Garden", "Dungeons", "Chat Commands", "Command Hotkeys")), "Six feature categories in order");
                 check(editor().getAllOptions().stream().noneMatch(option -> optionId(option).equals("eviemod:soul_whip")
@@ -42,18 +43,18 @@ final class MergedFeaturesSmokeTest {
                 case 30 -> {
                     toggleRow("eviemod:soul_whip/enabled");
                     check(option("eviemod:visuals/hearts").set(true), "Health UI binding");
-                    client.screen.onClose();
+                    ClientUi.screen(client).onClose();
                     check(FeatureSettings.isSoulWhipFixEnabled(), "Soul Whip runtime sees saved UI choice");
                     check(FeatureSettings.isMaxTenHeartsEnabled(), "Health runtime sees saved UI choice");
-                    check(client.screen == parent, "Shared UI returns to original parent");
-                    client.setScreen(EviemodSettings.screen(parent)); select("eviemod:garden");
+                    check(ClientUi.screen(client) == parent, "Shared UI returns to original parent");
+                    ClientUi.setScreen(client, EviemodSettings.screen(parent)); select("eviemod:garden");
                 }
                 case 45 -> capture(client, "merged-garden.png");
                 case 50 -> {
                     check(option("eviemod:garden/plot").set(7F), "Plot UI binding");
                     check(option("eviemod:garden/mouse_lock").set(true), "Mouse lock UI binding");
                     captureKey("eviemod:garden/key/tptoplot", 80, false);
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:chat_commands"); expand("eviemod:commands/ping");
+                    ClientUi.screen(client).onClose(); ClientUi.setScreen(client, EviemodSettings.screen(parent)); select("eviemod:chat_commands"); expand("eviemod:commands/ping");
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Plot persisted");
                     check(EviemodSettings.features().garden.mouseLock, "Mouse lock persisted");
                     check(EviemodSettings.features().garden.keys.get("tptoplot").equals("key.keyboard.p"), "Garden key persisted");
@@ -63,7 +64,7 @@ final class MergedFeaturesSmokeTest {
                     toggleRow("eviemod:commands/ping/party");
                     toggleRow("eviemod:commands/ping/guild");
                     toggleRow("eviemod:commands/ping/coop");
-                    client.screen.onClose(); client.setScreen(EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); expand("eviemod:hotkeys/0");
+                    ClientUi.screen(client).onClose(); ClientUi.setScreen(client, EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); expand("eviemod:hotkeys/0");
                 }
                 case 85 -> capture(client, "merged-hotkeys.png");
                 case 90 -> {
@@ -79,7 +80,7 @@ final class MergedFeaturesSmokeTest {
                     check(EviemodSettings.features().skyblock.commandHotkeys.size() == 1, "Remove control persists and rebuilds");
                 }
                 case 110 -> {
-                    client.screen.onClose(); check(client.screen == parent, "Add/remove preserve settings parent");
+                    ClientUi.screen(client).onClose(); check(ClientUi.screen(client) == parent, "Add/remove preserve settings parent");
                     EviemodSettings.load();
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Reload never reapplies legacy plot");
                     check(FeatureSettings.isSoulWhipFixEnabled(), "Reload never reapplies legacy Soul Whip choice");
@@ -92,7 +93,7 @@ final class MergedFeaturesSmokeTest {
         });
     }
     private static MoulConfigEditor<?> editor() {
-        var screen = (MoulConfigScreenComponent)Minecraft.getInstance().screen;
+        var screen = (MoulConfigScreenComponent)ClientUi.screen(Minecraft.getInstance());
         return (MoulConfigEditor<?>)((GuiElementComponent)screen.getGuiContext().getRoot()).getElement();
     }
     private static void select(String category) {
@@ -113,7 +114,7 @@ final class MergedFeaturesSmokeTest {
         boolean before = (Boolean)option.get();
         var control = (net.azureaaron.dandelion.deps.moulconfig.gui.editors.ComponentEditor)option.getEditor();
         check(control.getHeight() == 22, "Compact toggle height");
-        var screen = (MoulConfigScreenComponent)Minecraft.getInstance().screen;
+        var screen = (MoulConfigScreenComponent)ClientUi.screen(Minecraft.getInstance());
         var context = new GuiImmediateContext(screen.createContext().getRenderContext(), 0, 0, 300, 22, 32, 11, 32, 11, 32F, 11F);
         check(control.getDelegate().mouseEvent(new MouseEvent.Click(0, true), context), "Toggle row receives mouse click");
         control.getDelegate().mouseEvent(new MouseEvent.Click(0, false), context);
@@ -128,7 +129,7 @@ final class MergedFeaturesSmokeTest {
         GuiComponent key = control.getDelegate().foldRecursive((GuiComponent)null,
             (component, found) -> component.getClass().getSimpleName().equals("KeyMappingComponent") ? component : found);
         check(key != null, "Standard key capture control");
-        var screen = (MoulConfigScreenComponent)Minecraft.getInstance().screen;
+        var screen = (MoulConfigScreenComponent)ClientUi.screen(Minecraft.getInstance());
         var context = new GuiImmediateContext(screen.createContext().getRenderContext(), 0, 0, 0, 30, 0, 15, 0, 15, 0F, 15F);
         check(key.mouseEvent(new MouseEvent.Click(0, true), context), "Enter key capture");
         key.mouseEvent(new MouseEvent.Click(0, false), context);
@@ -139,7 +140,7 @@ final class MergedFeaturesSmokeTest {
         }
     }
     private static void capture(Minecraft client, String name) {
-        net.minecraft.client.Screenshot.grab(client.gameDirectory, name, client.getMainRenderTarget(), 1, message -> {});
+        net.minecraft.client.Screenshot.grab(client.gameDirectory, name, ClientUi.mainRenderTarget(client), 1, message -> {});
     }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
 }

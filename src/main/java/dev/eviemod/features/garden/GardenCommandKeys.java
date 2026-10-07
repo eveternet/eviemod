@@ -1,5 +1,6 @@
 package dev.eviemod.features.garden;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.paintbrush.EviemodSettings;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -9,7 +10,7 @@ public final class GardenCommandKeys {
    }
 
    public static void tick(Minecraft client, boolean inGarden) {
-      boolean active = inGarden && client.player != null && client.screen == null;
+      boolean active = inGarden && client.player != null && ClientUi.screen(client) == null;
       if (!active) {
          drain(GardenKeyMappings.TELEPORT_TO_PLOT);
          drain(GardenKeyMappings.SET_SPAWN);

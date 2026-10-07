@@ -1,0 +1,17 @@
+plugins {
+    id 'net.fabricmc.fabric-loom'
+}
+
+group = rootProject.group
+version = rootProject.version
+
+ext {
+    minecraftVersion = '26.2'
+    fabricApiVersion = '0.155.2+26.2'
+    yaclVersion = '3.9.4+26.2'
+    dandelionVersion = '1.0.0-alpha.22+26.2'
+    dandelionCoordinate = "net.azureaaron:dandelion:${dandelionVersion}"
+    hmApiVersion = '1.0.4+26.2'
+    modMenuVersion = '19.0.0-alpha.1'
+}
+apply from: rootProject.file('gradle/eviemod.gradle')

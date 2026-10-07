@@ -1,0 +1,85 @@
+// Both game targets compile the same feature logic and tests, with small version adapters.
+base.archivesName = 'eviemod'
+sourceSets {
+    main {
+        java.srcDirs = [rootProject.file('src/main/java'), rootProject.file("src/${minecraftVersion}/java")]
+        resources.srcDirs = [rootProject.file('src/main/resources')]
+    }
+    test {
+        java.srcDirs = [rootProject.file('src/test/java')]
+        resources.srcDirs = [rootProject.file('src/test/resources')]
+    }
+}
+jar { archiveClassifier = "mc${minecraftVersion}" }
+
+repositories {
+    flatDir { dirs rootProject.file('libs'); content { includeGroup 'local.eviemod' } }
+    mavenCentral()
+    maven { url = 'https://maven.azureaaron.net/releases' }
+    maven { url = 'https://api.modrinth.com/maven' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraftVersion}"
+    implementation 'net.fabricmc:fabric-loader:0.19.5'
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+    include implementation("maven.modrinth:yacl:${yaclVersion}-fabric")
+    // Dandelion shades MoulConfig; its other runtime dependencies are explicitly
+    // pinned below/above. Avoid loading a second YACL from its Maven POM.
+    include implementation(dandelionCoordinate) { transitive = false }
+    include implementation('net.fabricmc:fabric-language-kotlin:1.14.1+kotlin.2.4.20')
+    include implementation("net.azureaaron:hm-api:${hmApiVersion}")
+    compileOnly "maven.modrinth:modmenu:${modMenuVersion}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach { options.release = 25 }
+test { useJUnitPlatform() }
+processResources {
+    def modVersion = project.version
+    inputs.property 'version', modVersion
+    def metadata = [version: modVersion, minecraftVersion: minecraftVersion, fabricApiVersion: fabricApiVersion,
+                    yaclVersion: yaclVersion, hmApiVersion: hmApiVersion, dandelionVersion: dandelionVersion]
+    inputs.properties metadata
+    filesMatching('fabric.mod.json') { expand metadata }
+}
+
+// Optional, separate fixture mod for exercising the UI without a server or account.
+if (providers.gradleProperty('uiSmokeTest').isPresent()) {
+    sourceSets {
+        uiTest {
+            java.srcDirs = [rootProject.file('src/uiTest/java')]
+            resources.srcDirs = [rootProject.file('src/uiTest/resources')]
+            compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+        }
+    }
+    loom {
+        mods {
+            eviemod { sourceSet sourceSets.main }
+            eviemod_ui_test { sourceSet sourceSets.uiTest }
+        }
+    }
+    tasks.named('runClient') {
+        if (providers.gradleProperty('uiCapture').isPresent()) jvmArgs '-Deviemod.capture=true'
+        if (providers.gradleProperty('textureCapture').isPresent()) jvmArgs '-Deviemod.textureCapture=true'
+        if (providers.gradleProperty('packCapture').isPresent()) jvmArgs '-Deviemod.packCapture=true'
+        if (providers.gradleProperty('mergedCapture').isPresent()) jvmArgs '-Deviemod.mergedCapture=true'
+        if (providers.gradleProperty('scoreSyncSmoke').isPresent()) jvmArgs '-Deviemod.scoreSyncSmoke=true'
+        if (providers.gradleProperty('versionSmokeTest').isPresent()) jvmArgs '-Deviemod.versionSmokeTest=true'
+        dependsOn tasks.named('uiTestClasses')
+        classpath += sourceSets.uiTest.runtimeClasspath
+    }
+}
+
+if (providers.gradleProperty('mergedCapture').isPresent()) {
+    loom.runs.client.runDir = 'run/merged-fixture'
+}
+if (providers.gradleProperty('scoreSyncSmoke').isPresent()) {
+    loom.runs.client.runDir = 'run/score-sync-fixture'
+}

@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.util.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -52,7 +53,7 @@ public final class PaintBrushScreen extends CompactScreen {
         w = 440; h = 260; x = (viewWidth - w) / 2; y = (viewHeight - h) / 2;
         left = x + HORIZONTAL_INSET; contentWidth = w - 2 * HORIZONTAL_INSET;
         button("Done", x + w - 62, y + 8, 50, this::onClose);
-        button("Choose item", left, y + 42, 98, () -> minecraft.setScreen(new InventoryPicker()));
+        button("Choose item", left, y + 42, 98, () -> ClientUi.setScreen(minecraft, new InventoryPicker()));
         if (draft == null) return;
         String[] tabs = {"Model", "Dye", "Name", "Skin"};
         var visibleTabs = List.of(0, 1, 2, 3);
@@ -150,7 +151,7 @@ public final class PaintBrushScreen extends CompactScreen {
     }
     @Override public void tick() {
         if (draft == null && !offeredPicker) {
-            offeredPicker = true; minecraft.setScreen(new InventoryPicker()); return;
+            offeredPicker = true; ClientUi.setScreen(minecraft, new InventoryPicker()); return;
         }
         if (restoreNameFocus && nameBox != null) {
             restoreNameFocus = false; setFocused(nameBox); nameBox.setFocused(true);
@@ -182,7 +183,7 @@ public final class PaintBrushScreen extends CompactScreen {
     private void select(ItemStack stack) {
         UUID id = SkyBlockUuid.read(stack); if (id == null) return;
         setItem(stack);
-        error = ""; minecraft.setScreen(this);
+        error = ""; ClientUi.setScreen(minecraft, this);
     }
     private void setItem(ItemStack stack) {
         pendingTexture = null; selected = stack.copy();
@@ -294,7 +295,7 @@ public final class PaintBrushScreen extends CompactScreen {
                 Throwable cause = e; while (cause.getCause() != null) cause = cause.getCause();
                 error = cause.getMessage() == null ? "The texture could not be imported." : cause.getMessage();
             }
-            if (minecraft.screen == this) rebuildWidgets();
+            if (ClientUi.screen(minecraft) == this) rebuildWidgets();
         }, minecraft);
     }
     private static Integer optionalColor(String value) {
@@ -353,13 +354,13 @@ public final class PaintBrushScreen extends CompactScreen {
     boolean hasUnappliedEdits() { return pendingTexture != null || drafts.values().stream().anyMatch(d -> d.dirty[0] || d.dirty[1] || d.dirty[2] || d.dirty[3]); }
     void requestClose(Runnable close) {
         if (hasUnappliedEdits()) {
-            minecraft.setScreen(new ConfirmScreen(discard -> {
-                if (discard) close.run(); else minecraft.setScreen(this);
+            ClientUi.setScreen(minecraft, new ConfirmScreen(discard -> {
+                if (discard) close.run(); else ClientUi.setScreen(minecraft, this);
             }, Component.literal("Discard unapplied edits?"), Component.literal("Applied changes are already saved."),
                 Component.literal("Discard edits"), Component.literal("Keep editing")));
         } else close.run();
     }
-    @Override public void onClose() { if (importing) return; requestClose(() -> minecraft.setScreen(parent)); }
+    @Override public void onClose() { if (importing) return; requestClose(() -> ClientUi.setScreen(minecraft, parent)); }
     private static final class Draft {
         String model, dye, start = "", end = "";
         NameDocument name;
@@ -415,7 +416,7 @@ public final class PaintBrushScreen extends CompactScreen {
                 }
             }
         }
-        @Override public void onClose() { minecraft.setScreen(PaintBrushScreen.this); }
+        @Override public void onClose() { ClientUi.setScreen(minecraft, PaintBrushScreen.this); }
         @Override public boolean isPauseScreen() { return false; }
         private record Slot(ItemStack stack, int x, int y, boolean enabled) {}
     }

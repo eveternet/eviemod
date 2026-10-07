@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,10 +12,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -40,7 +41,7 @@ final class TextureSmokeTest {
     }
     private void tick(Minecraft client) throws Exception {
         if (stage == 0) {
-            if (!(client.screen instanceof TitleScreen) || client.getOverlay() != null) return;
+            if (!(ClientUi.screen(client) instanceof TitleScreen) || ClientUi.overlay(client) != null) return;
             net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
                 .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
                 .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
@@ -65,11 +66,11 @@ final class TextureSmokeTest {
                 ImageIO.write(strip, "PNG", animated.toFile());
                 Files.writeString(Path.of(animated + ".mcmeta"), "{\"animation\":{\"frametime\":2,\"interpolate\":true}}");
             }
-            editor = new PaintBrushScreen(List.of(held)); client.setScreen(editor);
+            editor = new PaintBrushScreen(List.of(held)); ClientUi.setScreen(client, editor);
             next(); return;
         }
         if (++ticks > 1200) throw new AssertionError("Timed out at texture fixture stage " + stage);
-        if (client.getOverlay() != null || ticks < 15) return;
+        if (ClientUi.overlay(client) != null || ticks < 15) return;
         switch (stage) {
             case 1 -> {
                 var field = modelField(editor, "Item model");
@@ -107,7 +108,7 @@ final class TextureSmokeTest {
                 // A saved uploaded texture is ignored on armor, but built-in replacements work.
                 check(chest.get(DataComponents.ITEM_MODEL).equals(PaintBrushClient.resolve(chest, chest.get(DataComponents.ITEM_MODEL))), "Imported armor texture must be ignored");
                 PaintBrushClient.models().set(KEY, null);
-                editor = new PaintBrushScreen(List.of(chest)); client.setScreen(editor);
+                editor = new PaintBrushScreen(List.of(chest)); ClientUi.setScreen(client, editor);
                 check(!hasButton(client, "Import PNG & apply"), "Armor must not offer uploads");
                 modelField(editor, "Item model").setValue("minecraft:leather_chestplate"); click(client, "Apply");
                 check(Identifier.withDefaultNamespace("leather_chestplate").equals(PaintBrushClient.resolve(chest, chest.get(DataComponents.ITEM_MODEL))), "Gold must resolve as leather");
@@ -123,7 +124,7 @@ final class TextureSmokeTest {
                 screenshot(client, "paintbrush-leather-dye.png");
                 PaintBrushClient.models().set(KEY, texture); PaintBrushClient.colors().setValue(KEY, oldColor);
                 modelBeforeSkin = client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone"));
-                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor); click(client, "Skin");
+                editor = new PaintBrushScreen(List.of(helmet)); ClientUi.setScreen(client, editor); click(client, "Skin");
                 check(!hasButton(client, "Import skin PNG"), "Skin uploads must be removed");
                 editor.onFilesDrop(List.of(image)); check(HelmetSkins.store().get(KEY) == null, "Skin file drops must be ignored");
                 modelField(editor, "Helmet skin").setValue("Knight Skin (Diamond Necron Head)"); next();
@@ -136,12 +137,12 @@ final class TextureSmokeTest {
                 check(HelmetSkinCatalog.find("NECRON_DIAMOND_KNIGHT").variant("Rose").modelId().equals(skin), "Chosen colour variant must persist");
                 check(modelBeforeSkin == client.getModelManager().getItemModel(Identifier.withDefaultNamespace("stone")), "Skin must not reload resource packs");
                 check(ItemStack.isSameItemSameComponents(before, helmet), "Skin must not change actual item data");
-                editor = new PaintBrushScreen(List.of(helmet)); client.setScreen(editor); click(client, "Skin");
+                editor = new PaintBrushScreen(List.of(helmet)); ClientUi.setScreen(client, editor); click(client, "Skin");
                 check(modelField(editor, "Helmet skin").getValue().equals("Knight Skin (Diamond Necron Head)"), "Saved skin name must appear");
                 check(modelField(editor, "Skin variant").getValue().equals("Rose"), "Saved variant must appear");
                 next();
             }
-            case 8 -> { screenshot(client, "paintbrush-variant-selection.png"); client.setScreen(new Preview(helmet)); next(); }
+            case 8 -> { screenshot(client, "paintbrush-variant-selection.png"); ClientUi.setScreen(client, new Preview(helmet)); next(); }
             case 9 -> { screenshot(client, "paintbrush-catalog-skin.png"); reload = client.reloadResourcePacks(); next(); }
             case 10 -> {
                 if (!reload.isDone()) return; reload.join();
@@ -151,10 +152,10 @@ final class TextureSmokeTest {
                 var other = helmet.copy(); other.remove(DataComponents.CUSTOM_DATA);
                 check(HelmetSkins.resolve(other) == null, "Skin must not leak to unknown identity");
                 HelmetSkins.load(); PaintBrushClient.models().load();
-                client.setScreen(editor); click(client, "Reset");
+                ClientUi.setScreen(client, editor); click(client, "Reset");
                 check(HelmetSkins.store().get(KEY) == null, "Skin reset must clear skin");
                 check(texture.equals(PaintBrushClient.models().get(KEY)), "Skin reset preserves model");
-                editor = new PaintBrushScreen(List.of(held)); client.setScreen(editor); click(client, "Reset");
+                editor = new PaintBrushScreen(List.of(held)); ClientUi.setScreen(client, editor); click(client, "Reset");
                 check(PaintBrushClient.models().get(KEY) == null, "Model reset must clear texture");
                 PaintBrushClient.models().set(KEY, texture);
                 Files.writeString(animated, "invalid PNG"); editor.onFilesDrop(List.of(animated)); next();
@@ -175,27 +176,27 @@ final class TextureSmokeTest {
             .map(c -> (ModelField)c).findFirst().orElseThrow();
     }
     private static boolean hasButton(Minecraft client, String label) {
-        return client.screen.children().stream().anyMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals(label));
+        return ClientUi.screen(client).children().stream().anyMatch(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals(label));
     }
     private static void clickAt(Minecraft client, int x, int y) {
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
         var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(0, 0));
-        client.screen.mouseClicked(event, false); client.screen.mouseReleased(event);
+        ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private void next() { stage++; ticks = 0; }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
     private static void screenshot(Minecraft client, String name) {
-        net.minecraft.client.Screenshot.grab(client.gameDirectory, name, client.getMainRenderTarget(), 1,
+        net.minecraft.client.Screenshot.grab(client.gameDirectory, name, ClientUi.mainRenderTarget(client), 1,
             message -> org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info(message.getString()));
     }
     private static void click(Minecraft client, String label) {
-        var widget = client.screen.children().stream().filter(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals(label))
+        var widget = ClientUi.screen(client).children().stream().filter(c -> c instanceof AbstractWidget w && w.getMessage().getString().equals(label))
             .map(c -> (AbstractWidget) c).findFirst().orElseThrow();
         check(widget.active, label + " should be enabled");
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
         var event = new net.minecraft.client.input.MouseButtonEvent((widget.getX() + 3) * viewport.scale(), (widget.getY() + 3) * viewport.scale(),
             new net.minecraft.client.input.MouseButtonInfo(0, 0));
-        client.screen.mouseClicked(event, false); client.screen.mouseReleased(event);
+        ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private static final class Preview extends CompactScreen {
         private final ItemStack helmet;
@@ -206,7 +207,8 @@ final class TextureSmokeTest {
             g.text(font, "Imported helmet skin: item and worn appearance", 15, 15, -1);
             g.pose().pushMatrix(); g.pose().translate(30, 50); g.pose().scale(4, 4); g.item(helmet, 0, 0); g.pose().popMatrix();
             var state = new net.minecraft.client.renderer.entity.state.ArmorStandRenderState();
-            state.entityType = EntityType.ARMOR_STAND; state.scale = 1; state.ageScale = 1;
+            state.entityType = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("armor_stand"));
+            state.scale = 1; state.ageScale = 1;
             state.headEquipment = helmet; state.showArms = true;
             HelmetSkins.applyWorn(helmet, state);
             check(state.wornHeadType == net.minecraft.world.level.block.SkullBlock.Types.PLAYER, "Worn renderer must use a player skull");

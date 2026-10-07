@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import java.io.IOException;
 import java.util.List;
 import net.azureaaron.dandelion.api.*;
@@ -27,13 +28,13 @@ public final class EviemodSettings {
         ImportedKeyBindings.tick();
         if (pendingError != null) {
             String message = pendingError; pendingError = null;
-            Screen parent = client.screen;
-            client.setScreen(new AlertScreen(() -> client.setScreen(parent), Component.literal("Settings could not be saved"), Component.literal(message)));
+            Screen parent = ClientUi.screen(client);
+            ClientUi.setScreen(client, new AlertScreen(() -> ClientUi.setScreen(client, parent), Component.literal("Settings could not be saved"), Component.literal(message)));
         }
     }
     public static Screen screen(Screen parent) { return screen(parent, "", null); }
     static Screen screen(Screen parent, String search, List<ItemStack> fixtures) {
-        if (STORE.error() != null) return new AlertScreen(() -> Minecraft.getInstance().setScreen(parent),
+        if (STORE.error() != null) return new AlertScreen(() -> ClientUi.setScreen(Minecraft.getInstance(), parent),
             Component.literal("Settings could not be loaded"), Component.literal(STORE.error()));
         var manager = new SettingsManager();
         var screen = (MoulConfigScreenComponent) DandelionConfigScreen.create(manager, (defaults, draft, builder) ->
@@ -41,7 +42,7 @@ public final class EviemodSettings {
                 .categories(SettingsCategories.create(draft, fixtures)))
             .generateScreen(parent, ConfigType.MOUL_CONFIG);
         screen.getGuiContext().setCloseRequestHandler(() -> {
-            if (manager.save()) Minecraft.getInstance().setScreen(parent);
+            if (manager.save()) ClientUi.setScreen(Minecraft.getInstance(), parent);
         });
         ORIGINS.put(screen, new ScreenOrigin(parent, fixtures));
         return screen;
@@ -51,7 +52,7 @@ public final class EviemodSettings {
         try {
             STORE.save(draft);
             var origin = ORIGINS.getOrDefault(current, new ScreenOrigin(null, null));
-            Minecraft.getInstance().setScreen(screen(origin.parent(), search, origin.fixtures()));
+            ClientUi.setScreen(Minecraft.getInstance(), screen(origin.parent(), search, origin.fixtures()));
         } catch (IOException e) { pendingError = e.getMessage(); }
     }
 

@@ -2,7 +2,7 @@ package dev.eviemod.features.dungeons;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.Component;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,9 +19,9 @@ class PartyFinderAlertTest {
     }
 
     @Test void acceptsLegacyFormattingAndStyledComponentSiblingsWithoutMutation() {
-        var component = Component.literal("Party Finder > ").withStyle(ChatFormatting.GOLD)
-            .append(Component.literal("Your dungeon group is full! ").withStyle(ChatFormatting.YELLOW))
-            .append(Component.literal("Click here to warp to the dungeon!").withStyle(ChatFormatting.GREEN));
+        var component = Component.literal("Party Finder > ").withStyle(Style.EMPTY.withColor(0xffaa00))
+            .append(Component.literal("Your dungeon group is full! ").withStyle(Style.EMPTY.withColor(0xffff55)))
+            .append(Component.literal("Click here to warp to the dungeon!").withStyle(Style.EMPTY.withColor(0x55ff55)));
         var original = component.copy();
         var output = new ArrayList<String>();
         PartyFinderAlert.receive(component.getString(), false, true, "Full!", output::add);

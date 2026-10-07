@@ -79,7 +79,14 @@ final class ImportedTextures {
         write(assets.resolve(texture(id).getPath()), png);
         if (animation != null) write(assets.resolve(texture(id).getPath() + ".mcmeta"), animation.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         if (preset != Preset.HELMET) write(assets.resolve("models/item/" + id.getPath() + ".json"), modelJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        write(root.resolve("pack.mcmeta"), "{\"pack\":{\"description\":\"Paint Brush imported textures\",\"min_format\":84,\"max_format\":84}}\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        var pack = new JsonObject();
+        pack.addProperty("description", "Paint Brush imported textures");
+        int format = net.minecraft.SharedConstants.getCurrentVersion()
+            .packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES).major();
+        pack.addProperty("min_format", format);
+        pack.addProperty("max_format", format);
+        var packMetadata = new JsonObject(); packMetadata.add("pack", pack);
+        write(root.resolve("pack.mcmeta"), (packMetadata + "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
         write(assets.resolve("items/" + id.getPath() + ".json"), itemJson(id, preset).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         return id;
     }

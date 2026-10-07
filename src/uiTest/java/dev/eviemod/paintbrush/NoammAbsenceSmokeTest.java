@@ -1,5 +1,6 @@
 package dev.eviemod.paintbrush;
 
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.features.scoresync.ScoreSyncClient;
 import net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent;
 import net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor;
@@ -12,15 +13,15 @@ final class NoammAbsenceSmokeTest {
     private int ticks;
     void start() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.getOverlay() != null || ++ticks < 20) return;
+            if (ClientUi.overlay(client) != null || ++ticks < 20) return;
             if (FabricLoader.getInstance().isModLoaded("noammaddons") || ScoreSyncClient.available())
                 throw new AssertionError("Noamm must be absent and unavailable");
             if (EviemodSettings.features().skyblock.noammScoreSync)
                 throw new AssertionError("Fresh settings must default off");
             // A saved opt-in from a previous session cannot expose an enableable control without Noamm.
             EviemodSettings.features().skyblock.noammScoreSync = true;
-            client.setScreen(EviemodSettings.screen(client.screen));
-            var screen = (MoulConfigScreenComponent) client.screen;
+            ClientUi.setScreen(client, EviemodSettings.screen(ClientUi.screen(client)));
+            var screen = (MoulConfigScreenComponent) ClientUi.screen(client);
             var editor = (MoulConfigEditor<?>) ((GuiElementComponent) screen.getGuiContext().getRoot()).getElement();
             for (var option : editor.getAllOptions()) {
                 try {
