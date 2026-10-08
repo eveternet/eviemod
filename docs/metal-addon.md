@@ -125,8 +125,23 @@ automatic activation without Java arguments, absent-mod class loading,
 fallback/recovery pixels, native cache replacement, diagnostics and actual SUMR
 hot reload. These fixtures do not validate the entire SkyBlock modpack.
 
-The automatic-activation change requires a fresh build and packaged fixture run.
-Physical-Mac results and the tested artifact hash will be recorded after validation.
+Physical Apple M3 Pro / ARM64 Java 25.0.3 / macOS 27.0.1 validation on 2026-10-08,
+with `MTL_DEBUG_LAYER=1`: root build, both native distributions, artifact separation
+and all **444** tests pass (172 per main-mod target, 48 retained addon tests,
+52 26.2 addon tests), without skips. Both packaged SUMR fixtures pass with rendered
+title captures and verified native cleanup. No activation argument is supplied.
+The installed-mod fixture checks missing-stage lazy recovery, both shader-stage
+failures, structural layout rejection, fallback/recovery pixels, native cache
+replacement, diagnostics and actual SUMR hot reload. Its final title capture has
+no unsupported-backend warning. The absent-mod fixture loads successfully without
+SUMR classes present. These are isolated fixtures, not a live Hypixel or
+full-modpack run.
+
+The tested 26.2 addon SHA-256 is
+`1e1db297665bad06cfc03d7d61abb6ec48f08ca2ced8018fe04e76d94f5d0f6c`.
+Local evidence: `/tmp/eviemetal-sumr-auto-build.log`,
+`/tmp/eviemetal-sumr-auto-title.log`, `/tmp/eviemetal-sumr-auto-absent.log`, and
+`metal-addon-26.2/build/packagedSmoke/sumr*/metal-smoke.png`.
 
 The report records the baseline commit, actual game/Sodium interfaces inspected,
 rendering regressions, packaged lifecycle results and limits. These are local
