@@ -25,8 +25,8 @@ if flavor == "SumrTitle":
     assert result.returncode != 0 or "not handled by SUMR" not in text
     assert result.returncode != 0 or "Error while reloading shaders:" not in text
     assert result.returncode != 0 or "Error executing task on Client" not in text
-elif flavor in ("SumrDefaultTitle", "SumrAbsentTitle"):
-    required.append("EVIEMETAL_SUMR_GUARD_OK mode=" + ("default" if flavor == "SumrDefaultTitle" else "absent"))
+elif flavor == "SumrAbsentTitle":
+    required.append("EVIEMETAL_SUMR_GUARD_OK mode=absent")
 if flavor == "Sodium":
     if module == "metal-addon":
         required.append("EVIEMETAL_SODIUM_TIER1_OK")

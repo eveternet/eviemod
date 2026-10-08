@@ -100,11 +100,10 @@ Physical Apple Silicon evidence is recorded separately in [the 26.2 port report]
 
 ## Stop Unloading My Resourcepacks on 26.2
 
-SUMR Fabric **1.5.1+26.2** reports an unhandled-backend warning with Metal.
-This identifies missing SUMR integration, not failed Metal activation. Disable
-SUMR as an immediate workaround, or explicitly enable the bounded adapter with
-`-Deviemod.metal.sumr=true` in the launcher's Java arguments and restart.
-The adapter defaults to off and only applies to that exact SUMR version on 26.2;
+The 26.2 addon automatically adapts SUMR Fabric **1.5.1+26.2** when it is installed,
+preventing SUMR's unhandled-backend warning. No Java argument or configuration
+toggle is needed or available; remove SUMR or the Metal addon to remove the
+integration. The adapter only applies to that exact SUMR version on 26.2.
 SUMR is neither bundled nor required. Unknown versions retain their own warning.
 
 The adapter implements SUMR's backend interface, reports Metal shader compilation
@@ -121,29 +120,13 @@ inside an open Metal pass. Shader recovery itself stays synchronous.
 The installed binary's backend guard, fallback provider and cache-bypass contract
 were inspected directly; implementation is independent of SUMR's licensed source.
 See [SUMR's upstream project](https://github.com/Enchanted-Games/stop-unloading-my-shaders).
-The packaged `SumrTitle`, `SumrDefaultTitle` and `SumrAbsentTitle` fixtures check
-the exact optional JAR, explicit activation, absent-mod class loading, default-off
-behavior, fallback/recovery pixels, native cache replacement, diagnostics and
-actual SUMR hot reload. These fixtures do not validate the entire SkyBlock modpack.
+The packaged `SumrTitle` and `SumrAbsentTitle` fixtures check the exact optional JAR,
+automatic activation without Java arguments, absent-mod class loading,
+fallback/recovery pixels, native cache replacement, diagnostics and actual SUMR
+hot reload. These fixtures do not validate the entire SkyBlock modpack.
 
-Physical Apple M3 Pro / ARM64 Java 25.0.3 / macOS 27.0.1 validation on 2026-10-07,
-with `MTL_DEBUG_LAYER=1`: root build, both native distributions, artifact separation
-and all **444** tests pass (172 per main-mod target, 48 retained addon tests,
-52 26.2 addon tests), without skips. All three packaged SUMR fixtures pass with
-rendered title captures and verified native cleanup. The enabled fixture also
-checks missing-stage lazy recovery, both shader-stage failures, a structural
-layout rejection, fallback/recovery pixels and the actual SUMR hot reload. Its
-final title capture has no unsupported-backend warning. The default-off fixture
-retains SUMR's warning; the absent-mod fixture loads successfully with the opt-in
-property set and no SUMR classes present. These are isolated fixtures, not a live
-Hypixel or full-modpack run.
-
-The tested 26.2 addon SHA-256 is
-`8b2d2ea59c6e4698220c43664a53378dd2e01ad0616ab270506b735e87fe0bc9`.
-Local evidence: `/tmp/eviemetal-sumr-queued-build.log`,
-`/tmp/eviemetal-sumr-queued-enabled.log`,
-`/tmp/eviemetal-sumrdefaulttitle.log`, `/tmp/eviemetal-sumrabsenttitle.log`, and
-`metal-addon-26.2/build/packagedSmoke/sumr*/metal-smoke.png`.
+The automatic-activation change requires a fresh build and packaged fixture run.
+Physical-Mac results and the tested artifact hash will be recorded after validation.
 
 The report records the baseline commit, actual game/Sodium interfaces inspected,
 rendering regressions, packaged lifecycle results and limits. These are local

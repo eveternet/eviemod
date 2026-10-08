@@ -8,12 +8,10 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SumrBoundaryTest {
-    @Test void integrationRequiresExplicitOptInAndExactInstalledBinary() {
-        assertTrue(SumrMixinPlugin.enabled("true", "1.5.1+26.2"));
-        for (String setting : new String[]{null, "", "false", "1"})
-            assertFalse(SumrMixinPlugin.enabled(setting, "1.5.1+26.2"));
+    @Test void integrationAppliesAutomaticallyToExactInstalledBinary() {
+        assertTrue(SumrMixinPlugin.supportedVersion("1.5.1+26.2"));
         for (String version : new String[]{null, "1.5.0+26.2", "1.5.2+26.2", "1.5.1+26.1.2"})
-            assertFalse(SumrMixinPlugin.enabled("true", version));
+            assertFalse(SumrMixinPlugin.supportedVersion(version));
     }
 
     @Test void actualSumrBackendGuardUsesTheImplementedInterface() throws Exception {

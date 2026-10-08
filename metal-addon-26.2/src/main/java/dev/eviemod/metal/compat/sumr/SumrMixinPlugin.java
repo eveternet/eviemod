@@ -7,16 +7,16 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.*;
 
-/** Keep the optional interface out of class loading unless the inspected binary is installed and opted in. */
+/** Apply the interface automatically when the inspected optional binary is installed. */
 public final class SumrMixinPlugin implements IMixinConfigPlugin {
-    static boolean enabled(String setting, String version) {
-        return "true".equalsIgnoreCase(setting) && "1.5.1+26.2".equals(version);
+    static boolean supportedVersion(String version) {
+        return "1.5.1+26.2".equals(version);
     }
 
     @Override public boolean shouldApplyMixin(String target, String mixin) {
         String version = FabricLoader.getInstance().getModContainer("eg_stop_unloading_my_shaders")
                 .map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse(null);
-        return enabled(System.getProperty("eviemod.metal.sumr"), version);
+        return supportedVersion(version);
     }
     @Override public void onLoad(String mixinPackage) {}
     @Override public String getRefMapperConfig() { return null; }

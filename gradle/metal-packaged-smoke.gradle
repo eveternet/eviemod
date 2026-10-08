@@ -16,7 +16,7 @@ def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/
 def sodiumFiles = configurations.testRuntimeClasspath
 def flavors = ['Vanilla', 'Sodium', 'Disabled', 'DisabledSodium', 'Fallback', 'Title', 'SodiumTitle']
 if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback', 'PreflightVulkanFallback', 'UnsupportedSodium',
-                                'SumrTitle', 'SumrDefaultTitle', 'SumrAbsentTitle']
+                                'SumrTitle', 'SumrAbsentTitle']
 flavors.each { flavor ->
     tasks.register("packaged${flavor}Smoke", JavaExec) {
         group = 'verification'
@@ -36,12 +36,11 @@ flavors.each { flavor ->
         systemProperty 'fabric.defaultMixinRemapType', 'static'
         systemProperty 'fabric.classPathGroups', sourceSets.smokeTest.output.files.collect { it.absolutePath }.join(File.pathSeparator)
         systemProperty 'eviemod.metal.distributionExpected', 'true'
-        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle', 'SumrTitle', 'SumrDefaultTitle', 'SumrAbsentTitle']) {
+        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle', 'SumrTitle', 'SumrAbsentTitle']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
         }
         if (flavor.startsWith('Sumr')) {
-            systemProperty 'eviemod.metal.sumrSmoke', flavor == 'SumrTitle' ? 'enabled' : flavor == 'SumrDefaultTitle' ? 'default' : 'absent'
-            if (flavor != 'SumrDefaultTitle') systemProperty 'eviemod.metal.sumr', 'true'
+            systemProperty 'eviemod.metal.sumrSmoke', flavor == 'SumrTitle' ? 'enabled' : 'absent'
         }
         if (flavor in ['Vanilla', 'Sodium']) {
             systemProperty 'eviemod.metal.smokeExpected', 'true'
@@ -81,7 +80,7 @@ flavors.each { flavor ->
             // Dedicated fixture directory; a version bump must never leave two copies of this mod installed.
             mods.listFiles().findAll { it.name.endsWith('.jar') }.each { it.delete() }
             java.nio.file.Files.copy(jarProvider.get().asFile.toPath(), new File(mods, jarProvider.get().asFile.name).toPath())
-            if (flavor in ['SumrTitle', 'SumrDefaultTitle']) {
+            if (flavor == 'SumrTitle') {
                 def sumr = sodiumFiles.resolvedConfiguration.resolvedArtifacts.findAll {
                     it.moduleVersion.id.group == 'maven.modrinth' && it.moduleVersion.id.name == 'awyrq9la'
                             && it.moduleVersion.id.version == 'lvciRP6I'
