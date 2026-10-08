@@ -1,5 +1,9 @@
 # Sodium on Eviemetal
 
+This report describes the retained **26.1.2** bridge and its historical evidence.
+The **26.2** Blaze3D terrain adapter, arena recycling, timestamp resizing and
+packaged validation are documented in [the parallel port report](metal-26.2-port.md).
+
 ## Supported boundary
 
 Minecraft 26.1.2, Fabric Loader 0.19.5, Sodium `0.9.2+mc26.1.2`, Apple Silicon,

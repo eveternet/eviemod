@@ -45,16 +45,17 @@ abstract class SodiumWorldSmokeMixin {
         }
         if (stopping && mc.level == null && mc.screen instanceof TitleScreen) {
             if (!Mtl.fenceWait(Mtl.fence(), 5000)) throw new AssertionError("Final GPU fence timed out");
-            dev.eviemod.metal.compat.sodium.SodiumMetal.assertWorldReleased();
-            System.out.println("EVIEMETAL_SODIUM_RESOURCES " + dev.eviemod.metal.compat.sodium.SodiumMetal.resourceSummary());
-            if (Boolean.getBoolean("eviemod-metal.terrainProfile")) {
+            boolean sodium = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium");
+            if (sodium) dev.eviemod.metal.compat.sodium.SodiumMetal.assertWorldReleased();
+            if (sodium) System.out.println("EVIEMETAL_SODIUM_RESOURCES " + dev.eviemod.metal.compat.sodium.SodiumMetal.resourceSummary());
+            if (sodium && Boolean.getBoolean("eviemod-metal.terrainProfile")) {
                 var counters = dev.eviemod.metal.compat.sodium.SodiumMetal.performanceCounters();
                 if (counters.layoutSnapshots() == 0 || counters.batches() <= counters.layoutSnapshots()
                         || counters.bindingCalls() >= counters.bindingAttempts())
                     throw new AssertionError("Expected layout reuse and fewer native bindings: " + counters);
                 System.out.println("EVIEMETAL_SODIUM_TIER1_OK " + counters);
             }
-            System.out.println("EVIEMETAL_SODIUM_LIFECYCLE_OK metalBytesAfterUnload=" + Mtl.allocatedBytes());
+            System.out.println((sodium ? "EVIEMETAL_SODIUM_LIFECYCLE_OK" : "EVIEMETAL_VANILLA_LIFECYCLE_OK") + " metalBytesAfterUnload=" + Mtl.allocatedBytes());
             mc.stop(); return;
         }
         if (!opened && mc.screen instanceof TitleScreen && mc.getOverlay() == null && ++frames > 20) {
@@ -148,7 +149,7 @@ abstract class SodiumWorldSmokeMixin {
         if (mc.level == null || mc.player == null) return;
         if (worldFrames % 600 == 0) {
             System.out.println("EVIEMETAL_SODIUM_WORLD frame=" + worldFrames + " metalBytes=" + Mtl.allocatedBytes()
-                    + " position=" + mc.player.position() + " " + dev.eviemod.metal.compat.sodium.SodiumMetal.resourceSummary());
+                    + " position=" + mc.player.position());
             capture(mc, "phase-" + phase + "-" + worldFrames);
         }
     }
@@ -180,8 +181,8 @@ abstract class SodiumWorldSmokeMixin {
     private static boolean alreadyPlaced(String command, net.minecraft.network.chat.Component message) {
         // Reopening the fixture may leave an identical fill/setblock already in place.
         if (message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
-                && ((command.startsWith("fill ") && contents.getKey().equals("commands.fill.failed"))
-                || (command.startsWith("setblock ") && contents.getKey().equals("commands.setblock.failed")))) return true;
+                && (((command.startsWith("fill ") || command.contains(" run fill ")) && contents.getKey().equals("commands.fill.failed"))
+                || ((command.startsWith("setblock ") || command.contains(" run setblock ")) && contents.getKey().equals("commands.setblock.failed")))) return true;
         return message.getSiblings().stream().anyMatch(child -> alreadyPlaced(command, child));
     }
 

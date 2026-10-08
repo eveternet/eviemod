@@ -1,0 +1,141 @@
+// Packaged fixtures deliberately omit the addon's compiled output: Fabric must load its distribution JAR.
+import groovy.json.JsonSlurper
+
+def target = minecraftVersion.toString()
+def isMacHost = System.getProperty('os.name').toLowerCase(Locale.ROOT).startsWith('mac')
+def packagedClasspath = sourceSets.smokeTest.runtimeClasspath - sourceSets.main.output
+// Java shader tools must come from the nested distribution. Unsupported hosts still need
+// Minecraft's own platform natives: 26.2 loads SPIRV-Cross before selecting any backend.
+def clientClasspath = packagedClasspath.filter {
+    def shaderTool = it.name.startsWith('lwjgl-shaderc-') || it.name.startsWith('lwjgl-spvc-')
+    !shaderTool || (!isMacHost && it.name.contains('-natives-'))
+}
+def jarProvider = tasks.named('jar', Jar).flatMap { it.archiveFile }
+def assets = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/assets')
+def manifest = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${target}/mojang_minecraft_info.json")
+def sodiumFiles = configurations.testRuntimeClasspath
+def flavors = ['Vanilla', 'Sodium', 'Disabled', 'DisabledSodium', 'Fallback', 'Title', 'SodiumTitle']
+if (target == '26.2') flavors += ['DisabledVulkan', 'PreflightFallback', 'PreflightVulkanFallback', 'UnsupportedSodium',
+                                'SumrTitle', 'SumrAbsentTitle']
+flavors.each { flavor ->
+    tasks.register("packaged${flavor}Smoke", JavaExec) {
+        group = 'verification'
+        description = "Launch the packaged Minecraft ${target} Metal addon (${flavor.toLowerCase(Locale.ROOT)})"
+        notCompatibleWithConfigurationCache('Fixture staging reads the resolved Sodium dependency and Mojang asset manifest at launch')
+        dependsOn 'smokeTestClasses', 'jar', 'downloadAssets'
+        classpath = clientClasspath
+        javaLauncher = javaToolchains.launcherFor(java.toolchain)
+        mainClass = 'net.fabricmc.loader.impl.launch.knot.KnotClient'
+        maxHeapSize = '2G'
+        def game = layout.buildDirectory.dir("packagedSmoke/${flavor.toLowerCase(Locale.ROOT)}").get().asFile
+        workingDir game
+        jvmArgs '--enable-native-access=ALL-UNNAMED', '--sun-misc-unsafe-memory-access=allow'
+        if (isMacHost) jvmArgs '-XstartOnFirstThread'
+        systemProperty 'fabric.development', 'true'
+        systemProperty 'fabric.defaultModDistributionNamespace', 'official'
+        systemProperty 'fabric.defaultMixinRemapType', 'static'
+        systemProperty 'fabric.classPathGroups', sourceSets.smokeTest.output.files.collect { it.absolutePath }.join(File.pathSeparator)
+        systemProperty 'eviemod.metal.distributionExpected', 'true'
+        if (flavor in ['Vanilla', 'Sodium', 'Title', 'SodiumTitle', 'SumrTitle', 'SumrAbsentTitle']) {
+            systemProperty 'eviemod.metal.smokeExpected', 'true'
+        }
+        if (flavor.startsWith('Sumr')) {
+            systemProperty 'eviemod.metal.sumrSmoke', flavor == 'SumrTitle' ? 'enabled' : 'absent'
+        }
+        if (flavor in ['Vanilla', 'Sodium']) {
+            systemProperty 'eviemod.metal.smokeExpected', 'true'
+            systemProperty 'eviemod.metal.worldSmoke', 'true'
+            systemProperty 'eviemod-metal.terrainProfile', 'true'
+        }
+        if (flavor in ['Disabled', 'DisabledSodium', 'DisabledVulkan']) systemProperty 'eviemod.metal', 'false'
+        if (flavor == 'DisabledVulkan') {
+            args '--graphicsBackend', 'vulkan'
+            systemProperty 'eviemod.metal.expectedPreference', 'vulkan'
+        }
+        if (flavor in ['PreflightFallback', 'PreflightVulkanFallback']) {
+            systemProperty 'eviemod.metal.fixturePreflightFailure', 'true'
+            def preference = flavor == 'PreflightVulkanFallback' ? 'vulkan' : 'opengl'
+            systemProperty 'eviemod.metal.expectedPreference', preference
+            args '--graphicsBackend', preference
+        }
+        if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium'])
+            systemProperty 'eviemod.metal.sodiumExpected', 'true'
+        def rejectionOutput = flavor == 'UnsupportedSodium' ? new ByteArrayOutputStream() : null
+        if (rejectionOutput != null) {
+            ignoreExitValue = true
+            standardOutput = rejectionOutput
+            errorOutput = rejectionOutput
+            doLast {
+                def output = rejectionOutput.toString('UTF-8')
+                logger.lifecycle(output)
+                def expected = 'Metal terrain compatibility requires Sodium 0.9.2+mc26.2; installed 0.9.3+mc26.2; refusing vanilla fallback'
+                if (executionResult.get().exitValue == 0 || !output.contains(expected))
+                    throw new GradleException('Packaged unsupported Sodium launch did not fail at the exact version guard')
+                logger.lifecycle('EVIEMETAL_UNSUPPORTED_SODIUM_REJECTED metadataVersion=0.9.3+mc26.2')
+            }
+        }
+        doFirst {
+            game.mkdirs()
+            def mods = new File(game, 'mods'); mods.mkdirs()
+            // Dedicated fixture directory; a version bump must never leave two copies of this mod installed.
+            mods.listFiles().findAll { it.name.endsWith('.jar') }.each { it.delete() }
+            java.nio.file.Files.copy(jarProvider.get().asFile.toPath(), new File(mods, jarProvider.get().asFile.name).toPath())
+            if (flavor == 'SumrTitle') {
+                def sumr = sodiumFiles.resolvedConfiguration.resolvedArtifacts.findAll {
+                    it.moduleVersion.id.group == 'maven.modrinth' && it.moduleVersion.id.name == 'awyrq9la'
+                            && it.moduleVersion.id.version == 'lvciRP6I'
+                }
+                if (sumr.size() != 1) throw new GradleException("Expected exact SUMR Fabric artifact: ${sumr}")
+                java.nio.file.Files.copy(sumr.first().file.toPath(), new File(mods, 'sumr.jar').toPath())
+                def fabricApi = configurations.sumrSmokeMods.singleFile
+                java.nio.file.Files.copy(fabricApi.toPath(), new File(mods, 'fabric-api.jar').toPath())
+            }
+            if (flavor in ['Sodium', 'SodiumTitle', 'DisabledSodium', 'UnsupportedSodium']) {
+                def pinned = sodiumFiles.files.findAll { it.name == "sodium-mc${target}-0.9.2-fabric.jar" }
+                if (pinned.size() != 1) throw new GradleException("Expected exact Sodium artifact for ${target}: ${pinned}")
+                def installed = new File(mods, 'sodium.jar')
+                if (flavor == 'UnsupportedSodium') {
+                    // Use the real pinned implementation, changing only its advertised version to exercise
+                    // the packaged startup guard. This is not evidence about an untested Sodium release.
+                    new java.util.zip.ZipFile(pinned.first()).withCloseable { original ->
+                        new java.util.zip.ZipOutputStream(new FileOutputStream(installed)).withCloseable { output ->
+                            original.entries().each { entry ->
+                                output.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                                if (entry.name == 'fabric.mod.json') {
+                                    def metadata = new JsonSlurper().parseText(original.getInputStream(entry).getText('UTF-8'))
+                                    metadata.version = '0.9.3+mc26.2'
+                                    output.write(groovy.json.JsonOutput.toJson(metadata).getBytes('UTF-8'))
+                                } else original.getInputStream(entry).withCloseable { input -> input.transferTo(output) }
+                                output.closeEntry()
+                            }
+                        }
+                    }
+                } else java.nio.file.Files.copy(pinned.first().toPath(), installed.toPath())
+            }
+            def index = new JsonSlurper().parse(manifest).assetIndex.id
+            args '--width', '960', '--height', '540', '--gameDir', game.absolutePath, '--assetIndex', "${target}-${index}", '--assetsDir', assets.absolutePath,
+                    '--version', target, '--username', 'MetalFixture', '--uuid', '00000000000000000000000000000008', '--accessToken', 'FabricMC'
+        }
+    }
+}
+if (target == '26.2') {
+    def surfaceTools = layout.buildDirectory.dir('packagedSmoke/surface-tools')
+    def stageSurfaceTools = tasks.register('stageSurfaceShaderTools', Sync) {
+        dependsOn 'jar'
+        from({ zipTree(jarProvider.get().asFile) }) {
+            include 'META-INF/jars/*shaderc*.jar', 'META-INF/jars/*spvc*.jar'
+            eachFile { path = name }
+        }
+        into surfaceTools
+        includeEmptyDirs = false
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
+    tasks.register('packagedSurfaceSmoke', JavaExec) {
+        group = 'verification'
+        dependsOn 'smokeTestClasses', stageSurfaceTools
+        classpath = clientClasspath + files(jarProvider) + fileTree(surfaceTools)
+        javaLauncher = javaToolchains.launcherFor(java.toolchain)
+        mainClass = 'dev.eviemod.metal.device.SurfaceSmoke'
+        jvmArgs '-XstartOnFirstThread', '--enable-native-access=ALL-UNNAMED', '--sun-misc-unsafe-memory-access=allow'
+    }
+}

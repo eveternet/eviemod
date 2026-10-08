@@ -23,6 +23,9 @@ public final class Mtl {
     public static native void checkError();
     public static native void setVsync(boolean enabled);
     public static native int maxTextureSize();
+    public static native long maxBufferLength();
+    public static native boolean hasLiveContext();
+    public static native boolean isRenderPassOpen();
     public static native void release(long handle);
 
     /** Regression diagnostics: driver-reported resource bytes after submitted work completes. */
@@ -32,6 +35,7 @@ public final class Mtl {
     public static native long bufferContents(long buffer);
     public static native void copyBuffer(long src, long srcOffset, long dst, long dstOffset, long length);
     /** Sodium terrain timestamps require R32Sint, absent from Blaze3D TextureFormat. */
+    public static native long newTextureBufferSlice(long buffer, int format, long offset, long length, int pixelSize);
     public static native long newTerrainTimeView(long buffer, long length);
     public static native long newTextureBuffer(long buffer, int format, long length, int pixelSize);
 
@@ -47,6 +51,25 @@ public final class Mtl {
     public static native long newRenderPipeline(long vs, long fs, int colorFormat, int depthFormat,
                                                 boolean blend, int srcRgb, int dstRgb, int srcAlpha, int dstAlpha, int writeMask,
                                                 int[] attribs, int[] missing, int stride, int vertexBufferIndex, String label);
+    /** 26.2 bindings: attribute quads (location, format, offset, buffer); layout triples (buffer, stride, instance rate). */
+    public static native long newRenderPipelineBindings(long vs, long fs, int colorFormat, int depthFormat,
+            boolean blend, int srcRgb, int dstRgb, int srcAlpha, int dstAlpha, int rgbOp, int alphaOp, int writeMask,
+            int[] attributes, int[] missing, int[] layouts, int missingBuffer, String label);
+    public static native void drawInstanced(int primitive, int first, int count, int instances, int firstInstance);
+    public static native void drawIndexedInstanced(int primitive, int count, boolean uint32, long buffer, long offset, int instances, int baseVertex, int firstInstance);
+    public static native void configureSurface(int width, int height, boolean vsync);
+    public static native void acquireSurface();
+    public static native void blitSurface(long textureView);
+    public static native void presentSurface();
+    public static native void closeSurface();
+    public static native void submit();
+    /** True only when the active device exposes stage-boundary timestamp counters. */
+    public static native boolean supportsTimestampSampling();
+    public static native long newTimestampPool(int size);
+    public static native void writeTimestamp(long pool, int index);
+    public static native long timestampValue(long pool, int index);
+    public static native long timestampNow();
+
     public static native long newDepthStencilState(int compare, boolean write);
 
     public static native void beginPass(long color, boolean clearColor, float r, float g, float b, float a, long depth, boolean clearDepth, double depthValue);

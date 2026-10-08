@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "dev.eviemod.metal.smoke",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "SmokeWatchdogMixin",
+    "FallbackLaunchMixin",
+    "SodiumBufferOwnershipMixin",
+    "PreflightFailureMixin",
+    "BackendPreferenceMixin",
+    "SodiumWorldSmokeMixin",
+    "MetalCloseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

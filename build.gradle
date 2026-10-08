@@ -18,3 +18,30 @@ apply from: 'gradle/eviemod.gradle'
 
 // An explicit root build also builds the second supported Minecraft target.
 tasks.named('build') { dependsOn ':eviemod-26.2:build' }
+
+// Both fixed Minecraft adapters are first-class build targets.
+tasks.named('build') { dependsOn ':metal-addon:build', ':metal-addon-26.2:build' }
+tasks.register('verifyMetalDistributions') { dependsOn ':metal-addon:verifyDistribution', ':metal-addon-26.2:verifyDistribution' }
+
+// Sync keeps the aggregate directory free of stale addon versions after a version bump.
+tasks.register('metalDistributions', Sync) {
+    dependsOn ':metal-addon:jar', ':metal-addon-26.2:jar'
+    into layout.buildDirectory.dir('distributions/metal')
+    from project(':metal-addon').tasks.named('jar', Jar).flatMap { it.archiveFile }
+    from project(':metal-addon-26.2').tasks.named('jar', Jar).flatMap { it.archiveFile }
+}
+tasks.named('build') { dependsOn 'metalDistributions' }
+tasks.register('verifyPackagedMetal') {
+    dependsOn ':metal-addon:packagedTitleSmoke', ':metal-addon:packagedSodiumTitleSmoke',
+            ':metal-addon-26.2:packagedTitleSmoke', ':metal-addon-26.2:packagedSodiumTitleSmoke',
+            ':metal-addon:packagedVanillaSmoke', ':metal-addon:packagedSodiumSmoke',
+            ':metal-addon-26.2:packagedSurfaceSmoke', ':metal-addon-26.2:packagedVanillaSmoke', ':metal-addon-26.2:packagedSodiumSmoke'
+}
+
+// Graphical fixtures share one display even when both addon projects are requested together.
+gradle.projectsEvaluated {
+    def fixtures = allprojects.collectMany { project ->
+        project.tasks.matching { it.name.startsWith("packaged") && it.name.endsWith("Smoke") }.toList()
+    }.sort { it.path }
+    fixtures.eachWithIndex { fixture, index -> fixture.mustRunAfter(fixtures.take(index)) }
+}
