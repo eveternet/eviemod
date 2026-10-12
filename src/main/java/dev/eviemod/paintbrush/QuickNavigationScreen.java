@@ -98,7 +98,6 @@ final class QuickNavigationScreen extends CompactScreen {
         g.text(font, "Tab " + (selected + 1) + " · " + (selected < 7 ? "Top" : "Bottom"), x + 16, y + 35, 0xff55ffff);
         String[] labels = {"Icon", "Command", "Menu title pattern", "Tooltip"};
         for (int i = 0; i < labels.length; i++) g.text(font, labels[i], x + 16, y + 48 + 40 * i, 0xffaaaebd);
-        g.text(font, "Select a tab to edit", x + 344, y + 23, 0xffaaaebd);
         g.blit(RenderPipelines.GUI_TEXTURED, INVENTORY, x + 344, y + 64, 0, 0, 176, 166, 256, 256);
         g.text(font, "Inventory", x + 352, y + 138, 0xff404040);
         renderWidgets(g, mx, my, delta);

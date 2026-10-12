@@ -32,11 +32,14 @@ final class QuickNavigationSmokeTest {
     private int ticks;
     private Screen settings;
     private ModSettings.Values original;
+    private int originalScale;
     private RuntimePreview runtime;
     private final List<String> sent = new ArrayList<>();
     void start(Screen parent) {
         var client = Minecraft.getInstance();
         original = EviemodSettings.STORE.values().copy();
+        originalScale = client.options.guiScale().get();
+        client.options.guiScale().set(3); client.resizeDisplay();
         settings = EviemodSettings.screen(parent); ClientUi.setScreen(client, settings);
         var editor = editor();
         var category = editor.getAllCategories().values().stream()
@@ -105,6 +108,7 @@ final class QuickNavigationSmokeTest {
         if (ticks == 50) capture(client, "quick-navigation-chest.png");
         if (ticks == 55) {
             try { EviemodSettings.STORE.save(original); } catch (java.io.IOException e) { throw new AssertionError(e); }
+            client.options.guiScale().set(originalScale); client.resizeDisplay();
             org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_QUICK_NAVIGATION_SMOKE_OK");
             org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
             client.stop();

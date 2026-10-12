@@ -50,6 +50,9 @@ across that seam. Hit areas exclude those four inventory pixels. ContainerScreen
 has the reference's one-pixel bottom-border correction; recipe-book shifts
 and resized screens use the current accessor bounds. The shared adapter is
 compiled independently for Minecraft 26.1.2 and 26.2.
+If the current GUI scale leaves less room than the container plus its tabs,
+the window clips the outer tabs, as with the supplied reference. eviemod does
+not change the player's global GUI scale or move tabs over inventory slots.
 
 Runtime activation requires an enabled feature, a current authenticated
 Hypixel connection, confirmed SkyBlock context, and a non-creative player.
