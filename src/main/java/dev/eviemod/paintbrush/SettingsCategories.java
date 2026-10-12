@@ -12,7 +12,7 @@ final class SettingsCategories {
     @FunctionalInterface interface CategoryFactory {
         ConfigCategory create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures);
     }
-    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::texturePackBypasser);
+    private static final List<CategoryFactory> CATEGORIES = List.of(SettingsCategories::appearance, SettingsCategories::texturePackBypasser, QuickNavigationCategory::create);
     static List<ConfigCategory> create(ModSettings.Values settings, List<net.minecraft.world.item.ItemStack> fixtures) {
         var categories = new java.util.ArrayList<>(CATEGORIES.stream().map(factory -> factory.create(settings, fixtures)).toList());
         categories.addAll(ImportedSettingsCategories.create(settings));

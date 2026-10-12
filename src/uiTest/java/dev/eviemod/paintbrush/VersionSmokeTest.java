@@ -71,8 +71,7 @@ final class VersionSmokeTest {
                     throw new AssertionError("Paint Brush screen did not open");
                 ClientUi.screen(client).onClose();
                 if (ClientUi.screen(client) != parent) throw new AssertionError("Paint Brush did not return to parent");
-                LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
-                client.stop();
+                new QuickNavigationSmokeTest().start(parent);
             }
         });
     }
