@@ -39,7 +39,7 @@ final class QuickNavigationSmokeTest {
         var client = Minecraft.getInstance();
         original = EviemodSettings.STORE.values().copy();
         originalScale = client.options.guiScale().get();
-        client.options.guiScale().set(3); client.resizeDisplay();
+        client.options.guiScale().set(3);
         settings = EviemodSettings.screen(parent); ClientUi.setScreen(client, settings);
         var editor = editor();
         var category = editor.getAllCategories().values().stream()
@@ -97,7 +97,12 @@ final class QuickNavigationSmokeTest {
         }
         if (ticks == 25) capture(client, "quick-navigation-inventory.png");
         if (ticks == 40) {
-            runtime = new RuntimePreview(222, sent); ClientUi.setScreen(client, runtime);
+            runtime = new RuntimePreview(222, sent);
+            runtime.config.tabs.get(1).hidden = true;
+            runtime.config.tabs.get(4).icon = "minecraft:unsupported_icon";
+            ClientUi.setScreen(client, runtime);
+            check(runtime.buttons.size() == 12, "Hidden and unsupported tabs omit only their own slots");
+            check(runtime.buttons.stream().noneMatch(tab -> tab.index() == 1 || tab.index() == 4), "Omitted slots retain their indices");
             var warp = runtime.buttons.stream().filter(tab -> tab.index() == 7).findFirst().orElseThrow();
             clickRuntime(runtime.container, warp, 0); check(sent.size() == 1, "Warp requires confirmation");
             clickRuntime(runtime.container, warp, 0); check(sent.equals(List.of("skills", "is")), "Second click confirms warp");
@@ -108,7 +113,7 @@ final class QuickNavigationSmokeTest {
         if (ticks == 50) capture(client, "quick-navigation-chest.png");
         if (ticks == 55) {
             try { EviemodSettings.STORE.save(original); } catch (java.io.IOException e) { throw new AssertionError(e); }
-            client.options.guiScale().set(originalScale); client.resizeDisplay();
+            client.options.guiScale().set(originalScale);
             org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_QUICK_NAVIGATION_SMOKE_OK");
             org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
             client.stop();
@@ -147,6 +152,7 @@ final class QuickNavigationSmokeTest {
     private static final class RuntimePreview extends Screen {
         private final FixtureContainer container;
         private final List<String> sent;
+        private final QuickNavigationSettings config = new QuickNavigationSettings();
         private List<QuickNavigationTab> buttons;
         private boolean allowed = true;
         RuntimePreview(int height, List<String> sent) {
@@ -154,7 +160,7 @@ final class QuickNavigationSmokeTest {
         }
         @Override protected void init() {
             container.init(width, height);
-            buttons = QuickNavigationClient.install(container, new QuickNavigationSettings(), () -> allowed, sent::add);
+            buttons = QuickNavigationClient.install(container, config, () -> allowed, sent::add);
         }
         @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
             ScreenEvents.beforeExtract(container).invoker().beforeExtract(container, g, mx, my, delta);
