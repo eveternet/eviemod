@@ -31,6 +31,7 @@ final class VersionSmokeTest {
                     "net.minecraft.client.MouseHandler",
                     "net.minecraft.client.multiplayer.ClientPacketListener",
                     "net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl",
+                    "net.minecraft.client.multiplayer.MultiPlayerGameMode",
                     "net.minecraft.world.level.border.WorldBorder",
                     "net.minecraft.client.renderer.ItemInHandRenderer",
                     "net.minecraft.client.renderer.item.ItemModelResolver",
