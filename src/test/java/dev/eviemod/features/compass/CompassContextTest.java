@@ -47,7 +47,7 @@ class CompassContextTest {
         var absent = prerequisites(rows("✖ Not Found"), "Active Effects:\nSpeed I 03:00");
         var present = prerequisites(rows("✖ Not Found"), "§aActive Effects:\nKing's Scent I 13m 02s");
         var countdown = prerequisites(rows("✖ Not Found"), "Active Effects:\nKing's Scent I 13m 01s");
-        var removed = prerequisites(rows("✖ Not Found"), "");
+        var removed = prerequisites(rows("✖ Not Found"), "Active Effects:\nNo effects active");
         assertEquals(Scent.ABSENT, absent.scent()); assertEquals(Scent.PRESENT, present.scent());
         assertEquals(present, countdown); assertEquals(Scent.ABSENT, removed.scent());
         var first = new WishingCompassClient.TargetContext(Region.GOBLIN, false, absent);
@@ -63,8 +63,54 @@ class CompassContextTest {
         assertEquals(Scent.UNKNOWN, unknown.scent()); assertFalse(unknown.readyFor(Region.GOBLIN));
         assertTrue(unknown.readyFor(Region.JUNGLE));
         var lines = new ArrayList<>(rows("✖ Not Found")); lines.add("Active Effects:");
-        assertEquals(Scent.ABSENT, prerequisites(lines, null).scent());
+        assertEquals(Scent.UNKNOWN, prerequisites(lines, null).scent());
+        lines.add("No effects active"); assertEquals(Scent.ABSENT, prerequisites(lines, null).scent());
         lines.add("King's Scent I 02:00"); assertEquals(Scent.PRESENT, prerequisites(lines, null).scent());
+    }
+    @Test void blankUnrelatedHeaderOnlyAndIncompleteFootersCannotAuthorizeGoblinUse() {
+        for (String footer : new String[]{null, "", "  ", "Visit www.hypixel.net", "Header-only tab update",
+            "Active Effects:", "Active Effects:\n", "Active Effects:\nLoading...", "Active Effects: (2)\nSpeed I 03:00",
+            "Active Effects:\nYou have 2 active effects.\nSpeed I 03:00", "Active Effects:\nYou have a God Potion active! 02:00"}) {
+            var unknown = prerequisites(rows("✖ Not Found"), footer);
+            assertEquals(Scent.UNKNOWN, unknown.scent(), String.valueOf(footer));
+            assertFalse(unknown.readyFor(Region.GOBLIN)); assertTrue(unknown.readyFor(Region.JUNGLE));
+            var context = new WishingCompassClient.TargetContext(Region.GOBLIN, false, unknown);
+            assertFalse(context.compatibleWith(context, false)); assertFalse(context.compatibleWith(context, true));
+        }
+    }
+    @Test void explicitAbsenceAndCompleteNormalEffectsSectionsRemainEligible() {
+        for (String footer : new String[]{"Active Effects:\nNo effects active", "Active Effects: 0", "§aActive Effects: (0)",
+            "Active Effects\nYou have 0 active effects.", "Active Effects:\nSpeed I 03:00",
+            "Active Effects: (2)\nSpeed I (03:00)\nHaste III 02:00",
+            "Active Effects\nYou have 2 active effects.\nSpeed I 03:00\nHaste III 02:00"}) {
+            var absent = prerequisites(rows("✖ Not Found"), footer);
+            assertEquals(Scent.ABSENT, absent.scent(), footer); assertTrue(absent.readyFor(Region.GOBLIN));
+        }
+        var present = prerequisites(rows("✖ Not Found"), "§aKing's Scent I (13:02)");
+        assertEquals(Scent.PRESENT, present.scent()); assertTrue(present.readyFor(Region.GOBLIN));
+    }
+    @Test void verifiedListEffectsRemainUsableWithBlankOrUnrelatedFooter() {
+        var list = new ArrayList<>(rows("✖ Not Found")); list.add("Active Effects: (0)");
+        assertEquals(Scent.ABSENT, prerequisites(list, "").scent());
+        assertEquals(Scent.ABSENT, prerequisites(list, "Visit www.hypixel.net").scent());
+        list.set(list.size() - 1, "Active Effects: (2)"); list.add("Speed I 03:00");
+        assertEquals(Scent.UNKNOWN, prerequisites(list, "").scent());
+        list.add("Haste III 02:00"); assertEquals(Scent.ABSENT, prerequisites(list, "").scent());
+    }
+    @Test void disappearanceOfReliableEffectDataInvalidatesBothPendingAndSolvedContexts() {
+        for (String initial : new String[]{"Active Effects: (0)", "Active Effects:\nKing's Scent I 13m 02s"}) {
+            var known = new WishingCompassClient.TargetContext(Region.GOBLIN, false, prerequisites(rows("✖ Not Found"), initial));
+            for (String next : new String[]{"", "Visit www.hypixel.net", "Active Effects:\nLoading..."}) {
+                var lost = new WishingCompassClient.TargetContext(Region.GOBLIN, false, prerequisites(rows("✖ Not Found"), next));
+                assertEquals(Scent.UNKNOWN, lost.prerequisites().scent());
+                assertFalse(known.compatibleWith(lost, false)); assertFalse(known.compatibleWith(lost, true));
+            }
+        }
+    }
+    @Test void contradictoryCountsAndUnrelatedScentMentionsDoNotProveEffectState() {
+        assertEquals(Scent.UNKNOWN, prerequisites(rows("✖ Not Found"), "Active Effects: (1)\nYou have 0 active effects.").scent());
+        assertEquals(Scent.UNKNOWN, prerequisites(rows("✖ Not Found"), "Learn how to get King's Scent I from King Yolkar.").scent());
+        assertEquals(Scent.UNKNOWN, prerequisites(rows("✖ Not Found"), "Active Effects: (2)\nSpeed I 03:00\nSpeed I 02:00").scent());
     }
     @Test void footerSnapshotCannotLeakAcrossWorldOrConnectionChanges() {
         Object level = new Object(), connection = new Object();

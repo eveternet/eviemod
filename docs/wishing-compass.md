@@ -46,6 +46,17 @@ inclusive nucleus guard `(462,63,461)–(564,181,565)` is unsupported; above Y18
 quadrant model applies. Scent countdown changes do not invalidate observations. No structure name or
 temple entrance offset is inferred from the estimated coordinates.
 
+Receiving a footer packet does not prove absence of scent. Blank, unrelated,
+header-only, loading or incomplete counted data remains unknown when no verified
+list-entry source is available. Positive scent rows establish presence. Absence
+requires a recognized Active Effects section with explicit no-effects/zero-count
+data or disclosed effect rows; a declared count must match the distinct parsed
+rows. Countdown changes do not alter presence. Loss of reliable data invalidates
+pending and solved Goblin contexts and prevents a new solve until data returns.
+The [pinned effect-widget reference](https://github.com/SkyblockerMod/Skyblocker/blob/a3f25d798b5ea8d8a91a690232bbd4274b4a7a3a/src/main/java/de/hysky/skyblocker/skyblock/tabhud/widget/EffectWidget.java)
+supports counted widget details and the footer's explicit no-effects branch;
+footer God Potion summaries alone do not establish absence of King's Scent.
+
 World/connection identity changes, lobby/server/mode changes, leaving the
 Hollows, disabling the setting and manual clearing discard pending observations
 and estimates. Repeated location updates for the same lobby preserve them.

@@ -30,6 +30,11 @@ final class CompassContext {
     }
     private static final Pattern FORMAT = Pattern.compile("§.");
     private static final Pattern CRYSTAL_ROW = Pattern.compile("^(amethyst|jade|amber|sapphire|topaz)(?: crystal)?\\s*:\\s*(.*)$");
+    private static final Pattern EFFECT_HEADER = Pattern.compile("^active effects\\s*(?::\\s*)?(?:\\(([0-9]{1,3})\\)|([0-9]{1,3}))?$");
+    private static final Pattern EFFECT_COUNT = Pattern.compile("^you have ([0-9]{1,3}) active effects?\\.?$");
+    private static final String DURATION = "(?:[0-9]+:[0-9]{2}(?::[0-9]{2})?|(?:[0-9]+\\s*[dhms]\\s*)+)";
+    private static final Pattern EFFECT_ROW = Pattern.compile("^(?:[•●*]\\s*)?([\\p{L}][\\p{L} '’\\-]+?)\\s+[ivxlcdm]+\\s*(?::\\s*)?" + DURATION + "$");
+    private static final Pattern SCENT_ROW = Pattern.compile("^(?:[•●*]\\s*)?king's scent(?:\\s+i)?\\s*(?::\\s*)?(?:" + DURATION + ")?$");
     private CompassContext() {}
 
     static Region region(CompassSolver.Point position) {
@@ -61,11 +66,44 @@ final class CompassContext {
             states[index] = seen[index] && states[index] != status ? Status.UNKNOWN : status;
             seen[index] = true;
         }
-        boolean present = lines.stream().anyMatch(value -> value.contains("king's scent"))
-            || footer != null && normalize(footer).contains("king's scent");
-        boolean effectsKnown = footer != null || lines.stream().anyMatch(value -> value.startsWith("active effects:"));
+        var footerLines = footer == null ? List.<String>of() : footer.lines().map(CompassContext::normalize).toList();
+        boolean present = lines.stream().anyMatch(CompassContext::scentRow) || footerLines.stream().anyMatch(CompassContext::scentRow);
+        boolean effectsKnown = completeEffects(lines) || completeEffects(footerLines);
         Scent scent = present ? Scent.PRESENT : effectsKnown ? Scent.ABSENT : Scent.UNKNOWN;
         return new Prerequisites(section, Arrays.asList(states), scent);
     }
+    private static boolean scentRow(String line) { return SCENT_ROW.matcher(withoutParentheses(line)).matches(); }
+    private static boolean completeEffects(List<String> lines) {
+        boolean section = false, explicitNone = false, conflictingCount = false;
+        Integer count = null;
+        var effects = new java.util.HashSet<String>();
+        for (String line : lines) {
+            var header = EFFECT_HEADER.matcher(line);
+            if (header.matches()) {
+                section = true;
+                String number = header.group(1) != null ? header.group(1) : header.group(2);
+                if (number != null) {
+                    int next = Integer.parseInt(number);
+                    conflictingCount |= count != null && count != next;
+                    count = next;
+                }
+            }
+            var total = EFFECT_COUNT.matcher(line);
+            if (total.matches()) {
+                int next = Integer.parseInt(total.group(1));
+                conflictingCount |= count != null && count != next;
+                count = next;
+            }
+            explicitNone |= line.matches("(?:no (?:active effects|effects active|potion effects active)|you have no active effects)\\.?");
+            var row = EFFECT_ROW.matcher(withoutParentheses(line));
+            if (row.matches()) effects.add(row.group(1));
+        }
+        if (!section || conflictingCount) return false;
+        if (explicitNone) return effects.isEmpty() && (count == null || count == 0);
+        if (count != null) return count == effects.size();
+        // A section with effect rows is disclosed data; an isolated header is not.
+        return !effects.isEmpty();
+    }
+    private static String withoutParentheses(String value) { return value.replace("(", "").replace(")", "").trim(); }
     private static String normalize(String value) { return FORMAT.matcher(value).replaceAll("").toLowerCase(Locale.ROOT).trim(); }
 }
