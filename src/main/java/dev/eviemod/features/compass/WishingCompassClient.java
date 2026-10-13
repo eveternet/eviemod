@@ -58,8 +58,10 @@ public final class WishingCompassClient {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!active(client)) { clear(); return; }
             refreshWorld(client);
-            String nextContext = targetContext(client);
-            if (!Objects.equals(context, nextContext)) { clear(); context = nextContext; }
+            if (SOLVER.hasObservations()) {
+                String nextContext = targetContext(client);
+                if (!Objects.equals(context, nextContext)) { clear(); context = nextContext; }
+            }
             SOLVER.tick(now());
             var estimate = SOLVER.estimate();
             if (estimate == null || ClientUi.hudHidden(client)) return;
@@ -130,15 +132,23 @@ public final class WishingCompassClient {
         // Region changes and visible target prerequisites invalidate a pair, without guessing a structure name.
         String zone = pos.y < 64 ? "magma" : (pos.x < 512 ? "west" : "east") + (pos.z < 512 ? "north" : "south");
         boolean key = client.player.getInventory().getNonEquipmentItems().stream().anyMatch(stack -> itemId(stack).equals("JUNGLE_KEY"));
-        var prerequisites = new java.util.TreeSet<String>();
+        var lines = new java.util.ArrayList<String>();
         for (var info : client.getConnection().getOnlinePlayers()) {
             var display = info.getTabListDisplayName();
-            if (display == null) continue;
-            String line = display.getString().replaceAll("§.", "").toLowerCase(Locale.ROOT).trim();
-            if (line.contains("king's scent") || line.contains("crystal") &&
+            if (display != null) lines.add(display.getString());
+        }
+        return zone + ":" + key + ":" + visiblePrerequisites(lines);
+    }
+    static String visiblePrerequisites(java.util.List<String> lines) {
+        var prerequisites = new java.util.TreeSet<String>();
+        for (String raw : lines) {
+            String line = raw.replaceAll("§.", "").toLowerCase(Locale.ROOT).trim();
+            // A changing timer is not a changing compass target.
+            if (line.contains("king's scent")) prerequisites.add("king's scent");
+            else if (line.contains("crystal") &&
                 (line.contains("amethyst") || line.contains("amber") || line.contains("jade") || line.contains("sapphire") || line.contains("topaz")))
                 prerequisites.add(line);
         }
-        return zone + ":" + key + ":" + prerequisites;
+        return prerequisites.toString();
     }
 }

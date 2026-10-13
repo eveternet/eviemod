@@ -30,6 +30,7 @@ public final class CompassSolver {
     public String status() { return status; }
     public Estimate estimate() { return estimate; }
     public boolean observing() { return capture != null; }
+    public boolean hasObservations() { return capture != null || first != null || estimate != null; }
     public void reset() {
         capture = null; first = null; estimate = null; targetContext = null;
         lastUse = Long.MIN_VALUE;

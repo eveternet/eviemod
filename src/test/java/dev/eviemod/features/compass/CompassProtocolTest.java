@@ -43,4 +43,11 @@ class CompassProtocolTest {
         return new ClientboundLevelParticlesPacket(ParticleTypes.HAPPY_VILLAGER, false, false,
             500, 100, 500, offset, 0, 0, 0, count);
     }
+    @Test void changingScentCountdownDoesNotChangeTheTargetFingerprint() {
+        var first = WishingCompassClient.visiblePrerequisites(java.util.List.of("§aKing's Scent: 13m 02s", "§bJade Crystal: FOUND"));
+        var next = WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: FOUND", "King's Scent: 13m 01s", "Other player"));
+        assertEquals(first, next);
+        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: FOUND")));
+        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: PLACED", "King's Scent: 12m 58s")));
+    }
 }
