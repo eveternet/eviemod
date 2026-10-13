@@ -70,7 +70,9 @@ class CompassContextTest {
     @Test void blankUnrelatedHeaderOnlyAndIncompleteFootersCannotAuthorizeGoblinUse() {
         for (String footer : new String[]{null, "", "  ", "Visit www.hypixel.net", "Header-only tab update",
             "Active Effects:", "Active Effects:\n", "Active Effects:\nLoading...", "Active Effects: (2)\nSpeed I 03:00",
-            "Active Effects:\nYou have 2 active effects.\nSpeed I 03:00", "Active Effects:\nYou have a God Potion active! 02:00"}) {
+            "Active Effects:\nYou have 2 active effects.\nSpeed I 03:00", "Active Effects:\nYou have a God Potion active! 02:00",
+            "Active Effects:\nSpeed I 03:00\nLoading...", "Active Effects:\nSpeed I 03:00\n...",
+            "Active Effects:\nSpeed I 03:00\nAnd 2 more effects..."}) {
             var unknown = prerequisites(rows("✖ Not Found"), footer);
             assertEquals(Scent.UNKNOWN, unknown.scent(), String.valueOf(footer));
             assertFalse(unknown.readyFor(Region.GOBLIN)); assertTrue(unknown.readyFor(Region.JUNGLE));
@@ -81,6 +83,7 @@ class CompassContextTest {
     @Test void explicitAbsenceAndCompleteNormalEffectsSectionsRemainEligible() {
         for (String footer : new String[]{"Active Effects:\nNo effects active", "Active Effects: 0", "§aActive Effects: (0)",
             "Active Effects\nYou have 0 active effects.", "Active Effects:\nSpeed I 03:00",
+            "Active Effects:\nNo effects.", "Active Effects:\nNo effects are currently active.",
             "Active Effects: (2)\nSpeed I (03:00)\nHaste III 02:00",
             "Active Effects\nYou have 2 active effects.\nSpeed I 03:00\nHaste III 02:00"}) {
             var absent = prerequisites(rows("✖ Not Found"), footer);

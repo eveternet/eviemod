@@ -35,6 +35,8 @@ final class CompassContext {
     private static final String DURATION = "(?:[0-9]+:[0-9]{2}(?::[0-9]{2})?|(?:[0-9]+\\s*[dhms]\\s*)+)";
     private static final Pattern EFFECT_ROW = Pattern.compile("^(?:[•●*]\\s*)?([\\p{L}][\\p{L} '’\\-]+?)\\s+[ivxlcdm]+\\s*(?::\\s*)?" + DURATION + "$");
     private static final Pattern SCENT_ROW = Pattern.compile("^(?:[•●*]\\s*)?king's scent(?:\\s+i)?\\s*(?::\\s*)?(?:" + DURATION + ")?$");
+    private static final Pattern NO_EFFECTS = Pattern.compile("^(?:no (?:active |potion )?effects(?: (?:are )?(?:currently )?active)?|you have no active effects)\\.?$");
+    private static final Pattern INCOMPLETE_EFFECTS = Pattern.compile("^(?:loading\\.*|\\.{3}|…|(?:and )?[0-9]+ more(?: effects)?\\.*)$");
     private CompassContext() {}
 
     static Region region(CompassSolver.Point position) {
@@ -74,7 +76,7 @@ final class CompassContext {
     }
     private static boolean scentRow(String line) { return SCENT_ROW.matcher(withoutParentheses(line)).matches(); }
     private static boolean completeEffects(List<String> lines) {
-        boolean section = false, explicitNone = false, conflictingCount = false;
+        boolean section = false, explicitNone = false, conflictingCount = false, incomplete = false;
         Integer count = null;
         var effects = new java.util.HashSet<String>();
         for (String line : lines) {
@@ -94,7 +96,8 @@ final class CompassContext {
                 conflictingCount |= count != null && count != next;
                 count = next;
             }
-            explicitNone |= line.matches("(?:no (?:active effects|effects active|potion effects active)|you have no active effects)\\.?");
+            explicitNone |= NO_EFFECTS.matcher(line).matches();
+            incomplete |= INCOMPLETE_EFFECTS.matcher(line).matches();
             var row = EFFECT_ROW.matcher(withoutParentheses(line));
             if (row.matches()) effects.add(row.group(1));
         }
@@ -102,7 +105,7 @@ final class CompassContext {
         if (explicitNone) return effects.isEmpty() && (count == null || count == 0);
         if (count != null) return count == effects.size();
         // A section with effect rows is disclosed data; an isolated header is not.
-        return !effects.isEmpty();
+        return !incomplete && !effects.isEmpty();
     }
     private static String withoutParentheses(String value) { return value.replace("(", "").replace(")", "").trim(); }
     private static String normalize(String value) { return FORMAT.matcher(value).replaceAll("").toLowerCase(Locale.ROOT).trim(); }
