@@ -8,7 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 
 /** Hypixel's English GUI protocol, kept separate from the state machines. See docs/experiments.md. */
 public final class ExperimentMenu {
-    private static final Pattern TITLE = Pattern.compile("(Chronomatron|Ultrasequencer|Superpairs) \\((?:High|Grand|Supreme|Transcendent|Metaphysical)\\)");
+    private static final Pattern TITLE = Pattern.compile("(Chronomatron|Ultrasequencer|Superpairs) \\((?:Beginner|High|Grand|Supreme|Transcendent|Metaphysical)\\)");
     private static final Pattern ROUND = Pattern.compile("Round: ([1-9][0-9]?)");
     private static final Pattern TIMER = Pattern.compile("Timer: [0-9]+(?:\\.[0-9]+)?s?");
     private ExperimentMenu() {}
@@ -41,7 +41,9 @@ public final class ExperimentMenu {
         return ExperimentSession.Phase.UNKNOWN;
     }
     public static String note(ItemStack stack) {
-        String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        var id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (!id.getNamespace().equals("minecraft")) return "";
+        String path = id.getPath();
         for (String color : new String[]{"white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
                 "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"})
             if (path.equals(color + "_terracotta") || path.equals(color + "_stained_glass")) return color;

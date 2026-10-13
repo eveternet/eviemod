@@ -23,7 +23,7 @@ class ExperimentMenuTest {
         stack.set(DataComponents.CUSTOM_NAME, Component.literal(name)); return stack;
     }
     @Test void onlyActualExperimentPlayTitlesAreRecognized() {
-        for (String tier : new String[]{"High", "Grand", "Supreme", "Transcendent", "Metaphysical"}) {
+        for (String tier : new String[]{"Beginner", "High", "Grand", "Supreme", "Transcendent", "Metaphysical"}) {
             assertEquals(Game.CHRONOMATRON, ExperimentMenu.game("§aChronomatron (" + tier + ")"));
             assertEquals(Game.ULTRASEQUENCER, ExperimentMenu.game("Ultrasequencer (" + tier + ")"));
             assertEquals(Game.SUPERPAIRS, ExperimentMenu.game("Superpairs (" + tier + ")"));
