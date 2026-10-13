@@ -54,11 +54,13 @@ jobs:
           set -o pipefail
           timeout 180s xvfb-run -a ./gradlew :runClient -PuiSmokeTest -PversionSmokeTest 2>&1 | tee eviemod-26.1.2-smoke.log
           grep -q EVIEMOD_VERSION_SMOKE_OK eviemod-26.1.2-smoke.log
+          grep -q EVIEMOD_COMPASS_SETTINGS_SMOKE_OK eviemod-26.1.2-smoke.log
       - name: Verify 26.2 mixins and settings navigation
         run: |
           set -o pipefail
           timeout 180s xvfb-run -a ./gradlew :eviemod-26.2:runClient -PuiSmokeTest -PversionSmokeTest 2>&1 | tee eviemod-26.2-smoke.log
           grep -q EVIEMOD_VERSION_SMOKE_OK eviemod-26.2-smoke.log
+          grep -q EVIEMOD_COMPASS_SETTINGS_SMOKE_OK eviemod-26.2-smoke.log
       - name: Upload main mod launch evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

@@ -20,7 +20,7 @@ for directory, target, dandelion in (
     with artifact(f"{directory}/libs/eviemod-*-mc{target}.jar") as main:
         mod = json.loads(main.read("fabric.mod.json"))
         assert mod["id"] == "eviemod"
-        assert mod["version"] == "1.3.1.0"
+        assert mod["version"] == "1.4.0.0"
         assert mod["depends"]["minecraft"] == target
         assert mod["depends"]["dandelion"] == f">={dandelion}"
         assert "${" not in main.read("fabric.mod.json").decode()
