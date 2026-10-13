@@ -33,7 +33,10 @@ for directory, target, dandelion in (
         mixins = json.loads(main.read("eviemod.mixins.json"))["client"]
         for mixin in ("NavigationContainerAccessor", "ExperimentContainerMixin", "ExperimentPacketMixin"):
             assert mixin in mixins, mixin
-        assert "CompassUsePacketMixin" in json.loads(main.read("eviemod-skyblock.mixins.json"))["client"]
+        skyblock_mixins = json.loads(main.read("eviemod-skyblock.mixins.json"))["client"]
+        for mixin in ("CompassUsePacketMixin", "CompassPredictionMixin"):
+            assert mixin in skyblock_mixins, mixin
+            assert f"dev/eviemod/features/skyblock/mixin/{mixin}.class" in main.namelist(), mixin
         assert not any(n.startswith("dev/eviemod/paintbrush/VersionSmokeTest")
                        or n.startswith("dev/eviemod/paintbrush/QuickNavigationSmokeTest")
                        for n in main.namelist())

@@ -16,6 +16,9 @@ import net.minecraft.gizmos.Gizmos;
 import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.TextGizmo;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 /** Own sent use packets arm a short observation. Never sends, cancels or shares anything. */
 public final class WishingCompassClient {
     private static final CompassSolver SOLVER = new CompassSolver();
+    private static final CompassUseIdentity USE_IDENTITY = new CompassUseIdentity();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("eviemod");
     private static String session;
     private static Object level, connection;
@@ -42,6 +46,7 @@ public final class WishingCompassClient {
     private static long now() { return System.nanoTime() / 1_000_000; }
     public static void clear() {
         SOLVER.reset(); context = null; packetCount = 0; largestBurst = 0; packetOffsets = false;
+        USE_IDENTITY.clear();
     }
     public static void initialize() {
         // SkyBlockSession already subscribes to this HM API event; reuse that subscription.
@@ -52,7 +57,7 @@ public final class WishingCompassClient {
                 && location.serverType().orElse("").equals("SKYBLOCK")
                 && location.mode().orElse("").equals("crystal_hollows")
                 ? location.serverName() + ":" + location.lobbyName().orElse("") + ":" + location.mode().orElse("") + ":" + location.map().orElse("") : null;
-            if (!Objects.equals(session, next)) footer = null;
+            if (!Objects.equals(session, next)) { footer = null; USE_IDENTITY.clear(); }
             session = next; SOLVER.session(next);
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
@@ -104,9 +109,9 @@ public final class WishingCompassClient {
             clear(); level = client.level; connection = client.getConnection();
         }
     }
-    private static void use(ItemStack stack) {
+    private static void use() {
         var client = Minecraft.getInstance();
-        if (!active(client) || !itemId(stack).equals("WISHING_COMPASS")) return;
+        if (!active(client)) return;
         refreshWorld(client);
         context = targetContext(client);
         if (!context.prerequisites().readyFor(context.region())) {
@@ -127,10 +132,31 @@ public final class WishingCompassClient {
             LOGGER.info("[Wishing Compass] Reading started in {}.", context.region());
         }
     }
-    /** Called only for a vanilla use packet actually emitted by the local connection. */
-    public static void sentUse(InteractionHand hand) {
-        var player = Minecraft.getInstance().player;
-        if (player != null) use(player.getItemInHand(hand));
+    /** Immutable IDs captured before prediction can consume or replace the held stack. */
+    public static CompassUseIdentity.Snapshot predictionSnapshot() {
+        var client = Minecraft.getInstance();
+        if (!active(client)) return null;
+        boolean main = itemId(client.player.getMainHandItem()).equals("WISHING_COMPASS");
+        boolean off = itemId(client.player.getOffhandItem()).equals("WISHING_COMPASS");
+        return main || off ? new CompassUseIdentity.Snapshot(client.level, client.getConnection(), client.player, session, main, off) : null;
+    }
+    private static InteractionHand useHand(Packet<?> packet) {
+        if (packet instanceof ServerboundUseItemPacket use) return use.getHand();
+        if (packet instanceof ServerboundUseItemOnPacket use) return use.getHand();
+        return null;
+    }
+    /** Bind the exact packet returned by this prediction; this does not arm observation. */
+    public static void bindPredictionPacket(Packet<?> packet, CompassUseIdentity.Snapshot snapshot) {
+        InteractionHand hand = useHand(packet);
+        if (hand != null) USE_IDENTITY.bind(packet, hand == InteractionHand.OFF_HAND, snapshot);
+    }
+    public static void finishPrediction(CompassUseIdentity.Snapshot snapshot) { USE_IDENTITY.discard(snapshot); }
+    /** Called only for the actual send; no fallback to a potentially consumed held stack. */
+    public static void sentUse(Packet<?> packet) {
+        InteractionHand hand = useHand(packet);
+        if (hand == null) return;
+        var client = Minecraft.getInstance();
+        if (USE_IDENTITY.consume(packet, hand == InteractionHand.OFF_HAND, client.level, client.getConnection(), client.player, session)) use();
     }
     /** Bounded local diagnosis; excludes raw tab text, player names and item data. */
     public static String diagnosticReport() {

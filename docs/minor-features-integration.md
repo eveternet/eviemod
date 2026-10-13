@@ -45,9 +45,11 @@ all three completion markers for both Minecraft targets.
 
 The independent #19 recheck at the source head was reported clean, with all five
 findings closed, 34 focused tests across both versions and 96 independent assertions.
-The combined branch receives a separate bounded, fresh Codex CLI review through
-the local eviedex runner. Saved private logs identify its exact comparison SHAs,
-coverage and any findings; they are kept outside this repository.
+The initial combined branch received a separate bounded Codex CLI review through
+the local eviedex runner before the later macOS protection alert. The live-feedback
+follow-up uses supported independent reviewer tasks; the blocked executable is
+not restored, invoked or bypassed. Saved private logs identify each review's exact
+comparison SHAs, coverage and findings; they are kept outside this repository.
 
 The initial integration review inspected available content from all 53 changed
 files and reported two P2 findings: counted/explicit-none effect sections could

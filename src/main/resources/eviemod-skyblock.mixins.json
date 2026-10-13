@@ -5,6 +5,7 @@
   "client": [
     "ClientPacketListenerMixin",
     "CompassUsePacketMixin",
+    "CompassPredictionMixin",
     "GuiMixin",
     "WorldBorderMixin"
   ],

@@ -31,6 +31,24 @@ class CompassProtocolTest {
         wrapped.putString("id", "OTHER_ITEM"); stack.set(DataComponents.CUSTOM_DATA, CustomData.of(wrapped));
         assertEquals("OTHER_ITEM", WishingCompassClient.itemId(stack));
     }
+    @Test void oneCountCompassPredictionCanEmptyTheStackWithoutLosingItsSentPacketIdentity() {
+        var stack = new ItemStack(Items.PLAYER_HEAD);
+        var data = new CompoundTag(); data.putString("id", "WISHING_COMPASS");
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+        Object world = new Object(), connection = new Object(), player = new Object();
+        var before = new CompassUseIdentity.Snapshot(world, connection, player, "mini1",
+            WishingCompassClient.itemId(stack).equals("WISHING_COMPASS"), false);
+        stack.shrink(1); // BlockItem.place's local prediction consumes one item before send.
+        assertTrue(stack.isEmpty()); assertEquals("", WishingCompassClient.itemId(stack));
+        var packet = new net.minecraft.network.protocol.game.ServerboundUseItemOnPacket(
+            net.minecraft.world.InteractionHand.MAIN_HAND,
+            new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.ZERO,
+                net.minecraft.core.Direction.UP, net.minecraft.core.BlockPos.ZERO, false), 7);
+        var identities = new CompassUseIdentity();
+        identities.bind(packet, false, before);
+        assertTrue(identities.consume(packet, false, world, connection, player, "mini1"));
+        assertFalse(identities.consume(packet, false, world, connection, player, "mini1"));
+    }
     @Test void packetCentreIsUsableRegardlessOfHowVanillaRandomizesItsRenderedParticles() {
         assertTrue(WishingCompassClient.usablePacket(packet(0, 1)));
         assertTrue(WishingCompassClient.usablePacket(packet(1, 0)));

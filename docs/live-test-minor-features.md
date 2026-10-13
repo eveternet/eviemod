@@ -60,6 +60,9 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
 - [ ] Keep holding briefly after **Trail recorded**, then move and use the compass:
   the moved reading should start immediately. Keep holding after a solution:
   the waypoint should remain, and repeated sends should not extend its expiry.
+- [ ] Try air use and use against a block with a single compass in either hand.
+  An actually sent use should start a reading even if local item prediction
+  temporarily consumes the displayed stack. Cancelled/unsent uses should not.
 - [ ] Change a crystal's status, Jungle Key possession, or King's Scent presence;
   old observations invalidate. Scent countdown ticks alone should preserve them.
   Missing/blank/loading effect disclosure in Goblin contexts should withhold

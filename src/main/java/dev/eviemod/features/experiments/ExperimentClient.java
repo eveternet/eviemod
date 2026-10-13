@@ -20,6 +20,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -167,10 +170,17 @@ public final class ExperimentClient {
             int x = left + slot.x, y = top + slot.y;
             if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
                 var stack = rememberedStacks.get(slot.index);
-                if (stack != null) graphics.setTooltipForNextFrame(Minecraft.getInstance().font, stack, mouseX, mouseY);
+                if (stack != null) setRememberedTooltip(graphics, stack, mouseX, mouseY);
             }
         }
         graphics.pose().popMatrix();
+    }
+    private static void setRememberedTooltip(GuiGraphicsExtractor graphics, ItemStack stack, int mouseX, int mouseY) {
+        var client = Minecraft.getInstance();
+        // Vanilla already scheduled this hidden pane's tooltip. Preserve normal item semantics and replace only this remembered hover.
+        graphics.setTooltipForNextFrame(client.font,
+            Screen.getTooltipFromItem(client, stack).stream().map(Component::getVisualOrderText).toList(),
+            stack.getTooltipImage(), DefaultTooltipPositioner.INSTANCE, mouseX, mouseY, true, stack.get(DataComponents.TOOLTIP_STYLE));
     }
     private static boolean drawSlot(GuiGraphicsExtractor graphics, Slot slot) {
         int id = slot.index;

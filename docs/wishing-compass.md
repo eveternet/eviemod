@@ -12,6 +12,16 @@ stable SkyBlock custom-data ID must be `WISHING_COMPASS`, and the connection mus
 be Hypixel with the HM API mode `crystal_hollows`. The existing location-event
 subscription is reused. There is no automatic item use, location exchange,
 third-party service, websocket, chat-coordinate ingestion or saved waypoint file.
+`MultiPlayerGameMode.startPrediction` snapshots both hands' compass IDs before
+local prediction can consume a one-count player head or replace a stack. The
+snapshot is bound to the exact returned use packet, then consumed only after
+that packet reaches `Connection.send`. Snapshotting never starts a reading.
+The prediction wrapper's `finally` discards unused bindings after cancellation
+or exceptions; nested predictions retain separate identity bindings. World,
+connection, player, hand and lobby must still match. Disabled/no-compass use
+does not allocate a prediction snapshot, and unsnapshotted packets cannot borrow
+the hand's later state. This corrects a source-supported placement boundary bug;
+the supplied live log does not prove that this placement path caused its failure.
 
 The particle hook observes `ClientPacketListener.handleParticleEvent` after
 vanilla handling, on its game-thread path. Happy-villager packet centres form
@@ -126,3 +136,6 @@ pass without repeats, held attempts before/after qualification and solution,
 packet-centre semantics and a distant target
 at an eight-block baseline. Live success with the corrected build remains a
 separate check.
+Pre-prediction identity regressions cover a consumed one-count player head,
+exact packet identity, both hands, canceled/exceptional sends, nested cleanup,
+world/connection/player/lobby changes and bounded overflow.

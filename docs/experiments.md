@@ -40,6 +40,11 @@ the geometry pose before this hook, and the outer
 the container returns. Tooltips therefore render above guidance in the same
 frame. Fabric's `ScreenEvents.afterExtract` runs after that flush and cannot
 serve as this tooltip boundary. Input retains the narrow `slotClicked` hook.
+For a hovered, confirmed remembered card only, the public tooltip overload uses
+`replaceExisting=true` to replace the pending hidden-pane tooltip, preserving the
+copied stack's normal item text, optional tooltip image, default positioner and
+tooltip style. The ordinary `ItemStack` convenience overload refuses to replace
+an existing tooltip on both targets. Other slot tooltips retain vanilla behavior.
 Manual pickup clicks and button-2 `CLONE` clicks are recognized; SkyHanni's
 experiment helper rewrites correct manual clicks to the latter through
 `SlotClickEvent.makePickblock()`. Unsupported modes still pass through and
@@ -130,6 +135,8 @@ both new mixin owners and renders the shared configuration categories in CI.
 each target to check slot/pose completion before the container returns, its
 return before deferred tooltip flushing, and the tooltip's later GUI stratum.
 It also verifies the compiled overlay injection stays at that container boundary.
+Its tooltip API regression checks that both game targets forward the replacement
+flag and that the adapter requests replacement while retaining item text/image/style.
 This guards the version-sensitive ordering contract without starting a game;
 it does not replace live visual or modpack validation.
 
