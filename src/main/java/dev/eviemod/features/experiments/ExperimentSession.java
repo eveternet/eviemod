@@ -19,7 +19,7 @@ public final class ExperimentSession {
     private final Game game;
     private Board board;
     private Phase phase = Phase.UNKNOWN;
-    private int round, cursor, litSlot = -1;
+    private int round, cursor, litSlot = -1, pendingSlot = -1;
     private boolean recording, complete, awaitingReveal;
     private final List<String> notes = new ArrayList<>();
     private final Map<Integer, Integer> numbers = new HashMap<>();
@@ -27,7 +27,7 @@ public final class ExperimentSession {
 
     public ExperimentSession(Game game) { this.game = game; }
     public void clear() {
-        board = null; phase = Phase.UNKNOWN; round = cursor = 0; litSlot = -1;
+        board = null; phase = Phase.UNKNOWN; round = cursor = 0; litSlot = pendingSlot = -1;
         recording = complete = awaitingReveal = false;
         notes.clear(); numbers.clear(); memory.clear();
     }
@@ -48,7 +48,15 @@ public final class ExperimentSession {
                 else if (cell.kind() == Kind.OTHER) memory.remove(slot);
             }
             // Do not infer a first card until the server has supplied the second-choice prompt.
-            if (!next.equals(board)) awaitingReveal = false;
+            if (awaitingReveal && pendingSlot >= 9 && pendingSlot < 45) {
+                Cell pending = next.cells().get(pendingSlot);
+                // An unrelated packet or timer update does not acknowledge the selected card.
+                if (revealed(pending) && board != null && !pending.equals(board.cells().get(pendingSlot))
+                    || next.cells().stream().noneMatch(ExperimentSession::revealed)
+                        && next.cells().stream().noneMatch(Cell::second)) {
+                    awaitingReveal = false; pendingSlot = -1;
+                }
+            }
             board = next; phase = Phase.PAIRS; return;
         }
         if (next.phase() != Phase.REMEMBER && next.phase() != Phase.REPLAY) { clear(); return; }
@@ -139,7 +147,7 @@ public final class ExperimentSession {
                 && !first.identity().equals(known.identity());
             if (protect && wrong) return true;
             // Multiple clicks before a reveal cannot reuse a stale first-card observation.
-            awaitingReveal = true; return false;
+            awaitingReveal = true; pendingSlot = slot; return false;
         }
         if (phase != Phase.REPLAY || !complete || cursor >= round) return false;
         if (next(slot)) cursor++;

@@ -128,6 +128,15 @@ class ExperimentSessionTest {
         s.observe(pairs(reward("book-VI"), hidden(true), hidden(true), hidden(true)));
         assertFalse(s.click(11, true)); assertFalse(s.click(13, true));
     }
+    @Test void unrelatedUpdatesCannotRearmProtectionWhileSecondRevealIsPending() {
+        var s = knownPairs();
+        s.observe(pairs(reward("book-VI"), hidden(true), hidden(true), hidden(true)));
+        assertFalse(s.click(12, true));
+        var update = pairs(reward("book-VI"), hidden(true), hidden(true), hidden(true));
+        var cells = new ArrayList<>(update.cells()); cells.set(49, reward("timer-update"));
+        s.observe(new Board(Phase.PAIRS, 0, cells));
+        assertFalse(s.next(12)); assertFalse(s.click(11, true));
+    }
     @Test void changedBoardRemovedCardsAndCloseInvalidateSuperpairsMemory() {
         var s = knownPairs();
         s.observe(pairs(reward("different-board"), hidden(true), hidden(true), hidden(true)));
