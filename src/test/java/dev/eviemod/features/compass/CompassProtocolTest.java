@@ -44,18 +44,20 @@ class CompassProtocolTest {
             500, 100, 500, offset, 0, 0, 0, count);
     }
     @Test void changingScentCountdownDoesNotChangeTheTargetFingerprint() {
-        var first = WishingCompassClient.visiblePrerequisites(java.util.List.of("§aKing's Scent: 13m 02s", "§bJade Crystal: FOUND"));
-        var next = WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: FOUND", "King's Scent: 13m 01s", "Other player"));
+        var first = WishingCompassClient.visiblePrerequisites(java.util.List.of("Crystals:", "§aKing's Scent: 13m 02s", "§bJade: ✔ Found"));
+        var next = WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade: ✔ Found", "King's Scent: 13m 01s", "Crystals:", "Other player"));
         assertEquals(first, next);
-        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: FOUND")));
-        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: PLACED", "King's Scent: 12m 58s")));
+        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Crystals:", "Jade: ✔ Found")));
+        assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Crystals:", "Jade: ✔ Placed", "King's Scent: 12m 58s")));
     }
     @Test void regionChangesDiscardUnsolvedPairsButPreserveNavigation() {
-        var prior = new WishingCompassClient.TargetContext("westnorth", true, "[amethyst crystal: found]");
-        var acrossBorder = new WishingCompassClient.TargetContext("eastnorth", true, "[amethyst crystal: found]");
+        var states = CompassContext.prerequisites(CompassContextTest.rows("✔ Found"), "");
+        var prior = new WishingCompassClient.TargetContext(CompassContext.Region.JUNGLE, true, states);
+        var acrossBorder = new WishingCompassClient.TargetContext(CompassContext.Region.MITHRIL, true, states);
         assertFalse(prior.compatibleWith(acrossBorder, false));
         assertTrue(prior.compatibleWith(acrossBorder, true));
-        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext("eastnorth", false, prior.prerequisites()), true));
-        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext("westnorth", true, "[amethyst crystal: placed]"), true));
+        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext(CompassContext.Region.MITHRIL, false, prior.prerequisites()), true));
+        var placed = CompassContext.prerequisites(CompassContextTest.rows("✔ Placed"), "");
+        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext(CompassContext.Region.JUNGLE, true, placed), true));
     }
 }

@@ -3,7 +3,7 @@ package dev.eviemod.features.compass;
 import dev.eviemod.features.skyblock.SkyblockContext;
 import dev.eviemod.compat.ClientUi;
 import dev.eviemod.paintbrush.EviemodSettings;
-import java.util.Locale;
+import java.util.Objects;
 import net.azureaaron.hmapi.events.HypixelPacketEvents;
 import net.azureaaron.hmapi.network.packet.v1.s2c.LocationUpdateS2CPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -29,10 +29,12 @@ public final class WishingCompassClient {
     private static String session;
     private static Object level, connection;
     private static TargetContext context;
-    record TargetContext(String region, boolean key, String prerequisites) {
+    private static CompassContext.FooterSnapshot footer;
+    record TargetContext(CompassContext.Region region, boolean key, CompassContext.Prerequisites prerequisites) {
         boolean compatibleWith(TargetContext next, boolean navigating) {
             return next != null && key == next.key && prerequisites.equals(next.prerequisites)
-                && (navigating || region.equals(next.region));
+                && prerequisites.readyFor(region) && next.region != CompassContext.Region.UNKNOWN
+                && (navigating || region == next.region);
         }
     }
     private WishingCompassClient() {}
@@ -47,10 +49,11 @@ public final class WishingCompassClient {
                 && location.serverType().orElse("").equals("SKYBLOCK")
                 && location.mode().orElse("").equals("crystal_hollows")
                 ? location.serverName() + ":" + location.lobbyName().orElse("") + ":" + location.mode().orElse("") + ":" + location.map().orElse("") : null;
+            if (!Objects.equals(session, next)) footer = null;
             session = next; SOLVER.session(next);
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            session = null; SOLVER.session(null); level = null; connection = null;
+            session = null; SOLVER.session(null); level = null; connection = null; footer = null;
         });
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (player == Minecraft.getInstance().player) use(player.getItemInHand(hand));
@@ -109,6 +112,13 @@ public final class WishingCompassClient {
         if (!active(client) || !itemId(stack).equals("WISHING_COMPASS")) return;
         refreshWorld(client);
         context = targetContext(client);
+        if (!context.prerequisites().readyFor(context.region())) {
+            String message = !context.region().eligible() ? "Use your compass outside the Crystal Nucleus."
+                : !context.prerequisites().completeCrystals() ? "Crystal status unavailable. Enable Crystals in your SkyBlock tab widgets, then try again."
+                : "King's Scent status unavailable. Enable Active Effects in your SkyBlock tab widgets, then try again.";
+            SOLVER.rejectUse(message);
+            return;
+        }
         Vec3 pos = client.player.position();
         SOLVER.use(new CompassSolver.Point(pos.x, pos.y, pos.z), context.toString(), now());
     }
@@ -119,6 +129,11 @@ public final class WishingCompassClient {
         // Burst packets have randomized positions and cannot provide a reliable observation.
         if (!usablePacket(packet)) return;
         SOLVER.particle(new CompassSolver.Point(packet.getX(), packet.getY(), packet.getZ()), now());
+    }
+    public static void tabFooter(net.minecraft.network.chat.Component text) {
+        var client = Minecraft.getInstance();
+        if (!SkyblockContext.isHypixelServer(client)) return;
+        footer = new CompassContext.FooterSnapshot(client.level, client.getConnection(), text.getString());
     }
     static boolean usablePacket(ClientboundLevelParticlesPacket packet) {
         // Count zero encodes velocity, not randomized spawn offsets; its origin is still exact.
@@ -135,25 +150,17 @@ public final class WishingCompassClient {
     private static TargetContext targetContext(Minecraft client) {
         Vec3 pos = client.player.position();
         // Region changes and visible target prerequisites invalidate a pair, without guessing a structure name.
-        String zone = pos.y < 64 ? "magma" : (pos.x < 512 ? "west" : "east") + (pos.z < 512 ? "north" : "south");
+        var zone = CompassContext.region(new CompassSolver.Point(pos.x, pos.y, pos.z));
         boolean key = client.player.getInventory().getNonEquipmentItems().stream().anyMatch(stack -> itemId(stack).equals("JUNGLE_KEY"));
         var lines = new java.util.ArrayList<String>();
         for (var info : client.getConnection().getOnlinePlayers()) {
             var display = info.getTabListDisplayName();
             if (display != null) lines.add(display.getString());
         }
-        return new TargetContext(zone, key, visiblePrerequisites(lines));
+        String footerText = footer == null ? null : footer.forWorld(client.level, client.getConnection());
+        return new TargetContext(zone, key, CompassContext.prerequisites(lines, footerText));
     }
     static String visiblePrerequisites(java.util.List<String> lines) {
-        var prerequisites = new java.util.TreeSet<String>();
-        for (String raw : lines) {
-            String line = raw.replaceAll("§.", "").toLowerCase(Locale.ROOT).trim();
-            // A changing timer is not a changing compass target.
-            if (line.contains("king's scent")) prerequisites.add("king's scent");
-            else if (line.contains("crystal") &&
-                (line.contains("amethyst") || line.contains("amber") || line.contains("jade") || line.contains("sapphire") || line.contains("topaz")))
-                prerequisites.add(line);
-        }
-        return prerequisites.toString();
+        return CompassContext.prerequisites(lines, null).toString();
     }
 }

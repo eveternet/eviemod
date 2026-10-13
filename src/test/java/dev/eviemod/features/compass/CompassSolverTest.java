@@ -23,6 +23,94 @@ class CompassSolverTest {
         var particles = trail(used, target);
         for (int i = 0; i < particles.size(); i++) solver.particle(particles.get(i), time + 50 + i * 40);
         for (int i = 0; i < 3; i++) solver.particle(particles.get(i), time + 2000 + i * 40);
+        solver.tick(time + 5000);
+    }
+    private static void feed(CompassSolver solver, List<Point> points, long start) {
+        for (int i = 0; i < points.size(); i++) solver.particle(points.get(i), start + i * 40);
+        for (int i = 0; i < 3; i++) solver.particle(points.get(i), start + 1000 + i * 40);
+    }
+    @Test void completedRepeatDoesNotPublishBeforeTheWholeWindowCloses() {
+        var solver = solver(); observe(solver, A, TARGET, 0);
+        solver.use(B, "east-south", 6000); feed(solver, trail(B, TARGET), 6050);
+        assertTrue(solver.observing()); assertNull(solver.estimate());
+        solver.tick(11000); assertFalse(solver.observing()); assertNotNull(solver.estimate());
+    }
+    @Test void competingCompleteTrailsRejectTheReviewProbeInEitherArrivalOrder() {
+        Point ownTarget = new Point(720, 100, 720);
+        for (boolean foreignFirst : new boolean[]{true, false}) {
+            var solver = solver();
+            for (int use = 0; use < 2; use++) {
+                Point used = use == 0 ? A : B;
+                long time = use * 6000L;
+                solver.use(used, "east-south", time);
+                var foreign = trail(used.add(new Point(5, 0, 0)), TARGET);
+                var own = trail(used, ownTarget);
+                feed(solver, foreignFirst ? foreign : own, time + 50);
+                feed(solver, foreignFirst ? own : foreign, time + 1500);
+                assertNull(solver.estimate()); assertTrue(solver.observing());
+                solver.tick(time + 5000);
+                assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
+            }
+        }
+    }
+    @Test void competingInterleavedTrailsAreNotHiddenByTheFirstTrack() {
+        var solver = solver(); solver.use(A, "east-south", 0);
+        var own = trail(A, new Point(720, 100, 720));
+        var foreign = trail(A.add(new Point(5, 0, 0)), TARGET);
+        for (int i = 0; i < own.size(); i++) {
+            solver.particle(foreign.get(i), 50 + i * 80); solver.particle(own.get(i), 90 + i * 80);
+        }
+        for (int i = 0; i < 3; i++) {
+            solver.particle(foreign.get(i), 2100 + i * 80); solver.particle(own.get(i), 2140 + i * 80);
+        }
+        solver.tick(5000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
+    }
+    @Test void lateCompetingFirstPassWithMissingRepeatStillInvalidatesTheObservation() {
+        var solver = solver(); observe(solver, A, TARGET, 0);
+        solver.use(B, "east-south", 6000);
+        feed(solver, trail(B.add(new Point(5, 0, 0)), TARGET), 6050);
+        var own = trail(B, new Point(720, 100, 720));
+        for (int i = 0; i < own.size(); i++) solver.particle(own.get(i), 9900 + i * 40);
+        solver.tick(11000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
+        observe(solver, A, TARGET, 12000); assertNull(solver.estimate());
+    }
+    @Test void repeatedPassesOfTheSameTrailRemainOneCandidate() {
+        var solver = solver();
+        for (int use = 0; use < 2; use++) {
+            Point used = use == 0 ? A : B; long time = use * 6000L;
+            solver.use(used, "east-south", time);
+            var points = trail(used, TARGET); feed(solver, points, time + 50);
+            for (int i = 0; i < points.size(); i++) solver.particle(points.get(i), time + 2500 + i * 40);
+            solver.tick(time + 5000);
+        }
+        assertNotNull(solver.estimate());
+    }
+    @Test void noisyUniqueTrailStillTriangulatesAndPacketsOutsideWindowCannotRetractIt() {
+        var solver = solver();
+        for (int use = 0; use < 2; use++) {
+            Point used = use == 0 ? A : B; long time = use * 6000L;
+            solver.use(used, "east-south", time);
+            var points = trail(used, TARGET);
+            for (int i = 1; i < points.size() - 1; i++) points.set(i, points.get(i).add(new Point(0, i % 2 == 0 ? 0.02 : -0.02, 0)));
+            feed(solver, points, time + 50); solver.tick(time + 5000);
+        }
+        var estimate = solver.estimate(); assertNotNull(estimate);
+        feed(solver, trail(B, new Point(720, 100, 720)), 12000);
+        assertSame(estimate, solver.estimate());
+    }
+    @Test void exceedingCaptureBoundsRejectsRatherThanDiscardingCompetingEvidence() {
+        var solver = solver(); solver.use(A, "east-south", 0);
+        feed(solver, trail(A, TARGET), 50);
+        for (int i = 0; i < 600; i++) solver.particle(A, 2500 + i);
+        solver.tick(5000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
+    }
+    @Test void rejectingAnUnsupportedUseDiscardsPriorObservationsAndSolvedWaypoints() {
+        var solver = solver(); observe(solver, A, TARGET, 0);
+        solver.rejectUse("Use your compass outside the Crystal Nucleus.");
+        observe(solver, B, TARGET, 6000); assertNull(solver.estimate());
+        observe(solver, A, TARGET, 12000); assertNotNull(solver.estimate());
+        solver.rejectUse("Crystal status unavailable."); assertNull(solver.estimate()); assertFalse(solver.observing());
+        assertEquals("Crystal status unavailable.", solver.status());
     }
     @Test void triangulatesInThreeDimensionsWithNonzeroUncertainty() {
         var solver = solver();
@@ -92,14 +180,15 @@ class CompassSolverTest {
         var particles = trail(B, TARGET);
         for (Point p : particles) solver.particle(p, 6100);
         for (int i = 0; i < 3; i++) solver.particle(particles.get(i), 8000);
+        solver.tick(11000);
         assertNull(solver.estimate()); assertTrue(solver.status().contains("recorded"));
     }
     @Test void manualResetAndExpiryClearAllResults() {
         var solver = solver(); observe(solver, A, TARGET, 0); solver.reset();
         observe(solver, B, TARGET, 6000); assertNull(solver.estimate());
-        solver.tick(310000); assertTrue(solver.status().contains("begin"));
+        solver.tick(320000); assertTrue(solver.status().contains("begin"));
         observe(solver, A, TARGET, 320000); observe(solver, B, TARGET, 326000);
-        assertNotNull(solver.estimate()); solver.tick(630000); assertNull(solver.estimate());
+        assertNotNull(solver.estimate()); solver.tick(640000); assertNull(solver.estimate());
     }
     @Test void newUseAfterSolutionClearsTheOldWaypointImmediately() {
         var solver = solver(); observe(solver, A, TARGET, 0); observe(solver, B, TARGET, 6000);

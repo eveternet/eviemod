@@ -12,7 +12,7 @@ final class CompassSettingsCategory {
         return ConfigCategory.createBuilder().id(id("category")).name(Component.literal("Mining"))
             .group(OptionGroup.createBuilder().id(id("group")).name(Component.literal("Wishing Compass"))
                 .option(Option.<Boolean>createBuilder().id(id("enabled")).name(Component.literal("Wishing Compass Solver"))
-                    .description(Component.literal("Use your compass twice in the same region, at least eight blocks apart sideways. Shows an estimated destination and uncertainty."))
+                    .description(Component.literal("Use your compass twice outside the Crystal Nucleus, at least eight blocks apart sideways in the same region. Wait five seconds after each use. Shows an estimated destination and uncertainty."))
                     .binding(false, () -> draft.features.skyblock.wishingCompass, value -> {
                         draft.features.skyblock.wishingCompass = value; draft.choose("skyblock.wishingCompass");
                     }).controller(BooleanController.createBuilder().build()).build())

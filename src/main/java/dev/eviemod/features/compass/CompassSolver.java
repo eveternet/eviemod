@@ -39,12 +39,16 @@ public final class CompassSolver {
     public void session(String next) {
         if (!Objects.equals(session, next)) { reset(); session = next; }
     }
+    public void rejectUse(String message) { reset(); status = message; }
     public void tick(long now) {
-        if (capture != null && now - capture.started >= CAPTURE_MILLIS) {
-            capture = null; estimate = null;
-            status = "Trail incomplete. Wait for it to finish, then use your compass again.";
+        if (first != null && now - first.time >= EXPIRY_MILLIS || estimate != null && now - updatedAt >= EXPIRY_MILLIS) {
+            reset(); return;
         }
-        if (first != null && now - first.time >= EXPIRY_MILLIS || estimate != null && now - updatedAt >= EXPIRY_MILLIS) reset();
+        if (capture != null && now - capture.started >= CAPTURE_MILLIS) {
+            Capture completed = capture;
+            capture = null;
+            finish(completed, now);
+        }
     }
     public void use(Point position, String context, long now) {
         tick(now);
@@ -65,14 +69,23 @@ public final class CompassSolver {
     public void particle(Point position, long now) {
         tick(now);
         if (capture == null || position == null || !position.finite()) return;
-        if (!capture.accept(position)) return;
-        Ray ray = fit(capture.samples);
-        Point usedAt = capture.usedAt;
-        capture = null; updatedAt = now;
-        if (ray == null) {
-            status = "Trail ambiguous. Use your compass again after the particles finish.";
+        capture.accept(position);
+    }
+    private void finish(Capture completed, long now) {
+        CaptureResult result = completed.result();
+        Ray ray = result.ray;
+        estimate = null;
+        if (result.ambiguous) {
+            first = null;
+            status = "Multiple possible trails detected. Wait for them to finish, then use your compass again.";
             return;
         }
+        if (ray == null) {
+            status = "Trail incomplete. Wait for it to finish, then use your compass again.";
+            return;
+        }
+        updatedAt = now;
+        Point usedAt = completed.usedAt;
         Observation next = new Observation(usedAt, ray, now);
         if (first == null) {
             first = next;
@@ -145,28 +158,67 @@ public final class CompassSolver {
     static boolean inHollows(Point p) {
         return p.finite() && p.x >= 201 && p.x <= 824 && p.z >= 201 && p.z <= 824 && p.y >= 30 && p.y <= 189;
     }
+    private record CaptureResult(Ray ray, boolean ambiguous) {}
     private static final class Capture {
         final Point usedAt;
         final long started;
+        final List<Trail> trails = new ArrayList<>();
+        int packets;
+        boolean overflow;
+        Capture(Point usedAt, long started) { this.usedAt = usedAt; this.started = started; }
+        void accept(Point point) {
+            if (++packets > 512) { overflow = true; return; }
+            for (Trail trail : trails) trail.accept(point);
+            if (point.distance(usedAt) <= 9 && trails.stream().noneMatch(trail -> point.distance(trail.start) <= 0.25)) {
+                if (trails.size() >= 128) overflow = true;
+                else trails.add(new Trail(point));
+            }
+        }
+        CaptureResult result() {
+            if (overflow) return new CaptureResult(null, true);
+            Ray selected = null;
+            double widest = 0;
+            for (Trail trail : trails) if (trail.confirmed != null && trail.span() > widest) {
+                selected = trail.confirmed; widest = trail.span();
+            }
+            if (selected == null) return new CaptureResult(null, false);
+            // A coherent competing first pass is already enough to make ownership ambiguous,
+            // even if its repeat arrives too late. Never publish a provisional waypoint.
+            for (Trail trail : trails) {
+                Ray candidate = trail.confirmed != null ? trail.confirmed : fit(trail.samples);
+                if (candidate != null && !sameTrail(selected, candidate)) return new CaptureResult(null, true);
+            }
+            return new CaptureResult(selected, false);
+        }
+        private static boolean sameTrail(Ray a, Ray b) {
+            if (a.direction.dot(b.direction) < 0.999) return false;
+            Point offset = a.origin.subtract(b.origin);
+            return offset.subtract(a.direction.scale(offset.dot(a.direction))).length() <= 0.4
+                && offset.subtract(b.direction.scale(offset.dot(b.direction))).length() <= 0.4;
+        }
+    }
+    private static final class Trail {
+        final Point start;
         final List<Point> samples = new ArrayList<>();
         int repeatIndex = -1;
-        Capture(Point usedAt, long started) { this.usedAt = usedAt; this.started = started; }
-        boolean accept(Point point) {
-            if (samples.isEmpty()) {
-                if (point.distance(usedAt) <= 9) samples.add(point);
-                return false;
-            }
+        boolean complete;
+        Ray confirmed;
+        Trail(Point start) { this.start = start; samples.add(start); }
+        double span() { return samples.getLast().distance(start); }
+        void accept(Point point) {
+            if (complete) return;
             if (repeatIndex >= 0) {
-                if (point.distance(samples.get(repeatIndex)) > 0.3) { samples.clear(); repeatIndex = -1; return false; }
-                return ++repeatIndex >= 3;
+                if (point.distance(samples.get(repeatIndex)) <= 0.3 && ++repeatIndex >= 3) {
+                    complete = true; confirmed = fit(samples);
+                }
+                return;
             }
-            Point start = samples.getFirst(), previous = samples.getLast();
+            Point previous = samples.getLast();
             if (samples.size() >= 8 && previous.distance(start) >= 4 && point.distance(start) <= 0.3) {
                 repeatIndex = 1;
             } else if (point.distance(previous) > 0.05 && point.distance(previous) <= 0.8 && samples.size() < 128) {
                 samples.add(point);
             }
-            return false;
         }
     }
 }
