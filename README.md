@@ -6,6 +6,7 @@ A client-side Fabric mod for Hypixel SkyBlock on Minecraft 26.1.2 and 26.2, with
 - **Rarity backgrounds:** customizable shapes and opacity, with optional rarity continuity during item-data refreshes.
 - **Hypixel Pack:** local installation and updates for the official SkyBlock resource pack.
 - **Quick Navigation:** fourteen inventory command tabs with a visual editor for icons, commands, menu highlights, tooltips and click confirmation.
+- **Experiments:** manual Chronomatron, Ultrasequencer, and Superpairs memory helpers, with optional protection against known incorrect clicks.
 - **SkyBlock visuals:** hide barrier effects, scale health to 10 hearts outside the Rift, and prevent repeated Soul Whip equip animations.
 - **Garden tools:** farming mouse lock and hotkeys for plot teleport, set spawn, and Garden warp.
 - **Dungeons:** Noamm score sync and customizable Explosive Shot damage announcements, locally or in party chat.

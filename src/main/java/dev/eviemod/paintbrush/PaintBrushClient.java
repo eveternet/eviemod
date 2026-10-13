@@ -87,6 +87,7 @@ public final class PaintBrushClient implements ClientModInitializer {
         dev.eviemod.features.skyblock.ImportedFeatureClient.initialize();
         SkyBlockSession.init();
         QuickNavigationClient.init();
+        dev.eviemod.features.experiments.ExperimentClient.init();
         try { HelmetSkins.load(); }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error("Could not load helmet skins", e); }
         overrides = new ModelOverrides(ConfigMigration.path("eviemod-paintbrush.json"));
