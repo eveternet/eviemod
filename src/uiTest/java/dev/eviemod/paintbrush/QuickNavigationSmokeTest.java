@@ -65,6 +65,10 @@ final class QuickNavigationSmokeTest {
             field(screen, "Menu title pattern").setValue("Garden.*"); check(widget(screen, "Done").active, "Valid pattern recovers");
             field(screen, "Item model").setValue("minecraft:missing_item"); check(!widget(screen, "Done").active, "Bad icon blocks saving");
             field(screen, "Item model").setValue("minecraft:apple");
+            field(screen, "Tooltip").setValue("Go to Garden");
+            check(screen.children().stream().anyMatch(child -> child instanceof QuickNavigationTab tab
+                && tab.index() == 0 && tab.getMessage().getString().equals("Tab 1 · Go to Garden")),
+                "Tooltip edit immediately refreshes its preview tab without rebuilding the editor");
             clickEditor(screen, widget(screen, "Hide tab"));
             var second = screen.children().stream().filter(child -> child instanceof QuickNavigationTab tab && tab.index() == 1)
                 .map(child -> (QuickNavigationTab)child).findFirst().orElseThrow();
@@ -79,6 +83,7 @@ final class QuickNavigationSmokeTest {
             var saved = EviemodSettings.STORE.values().quickNavigation;
             check(!saved.enabled && saved.tabs.get(0).hidden, "Configuring a tab does not enable background feature");
             check(saved.tabs.get(0).command.equals("/warp garden") && saved.tabs.get(0).icon.equals("minecraft:apple"), "Editor edits persist across tab switch/resize");
+            check(saved.tabs.get(0).tooltip.equals("Go to Garden"), "Refreshed tooltip persists after tab switch/resize");
             settings.onClose(); check(ClientUi.screen(client) == parent, "Settings return to parent");
             check(EviemodSettings.STORE.values().quickNavigation.tabs.get(0).hidden, "Parent save preserves editor edits");
             runtime = new RuntimePreview(166, sent); ClientUi.setScreen(client, runtime);

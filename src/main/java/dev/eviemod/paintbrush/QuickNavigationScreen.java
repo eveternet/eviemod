@@ -42,7 +42,11 @@ final class QuickNavigationScreen extends CompactScreen {
         field("Command", left, y + 100, width, tab.command, 256, value -> tab.command = value);
         var title = field("Menu title pattern", left, y + 140, width, tab.title, 256, value -> tab.title = value);
         title.setTooltip(Tooltip.create(Component.literal("Highlights this tab when the whole menu title matches. Leave blank for no highlight.")));
-        field("Tooltip", left, y + 180, width, tab.tooltip, 256, value -> tab.tooltip = value);
+        field("Tooltip", left, y + 180, width, tab.tooltip, 256, value -> {
+            tab.tooltip = value;
+            for (var child : children()) if (child instanceof QuickNavigationTab preview && preview.index() == selected)
+                preview.tooltip(tabLabel(selected));
+        });
         hide = button(tab.hidden ? "Show tab" : "Hide tab", left, y + 218, 85, () -> {
             tab.hidden = !tab.hidden; hide.setMessage(Component.literal(tab.hidden ? "Show tab" : "Hide tab"));
         });
@@ -62,7 +66,7 @@ final class QuickNavigationScreen extends CompactScreen {
             var widget = new QuickNavigationTab(index, () -> draft.tabs.get(index),
                 () -> QuickNavigationLayout.tab(index, x + 344, y + 64, 176, 166), () -> selected == index,
                 () -> { selected = index; rebuildWidgets(); });
-            widget.tooltip("Tab " + (index + 1) + " · " + draft.tabs.get(index).tooltip);
+            widget.tooltip(tabLabel(index));
             addRenderableWidget(widget);
         }
         validateDraft();
@@ -70,6 +74,7 @@ final class QuickNavigationScreen extends CompactScreen {
     private static String actionLabel(QuickNavigationSettings.Tab tab) {
         return tab.activation == QuickNavigationSettings.Activation.CLICK ? "Single click" : "Double click";
     }
+    private String tabLabel(int index) { return "Tab " + (index + 1) + " · " + draft.tabs.get(index).tooltip; }
     private EditorButton button(String label, int bx, int by, int width, Runnable action) {
         return addRenderableWidget(new EditorButton(label, bx, by, width, action, () -> false));
     }
