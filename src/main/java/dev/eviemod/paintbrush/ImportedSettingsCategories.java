@@ -19,7 +19,7 @@ final class ImportedSettingsCategories {
             .binding(initial, get, set).controller(BooleanController.createBuilder().build()).build();
     }
     static List<ConfigCategory> create(ModSettings.Values draft) {
-        return List.of(garden(draft), dungeons(draft), commands(draft), hotkeys(draft));
+        return List.of(garden(draft), dungeons(draft), experiments(draft), commands(draft), hotkeys(draft));
     }
     private static Option<Boolean> compactToggle(String path, String name, String description, boolean initial, Supplier<Boolean> get, Consumer<Boolean> set) {
         var option = Option.<Boolean>createBuilder().id(id(path)).name(text(name))
@@ -36,6 +36,19 @@ final class ImportedSettingsCategories {
                 () -> values.skyblock.maxTenHearts, value -> { values.skyblock.maxTenHearts = value; draft.choose("skyblock.maxTenHearts"); }))
             .option(compactToggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", false,
                     () -> values.soulWhip.enabled, value -> { values.soulWhip.enabled = value; draft.choose("soulWhip.enabled"); })).build();
+    }
+    private static ConfigCategory experiments(ModSettings.Values draft) {
+        var values = draft.features.experiments;
+        return ConfigCategory.createBuilder().id(id("experiments")).name(text("Experiments"))
+            .description(text("Manual Experimentation Table helpers"))
+            .option(toggle("experiments/chronomatron", "Chronomatron", "Remember the displayed sequence and highlight the next note to click.", false,
+                () -> values.chronomatron, value -> { values.chronomatron = value; draft.choose("experiments.chronomatron"); }))
+            .option(toggle("experiments/ultrasequencer", "Ultrasequencer", "Remember numbered positions and highlight the next number to click.", false,
+                () -> values.ultrasequencer, value -> { values.ultrasequencer = value; draft.choose("experiments.ultrasequencer"); }))
+            .option(toggle("experiments/superpairs", "Superpairs", "Show remembered items and known matches. Green marks a match for the revealed card; yellow marks a known pair.", false,
+                () -> values.superpairs, value -> { values.superpairs = value; draft.choose("experiments.superpairs"); }))
+            .option(toggle("experiments/protection", "Protect incorrect clicks", "Prevent known wrong choices in enabled helpers. Unknown Superpairs cards remain available to explore.", false,
+                () -> values.protectIncorrectClicks, value -> { values.protectIncorrectClicks = value; draft.choose("experiments.protectIncorrectClicks"); })).build();
     }
     private static ConfigCategory garden(ModSettings.Values draft) {
         var values = draft.features.garden;

@@ -14,6 +14,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
+   @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
+   private void eviemod$observeCompassFooter(net.minecraft.network.protocol.game.ClientboundTabListPacket packet, CallbackInfo ci) {
+      dev.eviemod.features.compass.WishingCompassClient.tabFooter(packet.footer());
+   }
+   @Inject(method = "handleParticleEvent", at = @At("TAIL"))
+   private void eviemod$observeCompassParticles(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
+      dev.eviemod.features.compass.WishingCompassClient.particle(packet);
+   }
    @ModifyArg(method = "handleSetHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hurtTo(F)V"), index = 0)
    private float skyblockvisuals$scaleHealthForVisualBar(float health) {
       return VisualHealthController.toVisualHealth(health);
