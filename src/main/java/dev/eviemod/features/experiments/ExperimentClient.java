@@ -107,8 +107,9 @@ public final class ExperimentClient {
         if (ensureSession() && screen.getMenu().containerId == containerId) observeServer();
     }
     private static boolean isPlayablePane(ItemStack stack) {
-        return net.minecraft.world.item.Items.STAINED_GLASS_PANE.asList().contains(stack.getItem())
-            && !stack.is(net.minecraft.world.item.Items.STAINED_GLASS_PANE.black());
+        var id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return id.getNamespace().equals("minecraft") && id.getPath().endsWith("_stained_glass_pane")
+            && !id.getPath().equals("black_stained_glass_pane");
     }
     private static String identity(ItemStack stack) {
         for (int i = 0; i < identities.size(); i++) if (ItemStack.matches(stack, identities.get(i))) return Integer.toString(i);

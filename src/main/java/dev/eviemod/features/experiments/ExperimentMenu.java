@@ -1,11 +1,10 @@
 package dev.eviemod.features.experiments;
 
-import java.util.List;
 import java.util.regex.Pattern;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.ColorCollection;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 /** Hypixel's English GUI protocol, kept separate from the state machines. See docs/experiments.md. */
 public final class ExperimentMenu {
@@ -42,10 +41,11 @@ public final class ExperimentMenu {
         return ExperimentSession.Phase.UNKNOWN;
     }
     public static String note(ItemStack stack) {
-        List<net.minecraft.world.item.Item> clay = Items.DYED_TERRACOTTA.asList(), glass = Items.STAINED_GLASS.asList();
-        int color = clay.indexOf(stack.getItem());
-        if (color < 0) color = glass.indexOf(stack.getItem());
-        return color < 0 ? "" : ColorCollection.NAMES.asList().get(color);
+        String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        for (String color : new String[]{"white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
+                "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"})
+            if (path.equals(color + "_terracotta") || path.equals(color + "_stained_glass")) return color;
+        return "";
     }
     public static int number(ItemStack stack) {
         String name = name(stack);
@@ -55,17 +55,17 @@ public final class ExperimentMenu {
         return value <= 36 && stack.getCount() == value ? value : 0;
     }
     public static boolean hidden(ItemStack stack) {
-        return stack.is(Items.STAINED_GLASS.cyan()) && switch (name(stack)) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals("minecraft:cyan_stained_glass") && switch (name(stack)) {
             case "Click any button!", "Click a second button!" -> true;
             default -> false;
         };
     }
     public static boolean powerup(ItemStack stack) {
         var lore = stack.get(DataComponents.LORE);
-        return lore != null && lore.lines().stream().anyMatch(line -> clean(line.getString()).toLowerCase(java.util.Locale.ROOT).contains("powerup"));
+        return lore != null && lore.lines().stream().anyMatch(line -> clean(line.getString()).toLowerCase(java.util.Locale.ROOT).matches(".*power ?up.*"));
     }
     public static boolean reward(ItemStack stack) {
-        return !stack.isEmpty() && !Items.STAINED_GLASS.asList().contains(stack.getItem())
-            && !Items.STAINED_GLASS_PANE.asList().contains(stack.getItem());
+        String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        return !stack.isEmpty() && !path.endsWith("stained_glass") && !path.endsWith("stained_glass_pane");
     }
 }
