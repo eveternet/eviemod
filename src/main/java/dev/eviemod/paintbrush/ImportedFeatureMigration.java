@@ -146,6 +146,8 @@ final class ImportedFeatureMigration {
             }
             if (garden.has("keys")) for (var entry : object(garden.get("keys"), "keys").entrySet()) string(entry.getValue(), "key binding");
         }
+        if (features.has("experiments"))
+            booleans(object(features.get("experiments"), "experiments"), "chronomatron", "ultrasequencer", "superpairs", "protectIncorrectClicks");
         if (features.has("dungeons")) {
             var dungeons = object(features.get("dungeons"), "dungeons");
             booleans(dungeons, "announceCrit", "announceCritPartyChat", "partyFinderAlert", "partyFinderSound");
@@ -157,7 +159,7 @@ final class ImportedFeatureMigration {
         }
         if (features.has("skyblock")) {
             var skyblock = object(features.get("skyblock"), "skyblock");
-            booleans(skyblock, "noBarrierEffects", "maxTenHearts", "commandHotkeysEnabled", "noammScoreSync");
+            booleans(skyblock, "noBarrierEffects", "maxTenHearts", "commandHotkeysEnabled", "noammScoreSync", "wishingCompass");
             if (skyblock.has("commandHotkeys")) {
                 if (!skyblock.get("commandHotkeys").isJsonArray()) throw new IllegalArgumentException("Invalid commandHotkeys");
                 for (var entry : skyblock.getAsJsonArray("commandHotkeys")) {

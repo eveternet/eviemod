@@ -6,6 +6,9 @@ Distribution: https://modrinth.com/mod/yacl/version/h2FGeDHG
 
 YACL includes its own third-party libraries, whose metadata and licenses remain in its JAR.
 Skyblocker was inspected as a behavioral reference; no Skyblocker feature code or assets are bundled. Its nested Dandelion backport is redistributed separately as described below.
+Skyblocker 6.10.4+26.2 and SkyOcean 1.18.1-26.2 were also inspected for quick
+navigation behavior and the tab-selection editor flow. Their feature code,
+assets and UI dependencies are not bundled; see docs/quick-navigation.md.
 
 HM API 1.0.3+26.1, unmodified, by AzureAaron and contributors.
 License: Apache-2.0 (retained in the nested library JAR)

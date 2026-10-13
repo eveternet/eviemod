@@ -5,11 +5,17 @@ A client-side Fabric mod for Hypixel SkyBlock on Minecraft 26.1.2 and 26.2, with
 - **Paint Brush:** per-item models, static and animated PNG imports, helmet skins, custom and animated dyes, and styled names with colors and gradients.
 - **Rarity backgrounds:** customizable shapes and opacity, with optional rarity continuity during item-data refreshes.
 - **Hypixel Pack:** local installation and updates for the official SkyBlock resource pack.
+- **Quick Navigation:** fourteen empty positions for your own inventory command tabs, with held SkyBlock item icons, menu highlights, tooltips and click confirmation.
+- **Wishing Compass:** private Crystal Hollows destination estimates from two manual uses, with a world marker and uncertainty radius.
+- **Experiments:** manual Chronomatron, Ultrasequencer, and Superpairs memory helpers, with optional protection against known incorrect clicks.
 - **SkyBlock visuals:** hide barrier effects, scale health to 10 hearts outside the Rift, and prevent repeated Soul Whip equip animations.
 - **Garden tools:** farming mouse lock and hotkeys for plot teleport, set spawn, and Garden warp.
 - **Dungeons:** Noamm score sync and customizable Explosive Shot damage announcements, locally or in party chat.
 - **Chat commands:** warp, coordinates, invite, kick, party transfer, ping, TPS, and FPS, individually configurable for party, guild, and co-op chat.
 - **Command hotkeys:** custom key bindings for commands.
+
+The combined feature preview has a [live-test checklist](docs/live-test-minor-features.md)
+and [source PR provenance](docs/minor-features-integration.md).
 
 An optional [experimental Apple Silicon Metal addon](docs/metal-addon.md) is
 built as a separate `eviemod-metal` JAR. Installing it enables Metal on supported

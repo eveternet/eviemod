@@ -10,7 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
 /** Uses the same location event and SKYBLOCK game-type check as Skyblocker 6.10.2. */
-final class SkyBlockSession {
+public final class SkyBlockSession {
     private static boolean skyblock;
     static void init() {
         var events = new Object2IntOpenHashMap<net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<net.azureaaron.hmapi.network.packet.s2c.HypixelS2CPacket>>();
@@ -27,7 +27,7 @@ final class SkyBlockSession {
         skyblock = next;
         if (next) TexturePackBypasser.enteredSkyBlock();
     }
-    static boolean active() {
+    public static boolean active() {
         var client = Minecraft.getInstance();
         return allowed(skyblock, SkyblockContext.isHypixelServer(client), FabricLoader.getInstance().isDevelopmentEnvironment(),
             client.level == null || client.isLocalServer());

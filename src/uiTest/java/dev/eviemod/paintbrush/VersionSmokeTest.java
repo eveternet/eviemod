@@ -31,6 +31,7 @@ final class VersionSmokeTest {
                     "net.minecraft.client.MouseHandler",
                     "net.minecraft.client.multiplayer.ClientPacketListener",
                     "net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl",
+                    "net.minecraft.client.multiplayer.MultiPlayerGameMode",
                     "net.minecraft.world.level.border.WorldBorder",
                     "net.minecraft.client.renderer.ItemInHandRenderer",
                     "net.minecraft.client.renderer.item.ItemModelResolver",
@@ -47,6 +48,48 @@ final class VersionSmokeTest {
                 return;
             }
             ticks++;
+            if (ticks == 5) {
+                var settings = (MoulConfigScreenComponent) ClientUi.screen(client);
+                var editor = (net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor<?>)
+                    ((net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent) settings.getGuiContext().getRoot()).getElement();
+                if (!editor.getAllCategories().values().stream().map(category -> category.getDisplayName().getText()).toList()
+                    .equals(java.util.List.of("Appearance", "Hypixel Pack", "Quick Navigation", "Mining", "Garden", "Dungeons", "Experiments", "Chat Commands", "Command Hotkeys")))
+                    throw new AssertionError("Combined feature categories differ from the expected nine-category order");
+                var mining = editor.getAllCategories().values().stream()
+                    .filter(value -> value.getIdentifier().equals("eviemod:compass/category")).findFirst().orElseThrow();
+                editor.setSelectedCategory(mining);
+                var enabled = editor.getAllOptions().stream().filter(value -> compassOption(value, "enabled")).findFirst().orElseThrow();
+                if ((Boolean) enabled.get()) throw new AssertionError("Compass defaults on in actual settings UI");
+                enabled.set(true);
+                if (!(Boolean) enabled.get()) throw new AssertionError("Compass toggle did not update its draft");
+                var clear = editor.getAllOptions().stream().filter(value -> compassOption(value, "clear")).findFirst().orElseThrow();
+                ((Runnable) clear.get()).run();
+                if (EviemodSettings.features().skyblock.wishingCompass) throw new AssertionError("Clearing observations saved an unfinished settings draft");
+                enabled.set(false);
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_COMPASS_SETTINGS_SMOKE_OK");
+            }
+            if (ticks == 10) {
+                var settings = (MoulConfigScreenComponent) ClientUi.screen(client);
+                var editor = (net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor<?>)
+                    ((net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent) settings.getGuiContext().getRoot()).getElement();
+                var experiments = editor.getAllCategories().values().stream()
+                    .filter(value -> value.getIdentifier().equals("eviemod:experiments")).findFirst().orElseThrow();
+                editor.setSelectedCategory(experiments);
+                for (String name : new String[]{"chronomatron", "ultrasequencer", "superpairs", "protection"}) {
+                    var option = editor.getAllOptions().stream().filter(value -> {
+                        try { return value.getDebugDeclarationLocation().equals("eviemod:experiments/" + name); }
+                        catch (UnsupportedOperationException e) { return false; }
+                    }).findFirst().orElseThrow();
+                    if ((Boolean) option.get()) throw new AssertionError("Experiment helper defaults on: " + name);
+                    option.set(true);
+                    if (!(Boolean) option.get()) throw new AssertionError("Experiment toggle did not update: " + name);
+                    option.set(false);
+                }
+                if (EviemodSettings.features().experiments.chronomatron
+                    || EviemodSettings.features().skyblock.wishingCompass)
+                    throw new AssertionError("Unfinished shared settings draft reached live feature state");
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_EXPERIMENT_SETTINGS_SMOKE_OK");
+            }
             if (ticks == 20) {
                 if (!(ClientUi.screen(client) instanceof MoulConfigScreenComponent))
                     throw new AssertionError("Shared settings screen did not open");
@@ -71,9 +114,12 @@ final class VersionSmokeTest {
                     throw new AssertionError("Paint Brush screen did not open");
                 ClientUi.screen(client).onClose();
                 if (ClientUi.screen(client) != parent) throw new AssertionError("Paint Brush did not return to parent");
-                LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
-                client.stop();
+                new QuickNavigationSmokeTest().start(parent);
             }
         });
+    }
+    private static boolean compassOption(net.azureaaron.dandelion.deps.moulconfig.processor.ProcessedOption option, String name) {
+        try { return option.getDebugDeclarationLocation().equals("eviemod:compass/" + name); }
+        catch (UnsupportedOperationException e) { return false; }
     }
 }
