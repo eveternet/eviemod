@@ -65,6 +65,17 @@ class CompassSolverTest {
         }
         solver.tick(5000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
     }
+    @Test void aLaterTrailWithTheSameStartAndASmallDistinctAngleIsStillAmbiguous() {
+        var solver = solver();
+        for (int use = 0; use < 2; use++) {
+            Point used = use == 0 ? A : B; long time = use * 6000L;
+            solver.use(used, "east-south", time);
+            feed(solver, trail(used, TARGET), time + 50);
+            feed(solver, trail(used, TARGET.add(new Point(0, 0, 4))), time + 1500);
+            solver.tick(time + 5000);
+            assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
+        }
+    }
     @Test void lateCompetingFirstPassWithMissingRepeatStillInvalidatesTheObservation() {
         var solver = solver(); observe(solver, A, TARGET, 0);
         solver.use(B, "east-south", 6000);

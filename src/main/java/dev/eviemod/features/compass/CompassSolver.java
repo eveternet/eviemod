@@ -169,7 +169,7 @@ public final class CompassSolver {
         void accept(Point point) {
             if (++packets > 512) { overflow = true; return; }
             for (Trail trail : trails) trail.accept(point);
-            if (point.distance(usedAt) <= 9 && trails.stream().noneMatch(trail -> point.distance(trail.start) <= 0.25)) {
+            if (point.distance(usedAt) <= 9 && trails.stream().noneMatch(trail -> !trail.complete && point.distance(trail.start) <= 0.25)) {
                 if (trails.size() >= 128) overflow = true;
                 else trails.add(new Trail(point));
             }
@@ -191,10 +191,12 @@ public final class CompassSolver {
             return new CaptureResult(selected, false);
         }
         private static boolean sameTrail(Ray a, Ray b) {
-            if (a.direction.dot(b.direction) < 0.999) return false;
+            double angularAllowance = a.angularError + b.angularError;
+            if (a.direction.dot(b.direction) < Math.cos(angularAllowance)) return false;
             Point offset = a.origin.subtract(b.origin);
-            return offset.subtract(a.direction.scale(offset.dot(a.direction))).length() <= 0.4
-                && offset.subtract(b.direction.scale(offset.dot(b.direction))).length() <= 0.4;
+            double positionAllowance = Math.max(0.1, angularAllowance * Math.max(8, offset.length()));
+            return offset.subtract(a.direction.scale(offset.dot(a.direction))).length() <= positionAllowance
+                && offset.subtract(b.direction.scale(offset.dot(b.direction))).length() <= positionAllowance;
         }
     }
     private static final class Trail {

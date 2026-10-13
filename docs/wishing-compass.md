@@ -19,7 +19,8 @@ bounded candidate sequences starting near the use position. Three matching point
 in a repeat pass are required before a first pass can qualify. The full five-second
 window closes before accepting an observation or rendering any waypoint. Multiple
 coherent candidates cause rejection, including a late candidate whose repeat is
-incomplete. Repeated passes along the same axis count as one trail. Packet or
+incomplete. Completed candidates do not block a later candidate at the same start.
+Repeated passes along the same axis within the fitted error allowance count as one trail. Packet or
 candidate overflow also causes rejection rather than silently losing evidence. Bursts with
 randomized offsets, missing repeats, short trails, curved/backtracking samples,
 parallel rays, backward intersections, excessive skew, implausible Hollows
