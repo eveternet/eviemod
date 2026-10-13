@@ -50,4 +50,12 @@ class CompassProtocolTest {
         assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: FOUND")));
         assertNotEquals(first, WishingCompassClient.visiblePrerequisites(java.util.List.of("Jade Crystal: PLACED", "King's Scent: 12m 58s")));
     }
+    @Test void regionChangesDiscardUnsolvedPairsButPreserveNavigation() {
+        var prior = new WishingCompassClient.TargetContext("westnorth", true, "[amethyst crystal: found]");
+        var acrossBorder = new WishingCompassClient.TargetContext("eastnorth", true, "[amethyst crystal: found]");
+        assertFalse(prior.compatibleWith(acrossBorder, false));
+        assertTrue(prior.compatibleWith(acrossBorder, true));
+        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext("eastnorth", false, prior.prerequisites()), true));
+        assertFalse(prior.compatibleWith(new WishingCompassClient.TargetContext("westnorth", true, "[amethyst crystal: placed]"), true));
+    }
 }

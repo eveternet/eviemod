@@ -87,7 +87,7 @@ public final class CompassSolver {
         if (estimate == null) {
             // Retain only the latest ray; changed targets cannot accumulate into a confident average.
             first = next;
-            status = "Trails do not give a reliable destination. Move sideways and try again.";
+            status = "Trails do not give a reliable destination. Move farther sideways and try again.";
         } else {
             first = null;
             status = "Compass destination estimate";

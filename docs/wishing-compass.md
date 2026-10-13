@@ -27,7 +27,9 @@ Uncertainty includes sample deviation, a nonzero angular floor, crossing-angle
 amplification and the rays' separation. This cannot prove that both compass
 uses had the same server-selected target. Region, Jungle Key presence and
 visible crystal/King's Scent tab-list changes reset observations. Other unseen
-target changes require **Clear compass observations**. No structure name or
+target changes require **Clear compass observations**. Region checks protect
+unsolved observation pairs; a solved waypoint survives crossing region boundaries
+while navigating. Scent countdown changes do not invalidate observations. No structure name or
 temple entrance offset is inferred from the estimated coordinates.
 
 World/connection identity changes, lobby/server/mode changes, leaving the

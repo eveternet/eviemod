@@ -4,7 +4,6 @@ import dev.eviemod.features.skyblock.SkyblockContext;
 import dev.eviemod.compat.ClientUi;
 import dev.eviemod.paintbrush.EviemodSettings;
 import java.util.Locale;
-import java.util.Objects;
 import net.azureaaron.hmapi.events.HypixelPacketEvents;
 import net.azureaaron.hmapi.network.packet.v1.s2c.LocationUpdateS2CPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -29,7 +28,13 @@ public final class WishingCompassClient {
     private static final CompassSolver SOLVER = new CompassSolver();
     private static String session;
     private static Object level, connection;
-    private static String context;
+    private static TargetContext context;
+    record TargetContext(String region, boolean key, String prerequisites) {
+        boolean compatibleWith(TargetContext next, boolean navigating) {
+            return next != null && key == next.key && prerequisites.equals(next.prerequisites)
+                && (navigating || region.equals(next.region));
+        }
+    }
     private WishingCompassClient() {}
     private static long now() { return System.nanoTime() / 1_000_000; }
     public static void clear() { SOLVER.reset(); context = null; }
@@ -59,8 +64,8 @@ public final class WishingCompassClient {
             if (!active(client)) { clear(); return; }
             refreshWorld(client);
             if (SOLVER.hasObservations()) {
-                String nextContext = targetContext(client);
-                if (!Objects.equals(context, nextContext)) { clear(); context = nextContext; }
+                TargetContext nextContext = targetContext(client);
+                if (context == null || !context.compatibleWith(nextContext, SOLVER.estimate() != null)) { clear(); context = nextContext; }
             }
             SOLVER.tick(now());
             var estimate = SOLVER.estimate();
@@ -105,7 +110,7 @@ public final class WishingCompassClient {
         refreshWorld(client);
         context = targetContext(client);
         Vec3 pos = client.player.position();
-        SOLVER.use(new CompassSolver.Point(pos.x, pos.y, pos.z), context, now());
+        SOLVER.use(new CompassSolver.Point(pos.x, pos.y, pos.z), context.toString(), now());
     }
     public static void particle(ClientboundLevelParticlesPacket packet) {
         var client = Minecraft.getInstance();
@@ -127,7 +132,7 @@ public final class WishingCompassClient {
         String direct = tag.getStringOr("id", "");
         return direct.isEmpty() ? tag.getCompoundOrEmpty("ExtraAttributes").getStringOr("id", "") : direct;
     }
-    private static String targetContext(Minecraft client) {
+    private static TargetContext targetContext(Minecraft client) {
         Vec3 pos = client.player.position();
         // Region changes and visible target prerequisites invalidate a pair, without guessing a structure name.
         String zone = pos.y < 64 ? "magma" : (pos.x < 512 ? "west" : "east") + (pos.z < 512 ? "north" : "south");
@@ -137,7 +142,7 @@ public final class WishingCompassClient {
             var display = info.getTabListDisplayName();
             if (display != null) lines.add(display.getString());
         }
-        return zone + ":" + key + ":" + visiblePrerequisites(lines);
+        return new TargetContext(zone, key, visiblePrerequisites(lines));
     }
     static String visiblePrerequisites(java.util.List<String> lines) {
         var prerequisites = new java.util.TreeSet<String>();
