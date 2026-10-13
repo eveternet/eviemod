@@ -9,6 +9,13 @@ import java.util.Map;
 public final class ImportedFeatures {
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();
+    public Experiments experiments = new Experiments();
+    public static final class Experiments {
+        public boolean chronomatron = false;
+        public boolean ultrasequencer = false;
+        public boolean superpairs = false;
+        public boolean protectIncorrectClicks = false;
+    }
     public static final class Dungeons {
         public boolean partyFinderAlert = false;
         public String partyFinderSubtitle = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE;

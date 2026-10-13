@@ -62,7 +62,7 @@ class ModSettings {
         if (value == null || value.quickNavigation == null) throw new IllegalArgumentException("Invalid quick navigation settings");
         value.quickNavigation.validate();
         if (value == null || value.features == null || value.features.skyblock == null || value.features.garden == null
-            || value.features.dungeons == null || value.features.dungeons.announceCritTemplate == null
+            || value.features.experiments == null || value.features.dungeons == null || value.features.dungeons.announceCritTemplate == null
             || value.features.dungeons.partyFinderSubtitle == null
             || value.features.dungeons.partyFinderSoundId == null
             || !dev.eviemod.features.dungeons.PartyFinderAlert.validSoundLevels(
