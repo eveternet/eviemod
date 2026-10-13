@@ -51,7 +51,9 @@ header-only, loading or incomplete counted data remains unknown when no verified
 list-entry source is available. Positive scent rows establish presence. Absence
 requires a recognized Active Effects section with explicit no-effects/zero-count
 data or disclosed effect rows; a declared count must match the distinct parsed
-rows. Countdown changes do not alter presence. Loss of reliable data invalidates
+rows. Loading or truncation markers invalidate absence even when a declared count
+matches the disclosed rows or explicit no-effects text is present. Independently
+verified list data and positive scent rows remain usable. Countdown changes do not alter presence. Loss of reliable data invalidates
 pending and solved Goblin contexts and prevents a new solve until data returns.
 The [pinned effect-widget reference](https://github.com/SkyblockerMod/Skyblocker/blob/a3f25d798b5ea8d8a91a690232bbd4274b4a7a3a/src/main/java/de/hysky/skyblocker/skyblock/tabhud/widget/EffectWidget.java)
 supports counted widget details and the footer's explicit no-effects branch;

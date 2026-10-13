@@ -51,6 +51,9 @@ final class VersionSmokeTest {
                 var settings = (MoulConfigScreenComponent) ClientUi.screen(client);
                 var editor = (net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor<?>)
                     ((net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent) settings.getGuiContext().getRoot()).getElement();
+                if (!editor.getAllCategories().values().stream().map(category -> category.getDisplayName().getText()).toList()
+                    .equals(java.util.List.of("Appearance", "Hypixel Pack", "Quick Navigation", "Mining", "Garden", "Dungeons", "Experiments", "Chat Commands", "Command Hotkeys")))
+                    throw new AssertionError("Combined feature categories differ from the expected nine-category order");
                 var mining = editor.getAllCategories().values().stream()
                     .filter(value -> value.getIdentifier().equals("eviemod:compass/category")).findFirst().orElseThrow();
                 editor.setSelectedCategory(mining);

@@ -44,6 +44,31 @@ The combined branch receives a separate bounded, fresh Codex CLI review through
 the local eviedex runner. Saved private logs identify its exact comparison SHAs,
 coverage and any findings; they are kept outside this repository.
 
+The initial integration review inspected available content from all 53 changed
+files and reported two P2 findings: counted/explicit-none effect sections could
+override a loading/truncation marker, and the older merged-feature fixture still
+expected seven categories. Both were reproduced from source; the compass
+regression failed on both Minecraft targets before the fix. Incomplete disclosure
+now rejects absence before either count/no-effects return while preserving
+independent list data and positive scent evidence. The old fixture expects all
+nine categories, and the CI version fixture checks the same real category order.
+A fresh bounded recheck covers these corrections and their regression coverage.
+The first review was explicitly partial because eviedex redacted an unrelated
+credential-like expression in the existing workflow. Its six changed completion
+checks were inspected separately and both actual CI workflows passed at the
+initial integration revision; latest-head CI is required again after corrections.
+
+Local validation at the initial revision: full root build, retained addon native
+distribution verification and both offline UI fixture compilations passed;
+556 tests passed with no failures/errors/skips (254 per main target and 48
+retained addon tests). The initial root build hit main's existing Xcode/Command
+Line Tools SDK mismatch. An invocation-local `SDKROOT` pointing at the active
+Xcode SDK resolved it without modifying addon files or system configuration.
+The corrected revision passes the full build, native distribution check and both
+UI fixture compilations, with 558 tests and no failures/errors/skips (255 per main
+target and 48 retained addon tests). Its private evidence/deliverable manifest
+records exact SHAs and JAR checksums.
+
 Use the [live-test checklist](live-test-minor-features.md) for behavior requiring
 Hypixel and the intended modpack. No release/tag, game launch, modpack installation,
 source PR merge/closure or credentials/security change is part of this task.

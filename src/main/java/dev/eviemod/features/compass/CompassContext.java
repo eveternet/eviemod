@@ -101,11 +101,11 @@ final class CompassContext {
             var row = EFFECT_ROW.matcher(withoutParentheses(line));
             if (row.matches()) effects.add(row.group(1));
         }
-        if (!section || conflictingCount) return false;
+        if (!section || conflictingCount || incomplete) return false;
         if (explicitNone) return effects.isEmpty() && (count == null || count == 0);
         if (count != null) return count == effects.size();
         // A section with effect rows is disclosed data; an isolated header is not.
-        return !incomplete && !effects.isEmpty();
+        return !effects.isEmpty();
     }
     private static String withoutParentheses(String value) { return value.replace("(", "").replace(")", "").trim(); }
     private static String normalize(String value) { return FORMAT.matcher(value).replaceAll("").toLowerCase(Locale.ROOT).trim(); }
