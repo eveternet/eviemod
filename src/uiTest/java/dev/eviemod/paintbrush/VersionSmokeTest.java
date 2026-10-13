@@ -47,6 +47,23 @@ final class VersionSmokeTest {
                 return;
             }
             ticks++;
+            if (ticks == 5) {
+                var settings = (MoulConfigScreenComponent) ClientUi.screen(client);
+                var editor = (net.azureaaron.dandelion.deps.moulconfig.gui.MoulConfigEditor<?>)
+                    ((net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent) settings.getGuiContext().getRoot()).getElement();
+                var mining = editor.getAllCategories().values().stream()
+                    .filter(value -> value.getIdentifier().equals("eviemod:compass/category")).findFirst().orElseThrow();
+                editor.setSelectedCategory(mining);
+                var enabled = editor.getAllOptions().stream().filter(value -> compassOption(value, "enabled")).findFirst().orElseThrow();
+                if ((Boolean) enabled.get()) throw new AssertionError("Compass defaults on in actual settings UI");
+                enabled.set(true);
+                if (!(Boolean) enabled.get()) throw new AssertionError("Compass toggle did not update its draft");
+                var clear = editor.getAllOptions().stream().filter(value -> compassOption(value, "clear")).findFirst().orElseThrow();
+                ((Runnable) clear.get()).run();
+                if (EviemodSettings.features().skyblock.wishingCompass) throw new AssertionError("Clearing observations saved an unfinished settings draft");
+                enabled.set(false);
+                org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_COMPASS_SETTINGS_SMOKE_OK");
+            }
             if (ticks == 20) {
                 if (!(ClientUi.screen(client) instanceof MoulConfigScreenComponent))
                     throw new AssertionError("Shared settings screen did not open");
@@ -74,5 +91,9 @@ final class VersionSmokeTest {
                 new QuickNavigationSmokeTest().start(parent);
             }
         });
+    }
+    private static boolean compassOption(net.azureaaron.dandelion.deps.moulconfig.processor.ProcessedOption option, String name) {
+        try { return option.getDebugDeclarationLocation().equals("eviemod:compass/" + name); }
+        catch (UnsupportedOperationException e) { return false; }
     }
 }
