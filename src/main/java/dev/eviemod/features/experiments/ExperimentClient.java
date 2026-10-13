@@ -48,9 +48,6 @@ public final class ExperimentClient {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> { reset(); clearDiagnostics(); });
         ScreenEvents.AFTER_INIT.register((client, current, width, height) -> {
             ensureSession();
-            ScreenEvents.afterExtract(current).register((drawn, graphics, mouseX, mouseY, delta) -> {
-                if (drawn instanceof AbstractContainerScreen<?> container) draw(container, graphics, mouseX, mouseY);
-            });
             ScreenEvents.remove(current).register(removed -> { if (removed == screen) reset(); });
         });
     }
@@ -154,7 +151,7 @@ public final class ExperimentClient {
         }
         return session.click(slotId, EviemodSettings.features().experiments.protectIncorrectClicks);
     }
-    /** Draw after the screen, independently of other mods cancelling/replacing vanilla slot extraction. */
+    /** Container render tail: after slot drawing, before Screen flushes deferred tooltips. */
     public static void draw(AbstractContainerScreen<?> current, GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!ensureSession() || current != screen) return;
         drawPasses++;

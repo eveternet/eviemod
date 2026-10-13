@@ -57,6 +57,9 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
   simultaneous compass uses and nucleus starts. Unsupported/ambiguous data
   should withhold the marker while normal compass use continues. Holding the
   use button/retrying during capture must not discard or continually restart it.
+- [ ] Keep holding briefly after **Trail recorded**, then move and use the compass:
+  the moved reading should start immediately. Keep holding after a solution:
+  the waypoint should remain, and repeated sends should not extend its expiry.
 - [ ] Change a crystal's status, Jungle Key possession, or King's Scent presence;
   old observations invalidate. Scent countdown ticks alone should preserve them.
   Missing/blank/loading effect disclosure in Goblin contexts should withhold
@@ -76,6 +79,8 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
 - [ ] Enable **Superpairs**; reveal cards manually. Hidden known cards show copied
   items, counts and hover tooltips; yellow marks known pairs and green the known
   match for the revealed first card. Distinct enchantments/counts stay distinct.
+  Hover a remembered reward and nearby slots: tooltips should stay above all
+  highlights and show the remembered reward when appropriate.
 - [ ] With **Protect incorrect clicks** off, mistakes remain possible and invalidate
   sequence guidance. With it on, only a fully known wrong replay choice or known
   nonmatching second Superpairs reward is blocked; blocked clicks do not advance

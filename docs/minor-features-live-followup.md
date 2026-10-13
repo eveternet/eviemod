@@ -39,10 +39,12 @@ spawn count/offsets control visual particles and no longer discard otherwise
 valid trail evidence. Actual 26.1.2 bytecode and 26.2 source have the same narrow
 `ClientCommonPacketListenerImpl.send` → `Connection.send` boundary.
 
-Experiment guidance moves from vanilla `extractSlot` tail to Fabric's screen
-after-extraction event, with its own drawing stratum and translated container
-coordinates. Installed SkyHanni can cancel slot extraction, so a tail-only hook
-cannot reliably own overlays. The location API already used by Quick Navigation
+Experiment guidance moves from vanilla `extractSlot` tail to the container's
+`extractRenderState` tail, with its own drawing stratum and translated container
+coordinates. Installed SkyHanni can cancel slot extraction, so a per-slot tail
+cannot reliably own overlays. The container tail precedes the outer screen's
+deferred tooltip extraction: guidance remains below tooltips, and remembered
+item tooltips are scheduled before that same-frame flush. The location API already used by Quick Navigation
 also qualifies the SkyBlock gate, while the actual Hypixel connection remains
 mandatory. Manual pick-block compatibility handles the identified SkyHanni input
 rewrite, although its helper was disabled in this observed instance. Existing
@@ -69,3 +71,10 @@ Version **1.4.0.1** identifies this correction build. The unchanged main/addon
 separation and both supported main-mod targets remain. Tests and CI fixtures
 do not establish live Hypixel or full modpack success. See the updated
 [live checklist](live-test-minor-features.md) for the focused next validation.
+
+Independent review caught and corrected two follow-up defects: overlays drawn
+after deferred tooltips, and redundant held compass sends rearming a capture at
+the old position. Focused tests inspect the actual rendering call order on both
+Minecraft targets and cover extra held sends after trail qualification and after
+a solve. Continued same-position sends preserve the first reading or waypoint
+without extending its expiry.

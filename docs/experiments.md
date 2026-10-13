@@ -30,11 +30,16 @@ connection, the HM API SkyBlock location or scoreboard context, a six-row vanill
 experiment title and its explicit feature toggle. Stakes, reward and other
 screens are excluded. Unsupported or missing observations pass input through.
 
-Guidance is extracted once after the container screen through Fabric's
-`ScreenEvents.afterExtract`, on its own GUI stratum. It does not depend on vanilla
+Guidance is extracted once at the tail of `AbstractContainerScreen.extractRenderState`,
+on its own GUI stratum. It does not depend on vanilla
 `extractSlot` reaching its tail: other mods, including SkyHanni's Better Containers,
 can cancel individual slot extraction. Remembered-item tooltips are installed in
-the same screen callback. Input retains the narrow `slotClicked` hook.
+the same container hook. On both supported versions, `extractContents` has restored
+the geometry pose before this hook, and the outer
+`Screen.extractRenderStateWithTooltipAndSubtitles` flushes deferred tooltips after
+the container returns. Tooltips therefore render above guidance in the same
+frame. Fabric's `ScreenEvents.afterExtract` runs after that flush and cannot
+serve as this tooltip boundary. Input retains the narrow `slotClicked` hook.
 Manual pickup clicks and button-2 `CLONE` clicks are recognized; SkyHanni's
 experiment helper rewrites correct manual clicks to the latter through
 `SlotClickEvent.makePickblock()`. Unsupported modes still pass through and
@@ -121,6 +126,12 @@ identities, powerups, unknown exploration, packet-copy isolation from live menu
 prediction, malformed protocol data, settings
 persistence and default-off resets. The existing version launch fixture loads
 both new mixin owners and renders the shared configuration categories in CI.
+`ExperimentRenderBoundaryTest` reads the actual mapped Minecraft bytecode on
+each target to check slot/pose completion before the container returns, its
+return before deferred tooltip flushing, and the tooltip's later GUI stratum.
+It also verifies the compiled overlay injection stays at that container boundary.
+This guards the version-sensitive ordering contract without starting a game;
+it does not replace live visual or modpack validation.
 
 The root `./gradlew build` validates both main targets and both existing Metal
 addons. Artifact checks verify the matching main-mod version and independent

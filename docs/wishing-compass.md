@@ -22,6 +22,11 @@ three matching points in a repeat. The reading closes after 500 ms without a
 nearby particle, or at the next sent use once a pass qualifies. Five seconds is
 a timeout, not a minimum wait. Repeated attempts while a reading is incomplete
 do not erase it or extend its timeout.
+After recording a first ray, further sends within eight blocks preserve that
+ray instead of starting an empty reading that hides the useful moved use.
+After solving, repeated sends within eight blocks of the second use preserve the
+waypoint without extending its expiry. Move farther or clear observations to
+begin another solve; changed visible target context still invalidates it.
 
 Multiple coherent candidates received during the reading cause rejection,
 including a competitor whose repeat is incomplete. Completed candidates do not
@@ -117,6 +122,7 @@ competing-trail replay, acquisition/placement, missing data, nucleus boundaries,
 footer-only scent changes, countdown stability, world-bound footer snapshots,
 sequential/interleaved competitors during the reading and same-trail repeats.
 New regressions cover the two-second cadence, 500-ms quiet boundary, a 25-sample
-pass without repeats, held attempts, packet-centre semantics and a distant target
+pass without repeats, held attempts before/after qualification and solution,
+packet-centre semantics and a distant target
 at an eight-block baseline. Live success with the corrected build remains a
 separate check.

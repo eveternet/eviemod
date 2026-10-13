@@ -29,6 +29,14 @@ class CompassSolverTest {
         for (int i = 0; i < points.size(); i++) solver.particle(points.get(i), start + i * 40);
         for (int i = 0; i < 3; i++) solver.particle(points.get(i), start + 1000 + i * 40);
     }
+    private static void feedQualified(CompassSolver solver, Point used, long start, boolean repeat) {
+        var points = new ArrayList<>(trail(used, TARGET));
+        if (repeat) feed(solver, points, start);
+        else {
+            points.add(points.getLast().add(points.get(1).subtract(points.getFirst())));
+            for (int i = 0; i < points.size(); i++) solver.particle(points.get(i), start + i * 40);
+        }
+    }
     @Test void completedRepeatFinishesAfterQuietInsteadOfRequiringFiveSecondsPerUse() {
         var solver = solver(); observe(solver, A, TARGET, 0);
         solver.use(B, "east-south", 6000); feed(solver, trail(B, TARGET), 6050);
@@ -181,6 +189,30 @@ class CompassSolverTest {
         solver.tick(1580);
         assertFalse(solver.observing()); assertTrue(solver.status().contains("recorded"));
         observe(solver, B, TARGET, 2000); assertNotNull(solver.estimate());
+    }
+    @Test void aHeldUseAfterQualificationCannotArmAnEmptyCaptureThatSwallowsTheMovedUse() {
+        for (boolean repeat : new boolean[]{true, false}) for (long extraUse : new long[]{1200, 1700}) {
+            var solver = solver(); solver.use(A, "east-south", 0); feedQualified(solver, A, 50, repeat);
+            solver.use(A, "east-south", extraUse);
+            assertFalse(solver.observing(), "Same-position repetition must preserve the qualified first ray.");
+            solver.use(B, "east-south", 2000); feedQualified(solver, B, 2050, repeat);
+            solver.tick(3630);
+            assertNotNull(solver.estimate(), "The useful moved use must solve without an empty five-second reading.");
+        }
+    }
+    @Test void heldUsesAfterASolutionPreserveTheWaypointWithoutExtendingItsLifetime() {
+        var solver = solver(); observe(solver, A, TARGET, 0); observe(solver, B, TARGET, 6000);
+        var estimate = solver.estimate(); assertNotNull(estimate);
+        solver.use(B, "east-south", 11200); solver.use(B, "east-south", 11400);
+        assertSame(estimate, solver.estimate()); assertFalse(solver.observing());
+        solver.use(B, "east-south", 310800); assertSame(estimate, solver.estimate());
+        solver.tick(311000); assertNull(solver.estimate());
+    }
+    @Test void changedTargetContextStillRestartsASolveAtTheSamePosition() {
+        var solver = solver(); observe(solver, A, TARGET, 0); observe(solver, B, TARGET, 6000);
+        assertNotNull(solver.estimate());
+        solver.use(B, "changed-key-or-crystal", 11200);
+        assertNull(solver.estimate()); assertTrue(solver.observing());
     }
     @Test void aTwentyFiveParticlePassQualifiesAfterTheReferenceIdleIntervalWithoutARepeat() {
         var solver = solver(); solver.use(A, "zone", 0);

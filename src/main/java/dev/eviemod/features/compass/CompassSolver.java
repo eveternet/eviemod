@@ -25,6 +25,7 @@ public final class CompassSolver {
     private Capture capture;
     private Observation first;
     private Estimate estimate;
+    private Point solvedUseAt;
     private long lastUse = Long.MIN_VALUE, updatedAt;
     private String status = "Use a Wishing Compass to begin.";
     private String diagnostic = "No compass observation.";
@@ -37,7 +38,7 @@ public final class CompassSolver {
     public String diagnostic() { return diagnostic; }
     public String currentDiagnostic() { return capture == null ? "No pending capture." : capture.diagnostic(); }
     public void reset() {
-        capture = null; first = null; estimate = null; targetContext = null;
+        capture = null; first = null; estimate = null; solvedUseAt = null; targetContext = null;
         lastUse = Long.MIN_VALUE;
         status = "Use a Wishing Compass to begin.";
         diagnostic = "No compass observation.";
@@ -60,6 +61,7 @@ public final class CompassSolver {
     public void use(Point position, String context, long now) {
         tick(now);
         if (session == null || position == null || !position.finite() || context == null) return;
+        if (!Objects.equals(context, targetContext)) { reset(); targetContext = context; }
         // A block/item send pair can describe the same vanilla interaction. Never cancel it.
         if (lastUse != Long.MIN_VALUE && now - lastUse < 150) return;
         if (capture != null) {
@@ -73,7 +75,16 @@ public final class CompassSolver {
                 return;
             }
         }
-        if (!Objects.equals(context, targetContext) || estimate != null) { reset(); targetContext = context; }
+        if (estimate != null) {
+            // Vanilla repeats a held use every four ticks. Such sends do not request a
+            // new solve merely because the useful second reading has just finished.
+            if (solvedUseAt != null && solvedUseAt.distance(position) < 8) return;
+            reset(); targetContext = context;
+        }
+        if (first != null && first.usedAt.distance(position) < 8) {
+            status = "Trail recorded. Move at least eight blocks sideways and use your compass again.";
+            return;
+        }
         lastUse = now; updatedAt = now; estimate = null;
         capture = new Capture(position, now);
         status = "Reading your compass trail...";
@@ -116,6 +127,7 @@ public final class CompassSolver {
             status = "Trails do not give a reliable destination. Move farther sideways and try again.";
         } else {
             first = null;
+            solvedUseAt = usedAt;
             status = "Compass destination estimate";
         }
     }
