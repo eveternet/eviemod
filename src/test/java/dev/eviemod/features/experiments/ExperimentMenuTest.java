@@ -68,7 +68,7 @@ class ExperimentMenuTest {
         }
     }
     @Test void cardEqualityIncludesCountAndEnchantmentMetadataAndCopiesRemainIndependent() {
-        var first = item("minecraft:enchanted_book", "Protection VI", 1), copy = first.copy();
+        var first = item("minecraft:enchanted_book", "Protection VI", 1); var copy = first.copy();
         assertTrue(ItemStack.matches(first, copy));
         copy.set(DataComponents.CUSTOM_NAME, Component.literal("Protection VII")); assertFalse(ItemStack.matches(first, copy));
         assertEquals("Protection VI", ExperimentMenu.name(first));
