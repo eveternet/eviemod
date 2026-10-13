@@ -115,6 +115,27 @@ class CompassContextTest {
         assertEquals(Scent.UNKNOWN, prerequisites(rows("✖ Not Found"), "Learn how to get King's Scent I from King Yolkar.").scent());
         assertEquals(Scent.UNKNOWN, prerequisites(rows("✖ Not Found"), "Active Effects: (2)\nSpeed I 03:00\nSpeed I 02:00").scent());
     }
+    @Test void matchingCountsAndExplicitNoneNeverOverrideIncompleteDisclosure() {
+        var verifiedAbsent = new WishingCompassClient.TargetContext(Region.GOBLIN, false,
+            prerequisites(rows("✖ Not Found"), "Active Effects: (0)"));
+        var verifiedList = new ArrayList<>(rows("✖ Not Found")); verifiedList.add("Active Effects: (0)");
+        for (String disclosure : new String[]{"Active Effects: (0)", "Active Effects: (1)\nSpeed I 03:00",
+            "Active Effects:\nNo effects active"}) for (String marker : new String[]{"Loading...", "...", "And 2 more effects..."}) {
+            String footer = disclosure + "\n" + marker;
+            var unknown = prerequisites(rows("✖ Not Found"), footer);
+            assertEquals(Scent.UNKNOWN, unknown.scent(), footer);
+            assertFalse(unknown.readyFor(Region.GOBLIN));
+            var lost = new WishingCompassClient.TargetContext(Region.GOBLIN, false, unknown);
+            assertFalse(verifiedAbsent.compatibleWith(lost, false));
+            assertFalse(verifiedAbsent.compatibleWith(lost, true));
+            // The invalid footer cannot invalidate an independent verified list source.
+            assertEquals(Scent.ABSENT, prerequisites(verifiedList, footer).scent());
+            // Positive scent rows are still direct evidence, even in a partial section.
+            assertEquals(Scent.PRESENT, prerequisites(rows("✖ Not Found"), footer + "\nKing's Scent I 02:00").scent());
+            var partialList = new ArrayList<>(rows("✖ Not Found")); partialList.add(footer);
+            assertEquals(Scent.UNKNOWN, prerequisites(partialList, null).scent());
+        }
+    }
     @Test void footerSnapshotCannotLeakAcrossWorldOrConnectionChanges() {
         Object level = new Object(), connection = new Object();
         var footer = new FooterSnapshot(level, connection, "King's Scent I 02:00");
