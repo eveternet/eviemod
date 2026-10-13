@@ -1,6 +1,7 @@
 package dev.eviemod.features.compass;
 
 import dev.eviemod.features.skyblock.SkyblockContext;
+import dev.eviemod.compat.ClientUi;
 import dev.eviemod.paintbrush.EviemodSettings;
 import java.util.Locale;
 import java.util.Objects;
@@ -40,7 +41,7 @@ public final class WishingCompassClient {
             String next = SkyblockContext.isHypixelServer(client)
                 && location.serverType().orElse("").equals("SKYBLOCK")
                 && location.mode().orElse("").equals("crystal_hollows")
-                ? location.serverName() + ":" + location.mode().orElse("") + ":" + location.map().orElse("") : null;
+                ? location.serverName() + ":" + location.lobbyName().orElse("") + ":" + location.mode().orElse("") + ":" + location.map().orElse("") : null;
             session = next; SOLVER.session(next);
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
@@ -61,7 +62,7 @@ public final class WishingCompassClient {
             if (!Objects.equals(context, nextContext)) { clear(); context = nextContext; }
             SOLVER.tick(now());
             var estimate = SOLVER.estimate();
-            if (estimate == null || client.options.hideGui) return;
+            if (estimate == null || ClientUi.hudHidden(client)) return;
             var p = estimate.position();
             Vec3 position = new Vec3(p.x(), p.y(), p.z());
             try (var ignored = client.collectPerTickGizmos()) {
@@ -73,10 +74,13 @@ public final class WishingCompassClient {
         });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("eviemod", "wishing_compass"), (graphics, delta) -> {
             var client = Minecraft.getInstance();
-            if (!active(client) || client.level != level || client.getConnection() != connection || client.options.hideGui) return;
+            if (!active(client) || client.level != level || client.getConnection() != connection || ClientUi.hudHidden(client)) return;
             if (!SOLVER.observing() && SOLVER.estimate() == null && SOLVER.status().equals("Use a Wishing Compass to begin.")) return;
             String text = SOLVER.estimate() == null ? SOLVER.status() : label(SOLVER.estimate());
-            graphics.text(client.font, text, (graphics.guiWidth() - client.font.width(text)) / 2, graphics.guiHeight() / 2 + 36, 0xFF80FFAA, true);
+            var lines = client.font.split(net.minecraft.network.chat.Component.literal(text), Math.max(40, graphics.guiWidth() - 24));
+            for (int i = 0; i < lines.size(); i++)
+                graphics.text(client.font, lines.get(i), (graphics.guiWidth() - client.font.width(lines.get(i))) / 2,
+                    graphics.guiHeight() / 2 + 36 + i * 10, 0xFF80FFAA, true);
         });
     }
     private static String label(CompassSolver.Estimate estimate) {
@@ -106,8 +110,13 @@ public final class WishingCompassClient {
         if (!active(client) || packet.getParticle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
         refreshWorld(client);
         // Burst packets have randomized positions and cannot provide a reliable observation.
-        if (packet.getCount() > 1 || packet.getXDist() != 0 || packet.getYDist() != 0 || packet.getZDist() != 0) return;
+        if (!usablePacket(packet)) return;
         SOLVER.particle(new CompassSolver.Point(packet.getX(), packet.getY(), packet.getZ()), now());
+    }
+    static boolean usablePacket(ClientboundLevelParticlesPacket packet) {
+        // Count zero encodes velocity, not randomized spawn offsets; its origin is still exact.
+        return packet.getParticle().getType() == ParticleTypes.HAPPY_VILLAGER &&
+            (packet.getCount() == 0 || packet.getCount() == 1 && packet.getXDist() == 0 && packet.getYDist() == 0 && packet.getZDist() == 0);
     }
     static String itemId(ItemStack stack) {
         var data = stack.get(DataComponents.CUSTOM_DATA);

@@ -105,6 +105,13 @@ class CompassSolverTest {
         var solver = solver(); observe(solver, A, TARGET, 0); observe(solver, B, TARGET, 6000);
         solver.use(A, "east-south", 12000); assertNull(solver.estimate()); assertTrue(solver.observing());
     }
+    @Test void retriesCannotExtendAnOldObservationBeyondItsLifetime() {
+        var solver = solver(); observe(solver, A, TARGET, 0);
+        solver.use(A, "east-south", 290000);
+        solver.tick(302100);
+        observe(solver, B, TARGET, 310000);
+        assertNull(solver.estimate()); assertTrue(solver.status().contains("recorded"));
+    }
     @Test void parallelAndNearlyParallelRaysAreNotSolved() {
         var a = new CompassSolver.Ray(A, new Point(1, 0, 0), 0.005);
         assertNull(CompassSolver.intersect(a, new CompassSolver.Ray(B, new Point(1, 0, 0), 0.005)));

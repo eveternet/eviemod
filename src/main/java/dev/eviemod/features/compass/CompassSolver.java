@@ -43,7 +43,7 @@ public final class CompassSolver {
             capture = null; estimate = null;
             status = "Trail incomplete. Wait for it to finish, then use your compass again.";
         }
-        if ((first != null || estimate != null) && now - updatedAt >= EXPIRY_MILLIS) reset();
+        if (first != null && now - first.time >= EXPIRY_MILLIS || estimate != null && now - updatedAt >= EXPIRY_MILLIS) reset();
     }
     public void use(Point position, String context, long now) {
         tick(now);

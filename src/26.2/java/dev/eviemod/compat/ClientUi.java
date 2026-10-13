@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 /** Compile-time adapter for the Minecraft 26.2 GUI/HUD ownership boundary. */
 public final class ClientUi {
     private ClientUi() {}
+    public static boolean hudHidden(Minecraft client) { return client.gui.hud.isHidden(); }
     public static Screen screen(Minecraft client) { return client.gui.screen(); }
     public static void setScreen(Minecraft client, Screen screen) { client.gui.setScreen(screen); }
     public static Overlay overlay(Minecraft client) { return client.gui.overlay(); }
