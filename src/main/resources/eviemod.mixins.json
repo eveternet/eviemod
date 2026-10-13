@@ -9,6 +9,7 @@
     "ItemNameMixin",
     "EditBoxSelectionAccessor",
     "ContainerBackgroundMixin",
+    "NavigationContainerAccessor",
     "HotbarBackgroundMixin",
     "HelmetSkinRenderMixin",
     "HelmetSkinArmorMixin",
