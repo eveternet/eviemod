@@ -27,13 +27,14 @@ public final class ExperimentClient {
     private static Object connection, level;
     private static final List<ItemStack> identities = new ArrayList<>();
     private static final Map<Integer, ItemStack> rememberedStacks = new HashMap<>();
+    private static final ExperimentInventory inventory = new ExperimentInventory();
     private ExperimentClient() {}
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> ensureSession());
         ScreenEvents.AFTER_INIT.register((client, current, width, height) -> {
-            if (ensureSession()) observeServer();
+            ensureSession();
             ScreenEvents.afterExtract(current).register((drawn, graphics, mouseX, mouseY, delta) -> {
-                if (!ensureSession() || drawn != screen) return;
+                if (drawn != screen || !ensureSession()) return;
                 var geometry = (NavigationContainerAccessor)screen;
                 for (var slot : screen.getMenu().slots) {
                     if (session.remembered(slot.index) == null) continue;
@@ -55,13 +56,15 @@ public final class ExperimentClient {
         };
     }
     private static boolean ensureSession() {
+        var settings = EviemodSettings.features().experiments;
+        if (!settings.chronomatron && !settings.ultrasequencer && !settings.superpairs) { reset(); return false; }
         var client = Minecraft.getInstance();
         var current = ClientUi.screen(client);
         if (!(current instanceof ContainerScreen container) || container.getMenu().getRowCount() != 6
             || client.player == null || client.level == null || client.player.isCreative()
             || !SkyblockContext.isHypixelServer(client) || !SkyblockContext.isActiveSkyblock()) { reset(); return false; }
-        var kind = ExperimentMenu.game(current.getTitle().getString());
-        if (kind == null || !enabled(kind, EviemodSettings.features().experiments)) { reset(); return false; }
+        var kind = screen == container ? game : ExperimentMenu.game(current.getTitle().getString());
+        if (kind == null || !enabled(kind, settings)) { reset(); return false; }
         if (screen != container || connection != client.getConnection() || level != client.level || game != kind) {
             reset(); screen = container; game = kind; session = new ExperimentSession(kind);
             connection = client.getConnection(); level = client.level;
@@ -71,13 +74,13 @@ public final class ExperimentClient {
     private static void reset() {
         screen = null; session = null; game = null; connection = level = null;
         identities.clear(); rememberedStacks.clear();
+        inventory.clear();
     }
     /** Called after vanilla applies a server inventory packet, never after client click prediction. */
-    public static void observeServer() {
-        if (!ensureSession()) return;
+    private static void observeServer() {
         var cells = new ArrayList<ExperimentSession.Cell>();
         for (int slot = 0; slot < 54; slot++) {
-            var stack = screen.getMenu().getSlot(slot).getItem();
+            var stack = inventory.get(slot);
             var cell = ExperimentSession.Cell.OTHER;
             if (slot >= 9 && slot < 45) {
                 if (game == ExperimentSession.Game.CHRONOMATRON) {
@@ -98,13 +101,18 @@ public final class ExperimentClient {
             }
             cells.add(cell);
         }
-        session.observe(new ExperimentSession.Board(ExperimentMenu.phase(game, screen.getMenu().getSlot(49).getItem()),
-            ExperimentMenu.round(screen.getMenu().getSlot(4).getItem()), cells));
+        session.observe(new ExperimentSession.Board(ExperimentMenu.phase(game, inventory.get(49)),
+            ExperimentMenu.round(inventory.get(4)), cells));
         // Keep only memories still held by the state machine, including board-change invalidation.
         rememberedStacks.entrySet().removeIf(entry -> session.hidden(entry.getKey()) && session.remembered(entry.getKey()) == null);
     }
-    public static void observeServer(int containerId) {
-        if (ensureSession() && screen.getMenu().containerId == containerId) observeServer();
+    public static void observeSlot(int containerId, int slot, ItemStack stack) {
+        if (ensureSession() && screen.getMenu().containerId == containerId && inventory.setSlot(slot, stack)) observeServer();
+    }
+    public static void observeContents(int containerId, List<ItemStack> items) {
+        if (!ensureSession() || screen.getMenu().containerId != containerId) return;
+        if (inventory.setContents(items)) observeServer();
+        else { session.clear(); identities.clear(); rememberedStacks.clear(); }
     }
     private static boolean isPlayablePane(ItemStack stack) {
         var id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
@@ -124,7 +132,7 @@ public final class ExperimentClient {
         return session.click(slotId, EviemodSettings.features().experiments.protectIncorrectClicks);
     }
     public static void draw(AbstractContainerScreen<?> current, GuiGraphicsExtractor graphics, Slot slot) {
-        if (!ensureSession() || current != screen || slot.index < 9 || slot.index >= 45) return;
+        if (current != screen || !ensureSession() || slot.index < 9 || slot.index >= 45) return;
         int id = slot.index;
         if (session.remembered(id) != null) {
             var remembered = rememberedStacks.get(id);

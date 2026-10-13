@@ -12,7 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public abstract class ExperimentPacketMixin {
     @Inject(method = "handleContainerSetSlot", at = @At("TAIL"))
-    private void eviemod$experimentSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) { ExperimentClient.observeServer(packet.getContainerId()); }
+    private void eviemod$experimentSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+        ExperimentClient.observeSlot(packet.getContainerId(), packet.getSlot(), packet.getItem());
+    }
     @Inject(method = "handleContainerContent", at = @At("TAIL"))
-    private void eviemod$experimentContents(ClientboundContainerSetContentPacket packet, CallbackInfo ci) { ExperimentClient.observeServer(packet.containerId()); }
+    private void eviemod$experimentContents(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
+        ExperimentClient.observeContents(packet.containerId(), packet.items());
+    }
 }

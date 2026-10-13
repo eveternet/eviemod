@@ -51,8 +51,10 @@ that exist only in 26.2. Superpairs uses full copied ItemStack equality, includi
 counts and components, so different enchantments or metadata cannot be guessed
 as matching. Ambiguous identities may miss a match rather than invent one.
 
-Only server-applied packets for the current container supply observations.
-Client click prediction and unrelated inventory packets are not reveal evidence.
+Only copied server packet payloads for the current container supply observations.
+The adapter maintains its own board instead of scanning the live menu after a
+packet: unchanged live slots can still hold unacknowledged client predictions.
+Client click prediction, GUI resize and unrelated inventory packets are not reveal evidence.
 A screen close/reopen, connection/world change, disabled helper or unsupported
 phase discards the session; a changed known Superpairs card invalidates its old
 board. Sequence rounds discard the preceding sequence. A pending Superpairs click
@@ -66,7 +68,8 @@ Both Minecraft 26.1.2 and 26.2 compile the same implementation and regression
 suite. Tests exercise repeated and missed pulses, duplicate snapshots, wrong
 clicks with protection on/off, partial numbered packets, missing/duplicate
 numbers, rounds, reopened sessions, board changes, different enchantment
-identities, powerups, unknown exploration, malformed protocol data, settings
+identities, powerups, unknown exploration, packet-copy isolation from live menu
+prediction, malformed protocol data, settings
 persistence and default-off resets. The existing version launch fixture loads
 both new mixin owners and renders the shared configuration categories in CI.
 
