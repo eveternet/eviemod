@@ -86,6 +86,7 @@ public final class PaintBrushClient implements ClientModInitializer {
         EviemodSettings.load();
         dev.eviemod.features.skyblock.ImportedFeatureClient.initialize();
         SkyBlockSession.init();
+        dev.eviemod.features.compass.WishingCompassClient.initialize();
         QuickNavigationClient.init();
         try { HelmetSkins.load(); }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error("Could not load helmet skins", e); }
