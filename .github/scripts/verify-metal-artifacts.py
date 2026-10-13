@@ -19,7 +19,7 @@ for directory, target, dandelion in (
     with artifact(f"{directory}/libs/eviemod-*-mc{target}.jar") as main:
         mod = json.loads(main.read("fabric.mod.json"))
         assert mod["id"] == "eviemod"
-        assert mod["version"] == "1.4.0.0"
+        assert mod["version"] == "1.4.0.1"
         assert mod["depends"]["minecraft"] == target
         assert mod["depends"]["dandelion"] == f">={dandelion}"
         assert "${" not in main.read("fabric.mod.json").decode()
@@ -33,6 +33,7 @@ for directory, target, dandelion in (
         mixins = json.loads(main.read("eviemod.mixins.json"))["client"]
         for mixin in ("NavigationContainerAccessor", "ExperimentContainerMixin", "ExperimentPacketMixin"):
             assert mixin in mixins, mixin
+        assert "CompassUsePacketMixin" in json.loads(main.read("eviemod-skyblock.mixins.json"))["client"]
         assert not any(n.startswith("dev/eviemod/paintbrush/VersionSmokeTest")
                        or n.startswith("dev/eviemod/paintbrush/QuickNavigationSmokeTest")
                        for n in main.namelist())

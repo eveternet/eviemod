@@ -14,7 +14,7 @@ final class QuickNavigationCategory {
         return ConfigCategory.createBuilder().id(id("quick_navigation")).name(text("Quick Navigation"))
             .description(text("Command tabs around SkyBlock inventories."))
             .option(Option.<Boolean>createBuilder().id(id("quick_navigation/enabled")).name(text("Quick Navigation"))
-                .description(text("Show fourteen configurable command tabs above and below inventories. Turn off the matching feature in Skyblocker and SkyOcean if installed."))
+                .description(text("Show your configured command tabs above and below inventories. Empty positions stay hidden. Turn off the matching feature in Skyblocker and SkyOcean if installed."))
                 .binding(false, () -> draft.quickNavigation.enabled, value -> draft.quickNavigation.enabled = value)
                 .controller(BooleanController.createBuilder().build()).build())
             .option(ButtonOption.createBuilder().id(id("quick_navigation/editor")).name(text("Navigation tabs"))

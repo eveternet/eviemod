@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.eviemod'
-version = '1.4.0.0'
+version = '1.4.0.1'
 
 ext {
     minecraftVersion = '26.1.2'

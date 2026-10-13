@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.inventory.ContainerInput;
 
 /** Hypixel's English GUI protocol, kept separate from the state machines. See docs/experiments.md. */
 public final class ExperimentMenu {
@@ -69,5 +70,10 @@ public final class ExperimentMenu {
     public static boolean reward(ItemStack stack) {
         String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
         return !stack.isEmpty() && !path.endsWith("stained_glass") && !path.endsWith("stained_glass_pane");
+    }
+    /** SkyHanni rewrites a manual experiment click to button-2 CLONE before vanilla receives it. */
+    public static boolean manualClick(ContainerInput input, int button) {
+        return input == ContainerInput.PICKUP && (button == 0 || button == 1)
+            || input == ContainerInput.CLONE && button == 2;
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.inventory.ContainerInput;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +41,10 @@ class ExperimentMenuTest {
         assertEquals(Phase.UNKNOWN, ExperimentMenu.phase(Game.CHRONOMATRON, item("minecraft:diamond", "Timer: 12s", 1)));
     }
     @Test void roundAndNumberRejectMissingMalformedAndConflictingData() {
+        // SkyHanni's current helper supplies these exact formatted protocol examples.
+        assertEquals(1, ExperimentMenu.round(item("minecraft:book", "§7Round: §e1", 1)));
+        assertEquals(2, ExperimentMenu.round(item("minecraft:book", "§7Round: §e2", 1)));
+        assertEquals(Phase.REPLAY, ExperimentMenu.phase(Game.CHRONOMATRON, item("minecraft:clock", "§7Timer: §a3s", 1)));
         assertEquals(15, ExperimentMenu.round(item("minecraft:book", "Round: 15", 15)));
         for (String name : new String[]{"Round: 0", "Round: 50", "Round: 999999999999", "Round", "15"})
             assertEquals(0, ExperimentMenu.round(item("minecraft:book", name, 1)));
@@ -76,5 +81,17 @@ class ExperimentMenuTest {
         copy = first.copy(); var tag = new net.minecraft.nbt.CompoundTag(); tag.putString("enchantment", "protection_7");
         copy.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
         assertFalse(ItemStack.matches(first, copy));
+    }
+    @Test void manuallyConvertedPickblockClicksAreRecognizedWithoutAcceptingUnrelatedModes() {
+        // SkyHanni's SlotClickEvent.makePickblock converts a manual experiment click to CLONE/button 2.
+        assertTrue(ExperimentMenu.manualClick(ContainerInput.PICKUP, 0));
+        assertTrue(ExperimentMenu.manualClick(ContainerInput.PICKUP, 1));
+        assertTrue(ExperimentMenu.manualClick(ContainerInput.CLONE, 2));
+        assertFalse(ExperimentMenu.manualClick(ContainerInput.PICKUP, 2));
+        assertFalse(ExperimentMenu.manualClick(ContainerInput.CLONE, 0));
+        assertFalse(ExperimentMenu.manualClick(ContainerInput.CLONE, 1));
+        for (var mode : new ContainerInput[]{ContainerInput.QUICK_MOVE, ContainerInput.SWAP,
+                ContainerInput.THROW, ContainerInput.QUICK_CRAFT, ContainerInput.PICKUP_ALL})
+            for (int button = 0; button <= 2; button++) assertFalse(ExperimentMenu.manualClick(mode, button));
     }
 }

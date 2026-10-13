@@ -43,6 +43,7 @@ class CombinedFeatureSettingsTest {
         var editorDraft = parentDraft.copy();
         editorDraft.quickNavigation.enabled = true;
         editorDraft.quickNavigation.tabs.get(0).command = "/skills";
+        editorDraft.quickNavigation.tabs.get(0).icon = "minecraft:diamond_sword";
         editorDraft.quickNavigation.tabs.get(0).tooltip = "Custom skills";
         store.save(editorDraft);
         parentDraft.quickNavigation = store.values().copy().quickNavigation;

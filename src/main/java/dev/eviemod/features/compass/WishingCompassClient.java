@@ -9,8 +9,6 @@ import net.azureaaron.hmapi.network.packet.v1.s2c.LocationUpdateS2CPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,17 +17,20 @@ import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.TextGizmo;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** Own vanilla use callbacks arm a short packet window. Never sends, cancels or shares anything. */
+/** Own sent use packets arm a short observation. Never sends, cancels or shares anything. */
 public final class WishingCompassClient {
     private static final CompassSolver SOLVER = new CompassSolver();
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("eviemod");
     private static String session;
     private static Object level, connection;
     private static TargetContext context;
     private static CompassContext.FooterSnapshot footer;
+    private static int packetCount, largestBurst;
+    private static boolean packetOffsets;
     record TargetContext(CompassContext.Region region, boolean key, CompassContext.Prerequisites prerequisites) {
         boolean compatibleWith(TargetContext next, boolean navigating) {
             return next != null && key == next.key && prerequisites.equals(next.prerequisites)
@@ -39,7 +40,9 @@ public final class WishingCompassClient {
     }
     private WishingCompassClient() {}
     private static long now() { return System.nanoTime() / 1_000_000; }
-    public static void clear() { SOLVER.reset(); context = null; }
+    public static void clear() {
+        SOLVER.reset(); context = null; packetCount = 0; largestBurst = 0; packetOffsets = false;
+    }
     public static void initialize() {
         // SkyBlockSession already subscribes to this HM API event; reuse that subscription.
         HypixelPacketEvents.LOCATION_UPDATE.register(packet -> {
@@ -53,15 +56,7 @@ public final class WishingCompassClient {
             session = next; SOLVER.session(next);
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            session = null; SOLVER.session(null); level = null; connection = null; footer = null;
-        });
-        UseItemCallback.EVENT.register((player, world, hand) -> {
-            if (player == Minecraft.getInstance().player) use(player.getItemInHand(hand));
-            return InteractionResult.PASS;
-        });
-        UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
-            if (player == Minecraft.getInstance().player) use(player.getItemInHand(hand));
-            return InteractionResult.PASS;
+            session = null; SOLVER.session(null); clear(); level = null; connection = null; footer = null;
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!active(client)) { clear(); return; }
@@ -70,7 +65,9 @@ public final class WishingCompassClient {
                 TargetContext nextContext = targetContext(client);
                 if (context == null || !context.compatibleWith(nextContext, SOLVER.estimate() != null)) { clear(); context = nextContext; }
             }
+            boolean wasObserving = SOLVER.observing();
             SOLVER.tick(now());
+            if (wasObserving && !SOLVER.observing()) logReading();
             var estimate = SOLVER.estimate();
             if (estimate == null || ClientUi.hudHidden(client)) return;
             var p = estimate.position();
@@ -117,18 +114,54 @@ public final class WishingCompassClient {
                 : !context.prerequisites().completeCrystals() ? "Crystal status unavailable. Enable Crystals in your SkyBlock tab widgets, then try again."
                 : "King's Scent status unavailable. Enable Active Effects in your SkyBlock tab widgets, then try again.";
             SOLVER.rejectUse(message);
+            LOGGER.info("[Wishing Compass] {}", message);
             return;
         }
         Vec3 pos = client.player.position();
+        long priorCapture = SOLVER.observationStarted();
         SOLVER.use(new CompassSolver.Point(pos.x, pos.y, pos.z), context.toString(), now());
+        if (SOLVER.observing() && SOLVER.observationStarted() != priorCapture) {
+            if (priorCapture != Long.MIN_VALUE) LOGGER.info("[Wishing Compass] Previous reading: {}; seenPackets={}, largestCount={}, nonzeroOffsets={}",
+                SOLVER.diagnostic(), packetCount, largestBurst, packetOffsets);
+            packetCount = 0; largestBurst = 0; packetOffsets = false;
+            LOGGER.info("[Wishing Compass] Reading started in {}.", context.region());
+        }
+    }
+    /** Called only for a vanilla use packet actually emitted by the local connection. */
+    public static void sentUse(InteractionHand hand) {
+        var player = Minecraft.getInstance().player;
+        if (player != null) use(player.getItemInHand(hand));
+    }
+    /** Bounded local diagnosis; excludes raw tab text, player names and item data. */
+    public static String diagnosticReport() {
+        var client = Minecraft.getInstance();
+        return "[Wishing Compass] enabled=" + EviemodSettings.features().skyblock.wishingCompass
+            + ", active=" + active(client) + ", hollowsSession=" + (session != null)
+            + ", observing=" + SOLVER.observing() + ", estimate=" + (SOLVER.estimate() != null)
+            + ", context=" + (context == null ? "unavailable" : context.region()
+                + "/crystalsKnown=" + context.prerequisites().completeCrystals()
+                + "/scent=" + context.prerequisites().scent())
+            + "; status=" + SOLVER.status() + "; current=" + SOLVER.currentDiagnostic()
+            + "; last=" + SOLVER.diagnostic() + "; seenPackets=" + packetCount
+            + ", largestCount=" + largestBurst + ", nonzeroOffsets=" + packetOffsets;
+    }
+    private static void logReading() {
+        LOGGER.info("[Wishing Compass] {}; {}; seenPackets={}, largestCount={}, nonzeroOffsets={}",
+            SOLVER.status(), SOLVER.diagnostic(), packetCount, largestBurst, packetOffsets);
     }
     public static void particle(ClientboundLevelParticlesPacket packet) {
         var client = Minecraft.getInstance();
         if (!active(client) || packet.getParticle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
         refreshWorld(client);
-        // Burst packets have randomized positions and cannot provide a reliable observation.
         if (!usablePacket(packet)) return;
+        if (SOLVER.observing()) {
+            packetCount++;
+            largestBurst = Math.max(largestBurst, packet.getCount());
+            packetOffsets |= packet.getXDist() != 0 || packet.getYDist() != 0 || packet.getZDist() != 0;
+        }
+        boolean wasObserving = SOLVER.observing();
         SOLVER.particle(new CompassSolver.Point(packet.getX(), packet.getY(), packet.getZ()), now());
+        if (wasObserving && !SOLVER.observing()) logReading();
     }
     public static void tabFooter(net.minecraft.network.chat.Component text) {
         var client = Minecraft.getInstance();
@@ -136,9 +169,9 @@ public final class WishingCompassClient {
         footer = new CompassContext.FooterSnapshot(client.level, client.getConnection(), text.getString());
     }
     static boolean usablePacket(ClientboundLevelParticlesPacket packet) {
-        // Count zero encodes velocity, not randomized spawn offsets; its origin is still exact.
-        return packet.getParticle().getType() == ParticleTypes.HAPPY_VILLAGER &&
-            (packet.getCount() == 0 || packet.getCount() == 1 && packet.getXDist() == 0 && packet.getYDist() == 0 && packet.getZDist() == 0);
+        // A packet gives an exact server-selected centre. Count/offsets randomize the
+        // rendered particles, not this centre; Skyblocker's solver also consumes it.
+        return packet.getParticle().getType() == ParticleTypes.HAPPY_VILLAGER && packet.getCount() >= 0;
     }
     static String itemId(ItemStack stack) {
         var data = stack.get(DataComponents.CUSTOM_DATA);

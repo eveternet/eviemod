@@ -7,6 +7,7 @@ import java.util.Objects;
 /** Bounded, transient observations. No game, persistence or network dependencies. */
 public final class CompassSolver {
     static final long CAPTURE_MILLIS = 5_000;
+    static final long QUIET_MILLIS = 500;
     static final long EXPIRY_MILLIS = 300_000;
     public record Point(double x, double y, double z) {
         Point add(Point p) { return new Point(x + p.x, y + p.y, z + p.z); }
@@ -26,15 +27,20 @@ public final class CompassSolver {
     private Estimate estimate;
     private long lastUse = Long.MIN_VALUE, updatedAt;
     private String status = "Use a Wishing Compass to begin.";
+    private String diagnostic = "No compass observation.";
 
     public String status() { return status; }
     public Estimate estimate() { return estimate; }
     public boolean observing() { return capture != null; }
+    long observationStarted() { return capture == null ? Long.MIN_VALUE : capture.started; }
     public boolean hasObservations() { return capture != null || first != null || estimate != null; }
+    public String diagnostic() { return diagnostic; }
+    public String currentDiagnostic() { return capture == null ? "No pending capture." : capture.diagnostic(); }
     public void reset() {
         capture = null; first = null; estimate = null; targetContext = null;
         lastUse = Long.MIN_VALUE;
         status = "Use a Wishing Compass to begin.";
+        diagnostic = "No compass observation.";
     }
     public void session(String next) {
         if (!Objects.equals(session, next)) { reset(); session = next; }
@@ -44,7 +50,8 @@ public final class CompassSolver {
         if (first != null && now - first.time >= EXPIRY_MILLIS || estimate != null && now - updatedAt >= EXPIRY_MILLIS) {
             reset(); return;
         }
-        if (capture != null && now - capture.started >= CAPTURE_MILLIS) {
+        if (capture != null && (now - capture.started >= CAPTURE_MILLIS
+            || now - capture.lastParticle >= QUIET_MILLIS && capture.result().ray != null)) {
             Capture completed = capture;
             capture = null;
             finish(completed, now);
@@ -53,13 +60,18 @@ public final class CompassSolver {
     public void use(Point position, String context, long now) {
         tick(now);
         if (session == null || position == null || !position.finite() || context == null) return;
-        // Block/item callbacks can describe the same vanilla interaction. Never cancel it.
+        // A block/item send pair can describe the same vanilla interaction. Never cancel it.
         if (lastUse != Long.MIN_VALUE && now - lastUse < 150) return;
-        if (lastUse != Long.MIN_VALUE && now - lastUse < CAPTURE_MILLIS) {
-            capture = null; estimate = null;
-            status = "Trails may overlap. Wait five seconds before using your compass again.";
-            lastUse = now;
-            return;
+        if (capture != null) {
+            CaptureResult ready = capture.result();
+            if (ready.ray != null || ready.ambiguous) {
+                Capture completed = capture; capture = null; finish(completed, now);
+            } else {
+                // A held button or an unsuccessful retry must not erase or prolong the reading.
+                // If the server sends another distinct trail, candidate checks reject the pair.
+                status = "Still reading your compass trail...";
+                return;
+            }
         }
         if (!Objects.equals(context, targetContext) || estimate != null) { reset(); targetContext = context; }
         lastUse = now; updatedAt = now; estimate = null;
@@ -69,10 +81,11 @@ public final class CompassSolver {
     public void particle(Point position, long now) {
         tick(now);
         if (capture == null || position == null || !position.finite()) return;
-        capture.accept(position);
+        capture.accept(position, now);
     }
     private void finish(Capture completed, long now) {
         CaptureResult result = completed.result();
+        diagnostic = completed.diagnostic();
         Ray ray = result.ray;
         estimate = null;
         if (result.ambiguous) {
@@ -136,13 +149,14 @@ public final class CompassSolver {
             error = Math.max(error, relative.subtract(direction.scale(progress)).length());
         }
         if (error > 0.2) return null;
-        // A nonzero floor accounts for server sampling/rounding even on synthetic perfect lines.
-        return new Ray(mean, direction, Math.max(0.005, error / span));
+        // Packet centres are doubles; use a small coordinate allowance rather than an
+        // arbitrary angular floor that made an advertised eight-block baseline unusable.
+        return new Ray(mean, direction, Math.max(0.001, error) / span);
     }
     static Estimate intersect(Ray a, Ray b) {
         Point offset = a.origin.subtract(b.origin);
         double dot = a.direction.dot(b.direction), determinant = 1 - dot * dot;
-        if (determinant < 0.0076) return null; // Under five degrees: unstable triangulation.
+        if (determinant < 1e-6) return null; // Numerically parallel; error allowance guards the rest.
         double ad = a.direction.dot(offset), bd = b.direction.dot(offset);
         double alongA = (dot * bd - ad) / determinant;
         double alongB = (bd - dot * ad) / determinant;
@@ -163,11 +177,14 @@ public final class CompassSolver {
         final Point usedAt;
         final long started;
         final List<Trail> trails = new ArrayList<>();
+        long lastParticle;
         int packets;
         boolean overflow;
-        Capture(Point usedAt, long started) { this.usedAt = usedAt; this.started = started; }
-        void accept(Point point) {
+        Capture(Point usedAt, long started) { this.usedAt = usedAt; this.started = started; lastParticle = started; }
+        void accept(Point point, long now) {
             if (++packets > 512) { overflow = true; return; }
+            // Unrelated distant particles cannot keep a completed local reading alive.
+            if (point.distance(usedAt) <= 41) lastParticle = now;
             for (Trail trail : trails) trail.accept(point);
             if (point.distance(usedAt) <= 9 && trails.stream().noneMatch(trail -> !trail.complete && point.distance(trail.start) <= 0.25)) {
                 if (trails.size() >= 128) overflow = true;
@@ -178,8 +195,11 @@ public final class CompassSolver {
             if (overflow) return new CaptureResult(null, true);
             Ray selected = null;
             double widest = 0;
-            for (Trail trail : trails) if (trail.confirmed != null && trail.span() > widest) {
-                selected = trail.confirmed; widest = trail.span();
+            for (Trail trail : trails) {
+                Ray candidate = trail.qualified();
+                if (candidate != null && trail.span() > widest) {
+                    selected = candidate; widest = trail.span();
+                }
             }
             if (selected == null) return new CaptureResult(null, false);
             // A coherent competing first pass is already enough to make ownership ambiguous,
@@ -189,6 +209,18 @@ public final class CompassSolver {
                 if (candidate != null && !sameTrail(selected, candidate)) return new CaptureResult(null, true);
             }
             return new CaptureResult(selected, false);
+        }
+        String diagnostic() {
+            int longest = 0, repeated = 0;
+            double span = 0;
+            for (Trail trail : trails) {
+                longest = Math.max(longest, trail.samples.size());
+                span = Math.max(span, trail.span());
+                if (trail.confirmed != null) repeated++;
+            }
+            CaptureResult result = result();
+            return "packets=" + packets + ", longestPass=" + longest + ", span=" + Math.round(span * 100) / 100.0
+                + ", repeats=" + repeated + ", result=" + (result.ambiguous ? "ambiguous" : result.ray != null ? "qualified" : "incomplete");
         }
         private static boolean sameTrail(Ray a, Ray b) {
             double angularAllowance = a.angularError + b.angularError;
@@ -207,18 +239,19 @@ public final class CompassSolver {
         Ray confirmed;
         Trail(Point start) { this.start = start; samples.add(start); }
         double span() { return samples.getLast().distance(start); }
+        Ray qualified() { return confirmed != null ? confirmed : samples.size() >= 25 ? fit(samples) : null; }
         void accept(Point point) {
             if (complete) return;
             if (repeatIndex >= 0) {
-                if (point.distance(samples.get(repeatIndex)) <= 0.3 && ++repeatIndex >= 3) {
+                if (point.distance(samples.get(repeatIndex)) <= 0.6 && ++repeatIndex >= 3) {
                     complete = true; confirmed = fit(samples);
                 }
                 return;
             }
             Point previous = samples.getLast();
-            if (samples.size() >= 8 && previous.distance(start) >= 4 && point.distance(start) <= 0.3) {
+            if (samples.size() >= 8 && previous.distance(start) >= 4 && point.distance(start) <= 0.6) {
                 repeatIndex = 1;
-            } else if (point.distance(previous) > 0.05 && point.distance(previous) <= 0.8 && samples.size() < 128) {
+            } else if (point.distance(previous) > 0.05 && point.distance(previous) <= 0.9 && samples.size() < 128) {
                 samples.add(point);
             }
         }

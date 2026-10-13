@@ -1,7 +1,6 @@
 package dev.eviemod.paintbrush.mixin;
 
 import dev.eviemod.features.experiments.ExperimentClient;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
@@ -15,9 +14,5 @@ public abstract class ExperimentContainerMixin {
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void eviemod$manualExperimentClick(Slot slot, int slotId, int button, ContainerInput input, CallbackInfo ci) {
         if (ExperimentClient.cancelClick((AbstractContainerScreen<?>)(Object)this, slot, slotId, button, input)) ci.cancel();
-    }
-    @Inject(method = "extractSlot", at = @At("TAIL"))
-    private void eviemod$experimentGuidance(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
-        ExperimentClient.draw((AbstractContainerScreen<?>)(Object)this, graphics, slot);
     }
 }

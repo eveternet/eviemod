@@ -31,11 +31,13 @@ class CompassProtocolTest {
         wrapped.putString("id", "OTHER_ITEM"); stack.set(DataComponents.CUSTOM_DATA, CustomData.of(wrapped));
         assertEquals("OTHER_ITEM", WishingCompassClient.itemId(stack));
     }
-    @Test void acceptsExactOriginsIncludingCountZeroVelocityAndRejectsRandomBursts() {
+    @Test void packetCentreIsUsableRegardlessOfHowVanillaRandomizesItsRenderedParticles() {
         assertTrue(WishingCompassClient.usablePacket(packet(0, 1)));
         assertTrue(WishingCompassClient.usablePacket(packet(1, 0)));
-        assertFalse(WishingCompassClient.usablePacket(packet(1, 1)));
-        assertFalse(WishingCompassClient.usablePacket(packet(2, 0)));
+        assertTrue(WishingCompassClient.usablePacket(packet(1, 1)));
+        assertTrue(WishingCompassClient.usablePacket(packet(2, 0)));
+        assertTrue(WishingCompassClient.usablePacket(packet(25, 1)));
+        assertFalse(WishingCompassClient.usablePacket(packet(-1, 0)));
         assertFalse(WishingCompassClient.usablePacket(new ClientboundLevelParticlesPacket(
             ParticleTypes.FLAME, false, false, 500, 100, 500, 0, 0, 0, 0, 1)));
     }

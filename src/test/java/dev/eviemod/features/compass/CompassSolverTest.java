@@ -29,11 +29,12 @@ class CompassSolverTest {
         for (int i = 0; i < points.size(); i++) solver.particle(points.get(i), start + i * 40);
         for (int i = 0; i < 3; i++) solver.particle(points.get(i), start + 1000 + i * 40);
     }
-    @Test void completedRepeatDoesNotPublishBeforeTheWholeWindowCloses() {
+    @Test void completedRepeatFinishesAfterQuietInsteadOfRequiringFiveSecondsPerUse() {
         var solver = solver(); observe(solver, A, TARGET, 0);
         solver.use(B, "east-south", 6000); feed(solver, trail(B, TARGET), 6050);
         assertTrue(solver.observing()); assertNull(solver.estimate());
-        solver.tick(11000); assertFalse(solver.observing()); assertNotNull(solver.estimate());
+        solver.tick(7629); assertTrue(solver.observing()); assertNull(solver.estimate());
+        solver.tick(7630); assertFalse(solver.observing()); assertNotNull(solver.estimate());
     }
     @Test void competingCompleteTrailsRejectTheReviewProbeInEitherArrivalOrder() {
         Point ownTarget = new Point(720, 100, 720);
@@ -76,12 +77,12 @@ class CompassSolverTest {
             assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
         }
     }
-    @Test void lateCompetingFirstPassWithMissingRepeatStillInvalidatesTheObservation() {
+    @Test void competingFirstPassArrivingBeforeQuietWithMissingRepeatInvalidatesTheObservation() {
         var solver = solver(); observe(solver, A, TARGET, 0);
         solver.use(B, "east-south", 6000);
         feed(solver, trail(B.add(new Point(5, 0, 0)), TARGET), 6050);
         var own = trail(B, new Point(720, 100, 720));
-        for (int i = 0; i < own.size(); i++) solver.particle(own.get(i), 9900 + i * 40);
+        for (int i = 0; i < own.size(); i++) solver.particle(own.get(i), 7490 + i * 40);
         solver.tick(11000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
         observe(solver, A, TARGET, 12000); assertNull(solver.estimate());
     }
@@ -112,7 +113,7 @@ class CompassSolverTest {
     @Test void exceedingCaptureBoundsRejectsRatherThanDiscardingCompetingEvidence() {
         var solver = solver(); solver.use(A, "east-south", 0);
         feed(solver, trail(A, TARGET), 50);
-        for (int i = 0; i < 600; i++) solver.particle(A, 2500 + i);
+        for (int i = 0; i < 600; i++) solver.particle(A, 1250 + i);
         solver.tick(5000); assertNull(solver.estimate()); assertTrue(solver.status().contains("Multiple"));
     }
     @Test void rejectingAnUnsupportedUseDiscardsPriorObservationsAndSolvedWaypoints() {
@@ -163,10 +164,55 @@ class CompassSolverTest {
         var solver = solver(); solver.use(A, "zone", 0); solver.use(A, "zone", 20);
         assertTrue(solver.observing());
     }
-    @Test void overlappingUsesInvalidateCaptureWithoutInventingAnEstimate() {
+    @Test void repeatedAttemptsDoNotEraseThePendingCaptureOrExtendItsTimeout() {
         var solver = solver(); solver.use(A, "zone", 0); solver.use(B, "zone", 1000);
-        assertFalse(solver.observing()); assertNull(solver.estimate());
-        assertTrue(solver.status().contains("overlap"));
+        assertTrue(solver.observing()); assertNull(solver.estimate());
+        solver.use(A, "zone", 4900); solver.tick(5000);
+        assertFalse(solver.observing()); assertTrue(solver.status().contains("incomplete"));
+    }
+    @Test void holdingUseThroughACompleteTrailStillRecordsIt() {
+        var solver = solver(); solver.use(A, "east-south", 0);
+        var particles = trail(A, TARGET);
+        for (int i = 0; i < particles.size(); i++) {
+            solver.particle(particles.get(i), 50 + i * 40);
+            if (i % 5 == 0) solver.use(A, "east-south", 50 + i * 40);
+        }
+        for (int i = 0; i < 3; i++) solver.particle(particles.get(i), 1000 + i * 40);
+        solver.tick(1580);
+        assertFalse(solver.observing()); assertTrue(solver.status().contains("recorded"));
+        observe(solver, B, TARGET, 2000); assertNotNull(solver.estimate());
+    }
+    @Test void aTwentyFiveParticlePassQualifiesAfterTheReferenceIdleIntervalWithoutARepeat() {
+        var solver = solver(); solver.use(A, "zone", 0);
+        var particles = new ArrayList<>(trail(A, TARGET));
+        Point step = particles.get(1).subtract(particles.getFirst());
+        particles.add(particles.getLast().add(step));
+        for (int i = 0; i < particles.size(); i++) solver.particle(particles.get(i), 50 + i * 40);
+        solver.tick(1509); assertTrue(solver.observing());
+        solver.tick(1510); assertFalse(solver.observing()); assertTrue(solver.status().contains("recorded"));
+        assertTrue(solver.diagnostic().contains("longestPass=25"));
+    }
+    @Test void supportsTheCoarseSpacingAcceptedByTheCurrentSkyblockerReference() {
+        var solver = solver(); solver.use(A, "zone", 0);
+        Point direction = TARGET.subtract(A).scale(1 / TARGET.distance(A));
+        for (int i = 0; i < 25; i++) solver.particle(A.add(new Point(0, 1.62, 0)).add(direction.scale(i * 0.85)), 50 + i * 40);
+        solver.tick(1510); assertFalse(solver.observing()); assertTrue(solver.status().contains("recorded"));
+    }
+    @Test void nextRealUseCanCloseARepeatConfirmedReadingAtTheLiveTwoSecondCadence() {
+        var solver = solver(); solver.use(A, "east-south", 0);
+        feed(solver, trail(A, TARGET), 50);
+        solver.use(B, "east-south", 2000);
+        feed(solver, trail(B, TARGET), 2050);
+        solver.tick(3630); assertNotNull(solver.estimate());
+    }
+    @Test void eightBlockBaselineCanSolveADistantHollowsTargetInsteadOfAnArbitraryFiveDegreeRejection() {
+        var solver = solver(); Point target = new Point(562, 120, 808);
+        Point start = new Point(600, 130, 600), second = start.add(new Point(8, 0, 0));
+        solver.use(start, "east-south", 0); feed(solver, trail(start, target), 50); solver.tick(1630);
+        solver.use(second, "east-south", 2000); feed(solver, trail(second, target), 2050); solver.tick(3630);
+        assertNotNull(solver.estimate());
+        assertTrue(solver.estimate().position().distance(target.add(new Point(0, 1, 0))) < 0.01);
+        assertTrue(solver.estimate().uncertainty() >= 2);
     }
     @Test void tooCloseUseKeepsFirstObservationForLaterRetry() {
         var solver = solver(); observe(solver, A, TARGET, 0);

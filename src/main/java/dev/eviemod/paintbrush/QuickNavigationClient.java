@@ -38,9 +38,9 @@ final class QuickNavigationClient {
         String title = screen.getTitle().getString().strip();
         for (int i = 0; i < settings.tabs.size(); i++) {
             var config = settings.tabs.get(i);
-            if (config.hidden) continue;
+            if (config.hidden || config.empty()) continue;
             // An unsupported icon affects only its own button and never changes an inventory stack.
-            try { QuickNavigationIcons.parse(config.icon); }
+            try { QuickNavigationIcons.parse(config); }
             catch (RuntimeException e) { continue; }
             int index = i;
             boolean matching = !config.title.isEmpty() && Pattern.compile(config.title).matcher(title).matches();

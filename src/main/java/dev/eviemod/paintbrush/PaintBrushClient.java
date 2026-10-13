@@ -117,6 +117,12 @@ public final class PaintBrushClient implements ClientModInitializer {
             dispatcher.register(literal("eviemod")
                 .executes(ctx -> openSettings())
                 .then(literal("settings").executes(ctx -> openSettings()))
+                .then(literal("diagnose").executes(ctx -> {
+                    LoggerFactory.getLogger("eviemod-diagnostics").info("{}\n{}",
+                        dev.eviemod.features.compass.WishingCompassClient.diagnosticReport(),
+                        dev.eviemod.features.experiments.ExperimentClient.diagnosticReport());
+                    return feedback(ctx.getSource(), "Eviemod diagnostics saved to latest.log. Run this after the failed compass use or experiment round.");
+                }))
                 .then(literal("reload").executes(ctx -> {
                     EviemodSettings.load(); RarityBackgrounds.clear();
                     return EviemodSettings.STORE.error() == null ? feedback(ctx.getSource(), "eviemod settings reloaded.")

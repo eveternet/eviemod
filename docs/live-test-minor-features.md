@@ -1,6 +1,6 @@
 # Combined feature live-test checklist
 
-Build: Eviemod **1.4.0.0**, combining Quick Navigation (#18), Wishing Compass
+Build: Eviemod **1.4.0.1**, combining Quick Navigation (#18), Wishing Compass
 (#19) and Experimentation Table helpers (#20). Run the matching **26.1.2** or
 **26.2** main-mod JAR with Java 25 and Fabric API. Use one Eviemod JAR per profile.
 The Eviemetal 26.2 PR (#17) and performance-roadmap PR (#12) are excluded.
@@ -23,8 +23,10 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
 
 ## Quick Navigation
 
-- [ ] Enable **Quick Navigation**. Check the fourteen default tabs in player,
-  short-chest and six-row SkyBlock menus. Check menu highlights and tooltips,
+- [ ] Fresh/reset navigation has zero buttons; your existing saved buttons survive
+  upgrading. Configure two of the fourteen empty editor positions, then enable
+  **Quick Navigation**. Check them in player, short-chest and six-row SkyBlock
+  menus. Check menu highlights and tooltips,
   recipe-book shifts, GUI scales, window resize and resource packs. Outer tabs
   can clip at very large GUI scales; inventory slots should remain uncovered.
 - [ ] Test one ordinary shortcut and a double-click warp. The warp needs a second
@@ -35,7 +37,9 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
   command, item drop or unintended inventory action. Ordinary slot clicks work.
 - [ ] In **Edit tabs**, change icon, command, title pattern, tooltip, hide and
   activation; switch tabs and resize. **Done** keeps edits; **Cancel** discards
-  edits; **Reset tab** restores only that tab. Invalid icon/pattern blocks saving
+  edits; **Reset tab** clears only that position. Hold a real SkyBlock item and use
+  **Use held item**: custom heads, dyes/model components and identity survive
+  save/restart without changing the original stack. Invalid icon/pattern blocks saving
   until corrected. Editing while disabled leaves navigation off.
 - [ ] Disconnect, switch server, leave SkyBlock and enter creative mode on a test
   world: navigation stays inactive outside its supported context.
@@ -43,14 +47,16 @@ Local tests and CI fixtures do not establish live Hypixel compatibility.
 ## Wishing Compass
 
 - [ ] Enable **Mining → Wishing Compass Solver** and Hypixel's **Crystals** tab
-  widget. Outside the nucleus, manually use a Wishing Compass, wait five seconds,
-  move at least eight blocks sideways in the same region and use it again.
-  Wait another five seconds: a usable pair shows an estimated marker, distance,
+  widget. Outside the nucleus, manually use a Wishing Compass and wait for
+  **Trail recorded** (normally after the particle stream ends, not a fixed five
+  seconds). Move at least eight blocks sideways in the same region and use it
+  again. A usable pair shows an estimated marker, distance,
   coordinates and uncertainty ring. Navigate across a region boundary; the
   solved marker persists. Check F1, camera angles and marker readability.
 - [ ] Test near-parallel uses, too little separation, incomplete trails, crowded
   simultaneous compass uses and nucleus starts. Unsupported/ambiguous data
-  should withhold the marker while normal compass use continues.
+  should withhold the marker while normal compass use continues. Holding the
+  use button/retrying during capture must not discard or continually restart it.
 - [ ] Change a crystal's status, Jungle Key possession, or King's Scent presence;
   old observations invalidate. Scent countdown ticks alone should preserve them.
   Missing/blank/loading effect disclosure in Goblin contexts should withhold
@@ -95,6 +101,13 @@ Known limits: current server labels, acknowledgment timing and particle behavior
 remain live-test assumptions. Compass particles have no originating-player ID;
 indistinguishable foreign-only trails cannot be perfectly attributed. Estimates
 do not prove a shared target or identify a destination/entrance by name.
+
+If a solver still fails, run `/eviemod diagnose` immediately after the failed
+attempt or experiment round and attach `logs/latest.log`. It records bounded
+capture/gate/packet/render and instruction/round metadata, including the last
+closed experiment on the current connection. This distinguishes absent packet
+observations, unsupported menu data and missing overlay extraction without
+another blind replay. It does not log chat, the player inventory or server address.
 
 For a failure, save the feature/toggles, reproduction steps, expected/actual
 behavior, Minecraft/modpack versions and relevant `latest.log` excerpt.

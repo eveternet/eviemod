@@ -51,12 +51,16 @@ final class QuickNavigationSmokeTest {
         ((Runnable)options.stream().filter(value -> optionId(value).equals("eviemod:quick_navigation/editor"))
             .findFirst().orElseThrow().get()).run();
         check(ClientUi.screen(client) instanceof QuickNavigationScreen, "Settings action opens editor while disabled");
+        check(EviemodSettings.STORE.values().quickNavigation.tabs.stream().allMatch(QuickNavigationSettings.Tab::empty),
+            "Fresh settings have no preset navigation buttons");
         ClientTickEvents.END_CLIENT_TICK.register(mc -> tick(mc, parent));
     }
     private void tick(Minecraft client, Screen parent) {
         ticks++;
         if (ticks == 5) {
             var screen = ClientUi.screen(client);
+            check(field(screen, "Item model").getValue().isEmpty(), "New editor positions start empty");
+            field(screen, "Item model").setValue("minecraft:apple");
             var command = field(screen, "Command"); command.setValue("");
             clickEditor(screen, command);
             "/warp garden".codePoints().forEach(cp -> screen.charTyped(new CharacterEvent(cp)));
@@ -73,9 +77,20 @@ final class QuickNavigationSmokeTest {
             var second = screen.children().stream().filter(child -> child instanceof QuickNavigationTab tab && tab.index() == 1)
                 .map(child -> (QuickNavigationTab)child).findFirst().orElseThrow();
             clickEditor(screen, second);
-            check(field(screen, "Command").getValue().equals("/collection"), "Selecting preview tab loads its fields");
+            check(field(screen, "Command").getValue().isEmpty(), "Selecting an unused position has no preset command");
+            var held = QuickNavigationIcons.parse("minecraft:leather_chestplate[minecraft:custom_data={id:\"SPEEDSTER_CHESTPLATE\"},minecraft:dyed_color=8991416]");
+            held.setCount(8); ((QuickNavigationScreen)screen).captureHeld(held);
+            field(screen, "Command").setValue("/armor");
+            check(held.getCount() == 8, "Held-item capture never changes its source stack");
             screen.resize(screen.width, screen.height);
-            check(field(screen, "Command").getValue().equals("/collection"), "Resize retains selected tab");
+            check(field(screen, "Command").getValue().equals("/armor"), "Resize retains selected tab");
+            var third = screen.children().stream().filter(child -> child instanceof QuickNavigationTab tab && tab.index() == 2)
+                .map(child -> (QuickNavigationTab)child).findFirst().orElseThrow();
+            clickEditor(screen, third);
+            field(screen, "Item model").setValue("minecraft:diamond"); field(screen, "Command").setValue("/skills");
+            clickEditor(screen, widget(screen, "Reset tab"));
+            check(field(screen, "Item model").getValue().isEmpty() && field(screen, "Command").getValue().isEmpty(),
+                "Reset clears one position instead of restoring a preset");
         }
         if (ticks == 10) capture(client, "quick-navigation-editor.png");
         if (ticks == 15) {
@@ -84,10 +99,15 @@ final class QuickNavigationSmokeTest {
             check(!saved.enabled && saved.tabs.get(0).hidden, "Configuring a tab does not enable background feature");
             check(saved.tabs.get(0).command.equals("/warp garden") && saved.tabs.get(0).icon.equals("minecraft:apple"), "Editor edits persist across tab switch/resize");
             check(saved.tabs.get(0).tooltip.equals("Go to Garden"), "Refreshed tooltip persists after tab switch/resize");
+            check(QuickNavigationIcons.parse(saved.tabs.get(1)).get(net.minecraft.core.component.DataComponents.DYED_COLOR).rgb() == 8991416,
+                "Captured SkyBlock item components survive editor save and resize");
+            check(saved.tabs.get(2).empty(), "Unused editor positions remain empty after saving");
             settings.onClose(); check(ClientUi.screen(client) == parent, "Settings return to parent");
             check(EviemodSettings.STORE.values().quickNavigation.tabs.get(0).hidden, "Parent save preserves editor edits");
+            var emptyRuntime = new RuntimePreview(166, sent, false); ClientUi.setScreen(client, emptyRuntime);
+            check(emptyRuntime.buttons.isEmpty(), "Enabling a fresh layout installs no navigation buttons");
             runtime = new RuntimePreview(166, sent); ClientUi.setScreen(client, runtime);
-            check(runtime.buttons.size() == 14, "All runtime default tabs installed");
+            check(runtime.buttons.size() == 14, "Explicitly configured fixture tabs installed");
             var tab = runtime.buttons.get(0);
             clickRuntime(runtime.container, tab, 1); check(sent.isEmpty(), "Right click never sends a command");
             runtime.container.getMenu().setCarried(new ItemStack(Items.DIAMOND));
@@ -160,8 +180,18 @@ final class QuickNavigationSmokeTest {
         private final QuickNavigationSettings config = new QuickNavigationSettings();
         private List<QuickNavigationTab> buttons;
         private boolean allowed = true;
-        RuntimePreview(int height, List<String> sent) {
+        RuntimePreview(int height, List<String> sent) { this(height, sent, true); }
+        RuntimePreview(int height, List<String> sent, boolean populate) {
             super(Component.literal("Navigation fixture")); this.sent = sent; container = new FixtureContainer(height);
+            if (!populate) return;
+            for (int i = 0; i < config.tabs.size(); i++) {
+                var tab = config.tabs.get(i); tab.icon = "minecraft:apple";
+                tab.command = "/fixture " + i; tab.tooltip = "Configured tab " + (i + 1);
+            }
+            config.tabs.get(0).command = "/skills";
+            config.tabs.get(0).title = "Your Skills";
+            config.tabs.get(7).command = "/is";
+            config.tabs.get(7).activation = QuickNavigationSettings.Activation.DOUBLE_CLICK;
         }
         @Override protected void init() {
             container.init(width, height);

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 
 /** SkyOcean's select-a-tab editing flow in the same panel/native controls as Paint Brush. */
 final class QuickNavigationScreen extends CompactScreen {
@@ -35,10 +36,14 @@ final class QuickNavigationScreen extends CompactScreen {
         if (itemIds == null) itemIds = BuiltInRegistries.ITEM.keySet().stream().map(Object::toString).sorted().toList();
         var tab = draft.tabs.get(selected);
         int left = x + 16, width = 290;
-        icon = addRenderableWidget(new ModelField(font, left, y + 60, width, itemIds, "",
-            value -> { tab.icon = value; validateDraft(); }));
+        icon = addRenderableWidget(new ModelField(font, left, y + 60, width - 106, itemIds, "",
+            value -> { tab.editIcon(value); updateIconTooltip(); validateDraft(); }));
         icon.setMaxLength(8192); icon.setValue(tab.icon);
-        icon.setTooltip(Tooltip.create(Component.literal("Item ID with optional Minecraft components.")));
+        updateIconTooltip();
+        var useHeld = button("Use held item", left + width - 100, y + 60, 100, () -> captureHeld(
+            minecraft.player == null ? ItemStack.EMPTY : minecraft.player.getMainHandItem()));
+        useHeld.active = minecraft.player != null && !minecraft.player.getMainHandItem().isEmpty();
+        useHeld.setTooltip(Tooltip.create(Component.literal("Copies the held item's appearance, including SkyBlock data and head textures.")));
         field("Command", left, y + 100, width, tab.command, 256, value -> tab.command = value);
         var title = field("Menu title pattern", left, y + 140, width, tab.title, 256, value -> tab.title = value);
         title.setTooltip(Tooltip.create(Component.literal("Highlights this tab when the whole menu title matches. Leave blank for no highlight.")));
@@ -71,6 +76,26 @@ final class QuickNavigationScreen extends CompactScreen {
         }
         validateDraft();
     }
+    private void updateIconTooltip() {
+        if (icon == null) return;
+        var tab = draft.tabs.get(selected);
+        String label = "Item ID with optional Minecraft components. Leave an unused tab blank.";
+        if (!tab.capturedIcon.isBlank()) {
+            label = "Captured: " + QuickNavigationIcons.preview(tab).getHoverName().getString()
+                + ". Changing this field replaces the captured item.";
+        }
+        icon.setTooltip(Tooltip.create(Component.literal(label)));
+    }
+    /** The UI and fixture use the same snapshot path; no inventory item is changed. */
+    void captureHeld(ItemStack held) {
+        try {
+            var tab = draft.tabs.get(selected);
+            QuickNavigationIcons.capture(tab, held);
+            icon.setValue(tab.icon); updateIconTooltip(); validateDraft();
+        } catch (RuntimeException e) {
+            error = e.getMessage() == null ? "Unable to copy this item's icon." : e.getMessage();
+        }
+    }
     private static String actionLabel(QuickNavigationSettings.Tab tab) {
         return tab.activation == QuickNavigationSettings.Activation.CLICK ? "Single click" : "Double click";
     }
@@ -90,7 +115,7 @@ final class QuickNavigationScreen extends CompactScreen {
             var tab = draft.tabs.get(i);
             String problem = tab.error();
             if (problem == null) {
-                try { QuickNavigationIcons.parse(tab.icon); }
+                try { QuickNavigationIcons.parse(tab); }
                 catch (RuntimeException e) { problem = e.getMessage() == null ? "Invalid icon item." : e.getMessage(); }
             }
             if (problem != null) { error = "Tab " + (i + 1) + ": " + problem; break; }

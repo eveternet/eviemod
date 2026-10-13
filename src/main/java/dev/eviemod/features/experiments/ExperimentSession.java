@@ -26,6 +26,10 @@ public final class ExperimentSession {
     private final Map<Integer, Cell> memory = new HashMap<>();
 
     public ExperimentSession(Game game) { this.game = game; }
+    public String diagnostic() {
+        return "phase=" + phase + ", round=" + round + ", notes=" + notes.size() + ", numbers=" + numbers.size()
+            + ", memories=" + memory.size() + ", recording=" + recording + ", complete=" + complete + ", cursor=" + cursor;
+    }
     public void clear() {
         board = null; phase = Phase.UNKNOWN; round = cursor = 0; litSlot = pendingSlot = -1;
         recording = complete = awaitingReveal = false;

@@ -4,6 +4,11 @@ The integration starts at `origin/main` **8bd2dcafc8e17d2d3c6de8f01c2fb750b71936
 which already supports the main mod on Minecraft 26.1.2 and 26.2 through merged
 PR #16. It uses one version, **1.4.0.0**, chosen by both new feature PRs.
 
+The [live-test follow-up](minor-features-live-followup.md) advances the correction
+build to **1.4.0.1**, retaining this inclusion/exclusion provenance. Historical
+validation below describes the first combined build; current validation is
+recorded in the follow-up evidence and PR.
+
 | Open PR | Source head | Inclusion |
 | --- | --- | --- |
 | #18 Quick Navigation | `093e7665ae7dca78ef851d6ae63ddd477d1e0662` | Feature diff from #17 head only |

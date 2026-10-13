@@ -21,7 +21,7 @@ final class QuickNavigationTab extends AbstractWidget {
     private final Supplier<QuickNavigationLayout.Bounds> bounds;
     private final BooleanSupplier selected;
     private final Runnable action;
-    private String parsedIcon, tooltip;
+    private String parsedIcon, parsedCapture, tooltip;
     private ItemStack icon;
     private QuickNavigationLayout.Bounds full;
 
@@ -48,7 +48,9 @@ final class QuickNavigationTab extends AbstractWidget {
     @Override protected void extractWidgetRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         updateBounds();
         var tab = config.get();
-        if (!tab.icon.equals(parsedIcon)) { parsedIcon = tab.icon; icon = QuickNavigationIcons.preview(tab.icon); }
+        if (!tab.icon.equals(parsedIcon) || !tab.capturedIcon.equals(parsedCapture)) {
+            parsedIcon = tab.icon; parsedCapture = tab.capturedIcon; icon = QuickNavigationIcons.preview(tab);
+        }
         boolean on = selected.getAsBoolean() || isHoveredOrFocused();
         String sprite = "container/creative_inventory/tab_" + (index < 7 ? "top" : "bottom")
             + (on ? "_selected_" : "_unselected_") + (index % 7 + 1);

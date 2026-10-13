@@ -14,6 +14,9 @@ class QuickNavigationTest {
             Files.writeString(path, json); store.load();
             assertFalse(store.values().quickNavigation.enabled);
             assertEquals(14, store.values().quickNavigation.tabs.size());
+            assertTrue(store.values().quickNavigation.tabs.stream().allMatch(QuickNavigationSettings.Tab::empty));
+            assertTrue(store.values().quickNavigation.tabs.stream().allMatch(tab -> tab.command.isEmpty()
+                && tab.tooltip.isEmpty() && tab.title.isEmpty()));
             store.save(store.values().copy()); store.load(); assertFalse(store.values().quickNavigation.enabled);
         }
         var draft = store.values().copy();
@@ -29,6 +32,25 @@ class QuickNavigationTest {
         assertEquals("My garden", saved.tooltip); assertEquals("Garden.*", saved.title); assertTrue(saved.hidden);
         assertEquals(QuickNavigationSettings.Activation.DOUBLE_CLICK, saved.activation);
         store.save(new ModSettings.Values()); store.load(); assertFalse(store.values().quickNavigation.enabled);
+        assertTrue(store.values().quickNavigation.tabs.stream().allMatch(QuickNavigationSettings.Tab::empty));
+    }
+    @Test void previousExplicitPresetsAndCustomizedTabsAreNotRemovedOnUpgrade() throws Exception {
+        var path = directory.resolve("settings.json"); var store = new ModSettings(path);
+        var previous = new ModSettings.Values(); previous.quickNavigation.enabled = true;
+        var skills = previous.quickNavigation.tabs.get(0);
+        skills.icon = "minecraft:diamond_sword"; skills.command = "/skills";
+        skills.title = "Your Skills"; skills.tooltip = "Skills";
+        var custom = previous.quickNavigation.tabs.get(6);
+        custom.icon = "minecraft:apple"; custom.command = "/warp garden";
+        custom.activation = QuickNavigationSettings.Activation.DOUBLE_CLICK;
+        var object = new com.google.gson.Gson().toJsonTree(previous).getAsJsonObject();
+        object.getAsJsonObject("quickNavigation").getAsJsonArray("tabs").forEach(tab -> tab.getAsJsonObject().remove("capturedIcon"));
+        Files.writeString(path, object.toString()); store.load();
+        assertTrue(store.values().quickNavigation.enabled);
+        assertEquals("/skills", store.values().quickNavigation.tabs.get(0).command);
+        assertEquals("minecraft:apple", store.values().quickNavigation.tabs.get(6).icon);
+        assertEquals(QuickNavigationSettings.Activation.DOUBLE_CLICK, store.values().quickNavigation.tabs.get(6).activation);
+        assertEquals("", store.values().quickNavigation.tabs.get(0).capturedIcon);
     }
     @Test void malformedSettingsArePreserved() throws Exception {
         var path = directory.resolve("settings.json");
@@ -40,7 +62,7 @@ class QuickNavigationTest {
             assertThrows(java.io.IOException.class, () -> store.save(new ModSettings.Values()));
             assertEquals(original, Files.readString(path));
         }
-        for (String field : new String[]{"\"icon\":9", "\"hidden\":\"true\"", "\"title\":\"[\"", "\"command\":null", "\"activation\":\"UNKNOWN\""}) {
+        for (String field : new String[]{"\"icon\":9", "\"capturedIcon\":null", "\"capturedIcon\":{}", "\"hidden\":\"true\"", "\"title\":\"[\"", "\"command\":null", "\"activation\":\"UNKNOWN\""}) {
             var object = new com.google.gson.Gson().toJsonTree(new ModSettings.Values()).getAsJsonObject();
             object.getAsJsonObject("quickNavigation").getAsJsonArray("tabs").set(0,
                 com.google.gson.JsonParser.parseString("{" + field + "}"));
@@ -50,7 +72,10 @@ class QuickNavigationTest {
         }
     }
     @Test void commandsAndPatternsAreValidated() {
-        var tab = new QuickNavigationSettings.Tab(); tab.icon = "minecraft:apple";
+        var tab = new QuickNavigationSettings.Tab();
+        assertTrue(tab.empty()); assertNull(tab.error());
+        tab.command = "/skills"; assertNotNull(tab.error());
+        tab.icon = "minecraft:apple";
         assertNull(tab.error());
         tab.command = "/"; assertNotNull(tab.error());
         tab.command = "/skills\n/hub"; assertNotNull(tab.error());
