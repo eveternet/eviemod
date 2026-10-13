@@ -103,6 +103,7 @@ class ExperimentSessionTest {
         assertEquals("book-VI", s.remembered(10).identity()); assertTrue(s.knownMatch(10)); assertTrue(s.knownMatch(12));
         assertFalse(s.knownMatch(11)); assertNull(s.remembered(13));
         assertFalse(s.click(13, true));
+        s.observe(pairs(hidden(false), hidden(false), hidden(false), hidden(false)));
         s.observe(pairs(reward("book-VI"), hidden(true), hidden(true), hidden(true)));
         assertFalse(s.next(12)); // This is not the server reveal for the selected unknown slot 13.
         s = knownPairs();

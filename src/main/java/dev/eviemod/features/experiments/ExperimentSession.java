@@ -51,9 +51,10 @@ public final class ExperimentSession {
             if (awaitingReveal && pendingSlot >= 9 && pendingSlot < 45) {
                 Cell pending = next.cells().get(pendingSlot);
                 // An unrelated packet or timer update does not acknowledge the selected card.
-                if (revealed(pending) && board != null && !pending.equals(board.cells().get(pendingSlot))
-                    || next.cells().stream().noneMatch(ExperimentSession::revealed)
-                        && next.cells().stream().noneMatch(Cell::second)) {
+                boolean selectedCardRevealed = revealed(pending) && board != null && !pending.equals(board.cells().get(pendingSlot));
+                boolean selectionResolved = board != null && board.cells().stream().anyMatch(ExperimentSession::revealed)
+                    && next.cells().stream().noneMatch(ExperimentSession::revealed) && next.cells().stream().noneMatch(Cell::second);
+                if (selectedCardRevealed || selectionResolved) {
                     awaitingReveal = false; pendingSlot = -1;
                 }
             }
