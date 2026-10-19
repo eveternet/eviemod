@@ -152,6 +152,63 @@ class Metal26RenderTest {
         }finally{device.close();}
     }
 
+    @Test void repeatedBindingsRetainTexelResolutionButObserveRangesStorageAndClosedBuffers() {
+        NativeLoader.load();
+        var device = new MetalDevice(0, (id, stage) -> stage == ShaderType.VERTEX
+                ? "#version 330\nin vec3 Position;void main(){gl_Position=vec4(Position,1);}"
+                : "#version 330\nuniform isamplerBuffer Times;layout(std140)uniform Tint{vec4 tint;};out vec4 color;void main(){color=vec4(float(texelFetch(Times,0).r)/255.,tint.g,0,1);}");
+        class CountingBuffer extends MetalBuffer {
+            int resolutions;
+            CountingBuffer() { super(GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER | GpuBuffer.USAGE_MAP_WRITE, 512); }
+            @Override long texelView(GpuFormat format, long offset, long length) {
+                resolutions++;
+                return super.texelView(format, offset, length);
+            }
+        }
+        try (var times = new CountingBuffer(); var vertices = new MetalBuffer(GpuBuffer.USAGE_VERTEX, 36);
+             var tint = new MetalBuffer(GpuBuffer.USAGE_UNIFORM, 512);
+             var target = (MetalTexture) device.createTexture("binding-reuse", GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_COPY_SRC, GpuFormat.RGBA8_UNORM, 4, 1, 1, 1);
+             var view = device.createTextureView(target); var readback = new MetalBuffer(GpuBuffer.USAGE_COPY_DST, 256)) {
+            float[] triangle = {-1,-1,0, 3,-1,0, -1,3,0};
+            for (int j=0;j<triangle.length;j++) MemoryUtil.memPutFloat(vertices.address()+4L*j,triangle[j]);
+            MemoryUtil.memSet(tint.address(),0,512); MemoryUtil.memPutFloat(tint.address()+256+4,1);
+            MemoryUtil.memPutInt(times.address(),64); MemoryUtil.memPutInt(times.address()+256,128);
+            var layout = BindGroupLayout.builder().withUniform("Times",UniformType.TEXEL_BUFFER,GpuFormat.R32_SINT).withUniform("Tint",UniformType.UNIFORM_BUFFER).build();
+            var pipeline = RenderPipeline.builder().withLocation(Identifier.parse("fixture:binding-reuse"))
+                    .withVertexShader(Identifier.parse("fixture:binding-reuse")).withFragmentShader(Identifier.parse("fixture:binding-reuse"))
+                    .withVertexBinding(0,DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+                    .withBindGroupLayout(layout).withColorTargetState(ColorTargetState.DEFAULT).withCull(false).build();
+            try (var pass = (MetalRenderPass) device.createCommandEncoder().createRenderPass(RenderPassDescriptor.create(()->"reuse").withColorAttachment(view))) {
+                pass.setPipeline(pipeline); pass.setVertexBuffer(0,vertices.slice());
+                pass.setUniform("Times",times.slice(0,256)); pass.setUniform("Tint",tint.slice(0,16));
+                pass.enableScissor(0,0,1,1); pass.draw(3,1,0,0);
+                for (int j=0;j<100;j++) {
+                    // New slice objects with identical ranges, mixed with genuinely changing ordinary uniforms.
+                    pass.setUniform("Times",times.slice(0,256)); pass.setUniform("Tint",tint.slice(j%2*256,16));
+                    pass.draw(3,1,0,0);
+                }
+                assertEquals(1,times.resolutions);
+                pass.enableScissor(1,0,1,1); pass.setUniform("Times",times.slice(256,256)); pass.draw(3,1,0,0);
+                assertEquals(2,times.resolutions);
+                try (var mapping=times.map(256,4,false,true)) { mapping.data().putInt(192); }
+                pass.setUniform("Times",times.slice(256,256));
+                pass.enableScissor(2,0,1,1); pass.draw(3,1,0,0);
+                assertEquals(3,times.resolutions);
+                pass.setUniform("Times",times.slice(256,128)); pass.enableScissor(3,0,1,1); pass.draw(3,1,0,0);
+                assertEquals(4,times.resolutions);
+                times.close();
+                assertThrows(IllegalStateException.class,()->pass.draw(3,1,0,0));
+            }
+            Mtl.copyTextureToBuffer(target.handle,0,0,0,4,1,readback.handle,0,256);
+            assertTrue(Mtl.fenceWait(Mtl.fence(),5000));
+            for(int j=0;j<4;j++) {
+                assertEquals(new int[]{64,128,192,192}[j],Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+4L*j)));
+                assertEquals(255,Byte.toUnsignedInt(MemoryUtil.memGetByte(readback.address()+4L*j+1)));
+            }
+            Mtl.checkError();
+        } finally { device.close(); }
+    }
+
     @Test void equalVertexFormatsWithDifferentStepRatesDoNotAliasPipelineLayouts() {
         NativeLoader.load();
         var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX

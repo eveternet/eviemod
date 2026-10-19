@@ -80,8 +80,15 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
 
     @Override
     public void bindTexture(String name, @Nullable GpuTextureView view, @Nullable GpuSampler sampler) {
-        if (sampler == null || view == null) samplers.remove(name);
-        else samplers.put(name, new Binding((MetalTextureView) view, (MetalSampler) sampler));
+        checkOpen();
+        Binding previous = samplers.get(name);
+        if (sampler == null || view == null) {
+            if (previous == null) return;
+            samplers.remove(name);
+        } else {
+            if (previous != null && previous.view == view && previous.sampler == sampler) return;
+            samplers.put(name, new Binding((MetalTextureView) view, (MetalSampler) sampler));
+        }
         resourceRevision++;
     }
 
@@ -97,8 +104,15 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
         if (slice.offset() % encoder.device.getUniformOffsetAlignment() > 0) {
             throw new IllegalArgumentException("Uniform buffer offset must be aligned to " + encoder.device.getUniformOffsetAlignment());
         }
+        if (sameSlice(uniforms.get(name), slice)) return;
         uniforms.put(name, slice);
         resourceRevision++;
+    }
+
+    // Resource identity/range, not contents: native handles and closed state are still checked at every draw.
+    private static boolean sameSlice(@Nullable GpuBufferSlice a, @Nullable GpuBufferSlice b) {
+        return a == b || (a != null && b != null && a.buffer() == b.buffer()
+                && a.offset() == b.offset() && a.length() == b.length());
     }
 
     @Override
@@ -265,8 +279,10 @@ public class MetalRenderPass implements RenderPassBackend, AutoCloseable {
                 for (int i=0; i<buffers.length; i++) buffers[i] = uniforms.get(plan.buffers()[i].name());
                 for (int i=0; i<textures.length; i++) {
                     var slot = plan.textures()[i];
-                    textures[i] = samplers.get(slot.name()); texels[i] = uniforms.get(slot.name());
-                    texelHandles[i] = 0;
+                    textures[i] = samplers.get(slot.name());
+                    var next = uniforms.get(slot.name());
+                    if (!sameSlice(texels[i], next)) texelHandles[i] = 0;
+                    texels[i] = next;
                 }
                 resources = resourceRevision;
             }
