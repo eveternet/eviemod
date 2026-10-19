@@ -1,12 +1,13 @@
 # Project principles
 
-These instructions apply throughout eviemod.
+These instructions apply throughout this repository, including eviemod and Eviemetal.
 
-## Anti-slop: intentional features, off by default
+## Anti-slop: intentional features and defaults
 
 - We are anti-slop. Keep changes purposeful and focused on the requested behavior. Avoid feature creep, redundant controls, decorative clutter, filler copy, and speculative abstractions.
-- Every new feature must default to off. Explicitly choosing or applying a per-item customization in the shared configuration UI counts as opting in; do not add a second enable toggle ("opt in to opt in"). Automatic/background features still require an explicit enable setting. This applies to fresh installs, newly added settings in existing configurations, and configuration resets; missing settings must resolve to off.
-- Updates and migrations must never silently enable a new feature. Preserve the player's explicit choices for existing features.
+- The default-off rule applies to eviemod only. Every new eviemod feature must default to off. Explicitly choosing or applying a per-item customization in the shared configuration UI counts as opting in; do not add a second enable toggle ("opt in to opt in"). Automatic/background eviemod features still require an explicit enable setting. This applies to fresh installs, newly added settings in existing configurations, and configuration resets; missing settings must resolve to off.
+- eviemod updates and migrations must never silently enable a new feature. Preserve the player's explicit choices for existing eviemod features.
+- Eviemetal must be on by default when installed on a supported platform; installing the addon is the opt-in. Do not require an additional Java argument or enable toggle. Its supported compatibility adapters must activate automatically when the relevant mods are installed, with no per-adapter enable/disable control; removing the relevant mod or Eviemetal removes the integration.
 
 ## Versioning
 

@@ -5,7 +5,8 @@
   "client": [
     "SmokeWatchdogMixin",
     "FallbackLaunchMixin",
-    "SodiumWorldSmokeMixin"
+    "SodiumWorldSmokeMixin",
+    "MetalCloseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

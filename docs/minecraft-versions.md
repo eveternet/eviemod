@@ -8,12 +8,13 @@ remain identical, so configuration files and commands are shared across targets.
 | --- | --- | --- |
 | Minecraft 26.1.2 | root | `build/libs/eviemod-<version>-mc26.1.2.jar` |
 | Minecraft 26.2 | `:eviemod-26.2` | `eviemod-26.2/build/libs/eviemod-<version>-mc26.2.jar` |
-| Standalone Metal addon, Minecraft 26.1.2 | `:metal-addon` | `metal-addon/build/libs/eviemod-metal-<addon-version>.jar` |
+| Standalone Metal addon, Minecraft 26.1.2 | `:metal-addon` | `build/distributions/metal/eviemod-metal-mc26.1.2-<addon-version>.jar` |
+| Standalone Metal addon, Minecraft 26.2 | `:metal-addon-26.2` | `build/distributions/metal/eviemod-metal-mc26.2-<addon-version>.jar` |
 
-`./gradlew build` builds and tests both main-mod targets and the existing addon.
-`:build` also depends on `:eviemod-26.2:build`. The addon is independent of both
-main-mod artifacts and has not been ported to the 26.2 rendering backend interfaces.
-Its native distribution still requires building on macOS.
+`./gradlew build` builds and tests both main mods and both fixed Metal adapters.
+The addons independently pin Minecraft and Sodium, share utilities/native code,
+and are independent of the main mod. Native distributions require macOS; see
+[the addon guide](metal-addon.md) and [port evidence](metal-26.2-port.md).
 
 ## Dependencies and source boundaries
 
@@ -57,11 +58,16 @@ Paint Brush screens, checking return navigation. These fixture mods are not
 included in distributable JARs.
 
 CI uploads `eviemod-mc26.1.2` and `eviemod-mc26.2` separately. Tagged releases
-download both and attach the two main-mod JARs plus the standalone 26.1.2 Metal
-addon. Existing Metal fallback, native-frame, Sodium terrain and lifecycle
-checks remain in place.
+download both main-mod artifacts and both versioned Metal artifacts. The macOS
+matrix builds and tests both native addons, checks the 26.2 surface, and runs
+packaged vanilla/Sodium titles and lifecycles under Metal validation. Hosted
+26.1.2 rendering passes; the hosted virtual GPU lacks 26.2 timestamp counters,
+so 26.2 title/world results are explicitly reported as **not validated** there.
+Both 26.2 configurations pass on a physical Apple M3 Pro; exact evidence and
+limitations are in [the port report](metal-26.2-port.md). Linux checks both addons'
+disable and unsupported-host fallback, including pinned Sodium and 26.2 Vulkan
+preference preservation.
 
 Live Hypixel behavior and third-party modpack interaction require separate game
-testing; offline fixtures do not establish those. Initial local Gradle execution
-was blocked because the environment could not download Gradle or Java 25.
-Compilation and launch results are recorded by the PR's CI checks.
+testing; offline fixtures do not establish those. Current builds and fixture
+results are recorded by the PR's CI checks and the physical-Mac port report.

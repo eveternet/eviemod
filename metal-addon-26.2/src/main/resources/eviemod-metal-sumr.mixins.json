@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.eviemod.metal.compat.sumr",
+  "plugin": "dev.eviemod.metal.compat.sumr.SumrMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["MetalDeviceSumrMixin"],
+  "injectors": {"defaultRequire": 1}
+}

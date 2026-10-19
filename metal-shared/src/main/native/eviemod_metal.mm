@@ -21,6 +21,8 @@
 static id<MTLDevice> gDevice;
 static id<MTLCommandQueue> gQueue;
 static CAMetalLayer* gLayer;
+static id<CAMetalDrawable> gSurfaceDrawable;
+static bool gSurfaceAcquired, gSurfaceBlitted;
 static BOOL gVsync = YES;  // Minecraft sets vsync before the layer exists.
 // Vsync off: drawables are prefetched on a GCD queue so the render thread never blocks on the compositor.
 static dispatch_queue_t gDrawableQueue;
@@ -193,7 +195,8 @@ static void throwJava(JNIEnv* env, NSString* msg) {
 }
 
 static MTLPixelFormat pixelFormat(jint f) {
-    switch (f) {  // Mirrors TextureFormat ordinals: RGBA8, RED8, RED8I, DEPTH32.
+    if (f >= 1000) return (MTLPixelFormat)(f - 1000); // Explicit Metal SDK codes from the 26.2 adapter.
+    switch (f) {  // Stable legacy JNI IDs: RGBA8, RED8, RED8I, DEPTH32.
         case 0: return MTLPixelFormatRGBA8Unorm;
         case 1: return MTLPixelFormatR8Unorm;
         case 2: return MTLPixelFormatR8Sint;
@@ -306,6 +309,7 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_shutdown(JNIEnv*, jclass) 
             gView.wantsLayer = gPreviousWantsLayer;
         }
         gView = nil; gPreviousLayer = nil; gLayer = nil;
+        gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
         gQueue = nil; gEvent = nil; gDevice = nil; gDrawableQueue = nil;
         gLastCommand = nil; gBuiltins = nil; gPresentPipeline = nil;
         gPresentSampler = nil; gClearDepthState = nil;
@@ -332,6 +336,21 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_setVsync(JNIEnv*, jclass, 
 JNIEXPORT jint JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxTextureSize(JNIEnv*, jclass) {
     @autoreleasepool {
         return [gDevice supportsFamily:MTLGPUFamilyApple3] ? 16384 : 8192;
+    }
+}
+
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_maxBufferLength(JNIEnv*, jclass) {
+    @autoreleasepool { return (jlong)gDevice.maxBufferLength; }
+}
+
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_isRenderPassOpen(JNIEnv*, jclass) {
+    @autoreleasepool { return gInPass ? JNI_TRUE : JNI_FALSE; }
+}
+
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_hasLiveContext(JNIEnv*, jclass) {
+    @autoreleasepool {
+        return (gDevice || gQueue || gEvent || gLayer || gView || gCmd || gLastCommand
+                || gRender || gBlit || gDrawableQueue || gBuiltins) ? JNI_TRUE : JNI_FALSE;
     }
 }
 
@@ -365,6 +384,9 @@ JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_bufferContents(JNIEnv*, j
 
 JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_copyBuffer(JNIEnv*, jclass, jlong src, jlong srcOffset, jlong dst, jlong dstOffset, jlong length) {
     @autoreleasepool {
+        // Empty Sodium arena ranges are valid no-ops; Metal rejects zero-byte blits.
+        // Return before blit() so an empty copy cannot interrupt a live render encoder.
+        if (length == 0) return;
         [blit() copyFromBuffer:OBJ(id<MTLBuffer>, src) sourceOffset:srcOffset toBuffer:OBJ(id<MTLBuffer>, dst) destinationOffset:dstOffset size:length];
     }
 }
@@ -668,14 +690,16 @@ JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_clearRegion(JNIEnv* env, j
     @autoreleasepool {
         // ponytail: one cached pipeline per (color, depth) format pair; only a couple of combinations exist.
         if (!gClearPipelines) gClearPipelines = [NSMutableDictionary new];
-        NSNumber* key = @((color ? colorFormat : 15) * 16 + (depth ? 1 : 0));
+        MTLPixelFormat colorPixelFormat = color ? pixelFormat(colorFormat) : MTLPixelFormatInvalid;
+        MTLPixelFormat depthPixelFormat = depth ? OBJ(id<MTLTexture>, depth).pixelFormat : MTLPixelFormatInvalid;
+        NSNumber* key = @(((uint64_t)colorPixelFormat << 32) | (uint64_t)depthPixelFormat);
         id<MTLRenderPipelineState> pso = gClearPipelines[key];
         if (!pso) {
             MTLRenderPipelineDescriptor* d = [MTLRenderPipelineDescriptor new];
             d.vertexFunction = [gBuiltins newFunctionWithName:@"clear_vs"];
             d.fragmentFunction = [gBuiltins newFunctionWithName:@"clear_fs"];
-            if (color) d.colorAttachments[0].pixelFormat = pixelFormat(colorFormat);
-            if (depth) d.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+            if (color) d.colorAttachments[0].pixelFormat = colorPixelFormat;
+            if (depth) d.depthAttachmentPixelFormat = depthPixelFormat;
             NSError* error = nil;
             pso = gClearPipelines[key] = [gDevice newRenderPipelineStateWithDescriptor:d error:&error];
             if (!pso) return throwJava(env, error.localizedDescription);
@@ -843,3 +867,165 @@ JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_fenceWait(JNIEnv*, jcl
 }
 
 }  // extern "C"
+
+// ---- 26.2 adapter additions; the device, resource and submission implementation is shared. ----
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_submit(JNIEnv*, jclass) { @autoreleasepool { commit(); } }
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_drawInstanced(JNIEnv*, jclass, jint primitive, jint first, jint count, jint instances, jint firstInstance) {
+    @autoreleasepool { [gRender drawPrimitives:(MTLPrimitiveType)primitive vertexStart:first vertexCount:count instanceCount:instances baseInstance:firstInstance]; }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_drawIndexedInstanced(JNIEnv*, jclass, jint primitive, jint count, jboolean uint32,
+        jlong buffer, jlong offset, jint instances, jint baseVertex, jint firstInstance) {
+    @autoreleasepool { [gRender drawIndexedPrimitives:(MTLPrimitiveType)primitive indexCount:count indexType:uint32 ? MTLIndexTypeUInt32 : MTLIndexTypeUInt16
+        indexBuffer:OBJ(id<MTLBuffer>, buffer) indexBufferOffset:offset instanceCount:instances baseVertex:baseVertex baseInstance:firstInstance]; }
+}
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newRenderPipelineBindings(JNIEnv* env, jclass, jlong vs, jlong fs, jint colorFormat, jint depthFormat,
+        jboolean blend, jint srcRgb, jint dstRgb, jint srcAlpha, jint dstAlpha, jint rgbOp, jint alphaOp, jint writeMask,
+        jintArray attribs, jintArray missing, jintArray layouts, jint missingBuffer, jstring label) {
+    @autoreleasepool {
+        MTLRenderPipelineDescriptor* d = [MTLRenderPipelineDescriptor new];
+        d.vertexFunction = OBJ(id<MTLFunction>, vs); d.fragmentFunction = OBJ(id<MTLFunction>, fs);
+        auto color = d.colorAttachments[0]; color.pixelFormat = pixelFormat(colorFormat); color.writeMask = writeMask;
+        color.blendingEnabled = blend;
+        if (blend) {
+            color.sourceRGBBlendFactor = (MTLBlendFactor)srcRgb; color.destinationRGBBlendFactor = (MTLBlendFactor)dstRgb;
+            color.sourceAlphaBlendFactor = (MTLBlendFactor)srcAlpha; color.destinationAlphaBlendFactor = (MTLBlendFactor)dstAlpha;
+            color.rgbBlendOperation = (MTLBlendOperation)rgbOp; color.alphaBlendOperation = (MTLBlendOperation)alphaOp;
+        }
+        if (depthFormat >= 0) d.depthAttachmentPixelFormat = pixelFormat(depthFormat);
+        MTLVertexDescriptor* vd = [MTLVertexDescriptor vertexDescriptor];
+        jint* a = env->GetIntArrayElements(attribs, nullptr);
+        for (jsize i = 0, n = env->GetArrayLength(attribs); i + 3 < n; i += 4) {
+            vd.attributes[a[i]].format = (MTLVertexFormat)a[i+1]; vd.attributes[a[i]].offset = a[i+2]; vd.attributes[a[i]].bufferIndex = a[i+3];
+        }
+        env->ReleaseIntArrayElements(attribs, a, JNI_ABORT);
+        jint* l = env->GetIntArrayElements(layouts, nullptr);
+        for (jsize i = 0, n = env->GetArrayLength(layouts); i + 2 < n; i += 3) {
+            vd.layouts[l[i]].stride = l[i+1];
+            vd.layouts[l[i]].stepFunction = l[i+2] == 0 ? MTLVertexStepFunctionPerVertex : MTLVertexStepFunctionPerInstance;
+            vd.layouts[l[i]].stepRate = l[i+2] == 0 ? 1 : l[i+2];
+        }
+        env->ReleaseIntArrayElements(layouts, l, JNI_ABORT);
+        jint* m = env->GetIntArrayElements(missing, nullptr);
+        for (jsize i = 0, n = env->GetArrayLength(missing); i < n; i++) {
+            vd.attributes[m[i]].format = MTLVertexFormatFloat4; vd.attributes[m[i]].bufferIndex = missingBuffer;
+        }
+        if (env->GetArrayLength(missing)) { vd.layouts[missingBuffer].stride = 16; vd.layouts[missingBuffer].stepFunction = MTLVertexStepFunctionConstant; vd.layouts[missingBuffer].stepRate = 0; }
+        env->ReleaseIntArrayElements(missing, m, JNI_ABORT);
+        d.vertexDescriptor = vd;
+        if (label) { const char* value = env->GetStringUTFChars(label, nullptr); d.label = @(value); env->ReleaseStringUTFChars(label, value); }
+        NSError* error = nil; id<MTLRenderPipelineState> pso = [gDevice newRenderPipelineStateWithDescriptor:d error:&error];
+        if (!pso) { throwJava(env, error.localizedDescription); return 0; }
+        return RETAIN(pso);
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_configureSurface(JNIEnv* env, jclass, jint width, jint height, jboolean vsync) {
+    @autoreleasepool {
+        if (!gLayer || gSurfaceAcquired) return throwJava(env, @"Cannot configure absent or acquired Metal surface");
+        if (gDrawableQueue) dispatch_sync(gDrawableQueue, ^{});
+        { std::lock_guard<std::mutex> lock(gDrawableLock); gReadyDrawable = nil; }
+        gLayer.drawableSize = CGSizeMake(width, height); gVsync = vsync; gLayer.displaySyncEnabled = vsync;
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_acquireSurface(JNIEnv* env, jclass) {
+    @autoreleasepool {
+        if (!gLayer || gSurfaceAcquired) return throwJava(env, @"Cannot acquire absent or already acquired Metal surface");
+        {
+            std::lock_guard<std::mutex> lock(gDrawableLock);
+            if (gReadyDrawable && gReadyDrawable.texture.width == gLayer.drawableSize.width && gReadyDrawable.texture.height == gLayer.drawableSize.height)
+                gSurfaceDrawable = gReadyDrawable;
+            gReadyDrawable = nil;
+        }
+        if (!gSurfaceDrawable && gVsync) gSurfaceDrawable = [gLayer nextDrawable];
+        if (!gVsync) prefetchDrawable();
+        gSurfaceAcquired = true; gSurfaceBlitted = false;
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_blitSurface(JNIEnv* env, jclass, jlong texture) {
+    @autoreleasepool {
+        if (!gSurfaceAcquired || gSurfaceBlitted) return throwJava(env, @"Metal surface must be acquired exactly once before blit");
+        endRender(); endBlit();
+        if (gSurfaceDrawable) {
+            MTLRenderPassDescriptor* d = [MTLRenderPassDescriptor renderPassDescriptor];
+            d.colorAttachments[0].texture = gSurfaceDrawable.texture; d.colorAttachments[0].loadAction = MTLLoadActionDontCare; d.colorAttachments[0].storeAction = MTLStoreActionStore;
+            profilePass(d, @"Present");
+            id<MTLRenderCommandEncoder> enc = [cmd() renderCommandEncoderWithDescriptor:d];
+            [enc setRenderPipelineState:gPresentPipeline]; [enc setFragmentTexture:OBJ(id<MTLTexture>, texture) atIndex:0];
+            [enc setFragmentSamplerState:gPresentSampler atIndex:0]; [enc drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3]; [enc endEncoding];
+        }
+        gSurfaceBlitted = true;
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_presentSurface(JNIEnv* env, jclass) {
+    @autoreleasepool {
+        if (!gSurfaceAcquired || !gSurfaceBlitted) return throwJava(env, @"Cannot present Metal surface before acquire/blit");
+        if (gSurfaceDrawable) [cmd() presentDrawable:gSurfaceDrawable];
+        commit(); gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
+        gFrameFence[gFrame] = gEventValue; gFrame = (gFrame + 1) % kFramesInFlight;
+        if (gEvent.signaledValue < gFrameFence[gFrame] && ![gEvent waitUntilSignaledValue:gFrameFence[gFrame] timeoutMS:5000])
+            throwJava(env, @"Metal surface GPU completion timed out");
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_closeSurface(JNIEnv*, jclass) {
+    @autoreleasepool {
+        if (gCmd) commit(); if (gLastCommand) [gLastCommand waitUntilCompleted];
+        if (gDrawableQueue) dispatch_sync(gDrawableQueue, ^{});
+        { std::lock_guard<std::mutex> lock(gDrawableLock); gReadyDrawable = nil; }
+        gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
+        if (gView) { gView.layer = gPreviousLayer; gView.wantsLayer = gPreviousWantsLayer; }
+        gView = nil; gPreviousLayer = nil; gLayer = nil;
+        gSurfaceDrawable = nil; gSurfaceAcquired = gSurfaceBlitted = false;
+    }
+}
+JNIEXPORT jboolean JNICALL Java_dev_eviemod_metal_mtl_Mtl_supportsTimestampSampling(JNIEnv*, jclass) {
+    @autoreleasepool {
+        if (!gDevice || ![gDevice supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) return JNI_FALSE;
+        for (id<MTLCounterSet> set in gDevice.counterSets)
+            if ([set.name isEqualToString:MTLCommonCounterSetTimestamp]) return JNI_TRUE;
+        return JNI_FALSE;
+    }
+}
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTimestampPool(JNIEnv* env, jclass, jint size) {
+    @autoreleasepool {
+        id<MTLCounterSet> timestamps = nil;
+        for (id<MTLCounterSet> set in gDevice.counterSets) if ([set.name isEqualToString:MTLCommonCounterSetTimestamp]) timestamps = set;
+        if (!timestamps || ![gDevice supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) { throwJava(env, @"Metal device does not support timestamp sampling"); return 0; }
+        MTLCounterSampleBufferDescriptor* d = [MTLCounterSampleBufferDescriptor new]; d.counterSet = timestamps; d.sampleCount = size; d.storageMode = MTLStorageModeShared;
+        NSError* error = nil; id<MTLCounterSampleBuffer> pool = [gDevice newCounterSampleBufferWithDescriptor:d error:&error];
+        if (!pool) { throwJava(env, error.localizedDescription); return 0; } return RETAIN(pool);
+    }
+}
+JNIEXPORT void JNICALL Java_dev_eviemod_metal_mtl_Mtl_writeTimestamp(JNIEnv* env, jclass clazz, jlong pool, jint index) {
+    @autoreleasepool {
+        // Apple samples at encoder boundaries. Resume attached render targets without clearing afterward.
+        id<MTLTexture> color = gPassColor, depth = gPassDepth;
+        bool resume = gInPass;
+        endRender(); endBlit();
+        MTLBlitPassDescriptor* d = [MTLBlitPassDescriptor blitPassDescriptor]; d.sampleBufferAttachments[0].sampleBuffer = OBJ(id<MTLCounterSampleBuffer>, pool);
+        d.sampleBufferAttachments[0].startOfEncoderSampleIndex = index; d.sampleBufferAttachments[0].endOfEncoderSampleIndex = MTLCounterDontSample;
+        id<MTLBlitCommandEncoder> enc = [cmd() blitCommandEncoderWithDescriptor:d]; [enc endEncoding];
+        if (resume) Java_dev_eviemod_metal_mtl_Mtl_beginPass(env, clazz, (jlong)(__bridge void*)color, false, 0, 0, 0, 0, (jlong)(__bridge void*)depth, false, 1);
+    }
+}
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_timestampValue(JNIEnv*, jclass, jlong pool, jint index) {
+    @autoreleasepool {
+        NSData* data = [OBJ(id<MTLCounterSampleBuffer>, pool) resolveCounterRange:NSMakeRange(index, 1)];
+        if (data.length < sizeof(MTLCounterResultTimestamp)) return -1;
+        uint64_t value = ((const MTLCounterResultTimestamp*)data.bytes)->timestamp; return value == MTLCounterErrorValue ? -1 : (jlong)value;
+    }
+}
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_timestampNow(JNIEnv*, jclass) {
+    @autoreleasepool { MTLTimestamp cpu, gpu; [gDevice sampleTimestamps:&cpu gpuTimestamp:&gpu]; return (jlong)gpu; }
+}
+
+JNIEXPORT jlong JNICALL Java_dev_eviemod_metal_mtl_Mtl_newTextureBufferSlice(JNIEnv* env, jclass, jlong buffer, jint format, jlong offset, jlong length, jint pixelSize) {
+    @autoreleasepool {
+        NSUInteger alignment = [gDevice minimumTextureBufferAlignmentForPixelFormat:pixelFormat(format)];
+        if (offset < 0 || (NSUInteger)offset % alignment != 0) {
+            throwJava(env, [NSString stringWithFormat:@"Metal texel-buffer offset must be aligned to %lu bytes", (unsigned long)alignment]);
+            return 0;
+        }
+        MTLTextureDescriptor* d = [MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:pixelFormat(format) width:(NSUInteger)(length / pixelSize)
+            resourceOptions:MTLResourceStorageModeShared usage:MTLTextureUsageShaderRead];
+        return RETAIN([OBJ(id<MTLBuffer>, buffer) newTextureWithDescriptor:d offset:offset bytesPerRow:(NSUInteger)length]);
+    }
+}

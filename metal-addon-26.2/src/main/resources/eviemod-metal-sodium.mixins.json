@@ -1,0 +1,1 @@
+{"required":true,"minVersion":"0.8","package":"dev.eviemod.metal.mixin.sodium","compatibilityLevel":"JAVA_25","plugin":"dev.eviemod.metal.mixin.sodium.SodiumMixinPlugin","client":["DrawContextMixin"],"injectors":{"defaultRequire":1}}
