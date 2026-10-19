@@ -348,6 +348,29 @@ class Metal26RenderTest {
         } finally { device.close(); }
     }
 
+    @Test void orphanWritesPreserveUntouchedSpansAliasedSourcesAndQueuedReads() {
+        NativeLoader.load(); var device = new MetalDevice(0, (id, stage) -> null);
+        int usage = GpuBuffer.USAGE_COPY_SRC | GpuBuffer.USAGE_COPY_DST;
+        try (var buffer = new MetalBuffer(usage, 64); var readback = new MetalBuffer(usage, 64)) {
+            for (int offset : new int[]{0, 16, 48}) {
+                for (int i=0;i<64;i++) MemoryUtil.memPutByte(buffer.address()+i,(byte)i);
+                device.createCommandEncoder().copyToBuffer(buffer.slice(),readback.slice());
+                long generation = buffer.storageGeneration();
+                // The upload source may itself reference old storage, including an overlapping interval.
+                assertTrue(buffer.tryOrphanWrite(offset,buffer.address()+8,16));
+                assertTrue(buffer.storageGeneration()>generation);
+                assertTrue(Mtl.fenceWait(Mtl.fence(),5000));
+                for (int i=0;i<64;i++) {
+                    assertEquals((byte)i,MemoryUtil.memGetByte(readback.address()+i));
+                    assertEquals((byte)(i>=offset && i<offset+16 ? i-offset+8 : i),MemoryUtil.memGetByte(buffer.address()+i));
+                }
+            }
+            // A full replacement still needs no preserved-span copies.
+            assertTrue(buffer.tryOrphanWrite(0,buffer.address(),64));
+            Mtl.checkError();
+        } finally { device.close(); }
+    }
+
     @Test void repeatedResizeCopiesPartialMapsRelocationAndTimestampViewReplacement() {
         NativeLoader.load(); var device=new MetalDevice(0,(id,type)->null);
         MetalBuffer buffer=new MetalBuffer(GpuBuffer.USAGE_COPY_SRC|GpuBuffer.USAGE_COPY_DST|GpuBuffer.USAGE_MAP_WRITE|GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER,1024);

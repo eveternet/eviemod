@@ -52,7 +52,10 @@ public class MetalBuffer extends GpuBuffer {
         if (size() > ORPHAN_LIMIT || lastGpuWrite > Mtl.completedFence()) return false;
         long oldHandle = handle, oldContents = contents;
         allocate();
-        if (offset > 0 || length < size()) MemoryUtil.memCopy(oldContents, contents, size());
+        // Preserve only the untouched spans. Copying the overwritten interval first doubles that traffic.
+        if (offset > 0) MemoryUtil.memCopy(oldContents, contents, offset);
+        long end = offset + length;
+        if (end < size()) MemoryUtil.memCopy(oldContents + end, contents + end, size() - end);
         MemoryUtil.memCopy(source, contents + offset, length);
         Mtl.release(oldHandle);
         texelViews.values().forEach(Mtl::release);
