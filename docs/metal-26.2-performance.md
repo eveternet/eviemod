@@ -145,3 +145,33 @@ Prioritised leads for that run:
    and wait time; do not infer visible throughput from loop iterations alone.
 
 These are leads from code inspection, not diagnosed gameplay bottlenecks.
+
+## Independent local review
+
+A fresh reviewer independently examined all four commits from `d9ced13` through
+`fb3876b`, including the surrounding Java/native implementation, cached upstream
+slice definition and saved measurement logs. **No actionable introduced
+regressions were found.** This review did not require publication or a game
+launch. The three earlier loops above were author-led implementation inspection,
+regression testing and microbenchmark reassessment, not independent review.
+
+The reviewer checked immutable binding identity/ranges, validation before reuse,
+per-draw closed-resource and storage-generation checks, per-pipeline/stage texel
+caches, timestamp invalidation, native command retention, orphan input aliases,
+validated caller ranges and unchanged pending-write handling. Shared native and
+26.1.2 production code remain unchanged. Independently recomputed medians from
+all six timing logs match the table above.
+
+Optional coverage gaps identified by review, rather than observed faults:
+
+- Alternate between texel pipelines with different formats/slots and return to
+  the first pipeline.
+- Replace a texel buffer with a distinct buffer at the same generation number.
+- Combine cached texel bindings with a timestamp interruption.
+- Close a texture view or its texture after repeated identical binds.
+
+No implementation correction or affected-test rerun was needed. The previously
+passing 447-test results still apply; both distributable JARs and their SHA-256
+hashes are unchanged. Live visual parity and gameplay frame-time gains remain
+unverified. Publication and fresh remote CI remain pending explicit approval
+after the automatic approval review denied the branch push; no retry occurred.
