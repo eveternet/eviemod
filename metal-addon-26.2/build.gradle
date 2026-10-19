@@ -105,3 +105,12 @@ tasks.register('verifyDistribution') {
 }
 
 apply from: rootProject.file('gradle/metal-packaged-smoke.gradle')
+
+// Explicit opt-in only: no client/window, no timing threshold in the regression suite.
+tasks.register('benchmarkCpuPaths', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.eviemod.metal.device.PerformanceProbe'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+}

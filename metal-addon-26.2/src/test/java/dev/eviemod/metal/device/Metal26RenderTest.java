@@ -209,6 +209,48 @@ class Metal26RenderTest {
         } finally { device.close(); }
     }
 
+    @Test void repeatedTextureBindingsStillObserveReplacementRemovalAndClosedSamplers() {
+        NativeLoader.load();
+        var device = new MetalDevice(0, (id, stage) -> stage == ShaderType.VERTEX
+                ? "#version 330\nin vec3 Position;void main(){gl_Position=vec4(Position,1);}"
+                : "#version 330\nuniform sampler2D Image;out vec4 color;void main(){color=texture(Image,vec2(.5));}");
+        int usage = GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING;
+        try (var red = device.createTexture("red",usage,GpuFormat.RGBA8_UNORM,1,1,1,1);
+             var green = device.createTexture("green",usage,GpuFormat.RGBA8_UNORM,1,1,1,1);
+             var redView = device.createTextureView(red); var greenView = device.createTextureView(green);
+             var sampler = device.createSampler(com.mojang.blaze3d.textures.AddressMode.CLAMP_TO_EDGE,com.mojang.blaze3d.textures.AddressMode.CLAMP_TO_EDGE,
+                     com.mojang.blaze3d.textures.FilterMode.NEAREST,com.mojang.blaze3d.textures.FilterMode.NEAREST,1,java.util.OptionalDouble.empty());
+             var vertices = new MetalBuffer(GpuBuffer.USAGE_VERTEX,36);
+             var target = (MetalTexture)device.createTexture("texture-reuse",GpuTexture.USAGE_RENDER_ATTACHMENT|GpuTexture.USAGE_COPY_SRC,GpuFormat.RGBA8_UNORM,3,1,1,1);
+             var view = device.createTextureView(target); var readback = new MetalBuffer(GpuBuffer.USAGE_COPY_DST,256)) {
+            float[] triangle = {-1,-1,0, 3,-1,0, -1,3,0};
+            for(int j=0;j<triangle.length;j++)MemoryUtil.memPutFloat(vertices.address()+4L*j,triangle[j]);
+            var encoder = device.createCommandEncoder();
+            encoder.clearColorTexture(red,new Vector4f(1,0,0,1)); encoder.clearColorTexture(green,new Vector4f(0,1,0,1));
+            var pipeline = RenderPipeline.builder().withLocation(Identifier.parse("fixture:texture-reuse"))
+                    .withVertexShader(Identifier.parse("fixture:texture-reuse")).withFragmentShader(Identifier.parse("fixture:texture-reuse"))
+                    .withVertexBinding(0,DefaultVertexFormat.POSITION).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+                    .withBindGroupLayout(BindGroupLayout.builder().withSampler("Image").build())
+                    .withColorTargetState(ColorTargetState.DEFAULT).withCull(false).build();
+            try(var pass=(MetalRenderPass)encoder.createRenderPass(RenderPassDescriptor.create(()->"textures").withColorAttachment(view))) {
+                pass.setPipeline(pipeline);pass.setVertexBuffer(0,vertices.slice());pass.enableScissor(0,0,1,1);
+                for(int j=0;j<100;j++){pass.bindTexture("Image",redView,sampler);pass.draw(3,1,0,0);}
+                pass.bindTexture("Image",greenView,sampler);pass.enableScissor(1,0,1,1);pass.draw(3,1,0,0);
+                pass.bindTexture("Image",null,null);pass.bindTexture("Image",null,null);
+                assertThrows(IllegalStateException.class,()->pass.draw(3,1,0,0));
+                pass.bindTexture("Image",redView,sampler);pass.enableScissor(2,0,1,1);pass.draw(3,1,0,0);
+                sampler.close();pass.bindTexture("Image",redView,sampler);
+                assertThrows(IllegalStateException.class,()->pass.draw(3,1,0,0));
+            }
+            Mtl.copyTextureToBuffer(target.handle,0,0,0,3,1,readback.handle,0,256);
+            assertTrue(Mtl.fenceWait(Mtl.fence(),5000));
+            assertEquals(0xff0000ff,MemoryUtil.memGetInt(readback.address()));
+            assertEquals(0xff00ff00,MemoryUtil.memGetInt(readback.address()+4));
+            assertEquals(0xff0000ff,MemoryUtil.memGetInt(readback.address()+8));
+            Mtl.checkError();
+        } finally {device.close();}
+    }
+
     @Test void equalVertexFormatsWithDifferentStepRatesDoNotAliasPipelineLayouts() {
         NativeLoader.load();
         var device = new MetalDevice(0, (id, type) -> type == ShaderType.VERTEX
