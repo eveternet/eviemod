@@ -9,6 +9,7 @@ import java.nio.file.*;
 class ModSettings {
     enum Shape { SQUARE, CIRCLE }
     static final class Values {
+        QuickNavigationSettings quickNavigation = new QuickNavigationSettings();
         ImportedFeatures features = new ImportedFeatures();
         ImportedFeatures.Migrations migrations = new ImportedFeatures.Migrations();
         boolean rarityBackgrounds = false;
@@ -39,6 +40,7 @@ class ModSettings {
             var json = JsonParser.parseString(Files.readString(path));
             if (!json.isJsonObject()) throw new IllegalArgumentException("Expected a settings object");
             var object = json.getAsJsonObject();
+            QuickNavigationSettings.validateJson(object);
             removeRetiredGardenFields(object);
             for (String key : new String[]{"rarityBackgrounds", "rememberRarity", "helmetSkins", "customTextures", "texturePackBypasser"}) {
                 if (object.has(key) && (!object.get(key).isJsonPrimitive() || !object.getAsJsonPrimitive(key).isBoolean()))
@@ -57,6 +59,8 @@ class ModSettings {
         }
     }
     private static void validate(Values value) {
+        if (value == null || value.quickNavigation == null) throw new IllegalArgumentException("Invalid quick navigation settings");
+        value.quickNavigation.validate();
         if (value == null || value.features == null || value.features.skyblock == null || value.features.garden == null
             || value.features.dungeons == null || value.features.dungeons.announceCritTemplate == null
             || value.features.dungeons.partyFinderSubtitle == null
