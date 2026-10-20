@@ -65,6 +65,9 @@ final class ImportedSettingsCategories {
                 () -> dev.eviemod.features.scoresync.ScoreSyncClient.available() && draft.features.skyblock.noammScoreSync,
                 value -> { draft.features.skyblock.noammScoreSync = value && dev.eviemod.features.scoresync.ScoreSyncClient.available(); draft.choose("skyblock.noammScoreSync"); }));
         }
+        category.option(toggle("dungeons/cells_alignment_timer", "Cells Alignment Timer",
+            "Show the Cells Alignment countdown and Esoward reminder while playing Tank in a dungeon.", false,
+            () -> values.cellsAlignmentTimer, value -> { values.cellsAlignmentTimer = value; draft.choose("dungeons.cellsAlignmentTimer"); }));
         category.group(OptionGroup.createBuilder().id(id("dungeons/party_finder")).name(text("Party Finder")).collapsed(false)
             .option(toggle("dungeons/party_finder/enabled", "Party Full Alert", "Show a subtitle when your dungeon group fills.", false,
                 () -> values.partyFinderAlert, value -> { values.partyFinderAlert = value; draft.choose("dungeons.partyFinderAlert"); }))

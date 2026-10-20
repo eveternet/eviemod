@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public final class ImportedFeatureClient {
     public static void initialize() {
+        dev.eviemod.features.dungeons.CellsAlignmentClient.initialize();
         dev.eviemod.features.dungeons.AnnounceCritClient.initialize();
         dev.eviemod.features.dungeons.PartyFinderAlertClient.initialize();
         GardenToolsClient.initialize();

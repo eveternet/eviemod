@@ -27,6 +27,7 @@ public class ClientPacketListenerMixin {
    @Inject(method = "handleSetTime", at = @At("TAIL"))
    private void skyblockvisuals$sampleServerTps(ClientboundSetTimePacket packet, CallbackInfo ci) {
       PartyCommandController.onSetTimePacket();
+      dev.eviemod.features.dungeons.CellsAlignmentClient.onServerTime(packet.gameTime());
    }
 
    @Inject(method = "handlePongResponse", at = @At("TAIL"))
