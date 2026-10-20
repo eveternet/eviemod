@@ -65,7 +65,7 @@ class CellsAlignmentTitleBoundaryTest {
         assertEquals(2, calls.size());
         var node = read("dev/eviemod/features/skyblock/mixin/CellsAlignmentTitleMixin");
         var wrap = method(node, "eviemod$onlyReplaceMainTitle");
-        var annotation = wrap.invisibleAnnotations.stream()
+        var annotation = wrap.visibleAnnotations.stream()
             .filter(a -> a.desc.endsWith("/WrapOperation;")).findFirst().orElseThrow();
         int atIndex = annotation.values.indexOf("at");
         var at = (org.objectweb.asm.tree.AnnotationNode) ((java.util.List<?>) annotation.values.get(atIndex + 1)).getFirst();
