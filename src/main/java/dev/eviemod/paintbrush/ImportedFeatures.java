@@ -10,6 +10,7 @@ public final class ImportedFeatures {
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();
     public static final class Dungeons {
+        public boolean cellsAlignmentTimer = false;
         public boolean partyFinderAlert = false;
         public String partyFinderSubtitle = dev.eviemod.features.dungeons.PartyFinderAlert.DEFAULT_SUBTITLE;
         public boolean partyFinderSound = false;

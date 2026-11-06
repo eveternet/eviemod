@@ -148,7 +148,7 @@ final class ImportedFeatureMigration {
         }
         if (features.has("dungeons")) {
             var dungeons = object(features.get("dungeons"), "dungeons");
-            booleans(dungeons, "announceCrit", "announceCritPartyChat", "partyFinderAlert", "partyFinderSound");
+            booleans(dungeons, "cellsAlignmentTimer", "announceCrit", "announceCritPartyChat", "partyFinderAlert", "partyFinderSound");
             if (dungeons.has("partyFinderSubtitle")) string(dungeons.get("partyFinderSubtitle"), "partyFinderSubtitle");
             if (dungeons.has("partyFinderSoundId")) string(dungeons.get("partyFinderSoundId"), "partyFinderSoundId");
             if (dungeons.has("partyFinderSoundVolume")) number(dungeons.get("partyFinderSoundVolume"), "partyFinderSoundVolume", 0.0, 1.0);
