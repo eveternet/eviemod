@@ -1,4 +1,4 @@
-"""Verify both main-mod targets and the standalone Metal artifact."""
+"""Verify both supported Eviemod artifacts and their bundled dependencies."""
 import glob
 import json
 import zipfile
@@ -47,14 +47,4 @@ for directory, target, dandelion in (
                     nested_mods[metadata["id"]] = metadata
         assert nested_mods["dandelion"]["version"] == dandelion
 
-with artifact("metal-addon/build/libs/eviemod-metal-*.jar") as addon:
-    mod = json.loads(addon.read("fabric.mod.json"))
-    assert mod["id"] == "eviemod_metal"
-    assert mod["depends"]["minecraft"] == "26.1.2"
-    assert "eviemod" not in mod["depends"]
-    assert mod["license"] == "GPL-3.0-only"
-    assert any(n.startswith("dev/eviemod/metal/") for n in addon.namelist())
-    assert not any(n.startswith("dev/eviemod/paintbrush/") for n in addon.namelist())
-    assert "LICENSE" in addon.namelist() and "NOTICE.md" in addon.namelist()
-
-print("26.1.2 and 26.2 main mods and standalone 26.1.2 Metal addon verified")
+print("26.1.2 and 26.2 Eviemod artifacts verified")
