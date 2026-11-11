@@ -3,6 +3,8 @@
   "package": "dev.eviemod.paintbrush.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "LavaFluidModelMixin",
+    "LavaFogMixin",
     "ItemModelResolverMixin",
     "DyedItemColorMixin",
     "EquipmentLayerRendererMixin",

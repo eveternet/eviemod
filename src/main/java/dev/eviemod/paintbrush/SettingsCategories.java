@@ -41,7 +41,29 @@ final class SettingsCategories {
                     .controller(IntegerController.createBuilder().range(0, 100).slider(5).build()).build())
                 .build())
             .group(paintBrush(draft, fixtures))
+            .group(lavaToWater(draft))
             .group(ImportedSettingsCategories.visuals(draft)).build();
+    }
+    private static OptionGroup lavaToWater(ModSettings.Values draft) {
+        var lava = draft.features.lavaToWater;
+        return OptionGroup.createBuilder().id(id("lava_to_water")).name(text("Lava to Water"))
+            .option(Option.<Boolean>createBuilder().id(id("lava_to_water/enabled")).name(text("Lava to Water"))
+                .description(text("Render lava with water textures. Lava still burns and behaves normally."))
+                .binding(false, () -> lava.enabled, value -> { lava.enabled = value; draft.choose("lavaToWater.enabled"); })
+                .controller(BooleanController.createBuilder().build()).build())
+            .option(Option.<Boolean>createBuilder().id(id("lava_to_water/color_tint")).name(text("Color Tint"))
+                .description(text("Use a custom color instead of the biome's water color."))
+                .binding(false, () -> lava.colorTint, value -> { lava.colorTint = value; draft.choose("lavaToWater.colorTint"); })
+                .controller(BooleanController.createBuilder().build()).build())
+            .option(Option.<java.awt.Color>createBuilder().id(id("lava_to_water/tint_color")).name(text("Tint Color"))
+                .description(text("Applied when Color Tint is enabled."))
+                .binding(new java.awt.Color(ImportedFeatures.LavaToWater.DEFAULT_TINT), () -> new java.awt.Color(lava.tintColor),
+                    value -> { lava.tintColor = value.getRGB() & 0xFFFFFF; draft.choose("lavaToWater.tintColor"); })
+                .controller(ColourController.createBuilder().hasAlpha(false).build()).build())
+            .option(Option.<Boolean>createBuilder().id(id("lava_to_water/hide_fog")).name(text("Hide Lava Fog"))
+                .description(text("Remove submerged lava fog while Lava to Water is enabled."))
+                .binding(false, () -> lava.hideFog, value -> { lava.hideFog = value; draft.choose("lavaToWater.hideFog"); })
+                .controller(BooleanController.createBuilder().build()).build()).build();
     }
     private static ConfigCategory texturePackBypasser(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {
         return ConfigCategory.createBuilder().id(id("texture_pack_bypasser")).name(text("Hypixel Pack"))

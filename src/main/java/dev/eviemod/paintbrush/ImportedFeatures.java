@@ -7,6 +7,14 @@ import java.util.Map;
 
 /** Settings only. Features remain off until explicitly enabled. */
 public final class ImportedFeatures {
+    public LavaToWater lavaToWater = new LavaToWater();
+    public static final class LavaToWater {
+        public static final int DEFAULT_TINT = 0x3F76E4;
+        public boolean enabled = false;
+        public boolean colorTint = false;
+        public int tintColor = DEFAULT_TINT;
+        public boolean hideFog = false;
+    }
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();
     public static final class Dungeons {

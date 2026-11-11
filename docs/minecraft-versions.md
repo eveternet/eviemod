@@ -25,9 +25,9 @@ remain identical, so configuration files and commands are shared across targets.
 | Java | 25 | 25 |
 
 `gradle/eviemod.gradle` holds the shared build configuration. Both projects compile
-`src/main/java` and run the same `src/test/java` tests. Only GUI/HUD access and the
-two HUD mixins come from `src/<minecraft-version>/java`; each artifact contains
-one implementation of each adapter. Resource processing writes exact Minecraft
+`src/main/java` and run the same `src/test/java` tests. Only GUI/HUD access, HUD
+mixins, and chunk-refresh access come from `src/<minecraft-version>/java`; each
+artifact contains one implementation of each adapter. Resource processing writes exact Minecraft
 and target-specific dependency requirements into `fabric.mod.json`.
 
 26.2 moves screen and overlay ownership to `Gui`, toast access to `Gui`, and
