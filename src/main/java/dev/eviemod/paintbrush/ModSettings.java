@@ -57,7 +57,9 @@ class ModSettings {
         }
     }
     private static void validate(Values value) {
-        if (value == null || value.features == null || value.features.skyblock == null || value.features.garden == null
+        if (value == null || value.features == null || value.features.lavaToWater == null
+            || value.features.lavaToWater.tintColor < 0 || value.features.lavaToWater.tintColor > 0xFFFFFF
+            || value.features.skyblock == null || value.features.garden == null
             || value.features.dungeons == null || value.features.dungeons.announceCritTemplate == null
             || value.features.dungeons.partyFinderSubtitle == null
             || value.features.dungeons.partyFinderSoundId == null

@@ -26,6 +26,8 @@ final class VersionSmokeTest {
                 // Class loading runs the required mixin transforms, including targets unused on the title screen.
                 for (String target : new String[] {
                     "net.minecraft.client.gui.Gui",
+                    "net.minecraft.client.renderer.block.FluidStateModelSet",
+                    "net.minecraft.client.renderer.fog.environment.LavaFogEnvironment",
                     "net.minecraft.client.gui.screens.inventory.AbstractContainerScreen",
                     "net.minecraft.client.gui.components.EditBox",
                     "net.minecraft.client.MouseHandler",

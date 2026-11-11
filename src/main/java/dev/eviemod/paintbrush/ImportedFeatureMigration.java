@@ -135,6 +135,14 @@ final class ImportedFeatureMigration {
         }
         if (!root.has("features")) return;
         JsonObject features = object(root.get("features"), "features");
+        if (features.has("lavaToWater")) {
+            var lava = object(features.get("lavaToWater"), "lavaToWater");
+            booleans(lava, "enabled", "colorTint", "hideFog");
+            if (lava.has("tintColor")) {
+                integer(lava.get("tintColor"), "lavaToWater.tintColor");
+                number(lava.get("tintColor"), "lavaToWater.tintColor", 0, 0xFFFFFF);
+            }
+        }
         if (features.has("soulWhip")) booleans(object(features.get("soulWhip"), "soulWhip"), "enabled");
         if (features.has("garden")) {
             var garden = object(features.get("garden"), "garden");
