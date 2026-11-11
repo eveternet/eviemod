@@ -13,8 +13,7 @@ public final class ImportedFeatures {
         public boolean enabled = false;
         public boolean colorTint = false;
         public int tintColor = DEFAULT_TINT;
-        // Only takes effect after explicitly enabling Lava to Water.
-        public boolean hideFog = true;
+        public boolean hideFog = false;
     }
     public Skyblock skyblock = new Skyblock();
     public Dungeons dungeons = new Dungeons();

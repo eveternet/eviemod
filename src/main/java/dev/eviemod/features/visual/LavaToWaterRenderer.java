@@ -14,7 +14,7 @@ public final class LavaToWaterRenderer {
     }
     private record TintedModel(FluidModel water, int color, FluidModel model) {}
     // Chunk meshes are built on worker threads; publish complete immutable snapshots.
-    private static volatile Options options = new Options(false, false, 0x3F76E4, true);
+    private static volatile Options options = new Options(false, false, 0x3F76E4, false);
     private static volatile TintedModel cachedTint;
 
     private LavaToWaterRenderer() {}

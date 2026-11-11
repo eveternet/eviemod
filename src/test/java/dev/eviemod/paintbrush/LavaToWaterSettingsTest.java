@@ -16,7 +16,7 @@ class LavaToWaterSettingsTest {
         store.load();
         assertFalse(store.values().features.lavaToWater.enabled);
         assertFalse(store.values().features.lavaToWater.colorTint);
-        assertTrue(store.values().features.lavaToWater.hideFog);
+        assertFalse(store.values().features.lavaToWater.hideFog);
         assertEquals(0x3F76E4, store.values().features.lavaToWater.tintColor);
         Files.writeString(path, "{\"features\":{\"skyblock\":{\"maxTenHearts\":true}}}");
         store.load();
@@ -37,14 +37,14 @@ class LavaToWaterSettingsTest {
         next.features.lavaToWater.enabled = true;
         next.features.lavaToWater.colorTint = true;
         next.features.lavaToWater.tintColor = 0x123456;
-        next.features.lavaToWater.hideFog = false;
+        next.features.lavaToWater.hideFog = true;
         store.save(next);
         store.load();
         var lava = store.values().features.lavaToWater;
         assertTrue(lava.enabled);
         assertTrue(lava.colorTint);
         assertEquals(0x123456, lava.tintColor);
-        assertFalse(lava.hideFog);
+        assertTrue(lava.hideFog);
         assertTrue(store.values().features.skyblock.maxTenHearts);
         next = store.values().copy();
         next.features.lavaToWater.enabled = false;

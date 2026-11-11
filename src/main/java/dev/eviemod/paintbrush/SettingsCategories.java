@@ -62,7 +62,7 @@ final class SettingsCategories {
                 .controller(ColourController.createBuilder().hasAlpha(false).build()).build())
             .option(Option.<Boolean>createBuilder().id(id("lava_to_water/hide_fog")).name(text("Hide Lava Fog"))
                 .description(text("Remove submerged lava fog while Lava to Water is enabled."))
-                .binding(true, () -> lava.hideFog, value -> { lava.hideFog = value; draft.choose("lavaToWater.hideFog"); })
+                .binding(false, () -> lava.hideFog, value -> { lava.hideFog = value; draft.choose("lavaToWater.hideFog"); })
                 .controller(BooleanController.createBuilder().build()).build()).build();
     }
     private static ConfigCategory texturePackBypasser(ModSettings.Values draft, List<net.minecraft.world.item.ItemStack> fixtures) {

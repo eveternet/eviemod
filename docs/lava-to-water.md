@@ -1,9 +1,10 @@
 # Lava to Water
 
-Enable **Appearance → Lava to Water** in `/eviemod`. The main toggle and custom
-color tint default to off, including existing configurations, resets, and legacy
-imports. The initial tint is `#3F76E4`. Hide Lava Fog defaults to true as a
-subordinate option and has no effect while the feature is disabled.
+Enable **Appearance → Lava to Water** in `/eviemod`. The main toggle, custom
+color tint, and Hide Lava Fog default to off, including existing configurations,
+resets, and legacy imports. The initial tint is `#3F76E4`. Fog removal requires
+both Lava to Water and Hide Lava Fog. Noamm defaults its subordinate Hide Fog
+setting to true; this port follows eviemod's all-features-off convention instead.
 
 ## Reference investigation
 

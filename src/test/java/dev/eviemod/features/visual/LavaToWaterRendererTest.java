@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LavaToWaterRendererTest {
     @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
-    @BeforeEach @AfterEach void reset() { LavaToWaterRenderer.configure(false, false, 0x3F76E4, true); }
+    @BeforeEach @AfterEach void reset() { LavaToWaterRenderer.configure(false, false, 0x3F76E4, false); }
 
     private static FluidModel water() {
         return new FluidModel(ChunkSectionLayer.TRANSLUCENT, new Material.Baked(null, true),
