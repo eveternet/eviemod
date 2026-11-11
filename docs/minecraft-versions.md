@@ -26,7 +26,7 @@ remain identical, so configuration files and commands are shared across targets.
 
 `gradle/eviemod.gradle` holds the shared build configuration. Both projects compile
 `src/main/java` and run the same `src/test/java` tests. Only GUI/HUD access and the
-two HUD mixins come from `src/<minecraft-version>/java`; each artifact contains
+HUD mixins and chunk-refresh access come from `src/<minecraft-version>/java`; each artifact contains
 one implementation of each adapter. Resource processing writes exact Minecraft
 and target-specific dependency requirements into `fabric.mod.json`.
 

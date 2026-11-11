@@ -43,6 +43,9 @@ configuration. No NoammAddons runtime dependency or config import is needed.
 `LavaToWaterRenderer` is the small Minecraft rendering adapter. The two mixins
 are registered in `eviemod.mixins.json`; their APIs match the locally inspected
 26.1.2 bytecode and 26.2 sources. They are shared across both builds.
+Only chunk refresh needs the version-specific `WorldRendering` adapter:
+26.1.2 calls `LevelRenderer.allChanged()`, while 26.2 moved that operation to
+`LevelExtractor.allChanged()`.
 
 The client settings tick publishes an immutable volatile options snapshot, so
 chunk worker threads do not read mutable UI drafts. A changed active option or

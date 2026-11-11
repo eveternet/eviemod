@@ -27,8 +27,8 @@ public final class EviemodSettings {
     static void tick(Minecraft client) {
         ImportedKeyBindings.tick();
         var lava = features().lavaToWater;
-        if (dev.eviemod.features.visual.LavaToWaterRenderer.configure(lava.enabled, lava.colorTint, lava.tintColor, lava.hideFog)
-            && client.level != null && client.levelRenderer != null) client.levelRenderer.allChanged();
+        if (dev.eviemod.features.visual.LavaToWaterRenderer.configure(lava.enabled, lava.colorTint, lava.tintColor, lava.hideFog))
+            dev.eviemod.compat.WorldRendering.rebuildChunks(client);
         if (pendingError != null) {
             String message = pendingError; pendingError = null;
             Screen parent = ClientUi.screen(client);
