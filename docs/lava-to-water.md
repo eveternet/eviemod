@@ -77,6 +77,14 @@ cache invalidation, rebuild decisions, fog guards, and the custom fog-color hook
 The existing offline version smoke fixture now forces both new mixin targets to
 load, as well as opening and closing the actual shared settings UI.
 
+Local validation completed with Java 25 on macOS:
+
+- `./gradlew build`: passed for both targets, 205 tests each (410 total).
+- `.github/scripts/verify-artifacts.py`: both distributable JARs verified.
+- Both version smoke launches: `EVIEMOD_VERSION_SMOKE_OK`, clean exits. A
+  temporary Gradle init script used each target's `build/lava-smoke-run` game
+  directory, keeping the normal development profiles separate.
+
 Build both targets with Java 25 and `./gradlew build`, then run
 `python3 .github/scripts/verify-artifacts.py`. The existing CI launch fixtures run
 `:runClient -PuiSmokeTest -PversionSmokeTest` and the corresponding
