@@ -49,6 +49,8 @@ public final class ImportedFeatures {
     public static final class Hotkey {
         public int key = -1;
         public String command = "";
+        // Missing in older configs: retain the existing binding's behavior.
+        public boolean disabled = false;
     }
     public static final class Garden {
         public boolean mouseLock = false;

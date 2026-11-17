@@ -11,6 +11,7 @@ public final class FeatureSettings {
     public static boolean isMaxTenHeartsEnabled() { return settings().maxTenHearts; }
     public static boolean isCommandHotkeysEnabled() { return settings().commandHotkeysEnabled; }
     public static int getCommandHotkeyCount() { return settings().commandHotkeys.size(); }
+    public static boolean isCommandHotkeyEnabled(int slot) { return !settings().commandHotkeys.get(slot).disabled; }
     public static int getCommandHotkeyKey(int slot) { return settings().commandHotkeys.get(slot).key; }
     public static String getCommandHotkeyCommand(int slot) { return settings().commandHotkeys.get(slot).command; }
     public static boolean isPartyCommandEnabled(String key, PartyCommandController.CommandChannel channel) {

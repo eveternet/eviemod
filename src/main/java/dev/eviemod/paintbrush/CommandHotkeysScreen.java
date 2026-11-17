@@ -52,6 +52,7 @@ final class CommandHotkeysScreen extends CompactScreen {
 
     private void addHotkey() {
         var hotkey = new ImportedFeatures.Hotkey();
+        hotkey.disabled = true;
         draft.features.skyblock.commandHotkeys.add(hotkey);
         Row row = list.add(hotkey);
         changed();
@@ -148,6 +149,7 @@ final class CommandHotkeysScreen extends CompactScreen {
         private final ImportedFeatures.Hotkey hotkey;
         private final Button key;
         private final EditBox command;
+        private final EditorButton enabled;
         private final EditorButton remove;
         private final List<AbstractWidget> widgets;
 
@@ -164,8 +166,14 @@ final class CommandHotkeysScreen extends CompactScreen {
             command.setValue(hotkey.command);
             command.setHint(Component.literal("/command"));
             command.setResponder(value -> { hotkey.command = value; changed(); });
+            enabled = new EditorButton("", 0, 0, 72, () -> {
+                hotkey.disabled = !hotkey.disabled;
+                updateEnabledLabel();
+                changed();
+            }, () -> !hotkey.disabled);
+            updateEnabledLabel();
             remove = new EditorButton("Remove", 0, 0, 60, () -> removeHotkey(this), () -> false);
-            widgets = List.of(key, command, remove);
+            widgets = List.of(key, command, enabled, remove);
         }
 
         void updateKeyLabel() {
@@ -174,10 +182,16 @@ final class CommandHotkeysScreen extends CompactScreen {
                     .getOrCreate(hotkey.key).getDisplayName());
         }
 
+        private void updateEnabledLabel() {
+            enabled.setMessage(Component.literal(hotkey.disabled ? "Disabled" : "Enabled"));
+            enabled.setTooltip(Tooltip.create(Component.literal(hotkey.disabled ? "Enable this hotkey" : "Disable this hotkey")));
+        }
+
         private void layout() {
             key.setPosition(getContentX(), getContentY());
             command.setPosition(getContentX() + KEY_WIDTH + 6, getContentY());
-            command.setWidth(Math.max(1, getContentWidth() - KEY_WIDTH - 72));
+            command.setWidth(Math.max(1, getContentWidth() - KEY_WIDTH - 150));
+            enabled.setPosition(getContentRight() - 138, getContentY());
             remove.setPosition(getContentRight() - 60, getContentY());
         }
         @Override public void setX(int x) { super.setX(x); layout(); }

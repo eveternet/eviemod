@@ -32,7 +32,7 @@ public final class CustomCommandHotkeys {
       for (int slot = 0; slot < FeatureSettings.getCommandHotkeyCount(); slot++) {
          int key = FeatureSettings.getCommandHotkeyKey(slot);
          boolean down = key != UNBOUND_KEY && isDown(client, key);
-         if (pressedStates.get(slot).sample(key, down, active)) execute(slot, client);
+         if (pressedStates.get(slot).sample(key, down, active && FeatureSettings.isCommandHotkeyEnabled(slot))) execute(slot, client);
       }
    }
 

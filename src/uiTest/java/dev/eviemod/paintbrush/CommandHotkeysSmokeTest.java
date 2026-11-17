@@ -1,6 +1,7 @@
 package dev.eviemod.paintbrush;
 
 import dev.eviemod.compat.ClientUi;
+import dev.eviemod.features.skyblock.FeatureSettings;
 import java.io.IOException;
 import java.util.List;
 import net.azureaaron.dandelion.deps.moulconfig.gui.GuiElementComponent;
@@ -45,12 +46,21 @@ final class CommandHotkeysSmokeTest {
             var first = row(list, 0);
             var command = (EditBox) first.get(1);
             check(command.getValue().equals("/warp garden"), "Existing binding retained");
+            checkEnabled(0, true);
+            click(screen, first.get(2));
+            checkEnabled(0, false);
+            check(first.get(2).getMessage().getString().equals("Disabled"), "Disabled state is visible");
+            checkSaved(0, 80, "/warp garden");
+            key(screen, 257); // Enter toggles the focused state control.
+            checkEnabled(0, true);
+            check(first.get(2).getMessage().getString().equals("Enabled"), "Enabled state is visible");
             click(screen, command);
             key(screen, 269); // End
             type(screen, " test");
             checkSaved(0, 80, "/warp garden test");
             click(screen, button(screen, "Add hotkey"));
             checkSaved(1, -1, "");
+            checkEnabled(1, false);
             check(ClientUi.screen(Minecraft.getInstance()) == screen && list(screen) == list, "Add keeps screen and list instances");
             check(row(list, 0).get(1) == command && command.getValue().equals("/warp garden test"), "Add preserves edited widget");
             check(((EditBox) row(list, 1).get(1)).isFocused(), "New command receives keyboard focus");
@@ -66,10 +76,17 @@ final class CommandHotkeysSmokeTest {
             click(screen, row(list, 1).getFirst());
             mouse(screen, 2, 0, 0);
             checkSaved(1, 2, "hub");
+            checkEnabled(1, false);
+            click(screen, row(list, 1).get(2));
+            checkEnabled(1, true);
+            click(screen, row(list, 1).get(2));
+            checkEnabled(1, false);
+            check(row(list, 1).get(1).isActive(), "Disabled command remains editable");
             // Removing a preceding row must retain the edited command and its mouse binding.
             var survivor = row(list, 1);
-            click(screen, first.get(2));
+            click(screen, first.get(3));
             checkSaved(0, 2, "hub");
+            checkEnabled(0, false);
             check(EviemodSettings.features().skyblock.commandHotkeys.size() == 1, "Remove persists immediately");
             check(list.children().size() == 1 && row(list, 0).get(1) == survivor.get(1), "Remove only the requested row");
             check(ClientUi.screen(Minecraft.getInstance()) == screen && list(screen) == list, "Remove keeps editor instances");
@@ -84,7 +101,7 @@ final class CommandHotkeysSmokeTest {
             check(((EditBox) last.get(1)).getValue().equals("last command"), "Resize preserves text");
             for (int i = 9; i > 0; i--) {
                 list.setScrollAmount(list.maxScrollAmount());
-                click(screen, row(list, i).get(2));
+                click(screen, row(list, i).get(3));
             }
             check(list.children().size() == 1 && list.scrollAmount() == 0, "Remove clamps scroll");
             check(!EviemodSettings.features().skyblock.commandHotkeysEnabled, "Editing never enables hotkeys");
@@ -95,6 +112,7 @@ final class CommandHotkeysSmokeTest {
             openEditor(settings);
             var reopened = (CommandHotkeysScreen) ClientUi.screen(Minecraft.getInstance());
             check(((EditBox) row(list(reopened), 0).get(1)).getValue().equals("hub"), "Reopening retains immediate edits");
+            check(row(list(reopened), 0).get(2).getMessage().getString().equals("Disabled"), "Reopening retains disabled state");
             key(reopened, 256);
             check(ClientUi.screen(Minecraft.getInstance()) == settings, "Esc returns to original settings");
             settings.onClose();
@@ -102,13 +120,14 @@ final class CommandHotkeysSmokeTest {
             reload();
             var saved = EviemodSettings.features().skyblock;
             check(saved.commandHotkeys.size() == 1 && saved.commandHotkeys.getFirst().key == 2
-                && saved.commandHotkeys.getFirst().command.equals("hub"), "Mouse binding and command persisted");
+                && saved.commandHotkeys.getFirst().command.equals("hub") && saved.commandHotkeys.getFirst().disabled,
+                "Mouse binding, command and disabled state persisted");
             check(!saved.commandHotkeysEnabled && saved.maxTenHearts, "Enable state and unrelated setting persisted");
             // Deleting the final binding must persist an explicitly empty list.
             var emptySettings = (MoulConfigScreenComponent) EviemodSettings.screen(parent);
             ClientUi.setScreen(Minecraft.getInstance(), emptySettings); openEditor(emptySettings);
             var emptyEditor = (CommandHotkeysScreen) ClientUi.screen(Minecraft.getInstance());
-            click(emptyEditor, row(list(emptyEditor), 0).get(2));
+            click(emptyEditor, row(list(emptyEditor), 0).get(3));
             check(emptyEditor.getFocused() == button(emptyEditor, "Add hotkey"), "Last removal focuses Add");
             reload();
             check(EviemodSettings.features().skyblock.commandHotkeys.isEmpty(), "Empty list persists before leaving editor");
@@ -147,6 +166,11 @@ final class CommandHotkeysSmokeTest {
     private static void key(Screen screen, int key) { screen.keyPressed(new KeyEvent(key, 0, 0)); }
     private static void type(Screen screen, String text) { text.codePoints().forEach(cp -> screen.charTyped(new CharacterEvent(cp))); }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
+    private static void checkEnabled(int index, boolean enabled) {
+        check(FeatureSettings.isCommandHotkeyEnabled(index) == enabled, "Runtime sees binding state immediately");
+        reload();
+        check(FeatureSettings.isCommandHotkeyEnabled(index) == enabled, "Binding state persists immediately");
+    }
     private static void checkSaved(int index, int key, String command) {
         var live = EviemodSettings.features().skyblock.commandHotkeys.get(index);
         check(live.key == key && live.command.equals(command), "Edit takes effect before leaving editor");

@@ -81,4 +81,45 @@ class CommandHotkeySettingsTest {
         assertThrows(IOException.class, () -> store.saveCommandHotkeys(List.of(new ImportedFeatures.Hotkey())));
         assertEquals("{broken", Files.readString(path));
     }
+
+    @Test void disablingAndEnablingPreservesTheBindingAndMasterSwitch() throws Exception {
+        var path = directory.resolve("settings.json");
+        var store = new ModSettings(path); store.load();
+        var initial = store.values().copy(); initial.features.skyblock.commandHotkeysEnabled = true; store.save(initial);
+        var hotkey = new ImportedFeatures.Hotkey(); hotkey.key = 80; hotkey.command = "/warp garden";
+        for (boolean disabled : new boolean[]{true, false}) {
+            hotkey.disabled = disabled;
+            store.saveCommandHotkeys(List.of(hotkey)); store.load();
+            var saved = store.values().features.skyblock;
+            assertTrue(saved.commandHotkeysEnabled);
+            assertEquals(disabled, saved.commandHotkeys.getFirst().disabled);
+            assertEquals(80, saved.commandHotkeys.getFirst().key);
+            assertEquals("/warp garden", saved.commandHotkeys.getFirst().command);
+        }
+    }
+
+    @Test void oldBindingsKeepTheirBehaviorWithoutEnablingTheMasterSwitch() throws Exception {
+        var path = directory.resolve("settings.json");
+        for (boolean enabled : new boolean[]{false, true}) {
+            Files.writeString(path, "{\"features\":{\"skyblock\":{\"commandHotkeysEnabled\":" + enabled
+                + ",\"commandHotkeys\":[{\"key\":80,\"command\":\"hub\"}]}}}");
+            var store = new ModSettings(path); store.load();
+            assertFalse(store.values().features.skyblock.commandHotkeys.getFirst().disabled);
+            store.save(store.values().copy()); store.load();
+            assertEquals(enabled, store.values().features.skyblock.commandHotkeysEnabled);
+            assertFalse(store.values().features.skyblock.commandHotkeys.getFirst().disabled);
+        }
+    }
+
+    @Test void malformedBindingStatePreservesTheOriginalFile() throws Exception {
+        var path = directory.resolve("settings.json");
+        for (String value : new String[]{"null", "0", "\"false\""}) {
+            String original = "{\"features\":{\"skyblock\":{\"commandHotkeys\":[{\"disabled\":" + value + "}]}}}";
+            Files.writeString(path, original);
+            var store = new ModSettings(path);
+            assertThrows(IOException.class, store::load);
+            assertThrows(IOException.class, () -> store.saveCommandHotkeys(List.of(new ImportedFeatures.Hotkey())));
+            assertEquals(original, Files.readString(path));
+        }
+    }
 }

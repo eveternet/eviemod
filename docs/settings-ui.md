@@ -29,7 +29,7 @@ retained. Native list navigation, narration and scrolling remain in use. The
 scissor override passes logical editor bounds through the existing viewport
 transform instead of clamping them to unscaled GUI dimensions.
 
-Every text edit, key binding, addition and removal immediately updates the live
+Every text edit, key binding, enable/disable change, addition and removal immediately updates the live
 settings and persists through the validated atomic store. `saveCommandHotkeys`
 merges only the bindings into the current stored settings, leaving unrelated
 parent draft choices pending. The editor also keeps that parent draft in sync so
@@ -40,9 +40,18 @@ recovery. Editing never enables Command Hotkeys. Clicking a binding captures a
 keyboard key or mouse button; Escape while capturing clears it. The existing
 integer key encoding and command strings are unchanged.
 
+Each row has an Enabled/Disabled control. Disabling a row keeps its key and
+command editable but prevents execution. The existing master switch remains
+off by default and still gates every row. New editor rows start disabled.
+The stored `disabled` flag defaults to false when absent so older configured
+bindings retain their prior behavior; this never changes the master switch.
+Physical key state is still sampled for disabled rows, so re-enabling a held
+key does not queue a command for later.
+
 The offline version smoke fixture exercises the actual editor on both supported
 Minecraft targets: stable rows and screens, text and key input, mouse capture,
-unbinding, scrolling, resizing, removal focus, parent draft preservation, and
+unbinding, row toggles through mouse and keyboard input, scrolling, resizing,
+removal focus, parent draft preservation, and
 immediate save/reload before navigating away, including the final empty list.
 Store tests cover unrelated settings isolation, retained enable choices, detached
 live rows, failed writes and malformed configuration protection. This does not test server command
