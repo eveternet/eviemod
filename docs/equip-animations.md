@@ -48,6 +48,10 @@ control and its saved runtime binding, and invokes the transformed main/offhand
 `itemUsed` hook. It does not connect to Hypixel. Live Soul Whip use and visual
 interaction with other animation mods still require in-game verification.
 
+Local validation on 2026-11-17: both distributable builds passed, with 225 unit
+tests per target (450 total), artifact verification passed, and both actual client
+launches emitted `EVIEMOD_EQUIP_ANIMATIONS_SMOKE_OK` and `EVIEMOD_VERSION_SMOKE_OK`.
+
 Manual in-game checks with the toggle off and on: use Soul Whip repeatedly, click
 empty air with slow and fast weapons, keep swinging after turning toward a block
 or entity, scroll hotbar slots during cooldown, replace the selected stack (including
