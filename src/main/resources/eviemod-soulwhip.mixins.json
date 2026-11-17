@@ -3,7 +3,8 @@
   "package": "dev.eviemod.features.soulwhip.mixin.client",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "ItemInHandRendererMixin"
+    "ItemInHandRendererMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -81,6 +81,8 @@ final class VersionSmokeTest {
             }
             if (ticks == 60) {
                 hotkeys.exercise();
+                EquipAnimationsSmokeTest.exercise(parent);
+                LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_EQUIP_ANIMATIONS_SMOKE_OK");
                 LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_HOTKEYS_SMOKE_OK");
                 LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
                 client.stop();

@@ -30,6 +30,7 @@ public final class ImportedFeatures {
         public String announceCritTemplate = dev.eviemod.features.dungeons.AnnounceCrit.DEFAULT_TEMPLATE;
     }
     public Garden garden = new Garden();
+    // Sole backing value for Disable Unintended Equip Animations; retain the legacy key and migration.
     public SoulWhip soulWhip = new SoulWhip();
     public static final class SoulWhip { public boolean enabled = false; }
     public static final class Skyblock {

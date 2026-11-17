@@ -34,7 +34,7 @@ final class ImportedSettingsCategories {
                 () -> values.skyblock.noBarrierEffects, value -> { values.skyblock.noBarrierEffects = value; draft.choose("skyblock.noBarrierEffects"); }))
             .option(compactToggle("visuals/hearts", "Max 10 Hearts", "Scales SkyBlock health to 10 hearts outside The Rift.", false,
                 () -> values.skyblock.maxTenHearts, value -> { values.skyblock.maxTenHearts = value; draft.choose("skyblock.maxTenHearts"); }))
-            .option(compactToggle("soul_whip/enabled", "Soul Whip Fix", "Prevents repeated first-person equip animations when using or updating the held item.", false,
+            .option(compactToggle("soul_whip/enabled", "Disable Unintended Equip Animations", "Prevents Soul Whip and empty-air click equip dips while keeping item switches and arm swings.", false,
                     () -> values.soulWhip.enabled, value -> { values.soulWhip.enabled = value; draft.choose("soulWhip.enabled"); })).build();
     }
     private static ConfigCategory garden(ModSettings.Values draft) {
