@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 final class VersionSmokeTest {
     private int ticks;
     private Screen parent;
+    private CommandHotkeysSmokeTest hotkeys;
 
     void start() {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
@@ -73,6 +74,14 @@ final class VersionSmokeTest {
                     throw new AssertionError("Paint Brush screen did not open");
                 ClientUi.screen(client).onClose();
                 if (ClientUi.screen(client) != parent) throw new AssertionError("Paint Brush did not return to parent");
+                hotkeys = new CommandHotkeysSmokeTest(parent);
+            }
+            if (ticks == 55 && Boolean.getBoolean("eviemod.capture")) {
+                net.minecraft.client.Screenshot.grab(client.gameDirectory, "command-hotkeys.png", ClientUi.mainRenderTarget(client), 1, message -> {});
+            }
+            if (ticks == 60) {
+                hotkeys.exercise();
+                LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_HOTKEYS_SMOKE_OK");
                 LoggerFactory.getLogger("eviemod-fixture").info("EVIEMOD_VERSION_SMOKE_OK");
                 client.stop();
             }

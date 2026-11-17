@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 final class MergedFeaturesSmokeTest {
     private int ticks, startupTicks;
     private Screen parent;
+    private CommandHotkeysSmokeTest hotkeys;
     void start() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (ticks == 0) {
@@ -64,23 +65,12 @@ final class MergedFeaturesSmokeTest {
                     toggleRow("eviemod:commands/ping/party");
                     toggleRow("eviemod:commands/ping/guild");
                     toggleRow("eviemod:commands/ping/coop");
-                    ClientUi.screen(client).onClose(); ClientUi.setScreen(client, EviemodSettings.screen(parent)); select("eviemod:command_hotkeys"); expand("eviemod:hotkeys/0");
+                    ClientUi.screen(client).onClose(); hotkeys = new CommandHotkeysSmokeTest(parent);
                 }
                 case 85 -> capture(client, "merged-hotkeys.png");
-                case 90 -> {
-                    check(option("eviemod:hotkeys/0/command").set("/warp garden"), "Command text UI binding");
-                    captureKey("eviemod:hotkeys/0/key", 2, true);
-                    action("eviemod:hotkeys/add");
-                    check(EviemodSettings.features().skyblock.commandHotkeys.size() == 2, "Add control persists and rebuilds");
-                    check(EviemodSettings.features().skyblock.commandHotkeys.get(0).key == 2, "Mouse binding retained");
-                    check(EviemodSettings.features().skyblock.commandHotkeys.get(0).command.equals("/warp garden"), "Command retained across Add");
-                }
-                case 100 -> {
-                    action("eviemod:hotkeys/1/remove");
-                    check(EviemodSettings.features().skyblock.commandHotkeys.size() == 1, "Remove control persists and rebuilds");
-                }
+                case 90 -> hotkeys.exercise();
                 case 110 -> {
-                    ClientUi.screen(client).onClose(); check(ClientUi.screen(client) == parent, "Add/remove preserve settings parent");
+                    check(ClientUi.screen(client) == parent, "Add/remove preserve settings parent");
                     EviemodSettings.load();
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Reload never reapplies legacy plot");
                     check(FeatureSettings.isSoulWhipFixEnabled(), "Reload never reapplies legacy Soul Whip choice");

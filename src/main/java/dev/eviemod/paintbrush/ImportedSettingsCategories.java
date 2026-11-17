@@ -125,27 +125,15 @@ final class ImportedSettingsCategories {
     }
     private static ConfigCategory hotkeys(ModSettings.Values draft) {
         var values = draft.features.skyblock;
-        var category = ConfigCategory.createBuilder().id(id("command_hotkeys")).name(text("Command Hotkeys"))
+        return ConfigCategory.createBuilder().id(id("command_hotkeys")).name(text("Command Hotkeys"))
             .description(text("Bind keys to run chat commands. Use commands with or without a leading slash."))
             .option(toggle("hotkeys/enabled", "Command Hotkeys", "Enable custom command hotkeys.", false,
                 () -> values.commandHotkeysEnabled, value -> { values.commandHotkeysEnabled = value; draft.choose("skyblock.commandHotkeysEnabled"); }))
-            .option(ButtonOption.createBuilder().id(id("hotkeys/add")).name(text("Add hotkey")).prompt(text("Add"))
-                .action(parent -> { values.commandHotkeys.add(new ImportedFeatures.Hotkey()); draft.choose("skyblock.commandHotkeys"); EviemodSettings.rebuild(parent, draft, "Command Hotkeys"); }).build());
-        for (int index = 0; index < values.commandHotkeys.size(); index++) {
-            var hotkey = values.commandHotkeys.get(index);
-            String path = "hotkeys/" + index;
-            var key = hotkey.key >= 0 && hotkey.key <= 7 ? InputConstants.Type.MOUSE.getOrCreate(hotkey.key)
-                : InputConstants.Type.KEYSYM.getOrCreate(hotkey.key);
-            category.group(OptionGroup.createBuilder().id(id(path)).name(text("Hotkey " + (index + 1))).collapsed(false)
-                .option(KeyMappingOption.createBuilder().id(id(path + "/key")).name(text("Key"))
-                    .keyMapping(DraftKeyMapping.bind(path, key, value -> { hotkey.key = value.getValue(); draft.choose("skyblock.commandHotkeys"); })).build())
-                .option(Option.<String>createBuilder().id(id(path + "/command")).name(text("Command"))
-                    .binding("", () -> hotkey.command, value -> { hotkey.command = value; draft.choose("skyblock.commandHotkeys"); })
-                    .controller(StringController.createBuilder().build()).build())
-                .option(ButtonOption.createBuilder().id(id(path + "/remove")).name(text("Remove hotkey")).prompt(text("Remove"))
-                    .action(parent -> { values.commandHotkeys.remove(hotkey); draft.choose("skyblock.commandHotkeys"); EviemodSettings.rebuild(parent, draft, "Command Hotkeys"); }).build())
-                .build());
-        }
-        return category.build();
+            .option(ButtonOption.createBuilder().id(id("hotkeys/editor")).name(text("Command Hotkeys editor"))
+                .description(text("Add, edit and remove command bindings."))
+                .tags(text("keybind"), text("keyboard"), text("mouse"), text("command"))
+                .prompt(text("Open editor"))
+                .action(parent -> dev.eviemod.compat.ClientUi.setScreen(net.minecraft.client.Minecraft.getInstance(),
+                    new CommandHotkeysScreen(parent, draft))).build()).build();
     }
 }

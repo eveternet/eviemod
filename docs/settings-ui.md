@@ -18,6 +18,29 @@ MoulConfig supplies a scrolling category sidebar, search and collapsible groups.
 
 `EditorTheme` isolates use of MoulConfig's public panel renderer so the editor and picker match the settings surfaces. Native widgets and the existing autocomplete/selection logic remain in use. There is no custom MoulConfig option or input-coordinate bridge for the editor.
 
+## Command Hotkeys editor
+
+The Command Hotkeys category keeps its existing enable toggle and opens
+`CommandHotkeysScreen` through a standard Dandelion button. Like Paint Brush, this
+editor uses `CompactScreen` and `EditorTheme`, with a native Minecraft
+`ContainerObjectSelectionList`, buttons and text fields. Add/remove mutate only
+the affected row; the editor, other row widgets and parent settings screen are
+retained. Native list navigation, narration and scrolling remain in use. The
+scissor override passes logical editor bounds through the existing viewport
+transform instead of clamping them to unscaled GUI dimensions.
+
+Bindings edit the same settings draft. Done or Escape returns to the original
+settings instance; closing settings saves through the existing validated atomic
+store. Editing never enables Command Hotkeys. Clicking a binding captures a
+keyboard key or mouse button; Escape while capturing clears it. The existing
+integer key encoding and command strings are unchanged.
+
+The offline version smoke fixture exercises the actual editor on both supported
+Minecraft targets: stable rows and screens, text and key input, mouse capture,
+unbinding, scrolling, resizing, removal focus, parent draft preservation, and
+save/reload including the final empty list. This does not test server command
+execution or live Hypixel behavior.
+
 ## Dependency boundaries
 
 The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
