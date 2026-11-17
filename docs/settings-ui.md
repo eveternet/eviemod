@@ -41,6 +41,10 @@ unbinding, scrolling, resizing, removal focus, parent draft preservation, and
 save/reload including the final empty list. This does not test server command
 execution or live Hypixel behavior.
 
+Local verification: both target builds and all 410 unit tests passed. Both
+`runClient -PuiSmokeTest -PversionSmokeTest` launches passed the hotkey interaction
+fixture (`EVIEMOD_HOTKEYS_SMOKE_OK`); their captured editor layouts were inspected.
+
 ## Dependency boundaries
 
 The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.

@@ -113,7 +113,6 @@ final class MergedFeaturesSmokeTest {
     private static void expand(String path) {
         ((net.azureaaron.dandelion.deps.moulconfig.gui.editors.GuiOptionEditorAccordion)option(path).getEditor()).setToggled(true);
     }
-    private static void action(String path) { ((Runnable)option(path).get()).run(); }
     private static void captureKey(String path, int code, boolean mouse) {
         var control = (net.azureaaron.dandelion.deps.moulconfig.gui.editors.ComponentEditor)option(path).getEditor();
         GuiComponent key = control.getDelegate().foldRecursive((GuiComponent)null,
