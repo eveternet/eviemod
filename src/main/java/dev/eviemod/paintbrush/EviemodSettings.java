@@ -18,6 +18,11 @@ public final class EviemodSettings {
     static final ModSettings STORE = new ModSettings(ConfigMigration.path("eviemod.json"));
     public static ImportedFeatures features() { return STORE.values().features; }
     private static String pendingError;
+    static void saveCommandHotkeys(ModSettings.Values draft) {
+        draft.choose("skyblock.commandHotkeys");
+        try { STORE.saveCommandHotkeys(draft.features.skyblock.commandHotkeys); }
+        catch (IOException e) { pendingError = e.getMessage(); }
+    }
     static void load() {
         try { STORE.load(); ImportedFeatureMigration.run(STORE, FabricLoader.getInstance().getConfigDir()); }
         catch (IOException e) { LoggerFactory.getLogger("eviemod").error(e.getMessage(), e); }

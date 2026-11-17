@@ -29,19 +29,26 @@ retained. Native list navigation, narration and scrolling remain in use. The
 scissor override passes logical editor bounds through the existing viewport
 transform instead of clamping them to unscaled GUI dimensions.
 
-Bindings edit the same settings draft. Done or Escape returns to the original
-settings instance; closing settings saves through the existing validated atomic
-store. Editing never enables Command Hotkeys. Clicking a binding captures a
+Every text edit, key binding, addition and removal immediately updates the live
+settings and persists through the validated atomic store. `saveCommandHotkeys`
+merges only the bindings into the current stored settings, leaving unrelated
+parent draft choices pending. The editor also keeps that parent draft in sync so
+closing settings cannot restore older bindings. Back or Escape only returns to
+the original settings instance; there is no apply/save step. Write failures use
+the existing settings error alert, preserving the editor and its edits for
+recovery. Editing never enables Command Hotkeys. Clicking a binding captures a
 keyboard key or mouse button; Escape while capturing clears it. The existing
 integer key encoding and command strings are unchanged.
 
 The offline version smoke fixture exercises the actual editor on both supported
 Minecraft targets: stable rows and screens, text and key input, mouse capture,
 unbinding, scrolling, resizing, removal focus, parent draft preservation, and
-save/reload including the final empty list. This does not test server command
+immediate save/reload before navigating away, including the final empty list.
+Store tests cover unrelated settings isolation, retained enable choices, detached
+live rows, failed writes and malformed configuration protection. This does not test server command
 execution or live Hypixel behavior.
 
-Local verification: both target builds and all 410 unit tests passed. Both
+Local verification: both target builds and unit tests passed. Both
 `runClient -PuiSmokeTest -PversionSmokeTest` launches passed the hotkey interaction
 fixture (`EVIEMOD_HOTKEYS_SMOKE_OK`); their captured editor layouts were inspected.
 

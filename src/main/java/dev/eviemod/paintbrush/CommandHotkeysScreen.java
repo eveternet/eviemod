@@ -18,7 +18,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-/** Edits the originating settings draft; list mutations never replace either screen. */
+/** Persists edits immediately and keeps the parent draft in sync without replacing either screen. */
 final class CommandHotkeysScreen extends CompactScreen {
     private static final int WIDTH = 540, HEIGHT = 260, KEY_WIDTH = 100;
     private final Screen parent;
@@ -38,7 +38,7 @@ final class CommandHotkeysScreen extends CompactScreen {
     @Override protected void init() {
         updateViewport();
         x = (viewWidth - WIDTH) / 2; y = (viewHeight - HEIGHT) / 2;
-        addRenderableWidget(new EditorButton("Done", x + WIDTH - 62, y + 8, 50, this::onClose, () -> false));
+        addRenderableWidget(new EditorButton("Back", x + WIDTH - 62, y + 8, 50, this::onClose, () -> false));
         if (list == null) {
             list = new HotkeyList();
             draft.features.skyblock.commandHotkeys.forEach(hotkey -> list.add(hotkey));
@@ -48,7 +48,7 @@ final class CommandHotkeysScreen extends CompactScreen {
         addButton = addRenderableWidget(new EditorButton("Add hotkey", x + 16, y + 228, 100, this::addHotkey, () -> false));
     }
 
-    private void changed() { draft.choose("skyblock.commandHotkeys"); }
+    private void changed() { EviemodSettings.saveCommandHotkeys(draft); }
 
     private void addHotkey() {
         var hotkey = new ImportedFeatures.Hotkey();
@@ -126,8 +126,7 @@ final class CommandHotkeysScreen extends CompactScreen {
         g.text(font, "Command", list.getRowLeft() + KEY_WIDTH + 8, y + 58, 0xffcccccc);
         renderWidgets(g, mx, my, delta);
         if (list.children().isEmpty()) g.text(font, "No hotkeys. Add one below.", x + 30, y + 88, 0xffaaaaaa);
-        g.text(font, capturing == null ? "Changes save when you close settings." : "Press a key or mouse button; Esc clears.",
-            x + 130, y + 234, 0xffaaaaaa);
+        if (capturing != null) g.text(font, "Press a key or mouse button; Esc clears.", x + 130, y + 234, 0xffaaaaaa);
     }
 
     private final class HotkeyList extends ContainerObjectSelectionList<Row> {

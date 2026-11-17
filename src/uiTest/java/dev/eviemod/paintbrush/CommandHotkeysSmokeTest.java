@@ -48,21 +48,29 @@ final class CommandHotkeysSmokeTest {
             click(screen, command);
             key(screen, 269); // End
             type(screen, " test");
+            checkSaved(0, 80, "/warp garden test");
             click(screen, button(screen, "Add hotkey"));
+            checkSaved(1, -1, "");
             check(ClientUi.screen(Minecraft.getInstance()) == screen && list(screen) == list, "Add keeps screen and list instances");
             check(row(list, 0).get(1) == command && command.getValue().equals("/warp garden test"), "Add preserves edited widget");
             check(((EditBox) row(list, 1).get(1)).isFocused(), "New command receives keyboard focus");
             type(screen, "hub");
+            checkSaved(1, -1, "hub");
             click(screen, row(list, 1).getFirst()); key(screen, 75);
+            checkSaved(1, 75, "hub");
             check(row(list, 1).getFirst().getMessage().getString().equalsIgnoreCase("K"), "Keyboard capture");
             click(screen, row(list, 1).getFirst()); key(screen, 256);
+            checkSaved(1, -1, "hub");
             check(ClientUi.screen(Minecraft.getInstance()) == screen, "Esc clears binding without closing");
             check(row(list, 1).getFirst().getMessage().getString().equals("Unbound"), "Esc unbinds");
             click(screen, row(list, 1).getFirst());
             mouse(screen, 2, 0, 0);
+            checkSaved(1, 2, "hub");
             // Removing a preceding row must retain the edited command and its mouse binding.
             var survivor = row(list, 1);
             click(screen, first.get(2));
+            checkSaved(0, 2, "hub");
+            check(EviemodSettings.features().skyblock.commandHotkeys.size() == 1, "Remove persists immediately");
             check(list.children().size() == 1 && row(list, 0).get(1) == survivor.get(1), "Remove only the requested row");
             check(ClientUi.screen(Minecraft.getInstance()) == screen && list(screen) == list, "Remove keeps editor instances");
             check(list.getFocused() == list.children().getFirst(), "Removed row loses keyboard focus");
@@ -80,13 +88,13 @@ final class CommandHotkeysSmokeTest {
             }
             check(list.children().size() == 1 && list.scrollAmount() == 0, "Remove clamps scroll");
             check(!EviemodSettings.features().skyblock.commandHotkeysEnabled, "Editing never enables hotkeys");
-            check(EviemodSettings.features().skyblock.commandHotkeys.getFirst().command.equals("/warp garden"), "Edits remain a draft");
-            click(screen, button(screen, "Done"));
-            check(ClientUi.screen(Minecraft.getInstance()) == settings, "Done returns to original settings instance");
+            check(!EviemodSettings.features().skyblock.maxTenHearts, "Hotkey edits do not apply unrelated settings drafts");
+            click(screen, button(screen, "Back"));
+            check(ClientUi.screen(Minecraft.getInstance()) == settings, "Back returns to original settings instance");
             check((Boolean) option(settings, "eviemod:visuals/hearts").get(), "Parent draft survives round trip");
             openEditor(settings);
             var reopened = (CommandHotkeysScreen) ClientUi.screen(Minecraft.getInstance());
-            check(((EditBox) row(list(reopened), 0).get(1)).getValue().equals("hub"), "Reopening retains unsaved edits");
+            check(((EditBox) row(list(reopened), 0).get(1)).getValue().equals("hub"), "Reopening retains immediate edits");
             key(reopened, 256);
             check(ClientUi.screen(Minecraft.getInstance()) == settings, "Esc returns to original settings");
             settings.onClose();
@@ -102,7 +110,9 @@ final class CommandHotkeysSmokeTest {
             var emptyEditor = (CommandHotkeysScreen) ClientUi.screen(Minecraft.getInstance());
             click(emptyEditor, row(list(emptyEditor), 0).get(2));
             check(emptyEditor.getFocused() == button(emptyEditor, "Add hotkey"), "Last removal focuses Add");
-            click(emptyEditor, button(emptyEditor, "Done")); emptySettings.onClose(); reload();
+            reload();
+            check(EviemodSettings.features().skyblock.commandHotkeys.isEmpty(), "Empty list persists before leaving editor");
+            click(emptyEditor, button(emptyEditor, "Back")); emptySettings.onClose(); reload();
             check(EviemodSettings.features().skyblock.commandHotkeys.isEmpty(), "Empty list persists");
         } finally { save(original); }
     }
@@ -137,6 +147,13 @@ final class CommandHotkeysSmokeTest {
     private static void key(Screen screen, int key) { screen.keyPressed(new KeyEvent(key, 0, 0)); }
     private static void type(Screen screen, String text) { text.codePoints().forEach(cp -> screen.charTyped(new CharacterEvent(cp))); }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
+    private static void checkSaved(int index, int key, String command) {
+        var live = EviemodSettings.features().skyblock.commandHotkeys.get(index);
+        check(live.key == key && live.command.equals(command), "Edit takes effect before leaving editor");
+        reload();
+        var saved = EviemodSettings.features().skyblock.commandHotkeys.get(index);
+        check(saved.key == key && saved.command.equals(command), "Edit persists before leaving editor");
+    }
     private static void save(ModSettings.Values values) {
         try { EviemodSettings.STORE.save(values); } catch (IOException e) { throw new AssertionError(e); }
     }
