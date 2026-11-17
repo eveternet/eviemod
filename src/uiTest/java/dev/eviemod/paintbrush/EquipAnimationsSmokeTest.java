@@ -29,9 +29,9 @@ final class EquipAnimationsSmokeTest {
                     ClientUi.setScreen(client, screen);
                     var editor = (MoulConfigEditor<?>) ((GuiElementComponent) screen.getGuiContext().getRoot()).getElement();
                     var options = editor.getAllOptions().stream()
-                        .filter(option -> option.getName().equals("Disable Unintended Equip Animations")).toList();
+                        .filter(option -> option.getName().getText().equals("Disable Unintended Equip Animations")).toList();
                     check(options.size() == 1, "Exactly one consolidated toggle");
-                    check(editor.getAllOptions().stream().noneMatch(option -> option.getName().equals("Soul Whip Fix")),
+                    check(editor.getAllOptions().stream().noneMatch(option -> option.getName().getText().equals("Soul Whip Fix")),
                         "Old toggle removed");
                     check(options.getFirst().set(enabled), "Consolidated UI binding");
                     screen.onClose();
