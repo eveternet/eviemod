@@ -78,6 +78,13 @@ class ModSettings {
         if (garden.has("keys") && garden.get("keys").isJsonObject())
             garden.getAsJsonObject("keys").remove("loadouts");
     }
+    /** Persist an editor change without applying unrelated choices in the parent settings draft. */
+    void saveCommandHotkeys(java.util.List<ImportedFeatures.Hotkey> hotkeys) throws IOException {
+        var next = values.copy();
+        next.features.skyblock.commandHotkeys = hotkeys;
+        next.choose("skyblock.commandHotkeys");
+        save(next);
+    }
     void save(Values next) throws IOException { save(next, null); }
     void save(Values next, String importedGroup) throws IOException {
         if (error != null) throw new IOException(error);

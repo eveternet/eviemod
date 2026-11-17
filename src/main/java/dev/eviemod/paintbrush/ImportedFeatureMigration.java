@@ -170,6 +170,7 @@ final class ImportedFeatureMigration {
                 if (!skyblock.get("commandHotkeys").isJsonArray()) throw new IllegalArgumentException("Invalid commandHotkeys");
                 for (var entry : skyblock.getAsJsonArray("commandHotkeys")) {
                     var hotkey = object(entry, "hotkey");
+                    booleans(hotkey, "disabled");
                     if (hotkey.has("key")) integer(hotkey.get("key"), "hotkey.key");
                     if (hotkey.has("command")) string(hotkey.get("command"), "hotkey.command");
                 }
