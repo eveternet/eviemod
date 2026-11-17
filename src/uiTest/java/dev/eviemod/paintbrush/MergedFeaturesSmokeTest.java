@@ -33,7 +33,7 @@ final class MergedFeaturesSmokeTest {
                 check(java.util.Arrays.stream(client.options.keyMappings).noneMatch(key -> key.getName().equals("key.gardentools.loadouts")), "No native Loadouts binding");
                 try { Class.forName("dev.eviemod.features.garden.PestWorkflow"); throw new AssertionError("Pest workflow still present"); }
                 catch (ClassNotFoundException expected) {}
-                check(!FeatureSettings.isSoulWhipFixEnabled(), "Fixture Soul Whip disabled migration");
+                check(!FeatureSettings.areUnintendedEquipAnimationsDisabled(), "Fixture Soul Whip disabled migration");
                 check(!FeatureSettings.isMaxTenHeartsEnabled(), "Fixture hearts disabled migration");
                 check(EviemodSettings.features().garden.teleportPlot == 19, "Fixture Garden migration");
             }
@@ -45,7 +45,7 @@ final class MergedFeaturesSmokeTest {
                     toggleRow("eviemod:soul_whip/enabled");
                     check(option("eviemod:visuals/hearts").set(true), "Health UI binding");
                     ClientUi.screen(client).onClose();
-                    check(FeatureSettings.isSoulWhipFixEnabled(), "Soul Whip runtime sees saved UI choice");
+                    check(FeatureSettings.areUnintendedEquipAnimationsDisabled(), "Soul Whip runtime sees saved UI choice");
                     check(FeatureSettings.isMaxTenHeartsEnabled(), "Health runtime sees saved UI choice");
                     check(ClientUi.screen(client) == parent, "Shared UI returns to original parent");
                     ClientUi.setScreen(client, EviemodSettings.screen(parent)); select("eviemod:garden");
@@ -73,7 +73,7 @@ final class MergedFeaturesSmokeTest {
                     check(ClientUi.screen(client) == parent, "Add/remove preserve settings parent");
                     EviemodSettings.load();
                     check(EviemodSettings.features().garden.teleportPlot == 7, "Reload never reapplies legacy plot");
-                    check(FeatureSettings.isSoulWhipFixEnabled(), "Reload never reapplies legacy Soul Whip choice");
+                    check(FeatureSettings.areUnintendedEquipAnimationsDisabled(), "Reload never reapplies legacy Soul Whip choice");
                     check(!FeatureSettings.isPartyCommandEnabled("ping", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.PARTY), "Party disabled state");
                     check(FeatureSettings.isPartyCommandEnabled("ping", dev.eviemod.features.skyblock.PartyCommandController.CommandChannel.GUILD), "Guild enabled state");
                     org.slf4j.LoggerFactory.getLogger("eviemod-fixture").info("MERGED_FEATURES_SMOKE_PASS");

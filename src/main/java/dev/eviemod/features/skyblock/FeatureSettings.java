@@ -6,7 +6,7 @@ import dev.eviemod.paintbrush.ImportedFeatures;
 /** Read-only adapter: feature logic never owns or saves configuration. */
 public final class FeatureSettings {
     private static ImportedFeatures.Skyblock settings() { return EviemodSettings.features().skyblock; }
-    public static boolean isSoulWhipFixEnabled() { return EviemodSettings.features().soulWhip.enabled; }
+    public static boolean areUnintendedEquipAnimationsDisabled() { return EviemodSettings.features().soulWhip.enabled; }
     public static boolean isNoBarrierEffectsEnabled() { return settings().noBarrierEffects; }
     public static boolean isMaxTenHeartsEnabled() { return settings().maxTenHearts; }
     public static boolean isCommandHotkeysEnabled() { return settings().commandHotkeysEnabled; }

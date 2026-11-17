@@ -3,7 +3,9 @@
 The audit below describes the original merge. In 4.0.1, the requested settings correction
 moves Paint Brush and SkyBlock Visuals under Appearance, renames Party Commands to Chat
 Commands, and removes the Garden pest workflow, its controls and native Loadouts binding.
-Soul Whip Fix is a single visual toggle. The former Force Finnegan and Loadouts
+Soul Whip Fix was a single visual toggle, now replaced by
+[Disable Unintended Equip Animations](equip-animations.md) with the same saved choice.
+The former Force Finnegan and Loadouts
 values are no longer migrated or retained in eviemod settings. See
 [the current settings notes](settings-ui.md#merged-settings-correction-401).
 `/kabeewie`, `/kabeewie settings`, and `/gardentools` remain registered as

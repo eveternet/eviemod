@@ -71,7 +71,7 @@ The exact Minecraft 26.1 backport is pinned in `libs`; see its README for proven
 
 The top-level categories are Appearance, Hypixel Pack, Garden, Chat Commands and Command
 Hotkeys. Paint Brush and SkyBlock Visuals are ordinary option groups under Appearance.
-Soul Whip Fix has no separate group; its original description is available on hover.
+Disable Unintended Equip Animations replaces Soul Whip Fix in the same visual group; one toggle controls both Soul Whip and empty-air equip dips. Its description is available on hover.
 The existing rarity controls and Hypixel Pack controls keep their prior editors.
 
 Chat commands retain the same per-command and per-channel configuration keys. A command
