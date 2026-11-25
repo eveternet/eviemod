@@ -20,14 +20,14 @@
     "eviemod-soulwhip.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.19.5",
+    "fabricloader": ">=${fabricLoaderVersion}",
     "fabric-api": ">=${fabricApiVersion}",
     "minecraft": "${minecraftVersion}",
     "java": ">=25",
     "yet_another_config_lib_v3": ">=${yaclVersion}",
     "hm-api": ">=${hmApiVersion}",
     "dandelion": ">=${dandelionVersion}",
-    "fabric-language-kotlin": "*"
+    "fabric-language-kotlin": ">=${fabricKotlinVersion}"
   },
   "breaks": {
     "skyshitter": "*",

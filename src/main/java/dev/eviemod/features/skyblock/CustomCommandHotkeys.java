@@ -1,12 +1,11 @@
 package dev.eviemod.features.skyblock;
 
 import dev.eviemod.compat.ClientUi;
-import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import org.lwjgl.glfw.GLFW;
+import dev.eviemod.compat.ClientInput;
 
 public final class CustomCommandHotkeys {
    public static final int UNBOUND_KEY = -1;
@@ -31,7 +30,7 @@ public final class CustomCommandHotkeys {
       syncPressedStateSize();
       for (int slot = 0; slot < FeatureSettings.getCommandHotkeyCount(); slot++) {
          int key = FeatureSettings.getCommandHotkeyKey(slot);
-         boolean down = key != UNBOUND_KEY && isDown(client, key);
+         boolean down = key != UNBOUND_KEY && ClientInput.isDown(client, key);
          if (pressedStates.get(slot).sample(key, down, active && FeatureSettings.isCommandHotkeyEnabled(slot))) execute(slot, client);
       }
    }
@@ -47,14 +46,6 @@ public final class CustomCommandHotkeys {
             client.getConnection().sendCommand(command);
          }
       }
-   }
-
-   private static boolean isDown(Minecraft client, int key) {
-      return isMouseButton(key) ? GLFW.glfwGetMouseButton(client.getWindow().handle(), key) == 1 : InputConstants.isKeyDown(client.getWindow(), key);
-   }
-
-   private static boolean isMouseButton(int key) {
-      return key >= 0 && key <= 7;
    }
 
    private static void syncPressedStateSize() {

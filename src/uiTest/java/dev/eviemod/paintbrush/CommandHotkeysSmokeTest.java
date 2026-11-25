@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.eviemod.compat.ClientUi;
 import dev.eviemod.features.skyblock.FeatureSettings;
 import java.io.IOException;
@@ -51,11 +53,11 @@ final class CommandHotkeysSmokeTest {
             checkEnabled(0, false);
             check(first.get(2).getMessage().getString().equals("Disabled"), "Disabled state is visible");
             checkSaved(0, 80, "/warp garden");
-            key(screen, 257); // Enter toggles the focused state control.
+            key(screen, InputConstants.KEY_RETURN); // Enter toggles the focused state control.
             checkEnabled(0, true);
             check(first.get(2).getMessage().getString().equals("Enabled"), "Enabled state is visible");
             click(screen, command);
-            key(screen, 269); // End
+            key(screen, InputConstants.KEY_END); // End
             type(screen, " test");
             checkSaved(0, 80, "/warp garden test");
             click(screen, button(screen, "Add hotkey"));
@@ -66,15 +68,15 @@ final class CommandHotkeysSmokeTest {
             check(((EditBox) row(list, 1).get(1)).isFocused(), "New command receives keyboard focus");
             type(screen, "hub");
             checkSaved(1, -1, "hub");
-            click(screen, row(list, 1).getFirst()); key(screen, 75);
+            click(screen, row(list, 1).getFirst()); key(screen, InputConstants.KEY_K);
             checkSaved(1, 75, "hub");
             check(row(list, 1).getFirst().getMessage().getString().equalsIgnoreCase("K"), "Keyboard capture");
-            click(screen, row(list, 1).getFirst()); key(screen, 256);
+            click(screen, row(list, 1).getFirst()); key(screen, InputConstants.KEY_ESCAPE);
             checkSaved(1, -1, "hub");
             check(ClientUi.screen(Minecraft.getInstance()) == screen, "Esc clears binding without closing");
             check(row(list, 1).getFirst().getMessage().getString().equals("Unbound"), "Esc unbinds");
             click(screen, row(list, 1).getFirst());
-            mouse(screen, 2, 0, 0);
+            mouse(screen, InputConstants.MOUSE_BUTTON_MIDDLE, 0, 0);
             checkSaved(1, 2, "hub");
             checkEnabled(1, false);
             click(screen, row(list, 1).get(2));
@@ -113,7 +115,7 @@ final class CommandHotkeysSmokeTest {
             var reopened = (CommandHotkeysScreen) ClientUi.screen(Minecraft.getInstance());
             check(((EditBox) row(list(reopened), 0).get(1)).getValue().equals("hub"), "Reopening retains immediate edits");
             check(row(list(reopened), 0).get(2).getMessage().getString().equals("Disabled"), "Reopening retains disabled state");
-            key(reopened, 256);
+            key(reopened, InputConstants.KEY_ESCAPE);
             check(ClientUi.screen(Minecraft.getInstance()) == settings, "Esc returns to original settings");
             settings.onClose();
             check(ClientUi.screen(Minecraft.getInstance()) == parent, "Settings returns to original parent");
@@ -157,13 +159,13 @@ final class CommandHotkeysSmokeTest {
     }
     private static void click(Screen screen, AbstractWidget widget) {
         var viewport = EditorViewport.fit(screen.width, screen.height, Minecraft.getInstance().getWindow().getGuiScale());
-        mouse(screen, 0, (widget.getX() + widget.getWidth() / 2.0) * viewport.scale(), (widget.getY() + 10) * viewport.scale());
+        mouse(screen, InputConstants.MOUSE_BUTTON_LEFT, (widget.getX() + widget.getWidth() / 2.0) * viewport.scale(), (widget.getY() + 10) * viewport.scale());
     }
     private static void mouse(Screen screen, int button, double x, double y) {
         var event = new MouseButtonEvent(x, y, new MouseButtonInfo(button, 0));
         check(screen.mouseClicked(event, false), "Mouse input handled"); screen.mouseReleased(event);
     }
-    private static void key(Screen screen, int key) { screen.keyPressed(new KeyEvent(key, 0, 0)); }
+    private static void key(Screen screen, int key) { screen.keyPressed(dev.eviemod.compat.VersionFixtures.keyEvent(key)); }
     private static void type(Screen screen, String text) { text.codePoints().forEach(cp -> screen.charTyped(new CharacterEvent(cp))); }
     private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
     private static void checkEnabled(int index, boolean enabled) {

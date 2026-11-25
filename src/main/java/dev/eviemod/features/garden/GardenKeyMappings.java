@@ -1,7 +1,6 @@
 package dev.eviemod.features.garden;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.KeyMapping.Category;
@@ -20,6 +19,6 @@ public final class GardenKeyMappings {
    }
 
    private static KeyMapping register(String name) {
-      return KeyMappingHelper.registerKeyMapping(new KeyMapping("key.gardentools." + name, Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY));
+      return KeyMappingHelper.registerKeyMapping(new KeyMapping("key.gardentools." + name, dev.eviemod.compat.ClientInput.keyboard(), InputConstants.UNKNOWN.getValue(), CATEGORY));
    }
 }

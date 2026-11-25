@@ -5,21 +5,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import dev.eviemod.compat.FilePicker;
 
 /** Desktop chooser and resource reload boundary; imported files never leave this computer. */
 final class TextureImportClient {
     private TextureImportClient() {}
-    static Path choosePng() { return chooseFile("Import Paint Brush PNG", "*.png", "PNG image"); }
-    static Path chooseMetadata() { return chooseFile("Choose animation metadata", "*.mcmeta", "Animation metadata"); }
-    private static Path chooseFile(String title, String pattern, String description) {
-        try (var memory = MemoryStack.stackPush()) {
-            String chosen = TinyFileDialogs.tinyfd_openFileDialog(title, "",
-                memory.pointers(memory.UTF8(pattern)), description, false);
-            return chosen == null ? null : Path.of(chosen);
-        }
-    }
+    static CompletableFuture<Path> choosePng() { return FilePicker.choose("Import Paint Brush PNG", "png", "PNG image"); }
+    static CompletableFuture<Path> chooseMetadata() { return FilePicker.choose("Choose animation metadata", "mcmeta", "Animation metadata"); }
     static CompletableFuture<ImportedTextures.Prepared> prepare(Path path, ImportedTextures.Preset preset) {
         return CompletableFuture.supplyAsync(() -> {
             try { return ImportedTextures.prepare(path, preset); }

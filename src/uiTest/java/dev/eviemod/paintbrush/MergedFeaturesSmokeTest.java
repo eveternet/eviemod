@@ -22,7 +22,7 @@ final class MergedFeaturesSmokeTest {
                 if (++startupTicks < 60) return;
                 parent = ClientUi.screen(client);
                 for (String type : new String[]{"net.minecraft.client.multiplayer.ClientPacketListener", "net.minecraft.client.gui.Gui",
-                        "net.minecraft.world.level.border.WorldBorder", "net.minecraft.client.renderer.ItemInHandRenderer", "net.minecraft.client.MouseHandler"}) {
+                        "net.minecraft.world.level.border.WorldBorder", dev.eviemod.compat.ClientUi.EQUIP_OWNER, "net.minecraft.client.MouseHandler"}) {
                     try { Class.forName(type); } catch (ClassNotFoundException e) { throw new AssertionError(e); }
                 }
                 ClientUi.setScreen(client, EviemodSettings.screen(parent));

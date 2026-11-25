@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.gui.Font;
@@ -33,10 +35,10 @@ class ModelFieldTest {
     @Test void emptyInputNeverOpensAndFocusLossOrEscapeDismisses() {
         var field = field(List.of("minecraft:apple", "minecraft:bow"), new AtomicReference<>());
         assertTrue(field.isMouseOver(25, 55));
-        field.keyPressed(new KeyEvent(256, 0, 0)); assertFalse(field.isMouseOver(25, 55));
-        field.keyPressed(new KeyEvent(264, 0, 0)); assertTrue(field.isMouseOver(25, 55));
+        field.keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)); assertFalse(field.isMouseOver(25, 55));
+        field.keyPressed(new KeyEvent(InputConstants.KEY_DOWN, 0, 0)); assertTrue(field.isMouseOver(25, 55));
         field.setFocused(false); field.setFocused(true); assertFalse(field.isMouseOver(25, 55));
-        field.setValue(""); field.keyPressed(new KeyEvent(264, 0, 0)); assertFalse(field.isMouseOver(25, 55));
+        field.setValue(""); field.keyPressed(new KeyEvent(InputConstants.KEY_DOWN, 0, 0)); assertFalse(field.isMouseOver(25, 55));
         field.setValue("   "); assertFalse(field.isMouseOver(25, 55));
     }
     @Test void containerRoutesSuggestionClickAndUpdatesDraft() {
@@ -46,7 +48,7 @@ class ModelFieldTest {
             @Override public List<? extends GuiEventListener> children() { return List.of(field); }
         };
         assertSame(field, parent.getChildAt(25, 70).orElseThrow());
-        assertTrue(parent.mouseClicked(new MouseButtonEvent(25, 70, new MouseButtonInfo(0, 0)), false));
+        assertTrue(parent.mouseClicked(new MouseButtonEvent(25, 70, new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false));
         assertEquals("minecraft:bow", field.getValue());
         assertEquals("minecraft:bow", value.get());
         assertTrue(field.isFocused());
@@ -55,14 +57,14 @@ class ModelFieldTest {
     }
     @Test void lastPageOnlyClaimsVisibleRowsAndRespectsFocus() {
         var field = field(List.of("a:a", "a:b", "a:c", "a:d", "a:e", "a:f", "a:g"), new AtomicReference<>());
-        for (int i = 0; i < 5; i++) field.keyPressed(new KeyEvent(264, 0, 0));
+        for (int i = 0; i < 5; i++) field.keyPressed(new KeyEvent(InputConstants.KEY_DOWN, 0, 0));
         assertTrue(field.isMouseOver(25, 50));
         assertTrue(field.isMouseOver(25, 81));
         assertFalse(field.isMouseOver(25, 82));
         assertFalse(field.isMouseOver(220, 55));
-        assertTrue(field.mouseClicked(new MouseButtonEvent(25, 70, new MouseButtonInfo(0, 0)), false));
+        assertTrue(field.mouseClicked(new MouseButtonEvent(25, 70, new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false));
         assertEquals("a:g", field.getValue());
-        field.keyPressed(new KeyEvent(264, 0, 0));
+        field.keyPressed(new KeyEvent(InputConstants.KEY_DOWN, 0, 0));
         field.setFocused(false);
         assertFalse(field.isMouseOver(25, 55));
     }

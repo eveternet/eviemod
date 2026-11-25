@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.eviemod.compat.ClientUi;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
@@ -43,7 +45,7 @@ final class TextureSmokeTest {
         if (stage == 0) {
             if (!(ClientUi.screen(client) instanceof TitleScreen) || ClientUi.overlay(client) != null) return;
             net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
-                .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
+                .build(dev.eviemod.compat.VersionFixtures.registries())
                 .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
             oldColor = PaintBrushClient.colors().getValue(KEY); oldModel = PaintBrushClient.models().get(KEY); oldSkin = HelmetSkins.store().get(KEY);
             oldTexturesEnabled = EviemodSettings.STORE.values().customTextures;
@@ -180,7 +182,7 @@ final class TextureSmokeTest {
     }
     private static void clickAt(Minecraft client, int x, int y) {
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
-        var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(0, 0));
+        var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
         ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private void next() { stage++; ticks = 0; }
@@ -195,7 +197,7 @@ final class TextureSmokeTest {
         check(widget.active, label + " should be enabled");
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
         var event = new net.minecraft.client.input.MouseButtonEvent((widget.getX() + 3) * viewport.scale(), (widget.getY() + 3) * viewport.scale(),
-            new net.minecraft.client.input.MouseButtonInfo(0, 0));
+            new net.minecraft.client.input.MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
         ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private static final class Preview extends CompactScreen {

@@ -27,7 +27,7 @@ class ModelOverridesTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
-            .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
+            .build(dev.eviemod.compat.VersionFixtures.registries())
             .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
     }
 

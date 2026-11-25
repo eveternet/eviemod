@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.eviemod.compat.ClientUi;
 import java.util.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -46,6 +48,17 @@ public final class PaintBrushScreen extends CompactScreen {
         if (SkyBlockUuid.read(held) != null) setItem(held);
     }
 
+    private void chooseFile(java.util.concurrent.CompletableFuture<java.nio.file.Path> choice,
+                            java.util.function.Consumer<java.nio.file.Path> selectedFile) {
+        var selectedDraft = draft;
+        choice.whenCompleteAsync((path, failure) -> {
+            // An asynchronous chooser must not apply a file to another item or a closed editor.
+            if (ClientUi.screen(minecraft) != this || draft != selectedDraft || tab != 0) return;
+            if (failure != null) { error = "The file picker could not be opened."; rebuildWidgets(); }
+            else if (path != null) selectedFile.accept(path);
+        }, minecraft);
+    }
+
     /** Builds the editor controls, including the searchable helmet texture catalog. */
     @Override protected void init() {
         updateViewport();
@@ -68,8 +81,7 @@ public final class PaintBrushScreen extends CompactScreen {
         int body = y + 108;
         if (tab == 0 && pendingTexture != null) {
             button("Choose .mcmeta", left, body + 28, contentWidth, () -> {
-                var path = TextureImportClient.chooseMetadata();
-                if (path != null) finishTexture(path);
+                chooseFile(TextureImportClient.chooseMetadata(), this::finishTexture);
             });
             button("Use static image", left, body + 56, contentWidth / 2 - 3, () -> finishTexture(null));
             button("Cancel import", left + contentWidth / 2 + 3, body + 56, contentWidth / 2 - 3,
@@ -87,7 +99,7 @@ public final class PaintBrushScreen extends CompactScreen {
                         () -> { texturePreset = preset; rebuildWidgets(); }, () -> texturePreset == preset));
                 }
                 button("Import PNG & apply", left, body + 56, contentWidth, () -> {
-                    var path = TextureImportClient.choosePng(); if (path != null) prepareTexture(path, null);
+                    chooseFile(TextureImportClient.choosePng(), path -> prepareTexture(path, null));
                 });
             }
         } else if (tab == 1) {
@@ -175,7 +187,7 @@ public final class PaintBrushScreen extends CompactScreen {
     }
     @Override public boolean keyPressed(KeyEvent event) {
         if (variantField != null && variantField.isFocused() && variantField.keyPressed(event)) return true;
-        if (modelField != null && modelField.isFocused() && (event.key() == 256 || event.key() == 258 || event.key() == 264 || event.key() == 265 || event.key() == 257)) {
+        if (modelField != null && modelField.isFocused() && (event.key() == InputConstants.KEY_ESCAPE || event.key() == InputConstants.KEY_TAB || event.key() == InputConstants.KEY_DOWN || event.key() == InputConstants.KEY_UP || event.key() == InputConstants.KEY_RETURN)) {
             if (modelField.keyPressed(event)) return true;
         }
         return super.keyPressed(event);

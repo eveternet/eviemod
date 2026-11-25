@@ -14,7 +14,7 @@ import net.minecraft.world.InteractionHand;
 final class EquipAnimationsSmokeTest {
     static void exercise(Screen parent) {
         var client = Minecraft.getInstance();
-        var renderer = client.gameRenderer.itemInHandRenderer;
+        var renderer = dev.eviemod.compat.VersionFixtures.equipState();
         check((Object) renderer instanceof EquipAnimationAccess, "Attack bridge applied");
         var original = EviemodSettings.STORE.values().copy();
         try {
@@ -40,9 +40,9 @@ final class EquipAnimationsSmokeTest {
                     check(FeatureSettings.areUnintendedEquipAnimationsDisabled() == enabled, "Saved choice controls runtime");
                     main.setFloat(renderer, 0.75F);
                     off.setFloat(renderer, 0.75F);
-                    renderer.itemUsed(InteractionHand.MAIN_HAND);
+                    renderer.getClass().getMethod("itemUsed", InteractionHand.class).invoke(renderer, InteractionHand.MAIN_HAND);
                     check(main.getFloat(renderer) == (enabled ? 0.75F : 0.0F), "Soul Whip main-hand use dip");
-                    renderer.itemUsed(InteractionHand.OFF_HAND);
+                    renderer.getClass().getMethod("itemUsed", InteractionHand.class).invoke(renderer, InteractionHand.OFF_HAND);
                     check(off.getFloat(renderer) == 0.0F, "Offhand use remains vanilla");
                 }
             } finally {

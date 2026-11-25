@@ -10,6 +10,10 @@ import net.minecraft.network.chat.Component;
 
 /** Compile-time adapter for the Minecraft 26.2 GUI/HUD ownership boundary. */
 public final class ClientUi {
+    public static final String EQUIP_OWNER = "net.minecraft.client.renderer.ItemInHandRenderer";
+    public static dev.eviemod.features.soulwhip.EquipAnimationAccess equipAnimations(Minecraft client) {
+        return (dev.eviemod.features.soulwhip.EquipAnimationAccess) client.gameRenderer.itemInHandRenderer;
+    }
     private ClientUi() {}
     public static Screen screen(Minecraft client) { return client.gui.screen(); }
     public static void setScreen(Minecraft client, Screen screen) { client.gui.setScreen(screen); }

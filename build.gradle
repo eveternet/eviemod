@@ -6,13 +6,15 @@ group = 'dev.eviemod'
 version = '1.5.0.1'
 
 ext {
-    minecraftVersion = '26.1.2'
-    fabricApiVersion = '0.155.2+26.1.2'
-    yaclVersion = '3.9.2+26.1'
-    dandelionVersion = '1.0.0-alpha.21+26.1'
-    dandelionCoordinate = "local.eviemod:dandelion:${dandelionVersion}"
-    hmApiVersion = '1.0.3+26.1'
-    modMenuVersion = '18.0.1'
+    fabricLoaderVersion = '0.20.1'
+    fabricKotlinVersion = '1.14.2+kotlin.2.4.21'
+    minecraftVersion = '26.3'
+    fabricApiVersion = '0.167.0+26.3'
+    yaclVersion = '3.9.7+26.3'
+    dandelionVersion = '1.0.0-alpha.23+26.3'
+    dandelionCoordinate = "net.azureaaron:dandelion:${dandelionVersion}"
+    hmApiVersion = '1.0.5+26.3'
+    modMenuVersion = '21.0.1'
 }
 apply from: 'gradle/eviemod.gradle'
 

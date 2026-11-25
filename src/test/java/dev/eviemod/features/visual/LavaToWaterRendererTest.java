@@ -124,14 +124,14 @@ class LavaToWaterRendererTest {
             .filter(m -> m.getName().equals("eviemod$lavaFogColor")).findFirst().orElseThrow();
         method.setAccessible(true);
         var harness = new FogHarness();
-        var callback = new CallbackInfoReturnable<Integer>("getBaseColor", true, 0xFFFF6600);
+        var callback = new CallbackInfoReturnable<Object>("getBaseColor", true, dev.eviemod.compat.VersionFixtures.fogColor(0xFF6600));
         method.invoke(harness, null, null, 128, 0F, callback);
         assertFalse(callback.isCancelled());
-        assertEquals(0xFFFF6600, callback.getReturnValue());
+        assertEquals(dev.eviemod.compat.VersionFixtures.fogColor(0xFF6600), callback.getReturnValue());
         LavaToWaterRenderer.configure(true, true, 0x123456, false);
         method.invoke(harness, null, null, 128, 0F, callback);
         assertTrue(callback.isCancelled());
-        assertEquals(0xFF123456, callback.getReturnValue());
+        assertEquals(dev.eviemod.compat.VersionFixtures.fogColor(0x123456), callback.getReturnValue());
     }
     private static final class FogHarness extends dev.eviemod.paintbrush.mixin.LavaFogMixin {}
 }
