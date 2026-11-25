@@ -1,6 +1,5 @@
 package dev.eviemod.features.soulwhip.mixin.client;
 
-import dev.eviemod.features.soulwhip.EquipAnimationAccess;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,7 +24,7 @@ abstract class MinecraftMixin {
     }
 
     @Inject(method = "startAttack", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+        target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/component/SwingAnimation;Z)Z"))
     private void eviemod$recordAttack(CallbackInfoReturnable<Boolean> cir) {
         var client = (Minecraft) (Object) this;
         dev.eviemod.compat.ClientUi.equipAnimations(client).eviemod$attack(eviemod$emptyAirAttack);

@@ -36,7 +36,8 @@ class EquipAnimationBoundaryTest {
         assertEquals(1, resets.size());
         assertEquals("net/minecraft/client/player/LocalPlayer", resets.getFirst().owner);
         var swings = calls(attack, "swing");
-        assertEquals(2, swings.size(), "Piercing-weapon and normal attack paths");
+        assertEquals(dev.eviemod.compat.VersionFixtures.ATTACK_SWING_CALLS, swings.size());
+        assertTrue(swings.stream().allMatch(call -> call.desc.equals(dev.eviemod.compat.VersionFixtures.ATTACK_SWING_DESCRIPTOR)));
         assertTrue(attack.instructions.indexOf(resets.getFirst()) < attack.instructions.indexOf(swings.getLast()));
         var reset = method("net/minecraft/world/entity/player/Player", "resetAttackStrengthTicker");
         var fields = new ArrayList<String>();
