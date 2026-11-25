@@ -180,7 +180,7 @@ final class TextureSmokeTest {
     }
     private static void clickAt(Minecraft client, int x, int y) {
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
-        var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(0, 0));
+        var event = new net.minecraft.client.input.MouseButtonEvent(x * viewport.scale(), y * viewport.scale(), new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
         ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private void next() { stage++; ticks = 0; }
@@ -195,7 +195,7 @@ final class TextureSmokeTest {
         check(widget.active, label + " should be enabled");
         var viewport = EditorViewport.fit(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), client.getWindow().getGuiScale());
         var event = new net.minecraft.client.input.MouseButtonEvent((widget.getX() + 3) * viewport.scale(), (widget.getY() + 3) * viewport.scale(),
-            new net.minecraft.client.input.MouseButtonInfo(0, 0));
+            new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
         ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
     }
     private static final class Preview extends CompactScreen {

@@ -18,7 +18,7 @@ Distribution: https://maven.azureaaron.net/releases/net/azureaaron/dandelion/${d
 Includes shaded MoulConfig: https://github.com/NotEnoughUpdates/MoulConfig
 Original library and dependency license notices are retained inside the nested JAR.
 
-Fabric Language Kotlin 1.14.1+kotlin.2.4.20, unmodified.
+Fabric Language Kotlin ${fabricKotlinVersion}, unmodified.
 Source: https://github.com/FabricMC/fabric-language-kotlin
 Includes the Kotlin runtime and supporting libraries, with their original licenses
 and metadata retained in the nested JARs.

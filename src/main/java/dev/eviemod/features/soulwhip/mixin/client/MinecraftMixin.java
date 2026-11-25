@@ -28,6 +28,6 @@ abstract class MinecraftMixin {
         target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
     private void eviemod$recordAttack(CallbackInfoReturnable<Boolean> cir) {
         var client = (Minecraft) (Object) this;
-        ((EquipAnimationAccess) client.gameRenderer.itemInHandRenderer).eviemod$attack(eviemod$emptyAirAttack);
+        dev.eviemod.compat.ClientUi.equipAnimations(client).eviemod$attack(eviemod$emptyAirAttack);
     }
 }

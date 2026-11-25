@@ -14,7 +14,7 @@ final class DraftKeyMapping extends KeyMapping {
     private Consumer<InputConstants.Key> changed = key -> {};
     private DraftKeyMapping(String id) {
         // The superclass remains unbound, including when Dandelion rebuilds the native key map.
-        super("key.eviemod.draft." + id, InputConstants.Type.KEYSYM, -1, Category.MISC);
+        super("key.eviemod.draft." + id, dev.eviemod.compat.ClientInput.keyboard(), InputConstants.UNKNOWN.getValue(), Category.MISC);
     }
     static DraftKeyMapping bind(String id, InputConstants.Key key, Consumer<InputConstants.Key> changed) {
         var mapping = EDITORS.computeIfAbsent(id, DraftKeyMapping::new);

@@ -6,6 +6,8 @@ group = 'dev.eviemod'
 version = '1.5.0.1'
 
 ext {
+    fabricLoaderVersion = '0.20.1'
+    fabricKotlinVersion = '1.14.2+kotlin.2.4.21'
     minecraftVersion = '26.3'
     fabricApiVersion = '0.167.0+26.3'
     yaclVersion = '3.9.7+26.3'

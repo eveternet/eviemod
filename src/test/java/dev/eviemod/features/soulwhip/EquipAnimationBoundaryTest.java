@@ -46,7 +46,7 @@ class EquipAnimationBoundaryTest {
     }
 
     @Test void rendererHasOneSwapScaleCallAndIndependentItemChangeBranch() throws Exception {
-        var tick = method("net/minecraft/client/renderer/ItemInHandRenderer", "tick");
+        var tick = method(dev.eviemod.compat.ClientUi.EQUIP_OWNER.replace('.', '/'), "tick");
         var scales = calls(tick, "getItemSwapScale");
         assertEquals(1, scales.size());
         assertEquals("net/minecraft/client/player/LocalPlayer", scales.getFirst().owner);

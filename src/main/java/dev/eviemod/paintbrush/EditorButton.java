@@ -29,7 +29,7 @@ final class EditorButton extends AbstractWidget {
     }
     @Override public void onClick(MouseButtonEvent event, boolean doubleClick) { action.run(); }
     @Override public boolean keyPressed(KeyEvent event) {
-        if (active && isFocused() && (event.key() == 257 || event.key() == 32 || event.key() == 335)) {
+        if (active && isFocused() && (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_SPACE || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER)) {
             action.run(); return true;
         }
         return false;

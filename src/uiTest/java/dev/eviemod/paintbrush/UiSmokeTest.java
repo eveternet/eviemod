@@ -45,7 +45,7 @@ public final class UiSmokeTest implements ClientModInitializer {
                     openEditor(client);
                 }
                 if (captureTicks == 108) { editorClick(client, 30, 115); type(client, "minecraft:leather_chestplate"); }
-                if (captureTicks == 110) key(client, 258);
+                if (captureTicks == 110) key(client, com.mojang.blaze3d.platform.InputConstants.KEY_TAB);
                 if (captureTicks == 112) {
                     var dye = ClientUi.screen(client).children().stream()
                         .filter(child -> child instanceof net.minecraft.client.gui.components.AbstractWidget widget
@@ -110,7 +110,7 @@ public final class UiSmokeTest implements ClientModInitializer {
             editor.mouseInput(x, y, new net.azureaaron.dandelion.deps.moulconfig.gui.MouseEvent.Click(0, true));
             editor.mouseInput(x, y, new net.azureaaron.dandelion.deps.moulconfig.gui.MouseEvent.Click(0, false));
         } else {
-            var event = new net.minecraft.client.input.MouseButtonEvent(x, y, new net.minecraft.client.input.MouseButtonInfo(0, 0));
+            var event = new net.minecraft.client.input.MouseButtonEvent(x, y, new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
             ClientUi.screen(client).mouseClicked(event, false); ClientUi.screen(client).mouseReleased(event);
         }
     }

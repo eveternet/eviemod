@@ -6,6 +6,8 @@ group = rootProject.group
 version = rootProject.version
 
 ext {
+    fabricLoaderVersion = '0.19.5'
+    fabricKotlinVersion = '1.14.1+kotlin.2.4.20'
     minecraftVersion = '26.2'
     fabricApiVersion = '0.155.2+26.2'
     yaclVersion = '3.9.4+26.2'

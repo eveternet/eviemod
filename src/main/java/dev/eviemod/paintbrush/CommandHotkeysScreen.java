@@ -16,7 +16,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import dev.eviemod.compat.LegacyHotkeyCodes;
 
 /** Persists edits immediately and keeps the parent draft in sync without replacing either screen. */
 final class CommandHotkeysScreen extends CompactScreen {
@@ -97,7 +97,7 @@ final class CommandHotkeysScreen extends CompactScreen {
 
     @Override public boolean keyPressed(KeyEvent event) {
         if (capturing != null) {
-            bind(event.key() == GLFW.GLFW_KEY_ESCAPE ? -1 : event.key());
+            bind(event.key() == InputConstants.KEY_ESCAPE ? -1 : LegacyHotkeyCodes.store(InputConstants.getKey(event)));
             return true;
         }
         return finishInput(super.keyPressed(event));
@@ -108,7 +108,7 @@ final class CommandHotkeysScreen extends CompactScreen {
     }
 
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (capturing != null) { bind(event.button()); return true; }
+        if (capturing != null) { bind(LegacyHotkeyCodes.store(InputConstants.Type.MOUSE.getOrCreate(event.button()))); return true; }
         return finishInput(super.mouseClicked(event, doubleClick));
     }
 
@@ -178,8 +178,7 @@ final class CommandHotkeysScreen extends CompactScreen {
 
         void updateKeyLabel() {
             key.setMessage(hotkey.key == -1 ? Component.literal("Unbound")
-                : (hotkey.key >= 0 && hotkey.key <= 7 ? InputConstants.Type.MOUSE : InputConstants.Type.KEYSYM)
-                    .getOrCreate(hotkey.key).getDisplayName());
+                : LegacyHotkeyCodes.resolve(hotkey.key).getDisplayName());
         }
 
         private void updateEnabledLabel() {

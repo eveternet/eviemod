@@ -20,6 +20,6 @@ public final class GardenKeyMappings {
    }
 
    private static KeyMapping register(String name) {
-      return KeyMappingHelper.registerKeyMapping(new KeyMapping("key.gardentools." + name, Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY));
+      return KeyMappingHelper.registerKeyMapping(new KeyMapping("key.gardentools." + name, dev.eviemod.compat.ClientInput.keyboard(), InputConstants.UNKNOWN.getValue(), CATEGORY));
    }
 }

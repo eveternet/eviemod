@@ -35,7 +35,7 @@ final class VersionSmokeTest {
                     "net.minecraft.client.multiplayer.ClientPacketListener",
                     "net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl",
                     "net.minecraft.world.level.border.WorldBorder",
-                    "net.minecraft.client.renderer.ItemInHandRenderer",
+                    dev.eviemod.compat.ClientUi.EQUIP_OWNER,
                     "net.minecraft.client.renderer.item.ItemModelResolver",
                     "net.minecraft.world.item.ItemStack",
                     "net.minecraft.world.item.component.DyedItemColor",

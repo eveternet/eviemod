@@ -56,7 +56,7 @@ final class ModelField extends EditBox {
     @Override public void onClick(MouseButtonEvent event, boolean doubleClick) { super.onClick(event, doubleClick); update(); }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         int suggestion = suggestionAt(event.x(), event.y());
-        if (event.button() == 0 && suggestion >= 0) {
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && suggestion >= 0) {
             choice = suggestion;
             accept(); return true;
         }
@@ -64,11 +64,11 @@ final class ModelField extends EditBox {
     }
     @Override public boolean keyPressed(KeyEvent event) {
         if (isFocused()) {
-            if ((event.key() == 258 || event.key() == 264) && !open) { update(); return true; }
+            if ((event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_TAB || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN) && !open) { update(); return true; }
             if (open) {
-                if (event.key() == 256) { open = false; return true; }
-                if (event.key() == 264 || event.key() == 265) { choice = Math.floorMod(choice + (event.key() == 264 ? 1 : -1), matches.size()); return true; }
-                if (event.key() == 258 || event.key() == 257 || event.key() == 335) { accept(); return true; }
+                if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) { open = false; return true; }
+                if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_UP) { choice = Math.floorMod(choice + (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN ? 1 : -1), matches.size()); return true; }
+                if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_TAB || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) { accept(); return true; }
             }
         }
         return super.keyPressed(event);
