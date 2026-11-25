@@ -42,11 +42,10 @@ out-of-range RGB values, and null groups are rejected without overwriting the
 configuration. No NoammAddons runtime dependency or config import is needed.
 
 `LavaToWaterRenderer` is the small Minecraft rendering adapter. The two mixins
-are registered in `eviemod.mixins.json`; their APIs match the locally inspected
-26.1.2 bytecode and 26.2 sources. They are shared across both builds.
-Only chunk refresh needs the version-specific `WorldRendering` adapter:
-26.1.2 calls `LevelRenderer.allChanged()`, while 26.2 moved that operation to
-`LevelExtractor.allChanged()`.
+are registered in `eviemod.mixins.json`; the fluid-model hook is shared across 26.2 and 26.3. The fog-color mixin is
+version-specific: 26.2 returns packed ARGB, while 26.3 returns `Vector3fc`.
+Chunk refresh uses the `WorldRendering` adapter with
+`LevelExtractor.allChanged()` on both supported targets.
 
 The client settings tick publishes an immutable volatile options snapshot, so
 chunk worker threads do not read mutable UI drafts. A changed active option or

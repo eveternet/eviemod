@@ -7,7 +7,10 @@ the existing one-time Kabeewie `soulWhipFix` import and migration marker still a
 Missing values and reset configurations remain off. There is no second toggle or
 independent empty-air preference. The historical package and MIT attribution remain.
 
-## Mechanism checked on 26.1.2 and 26.2
+## Mechanism
+
+The original implementation was checked on 26.1.2 and 26.2. The current 26.3
+owner and swing signature are documented in [minecraft-versions.md](minecraft-versions.md).
 
 Inspection of the actual Minecraft client bytecode shows three sources feeding the
 same `ItemInHandRenderer.mainHandHeight` equip animation:

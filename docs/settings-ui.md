@@ -63,7 +63,8 @@ fixture (`EVIEMOD_HOTKEYS_SMOKE_OK`); their captured editor layouts were inspect
 
 ## Dependency boundaries
 
-The exact Minecraft 26.1 backport is pinned in `libs`; see its README for provenance. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
+The supported targets use upstream Dandelion releases pinned per target; see
+[minecraft-versions.md](minecraft-versions.md). The retired 26.1 backport is no longer bundled. The settings store adapter extends `ConfigManagerImpl`, required by this version’s MoulConfig save wiring. Recheck it and the panel-rendering adapter when upgrading. YACL remains a bundled Dandelion dependency, not an alternative selectable eviemod backend.
 
 `./gradlew build` checks parsing, identity, persistence and editor helpers. `./gradlew runClient -PuiSmokeTest -PuiCapture` exercises editor input, picker return and closing back to settings, and captures the settings/editor screens. The fixture maps editor coordinates through the same viewport transform and is excluded from release artifacts.
 
