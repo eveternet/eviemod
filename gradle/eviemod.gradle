@@ -6,7 +6,7 @@ sourceSets {
         resources.srcDirs = [rootProject.file('src/main/resources')]
     }
     test {
-        java.srcDirs = [rootProject.file('src/test/java')]
+        java.srcDirs = [rootProject.file('src/test/java'), rootProject.file("src/${minecraftVersion}/testFixtures")]
         resources.srcDirs = [rootProject.file('src/test/resources')]
     }
 }
@@ -52,7 +52,7 @@ processResources {
 if (providers.gradleProperty('uiSmokeTest').isPresent()) {
     sourceSets {
         uiTest {
-            java.srcDirs = [rootProject.file('src/uiTest/java')]
+            java.srcDirs = [rootProject.file('src/uiTest/java'), rootProject.file("src/${minecraftVersion}/testFixtures")]
             resources.srcDirs = [rootProject.file('src/uiTest/resources')]
             compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
             runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output

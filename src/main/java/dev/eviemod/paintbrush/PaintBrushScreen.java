@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.eviemod.compat.ClientUi;
 import java.util.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -185,7 +187,7 @@ public final class PaintBrushScreen extends CompactScreen {
     }
     @Override public boolean keyPressed(KeyEvent event) {
         if (variantField != null && variantField.isFocused() && variantField.keyPressed(event)) return true;
-        if (modelField != null && modelField.isFocused() && (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_TAB || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_UP || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN)) {
+        if (modelField != null && modelField.isFocused() && (event.key() == InputConstants.KEY_ESCAPE || event.key() == InputConstants.KEY_TAB || event.key() == InputConstants.KEY_DOWN || event.key() == InputConstants.KEY_UP || event.key() == InputConstants.KEY_RETURN)) {
             if (modelField.keyPressed(event)) return true;
         }
         return super.keyPressed(event);

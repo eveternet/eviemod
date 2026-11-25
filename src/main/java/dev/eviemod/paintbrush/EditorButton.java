@@ -1,5 +1,7 @@
 package dev.eviemod.paintbrush;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import java.util.function.BooleanSupplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -29,7 +31,7 @@ final class EditorButton extends AbstractWidget {
     }
     @Override public void onClick(MouseButtonEvent event, boolean doubleClick) { action.run(); }
     @Override public boolean keyPressed(KeyEvent event) {
-        if (active && isFocused() && (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_SPACE || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER)) {
+        if (active && isFocused() && (event.key() == InputConstants.KEY_RETURN || event.key() == InputConstants.KEY_SPACE || event.key() == InputConstants.KEY_NUMPADENTER)) {
             action.run(); return true;
         }
         return false;

@@ -59,7 +59,7 @@ final class VersionSmokeTest {
                 // from the registry lookup yet. Use the same offline binding as
                 // the item/model unit fixtures before constructing a test stack.
                 net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
-                    .build(net.minecraft.data.registries.VanillaRegistries.createLookup())
+                    .build(dev.eviemod.compat.VersionFixtures.registries())
                     .forEach(net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
                 var item = net.minecraft.world.item.Items.GOLDEN_CHESTPLATE.getDefaultInstance();
                 var tag = new net.minecraft.nbt.CompoundTag();
