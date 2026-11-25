@@ -2,10 +2,10 @@ package dev.eviemod.compat;
 
 import net.minecraft.client.Minecraft;
 
-/** Minecraft 26.1.2 owns chunk invalidation in LevelRenderer. */
+/** Minecraft 26.3 moved chunk invalidation to LevelExtractor. */
 public final class WorldRendering {
     private WorldRendering() {}
     public static void rebuildChunks(Minecraft client) {
-        if (client.level != null && client.levelRenderer != null) client.levelRenderer.allChanged();
+        if (client.level != null && client.levelExtractor != null) client.levelExtractor.allChanged();
     }
 }

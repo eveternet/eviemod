@@ -13,7 +13,6 @@ sourceSets {
 jar { archiveClassifier = "mc${minecraftVersion}" }
 
 repositories {
-    flatDir { dirs rootProject.file('libs'); content { includeGroup 'local.eviemod' } }
     mavenCentral()
     maven { url = 'https://maven.azureaaron.net/releases' }
     maven { url = 'https://api.modrinth.com/maven' }
@@ -46,7 +45,7 @@ processResources {
     def metadata = [version: modVersion, minecraftVersion: minecraftVersion, fabricApiVersion: fabricApiVersion,
                     yaclVersion: yaclVersion, hmApiVersion: hmApiVersion, dandelionVersion: dandelionVersion]
     inputs.properties metadata
-    filesMatching('fabric.mod.json') { expand metadata }
+    filesMatching(['fabric.mod.json', 'THIRD-PARTY.txt']) { expand metadata }
 }
 
 // Optional, separate fixture mod for exercising the UI without a server or account.

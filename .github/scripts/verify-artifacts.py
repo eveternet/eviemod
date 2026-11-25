@@ -13,7 +13,7 @@ def artifact(pattern):
 
 
 for directory, target, dandelion in (
-    ("build", "26.1.2", "1.0.0-alpha.21+26.1"),
+    ("build", "26.3", "1.0.0-alpha.23+26.3"),
     ("eviemod-26.2/build", "26.2", "1.0.0-alpha.22+26.2"),
 ):
     with artifact(f"{directory}/libs/eviemod-*-mc{target}.jar") as main:
@@ -47,4 +47,4 @@ for directory, target, dandelion in (
                     nested_mods[metadata["id"]] = metadata
         assert nested_mods["dandelion"]["version"] == dandelion
 
-print("26.1.2 and 26.2 Eviemod artifacts verified")
+print("26.3 and 26.2 Eviemod artifacts verified")
