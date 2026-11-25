@@ -54,7 +54,7 @@ fail closed. Tank substitution is a fixture assumption based on the shown class
 format; no live Hypixel validation was performed.
 
 Vanilla titles and subtitles share one timer. Small version-specific mixins in
-`Hud` (26.2 and 26.3) draws the countdown at vanilla's main-title scale and
+`Hud` (26.2 and 26.3) draw the countdown at vanilla's main-title scale and
 position, then suppress only the original main-title draw while active. They do
 not write title/subtitle text or timing fields. The Party Finder subtitle keeps
 its own normal duration and fade, even if triggered during this countdown.

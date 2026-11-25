@@ -79,7 +79,8 @@ configuration persistence and the transformed use hook.
 
 CI uploads `eviemod-mc26.3` and `eviemod-mc26.2` separately. Tagged releases attach
 both JARs, with no 26.1 artifact. Local dual builds, fixture compilation, all 456
-unit tests, and artifact validation passed for this port.
+unit tests, and artifact validation passed for this port. Both offline clients
+passed settings navigation, hotkey editing/persistence, and equip-hook checks.
 
 Live Hypixel behavior, third-party modpack interactions, and native file-picker
 interaction require separate testing. Offline fixtures do not establish those.
