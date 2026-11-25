@@ -13,6 +13,6 @@ public final class VersionFixtures {
         return new org.joml.Vector3f(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f);
     }
     public static net.minecraft.client.input.KeyEvent keyEvent(int key) {
-        return new net.minecraft.client.input.KeyEvent(key, org.lwjgl.sdl.SDLKeyboard.SDL_GetKeyFromScancode(key, 0, false), 0);
+        return new net.minecraft.client.input.KeyEvent(key, org.lwjgl.sdl.SDLKeyboard.SDL_GetKeyFromScancode(key, (short) 0, false), 0);
     }
 }
