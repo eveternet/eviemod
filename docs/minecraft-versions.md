@@ -71,6 +71,12 @@ References checked for the port:
 
 ## CI and validation
 
+CI installs `mesa-vulkan-drivers` for the 26.3 SDL/RenderPearl client, following
+[Fabric's headless CI setup](https://docs.fabricmc.net/develop/automatic-testing).
+Without it the Ubuntu runner failed to create an sRGB GLX visual and its Vulkan
+fallback lacked `VK_KHR_surface`, timing out before the fixture started. Local
+macOS smoke results do not cover this Linux graphics setup.
+
 CI builds/tests both targets, checks artifact separation and bundled dependencies,
 and launches both clients with `-PuiSmokeTest -PversionSmokeTest`. The fixture forces
 required mixin owners to load and opens, edits, renders, and closes the shared
